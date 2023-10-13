@@ -1,0 +1,5 @@
+STATIC_DIR = "static"
+"""Name of the static directory."""
+STATIC_PATH = f"/{STATIC_DIR}"
+"""Path static files are served from."""
+FAVICON_PATH = f"{STATIC_PATH}/favicon.ico"
