@@ -4,7 +4,6 @@ from litestar import Litestar
 from collections import abc
 
 
-
 @pytest.fixture()
 def app() -> Litestar:
     """Always use this `app` fixture and never do `from app.main import app`
