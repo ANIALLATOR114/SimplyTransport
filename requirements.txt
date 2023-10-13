@@ -5,11 +5,13 @@ colorama==0.4.6
 EditorConfig==0.12.3
 Faker==19.10.0
 fast-query-parsers==1.0.3
+greenlet==3.0.0
 h11==0.14.0
 httpcore==0.18.0
 httptools==0.6.0
 httpx==0.25.0
 idna==3.4
+iniconfig==2.0.0
 Jinja2==3.1.2
 jsbeautifier==1.14.9
 litestar==2.2.1
@@ -18,8 +20,11 @@ MarkupSafe==2.1.3
 mdurl==0.1.2
 msgspec==0.18.4
 multidict==6.0.4
+packaging==23.2
+pluggy==1.3.0
 polyfactory==2.9.0
 Pygments==2.16.1
+pytest==7.4.2
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 PyYAML==6.0.1
@@ -27,6 +32,7 @@ rich==13.6.0
 rich-click==1.7.0
 six==1.16.0
 sniffio==1.3.0
+SQLAlchemy==2.0.22
 typing_extensions==4.8.0
 uvicorn==0.23.2
 watchfiles==0.21.0

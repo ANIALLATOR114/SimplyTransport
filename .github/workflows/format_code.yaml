@@ -28,7 +28,10 @@ jobs:
       run: pip install black
 
     - name: Run Black on main directory
-      run: black app.py --line-length 98
+      run: black SimplyTransport --line-length 98
+
+    - name: Run Black on tests directory
+      run: black tests --line-length 98
 
     - name: Check for modified files
       id: git-check
