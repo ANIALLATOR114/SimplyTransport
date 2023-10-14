@@ -1,3 +1,3 @@
-from . import stops
+from . import example
 
-__all__ = ["stops"]
+__all__ = ["example"]

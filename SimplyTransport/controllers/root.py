@@ -13,3 +13,7 @@ class RootController(Controller):
     @get("/healthcheck")
     async def healthcheck(self) -> str:
         return "OK"
+    
+    @get("/favicon.ico")
+    async def favicon(self) -> str:
+        return "OK"
