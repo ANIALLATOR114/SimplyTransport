@@ -39,5 +39,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Create st_database
+        run: |
+            psql -U stuser -d postgres -c "CREATE DATABASE st_database"
+        env:
+            PGPASSWORD: stpassword
+
+      - name: Check if st_database exists
+        run: |
+            psql -U stuser -d st_database -c "SELECT 1"
+        env:
+            PGPASSWORD: stpassword
+
       - name: Run tests
         run: pytest
