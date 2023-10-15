@@ -41,6 +41,8 @@ jobs:
     
       - name: Create database
         run: psql -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }} -d postgres -a -f sql_scripts/create_db.sql
+        env:
+          PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
       - name: Run tests
         run: pytest
