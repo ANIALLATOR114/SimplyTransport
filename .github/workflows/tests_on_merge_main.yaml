@@ -8,13 +8,12 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
-    environment: CI
     services:
         postgres:
           image: postgres
           env:
-            POSTGRES_USER: ${{ secrets.CI.POSTGRES_USER }}
-            POSTGRES_PASSWORD: ${{ secrets.CI.POSTGRES_PASSWORD }}
+            POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           options: >-
             --health-cmd pg_isready
             --health-interval 2s
@@ -38,7 +37,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Create database
-        run: psql -U ${{ secrets.CI.POSTGRES_USER }} -d postgres -a -f sql_scripts/create_db.sql
+        run: psql -U ${{ secrets.POSTGRES_USER }} -d postgres -a -f sql_scripts/create_db.sql
 
       - name: Run tests
         run: pytest
