@@ -14,7 +14,7 @@ class BaseEnvSettings(BaseSettings):
     LITESTAR_APP: str = "SimplyTransport.app:create_app"
 
     # Database
-    DB_URL: str = "postgresql+asyncpg://stuser:stpassword@localhost:5432/st_database"
+    DB_URL: str = "postgresql+asyncpg://user:password@localhost:5432/st_database"
 
     # OpenAPI
     OPENAPI_TITLE: str = "SimplyTransport"
