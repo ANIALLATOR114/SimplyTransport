@@ -22,13 +22,13 @@ def create_app(**kwargs: Any) -> Litestar:
 
     return Litestar(
         debug=env_settings.DEBUG,
-        route_handlers=[ create_views_router(),create_api_router()],
+        route_handlers=[create_views_router(), create_api_router()],
         on_startup=[db_services.create_database],
         plugins=[sqlalchemy_plugin],
         openapi_config=CustomOpenApiConfig(),
         template_config=TemplateConfig(
-        directory=Path("templates"),
-        engine=JinjaTemplateEngine,
+            directory=Path("templates"),
+            engine=JinjaTemplateEngine,
         ),
     )
 
