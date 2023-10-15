@@ -11,17 +11,18 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
+    environment: CI
     services:
         postgres:
           image: postgres
           env:
-            POSTGRES_USER: stuser
-            POSTGRES_PASSWORD: stpassword
+            POSTGRES_USER: ${{ secrets.CI.POSTGRES_USER }}
+            POSTGRES_PASSWORD: ${{ secrets.CI.POSTGRES_PASSWORD }}
           options: >-
             --health-cmd pg_isready
-            --health-interval 10s
+            --health-interval 2s
             --health-timeout 5s
-            --health-retries 5
+            --health-retries 20
           ports:
             - 5432:5432
 
@@ -38,18 +39,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Create st_database
-        run: |
-            psql -U stuser -d postgres -c "CREATE DATABASE st_database"
-        env:
-            PGPASSWORD: stpassword
-
-      - name: Check if st_database exists
-        run: |
-            psql -U stuser -d st_database -c "SELECT 1"
-        env:
-            PGPASSWORD: stpassword
+    
+      - name: Create database
+        run: psql -U ${{ secrets.CI.POSTGRES_USER }} -d postgres -a -f sql_scripts/create_db.sql
 
       - name: Run tests
         run: pytest
