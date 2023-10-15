@@ -1,1 +1,1 @@
-CREATE DATABASE IF NOT EXISTS `st_database`;
+CREATE DATABASE st_database;
