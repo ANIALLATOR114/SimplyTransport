@@ -13,7 +13,7 @@ class BaseModel(_BaseModel):
 
 class ExampleModel(BigIntAuditBase):
     __tablename__ = "examples"
-    #length 255
+    # length 255
     name: Mapped[str] = mapped_column("name", nullable=False)
 
 
@@ -23,6 +23,7 @@ class Example(BaseModel):
 
 class ExampleRepository(SQLAlchemyAsyncRepository[ExampleModel]):
     """Example repository."""
+
     model_type = ExampleModel
 
 
