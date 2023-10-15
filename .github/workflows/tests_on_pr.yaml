@@ -40,7 +40,7 @@ jobs:
         run: pip install -r requirements.txt
     
       - name: Create database
-        run: psql -h localhost -p 5432 -U ${{ secrets.CI.POSTGRES_USER }} -d postgres -a -f sql_scripts/create_db.sql
+        run: psql -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }} -d postgres -a -f sql_scripts/create_db.sql
 
       - name: Run tests
         run: pytest
