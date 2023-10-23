@@ -28,6 +28,7 @@ class Agency(BaseModel):
     timezone: str
     # routes...
 
+
 class AgencyWithTotal(BaseModel):
     total: int
     agencies: list[Agency]

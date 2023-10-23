@@ -41,6 +41,7 @@ class Calendar(BaseModel):
     end_date: date
     # trips...
 
+
 class CalendarWithTotal(BaseModel):
     total: int
     calendars: list[Calendar]

@@ -6,7 +6,9 @@ __all__ = ["create_api_router", "create_views_router"]
 
 
 def create_views_router() -> Router:
-    return Router(path="/", route_handlers=[root.RootController], security=[{}], include_in_schema=False)
+    return Router(
+        path="/", route_handlers=[root.RootController], security=[{}], include_in_schema=False
+    )
 
 
 def create_api_router() -> Router:
