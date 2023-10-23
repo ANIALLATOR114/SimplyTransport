@@ -16,14 +16,18 @@ class AgencyModel(BigIntAuditBase):
 
     id: Mapped[str] = mapped_column("id", String(length=1000), primary_key=True)
     name: Mapped[str] = mapped_column("name", String(length=1000))
-    url: Mapped[Optional[str]] = mapped_column("url", String(length=1000))
-    timezone: Mapped[Optional[str]] = mapped_column("timezone", String(length=1000))
+    url: Mapped[str] = mapped_column("url", String(length=1000))
+    timezone: Mapped[str] = mapped_column("timezone", String(length=1000))
     # routes...
 
 
 class Agency(BaseModel):
     id: str
     name: str
-    url: Optional[str]
-    timezone: Optional[str]
+    url: str
+    timezone: str
     # routes...
+
+class AgencyWithTotal(BaseModel):
+    total: int
+    agencies: list[Agency]
