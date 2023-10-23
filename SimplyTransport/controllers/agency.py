@@ -16,7 +16,7 @@ class AgencyController(Controller):
     async def get_all_agencies(self, repo: AgencyRepository) -> list[Agency]:
         result = await repo.list()
         return [Agency.model_validate(obj) for obj in result]
-    
+
     @get("/{id:str}")
     async def get_agency_by_id(self, repo: AgencyRepository, id: str) -> Agency:
         try:

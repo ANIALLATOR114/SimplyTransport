@@ -6,7 +6,6 @@ __all__ = [
 
 
 class RootController(Controller):
-    
     @get("/")
     async def root(self) -> str:
         return "Hello World"
