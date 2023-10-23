@@ -1,17 +1,14 @@
 from litestar.openapi import OpenAPIConfig
-from SimplyTransport.lib import settings
 from litestar.openapi.spec import Components, SecurityScheme, Tag
+from SimplyTransport.lib.constants import OPENAPI_TITLE, OPENAPI_VERSION
 
 
 def CustomOpenApiConfig() -> OpenAPIConfig:
-    env_settings = settings.BaseEnvSettings()
     return OpenAPIConfig(
-        title=env_settings.OPENAPI_TITLE,
-        version=env_settings.OPENAPI_VERSION,
+        title=OPENAPI_TITLE,
+        version=OPENAPI_VERSION,
         description="SimplyTransport API - A simple API for retrieving transport information.",
         tags=[
-            Tag(name="public", description="These endpoints are public without authentication"),
-            Tag(name="auth", description="These endpoints require authentication"),
             Tag(name="Agency", description="Agencies are the operators of transport services"),
             Tag(name="Route", description="Routes are the lines that transport services follow"),
             Tag(name="Stop", description="Stops are the places where transport services stop"),

@@ -16,8 +16,4 @@ class BaseEnvSettings(BaseSettings):
     # Database
     DB_URL: str = "postgresql+asyncpg://user:password@localhost:5432/st_database"
 
-    # OpenAPI
-    OPENAPI_TITLE: str = "SimplyTransport"
-    OPENAPI_VERSION: str = "0.1.0"
-
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
