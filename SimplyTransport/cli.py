@@ -10,6 +10,18 @@ from rich.table import Table
 
 import SimplyTransport.lib.gtfs_importers as imp
 
+def gtfs_directory_validator(dir :str, console :Console):
+    if dir:
+        if os.path.exists(dir) and os.path.isdir(dir):
+            print("Using directory: " + dir)
+        else:
+            console.print(f"[red]Error: Directory '{dir}' does not exist.")
+            return
+    else:
+        dir = "./gtfs_data/TFI/"
+        console.print(f"No directory specified, using default of {dir}")
+
+    return dir
 
 class CLIPlugin(CLIPluginProtocol):
     def on_cli_init(self, cli: click.Group) -> None:
@@ -69,22 +81,20 @@ class CLIPlugin(CLIPluginProtocol):
         def importgtfs(dir :str):
             '''Imports GTFS data into the database'''
 
+            start: float = time.perf_counter()
             console = Console()
             console.print("Importing GTFS data...")
-            if dir:
-                if os.path.exists(dir) and os.path.isdir(dir):
-                    print("Using directory: " + dir)
-                else:
-                    console.print(f"[red]Error: Directory '{dir}' does not exist.")
-                    return
-            else:
-                dir = "./gtfs_data/TFI/"
-                console.print(f"No directory specified, using default of {dir}")
 
-            start: float = time.perf_counter()
-            files_to_import = ["agency.txt","calendar.txt"]
+            dir = gtfs_directory_validator(dir, console)
+
             dir_path = dir.split('/')
             dataset = dir_path[-2]
+            response = click.prompt(f"\nYou are about to import this dataset and assign it to '{dataset}'. Press 'y' to continue, anything else to abort: ", type=str, default='', show_default=False)
+            if response != 'y':
+                console.print(f"[red]Aborting import...")
+                return
+            
+            files_to_import = ["agency.txt","calendar.txt"]
             
             for file in files_to_import:
                 if not(os.path.exists(dir) and os.path.isfile(dir + file)):
