@@ -10,7 +10,8 @@ from rich.table import Table
 
 import SimplyTransport.lib.gtfs_importers as imp
 
-def gtfs_directory_validator(dir :str, console :Console):
+
+def gtfs_directory_validator(dir: str, console: Console):
     if dir:
         if os.path.exists(dir) and os.path.isdir(dir):
             print("Using directory: " + dir)
@@ -22,6 +23,7 @@ def gtfs_directory_validator(dir :str, console :Console):
         console.print(f"No directory specified, using default of {dir}")
 
     return dir
+
 
 class CLIPlugin(CLIPluginProtocol):
     def on_cli_init(self, cli: click.Group) -> None:
@@ -86,12 +88,17 @@ class CLIPlugin(CLIPluginProtocol):
 
             dir_path = dir.split("/")
             dataset = dir_path[-2]
-            response = click.prompt(f"\nYou are about to import this dataset and assign it to '{dataset}'. Press 'y' to continue, anything else to abort: ", type=str, default='', show_default=False)
-            if response != 'y':
+            response = click.prompt(
+                f"\nYou are about to import this dataset and assign it to '{dataset}'. Press 'y' to continue, anything else to abort: ",
+                type=str,
+                default="",
+                show_default=False,
+            )
+            if response != "y":
                 console.print(f"[red]Aborting import...")
                 return
-            
-            files_to_import = ["agency.txt","calendar.txt"]
+
+            files_to_import = ["agency.txt", "calendar.txt"]
 
             for file in files_to_import:
                 if not (os.path.exists(dir) and os.path.isfile(dir + file)):
