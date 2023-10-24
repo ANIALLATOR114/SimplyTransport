@@ -13,6 +13,7 @@ SimplyTransport is...
 
 - [API Docs](#api-documentation)
 - [Web Interface](#web-interface)
+- [CLI Interface](#cli-interface)
 - [About](#about)
 - [Development](#development)
   - [Installation](#installation)
@@ -51,6 +52,18 @@ _**- WIP**_
 - [ ] Search Page
   - [ ] Stops
   - [ ] Routes
+
+## CLI Interface
+
+_**- WIP**_
+
+> [!NOTE]
+> All commands are prefixed with `litestar`
+
+- [x] Application Settings `settings`
+- [x] Documentation Links `docs`
+- [ ] GTFS Importer `gtfs-import`
+- [ ] Realtime Updater `realtime-update`
 
 ## About
 
