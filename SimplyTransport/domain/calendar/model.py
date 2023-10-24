@@ -2,7 +2,6 @@ from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from sqlalchemy import String, Date, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 from pydantic import BaseModel as _BaseModel
-from typing import Optional
 from datetime import date
 
 
@@ -25,6 +24,7 @@ class CalendarModel(BigIntAuditBase):
     sunday: Mapped[int] = mapped_column(Integer)
     start_date: Mapped[date] = mapped_column(Date)
     end_date: Mapped[date] = mapped_column(Date)
+    dataset : Mapped[str] = mapped_column("dataset", String(length=80))
     # trips...
 
 
@@ -39,6 +39,7 @@ class Calendar(BaseModel):
     sunday: int
     start_date: date
     end_date: date
+    dataset : str
     # trips...
 
 

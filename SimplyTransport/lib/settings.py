@@ -15,5 +15,6 @@ class BaseEnvSettings(BaseSettings):
 
     # Database
     DB_URL: str = "postgresql+asyncpg://user:password@localhost:5432/st_database"
+    DB_URL_SYNC: str = "postgresql+psycopg2://user:password@localhost:5432/st_database"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")

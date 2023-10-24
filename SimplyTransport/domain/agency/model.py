@@ -18,6 +18,7 @@ class AgencyModel(BigIntAuditBase):
     name: Mapped[str] = mapped_column("name", String(length=1000))
     url: Mapped[str] = mapped_column("url", String(length=1000))
     timezone: Mapped[str] = mapped_column("timezone", String(length=1000))
+    dataset: Mapped[str] = mapped_column("dataset", String(length=80))
     # routes...
 
 
@@ -26,6 +27,7 @@ class Agency(BaseModel):
     name: str
     url: str
     timezone: str
+    dataset: str
     # routes...
 
 
