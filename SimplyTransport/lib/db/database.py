@@ -9,6 +9,7 @@ from litestar.contrib.sqlalchemy.plugins import (
 # Sync version for importer
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+
 engine = create_engine(settings.BaseEnvSettings().DB_URL_SYNC)
 session = Session(engine)
 

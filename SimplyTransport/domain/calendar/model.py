@@ -24,7 +24,7 @@ class CalendarModel(BigIntAuditBase):
     sunday: Mapped[int] = mapped_column(Integer)
     start_date: Mapped[date] = mapped_column(Date)
     end_date: Mapped[date] = mapped_column(Date)
-    dataset : Mapped[str] = mapped_column("dataset", String(length=80))
+    dataset: Mapped[str] = mapped_column("dataset", String(length=80))
     # trips...
 
 
@@ -39,7 +39,7 @@ class Calendar(BaseModel):
     sunday: int
     start_date: date
     end_date: date
-    dataset : str
+    dataset: str
     # trips...
 
 
