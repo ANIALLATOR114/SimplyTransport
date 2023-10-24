@@ -10,6 +10,7 @@ class CLIPlugin(CLIPluginProtocol):
         @cli.command()
         def settings():
             from SimplyTransport.lib import settings
+
             env_settings = settings.BaseEnvSettings()
             console = Console()
 
@@ -29,15 +30,16 @@ class CLIPlugin(CLIPluginProtocol):
 
             console.print(table)
 
-
         @cli.command()
         def docs(app: Litestar):
             console = Console()
-            base_url = "http://localhost:8000" #TODO: Make this automatically get the base url
+            base_url = "http://localhost:8000"  # TODO: Make this automatically get the base url
             docs_path = app.openapi_config.openapi_controller.path
             redoc_path = list(app.openapi_config.openapi_controller.redoc.paths)[0]
             swagger_path = list(app.openapi_config.openapi_controller.swagger_ui.paths)[0]
-            elements_path = list(app.openapi_config.openapi_controller.stoplight_elements.paths)[0]
+            elements_path = list(app.openapi_config.openapi_controller.stoplight_elements.paths)[
+                0
+            ]
             table = Table()
             table.add_column("Doc Type", style="cyan")
             table.add_column("URL")

@@ -23,7 +23,7 @@ def create_app(**kwargs: Any) -> Litestar:
         debug=env_settings.DEBUG,
         route_handlers=[create_views_router(), create_api_router()],
         on_startup=[db_services.create_database],
-        plugins=[sqlalchemy_plugin,CLIPlugin()],
+        plugins=[sqlalchemy_plugin, CLIPlugin()],
         openapi_config=CustomOpenApiConfig(),
         template_config=TemplateConfig(
             directory=Path("templates"),
