@@ -4,3 +4,4 @@ __pycache__
 .vscode
 .pytest_cache
 hidden.txt
+/gtfs_data/TFI/*.txt
