@@ -5,10 +5,12 @@ from pydantic import BaseModel as _BaseModel, Field
 from datetime import date
 from enum import Enum
 
+
 class BaseModel(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
 
     model_config = {"from_attributes": True}
+
 
 class ExceptionType(str, Enum):
     added = "added"
@@ -30,7 +32,9 @@ class CalendarDate(BaseModel):
     id: int
     service_id: str
     date: date
-    exception_type: ExceptionType = Field(description="Determines whether the service is added or removed on the date")
+    exception_type: ExceptionType = Field(
+        description="Determines whether the service is added or removed on the date"
+    )
     dataset: str
 
 

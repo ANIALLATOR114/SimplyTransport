@@ -24,9 +24,11 @@ progress_columns = (
 def get_importer_for_file(file: str, reader: csv.DictReader, row_count: int, dataset: str):
     """Maps a file name to the appropriate importer class"""
 
-    map_file_to_importer = {"agency.txt": AgencyImporter,
-                            "calendar.txt": CalendarImporter,
-                            "calendar_dates.txt": CalendarDateImporter}
+    map_file_to_importer = {
+        "agency.txt": AgencyImporter,
+        "calendar.txt": CalendarImporter,
+        "calendar_dates.txt": CalendarDateImporter,
+    }
     try:
         importer_class = map_file_to_importer[file]
     except KeyError:
@@ -176,5 +178,7 @@ class CalendarDateImporter(GTFSImporter):
         """Clears the table in the database that corresponds to the file"""
 
         with session:
-            session.query(CalendarDateModel).filter(CalendarDateModel.dataset == self.dataset).delete()
+            session.query(CalendarDateModel).filter(
+                CalendarDateModel.dataset == self.dataset
+            ).delete()
             session.commit()

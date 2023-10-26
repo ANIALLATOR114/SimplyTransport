@@ -25,7 +25,9 @@ class CalendarModel(BigIntAuditBase):
     start_date: Mapped[date] = mapped_column(Date)
     end_date: Mapped[date] = mapped_column(Date)
     dataset: Mapped[str] = mapped_column(String(length=80))
-    calendar_dates: Mapped[list["CalendarDateModel"]] = relationship(back_populates="service", cascade="all, delete")
+    calendar_dates: Mapped[list["CalendarDateModel"]] = relationship(
+        back_populates="service", cascade="all, delete"
+    )
     # trips...
 
 

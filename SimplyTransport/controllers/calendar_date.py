@@ -7,7 +7,10 @@ from advanced_alchemy import NotFoundError
 from advanced_alchemy.filters import OnBeforeAfter
 
 from SimplyTransport.domain.calendar_dates.model import CalendarDate, CalendarDateWithTotal
-from SimplyTransport.domain.calendar_dates.repo import provide_calendar_date_repo, CalendarDateRepository
+from SimplyTransport.domain.calendar_dates.repo import (
+    provide_calendar_date_repo,
+    CalendarDateRepository,
+)
 
 __all__ = ["calendarDateController"]
 
@@ -21,7 +24,9 @@ class CalendarDateController(Controller):
         return [CalendarDate.model_validate(obj) for obj in result]
 
     @get("/count", summary="Get all calendars with total count")
-    async def get_all_calendars_and_count(self, repo: CalendarDateRepository) -> CalendarDateWithTotal:
+    async def get_all_calendars_and_count(
+        self, repo: CalendarDateRepository
+    ) -> CalendarDateWithTotal:
         result, total = await repo.list_and_count()
         return CalendarDateWithTotal(
             total=total, calendars=[CalendarDate.model_validate(obj) for obj in result]
