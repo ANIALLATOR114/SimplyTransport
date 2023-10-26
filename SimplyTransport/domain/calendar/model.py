@@ -1,6 +1,6 @@
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from sqlalchemy import String, Date, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel
 from datetime import date
 
@@ -14,7 +14,7 @@ class BaseModel(_BaseModel):
 class CalendarModel(BigIntAuditBase):
     __tablename__ = "calendar"
 
-    id: Mapped[str] = mapped_column("id", String(length=1000), primary_key=True)
+    id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
     monday: Mapped[int] = mapped_column(Integer)
     tuesday: Mapped[int] = mapped_column(Integer)
     wednesday: Mapped[int] = mapped_column(Integer)
@@ -24,7 +24,10 @@ class CalendarModel(BigIntAuditBase):
     sunday: Mapped[int] = mapped_column(Integer)
     start_date: Mapped[date] = mapped_column(Date)
     end_date: Mapped[date] = mapped_column(Date)
-    dataset: Mapped[str] = mapped_column("dataset", String(length=80))
+    dataset: Mapped[str] = mapped_column(String(length=80))
+    calendar_dates: Mapped[list["CalendarDateModel"]] = relationship(
+        back_populates="service", cascade="all, delete"
+    )
     # trips...
 
 

@@ -14,11 +14,11 @@ class BaseModel(_BaseModel):
 class AgencyModel(BigIntAuditBase):
     __tablename__ = "agency"
 
-    id: Mapped[str] = mapped_column("id", String(length=1000), primary_key=True)
-    name: Mapped[str] = mapped_column("name", String(length=1000))
-    url: Mapped[str] = mapped_column("url", String(length=1000))
-    timezone: Mapped[str] = mapped_column("timezone", String(length=1000))
-    dataset: Mapped[str] = mapped_column("dataset", String(length=80))
+    id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
+    name: Mapped[str] = mapped_column(String(length=1000))
+    url: Mapped[str] = mapped_column(String(length=1000))
+    timezone: Mapped[str] = mapped_column(String(length=1000))
+    dataset: Mapped[str] = mapped_column(String(length=80))
     # routes...
 
 
