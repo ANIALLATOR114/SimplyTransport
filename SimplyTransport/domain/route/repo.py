@@ -11,5 +11,5 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
 
 async def provide_route_repo(db_session: AsyncSession) -> RouteRepository:
     """This provides the Route repository."""
-    
+
     return RouteRepository(session=db_session)

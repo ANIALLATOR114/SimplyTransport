@@ -33,7 +33,9 @@ class CalendarDateController(Controller):
         )
 
     @get("/{id:int}", summary="CalendarDate by ID", raises=[NotFoundException])
-    async def get_calendar_date_by_id(self, repo: CalendarDateRepository, id: int) -> CalendarDate:
+    async def get_calendar_date_by_id(
+        self, repo: CalendarDateRepository, id: int
+    ) -> CalendarDate:
         try:
             result = await repo.get(id)
         except NotFoundError:

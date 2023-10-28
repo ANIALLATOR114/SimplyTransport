@@ -14,6 +14,7 @@ async def create_database() -> None:
             await conn.run_sync(UUIDBase.metadata.create_all)
     except ConnectionRefusedError as e:
         print(e)
-        print(f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {_db.sqlalchemy_config.get_engine().url}\n")
+        print(
+            f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {_db.sqlalchemy_config.get_engine().url}\n"
+        )
         raise e
-

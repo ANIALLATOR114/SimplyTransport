@@ -29,7 +29,9 @@ class RouteModel(BigIntAuditBase):
     __tablename__ = "route"
 
     id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
-    agency_id: Mapped[str] = mapped_column(String(length=1000), ForeignKey("agency.id" , ondelete="CASCADE"))
+    agency_id: Mapped[str] = mapped_column(
+        String(length=1000), ForeignKey("agency.id", ondelete="CASCADE")
+    )
     agency: Mapped["AgencyModel"] = relationship(back_populates="routes")
     short_name: Mapped[str] = mapped_column(String(length=1000))
     long_name: Mapped[str] = mapped_column(String(length=1000))
@@ -48,7 +50,8 @@ class Route(BaseModel):
     long_name: str
     description: Optional[str]
     route_type: RouteType = Field(
-        description="Indicates the type of transportation used on a route", examples=[0, 1, 2, 3, 4, 5, 6, 7, 11, 12]
+        description="Indicates the type of transportation used on a route",
+        examples=[0, 1, 2, 3, 4, 5, 6, 7, 11, 12],
     )
     url: Optional[str]
     color: Optional[str]
