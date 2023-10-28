@@ -1,6 +1,6 @@
 from litestar import Router
 
-from . import root, agency, calendar, calendar_date
+from . import root, agency, calendar, calendar_date, route
 
 __all__ = ["create_api_router", "create_views_router"]
 
@@ -30,11 +30,16 @@ def create_api_router() -> Router:
         route_handlers=[calendar_date.CalendarDateController],
     )
 
+    route_route_handler = Router(
+        path="/route", tags=["Route"], security=[{}], route_handlers=[route.RouteController]
+    )
+
     return Router(
         path="/api/v1",
         route_handlers=[
             agency_route_handler,
             calendar_route_handler,
             calendar_date_route_handler,
+            route_route_handler,
         ],
     )

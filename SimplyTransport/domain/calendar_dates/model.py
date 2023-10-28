@@ -33,11 +33,12 @@ class CalendarDate(BaseModel):
     service_id: str
     date: date
     exception_type: ExceptionType = Field(
-        description="Determines whether the service is added or removed on the date"
+        description="Determines whether the service is added or removed on the date",
+        examples=["added", "removed"],
     )
     dataset: str
 
 
 class CalendarDateWithTotal(BaseModel):
     total: int
-    calendars: list[CalendarDate]
+    calendar_dates: list[CalendarDate]

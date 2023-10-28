@@ -15,19 +15,19 @@ __all__ = ["calendarController"]
 class CalendarController(Controller):
     dependencies = {"repo": Provide(provide_calendar_repo)}
 
-    @get("/", summary="Get all calendars")
+    @get("/", summary="All calendars")
     async def get_all_calendars(self, repo: CalendarRepository) -> list[Calendar]:
         result = await repo.list()
         return [Calendar.model_validate(obj) for obj in result]
 
-    @get("/count", summary="Get all calendars with total count")
+    @get("/count", summary="All calendars with total count")
     async def get_all_calendars_and_count(self, repo: CalendarRepository) -> CalendarWithTotal:
         result, total = await repo.list_and_count()
         return CalendarWithTotal(
             total=total, calendars=[Calendar.model_validate(obj) for obj in result]
         )
 
-    @get("/{id:str}", summary="Get a calendar by its service ID", raises=[NotFoundException])
+    @get("/{id:str}", summary="Calendar by service ID", raises=[NotFoundException])
     async def get_calendar_by_id(self, repo: CalendarRepository, id: str) -> Calendar:
         try:
             result = await repo.get(id)
@@ -37,12 +37,12 @@ class CalendarController(Controller):
 
     @get(
         "/date/{date:date}",
-        summary="Get all active calendars on a given date",
+        summary="All active calendars on a given date",
         description="Date format = YYYY-MM-DD",
     )
     async def get_active_calendars_on_date(
         self, repo: CalendarRepository, date: date
-    ) -> Calendar:
+    ) -> list[Calendar]:
         result = await repo.list(
             OnBeforeAfter(field_name="start_date", on_or_before=date, on_or_after=None),
             OnBeforeAfter(field_name="end_date", on_or_before=None, on_or_after=date),

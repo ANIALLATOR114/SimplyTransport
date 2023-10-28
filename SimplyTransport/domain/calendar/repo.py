@@ -11,4 +11,5 @@ class CalendarRepository(SQLAlchemyAsyncRepository[CalendarModel]):
 
 async def provide_calendar_repo(db_session: AsyncSession) -> CalendarRepository:
     """This provides the Calendar repository."""
+
     return CalendarRepository(session=db_session)

@@ -18,12 +18,12 @@ __all__ = ["calendarDateController"]
 class CalendarDateController(Controller):
     dependencies = {"repo": Provide(provide_calendar_date_repo)}
 
-    @get("/", summary="Get all calendars")
+    @get("/", summary="All calendar dates")
     async def get_all_calendars(self, repo: CalendarDateRepository) -> list[CalendarDate]:
         result = await repo.list()
         return [CalendarDate.model_validate(obj) for obj in result]
 
-    @get("/count", summary="Get all calendars with total count")
+    @get("/count", summary="All calendar dates with total count")
     async def get_all_calendars_and_count(
         self, repo: CalendarDateRepository
     ) -> CalendarDateWithTotal:
@@ -32,8 +32,10 @@ class CalendarDateController(Controller):
             total=total, calendars=[CalendarDate.model_validate(obj) for obj in result]
         )
 
-    @get("/{id:int}", summary="Get a CalendarDate by its ID", raises=[NotFoundException])
-    async def get_calendar_by_id(self, repo: CalendarDateRepository, id: int) -> CalendarDate:
+    @get("/{id:int}", summary="CalendarDate by ID", raises=[NotFoundException])
+    async def get_calendar_date_by_id(
+        self, repo: CalendarDateRepository, id: int
+    ) -> CalendarDate:
         try:
             result = await repo.get(id)
         except NotFoundError:
@@ -42,12 +44,12 @@ class CalendarDateController(Controller):
 
     @get(
         "/date/{date:date}",
-        summary="Get all calendar dates on a given date",
+        summary="All calendar dates on a given date",
         description="Date format = YYYY-MM-DD",
     )
-    async def get_active_calendars_on_date(
+    async def get_active_calendar_dates_on_date(
         self, repo: CalendarDateRepository, date: date
-    ) -> CalendarDate:
+    ) -> list[CalendarDate]:
         result = await repo.list(
             OnBeforeAfter(field_name="date", on_or_before=date, on_or_after=None),
             OnBeforeAfter(field_name="date", on_or_before=None, on_or_after=date),
