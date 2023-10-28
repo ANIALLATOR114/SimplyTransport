@@ -6,6 +6,7 @@ import rich.progress as rp
 from SimplyTransport.domain.agency.model import AgencyModel
 from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
+from SimplyTransport.domain.route.model import RouteModel, RouteType
 from SimplyTransport.lib.db.database import session
 
 progress_columns = (
@@ -28,6 +29,7 @@ def get_importer_for_file(file: str, reader: csv.DictReader, row_count: int, dat
         "agency.txt": AgencyImporter,
         "calendar.txt": CalendarImporter,
         "calendar_dates.txt": CalendarDateImporter,
+        "routes.txt": RouteImporter,
     }
     try:
         importer_class = map_file_to_importer[file]
@@ -181,4 +183,46 @@ class CalendarDateImporter(GTFSImporter):
             session.query(CalendarDateModel).filter(
                 CalendarDateModel.dataset == self.dataset
             ).delete()
+            session.commit()
+
+
+class RouteImporter(GTFSImporter):
+    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str):
+        self.reader = reader
+        self.row_count = row_count
+        self.dataset = dataset
+
+    def __str__(self) -> str:
+        return "RouteImporter"
+
+    def import_data(self):
+        """Imports the data from the csv.DictReader object into the database"""
+
+        with rp.Progress(*progress_columns) as progress:
+            task = progress.add_task(f"[green]Importing Routes...", total=self.row_count)
+            with session:
+                for row in self.reader:
+                    route_type = RouteType(int(row["route_type"]))
+
+                    new_route = RouteModel(
+                        id=row["route_id"],
+                        agency_id=row["agency_id"],
+                        short_name=row["route_short_name"],
+                        long_name=row["route_long_name"],
+                        description=row["route_desc"],
+                        route_type=route_type,
+                        url=row["route_url"],
+                        color=row["route_color"],
+                        text_color=row["route_text_color"],
+                        dataset=self.dataset,
+                    )
+                    session.add(new_route)
+                    progress.update(task, advance=1)
+                session.commit()
+
+    def clear_table(self):
+        """Clears the table in the database that corresponds to the file"""
+
+        with session:
+            session.query(RouteModel).filter(RouteModel.dataset == self.dataset).delete()
             session.commit()
