@@ -17,12 +17,14 @@ class AgencyController(Controller):
         result = await repo.list()
         return [Agency.model_validate(obj) for obj in result]
 
+
     @get("/count", summary="All agencies with total count")
     async def get_all_agencies_and_count(self, repo: AgencyRepository) -> AgencyWithTotal:
         result, total = await repo.list_and_count()
         return AgencyWithTotal(
             total=total, agencies=[Agency.model_validate(obj) for obj in result]
         )
+
 
     @get("/{id:str}", summary="Agency by agency ID", raises=[NotFoundException])
     async def get_agency_by_id(self, repo: AgencyRepository, id: str) -> Agency:

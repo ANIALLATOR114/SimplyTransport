@@ -4,7 +4,7 @@ from .model import RouteModel
 
 
 class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
-    """Calendar repository."""
+    """Route repository."""
 
     model_type = RouteModel
 

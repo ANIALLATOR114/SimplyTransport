@@ -29,6 +29,7 @@ class RouteController(Controller):
             result = await repo.list()
         return [Route.model_validate(obj) for obj in result]
 
+
     @get(
         "/count",
         summary="All routes with total count",
@@ -47,6 +48,7 @@ class RouteController(Controller):
         return RouteWithTotal(
             total=total, calendars=[Route.model_validate(obj) for obj in result]
         )
+
 
     @get("/{id:str}", summary="Route by ID", raises=[NotFoundException])
     async def get_route_by_id(self, repo: RouteRepository, id: str) -> Route:

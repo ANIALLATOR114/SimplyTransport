@@ -40,6 +40,7 @@ class RouteModel(BigIntAuditBase):
     url: Mapped[Optional[str]] = mapped_column(String(length=1000))
     color: Mapped[Optional[str]] = mapped_column(String(length=1000))
     text_color: Mapped[Optional[str]] = mapped_column(String(length=1000))
+    trips: Mapped[list["TripModel"]] = relationship(back_populates="route")
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 
@@ -51,7 +52,6 @@ class Route(BaseModel):
     description: Optional[str]
     route_type: RouteType = Field(
         description="Indicates the type of transportation used on a route",
-        examples=[0, 1, 2, 3, 4, 5, 6, 7, 11, 12],
     )
     url: Optional[str]
     color: Optional[str]
