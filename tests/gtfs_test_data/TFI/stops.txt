@@ -1,0 +1,3 @@
+stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station
+8240DB000324,324,Harristown,,53.4177226807631,-6.27864416912576,,,,
+8240DB007132,7132,Charlestown SC,,53.4030889703329,-6.30430656007654,,,,

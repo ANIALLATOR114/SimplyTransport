@@ -1,0 +1,8 @@
+agency_id,agency_name,agency_url,agency_timezone
+7778006,Go-Ahead Ireland,https://www.goaheadireland.ie/,Europe/London
+7778008,Bus Éireann Waterford,https://www.buseireann.ie,Europe/London
+7778014,LUAS,https://luas.ie,Europe/London
+7778017,Iarnród Éireann / Irish Rail,https://www.irishrail.ie/en-ie/,Europe/London
+7778019,Bus Átha Cliath – Dublin Bus,https://www.dublinbus.ie/,Europe/London
+7778020,Bus Éireann,https://buseireann.ie,Europe/London
+7778021,Go-Ahead Ireland,https://www.goaheadireland.ie/,Europe/London

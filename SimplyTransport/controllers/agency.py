@@ -24,7 +24,7 @@ class AgencyController(Controller):
             total=total, agencies=[Agency.model_validate(obj) for obj in result]
         )
 
-    @get("/{id:str}", summary="Agency by agency ID", raises=[NotFoundException])
+    @get("/{id:str}", summary="Agency by ID", raises=[NotFoundException])
     async def get_agency_by_id(self, repo: AgencyRepository, id: str) -> Agency:
         try:
             result = await repo.get(id)

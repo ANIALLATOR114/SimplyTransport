@@ -8,6 +8,8 @@ from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
 from SimplyTransport.domain.route.model import RouteModel, RouteType
 from SimplyTransport.domain.trip.model import TripModel
+from SimplyTransport.domain.stop.model import StopModel
+from SimplyTransport.domain.shape.model import ShapeModel
 from SimplyTransport.lib.db.database import session
 
 progress_columns = (
@@ -31,7 +33,9 @@ def get_importer_for_file(file: str, reader: csv.DictReader, row_count: int, dat
         "calendar.txt": CalendarImporter,
         "calendar_dates.txt": CalendarDateImporter,
         "routes.txt": RouteImporter,
+        "stops.txt": StopImporter,
         "trips.txt": TripImporter,
+        "shapes.txt": ShapeImporter,
     }
     try:
         importer_class = map_file_to_importer[file]
@@ -279,4 +283,125 @@ class TripImporter(GTFSImporter):
 
         with session:
             session.query(TripModel).filter(TripModel.dataset == self.dataset).delete()
+            session.commit()
+
+
+class StopImporter(GTFSImporter):
+    def __init__(
+        self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 10000
+    ):
+        self.reader = reader
+        self.row_count = row_count
+        self.dataset = dataset
+        self.batchsize = batchsize
+
+    def __str__(self) -> str:
+        return "StopImporter"
+
+    def import_data(self):
+        """Imports the data from the csv.DictReader object into the database"""
+
+        with rp.Progress(*progress_columns) as progress:
+            task = progress.add_task(f"[green]Importing Stops...", total=self.row_count)
+            batch_count = 0
+            objects_to_commit = []
+
+            with session:
+                for row in self.reader:
+                    if row["location_type"] == "":
+                        location_type = None
+                    else:
+                        location_type = int(row["location_type"])
+
+                    if row["parent_station"] == "":
+                        parent_station = None
+                    else:
+                        parent_station = row["parent_station"]
+
+                    new_stop = StopModel(
+                        id=row["stop_id"],
+                        code=row["stop_code"],
+                        name=row["stop_name"],
+                        description=row["stop_desc"],
+                        lat=float(row["stop_lat"]),
+                        lon=float(row["stop_lon"]),
+                        zone_id=row["zone_id"],
+                        url=row["stop_url"],
+                        location_type=location_type,
+                        parent_station=parent_station,
+                        dataset=self.dataset,
+                    )
+
+                    objects_to_commit.append(new_stop)
+                    batch_count += 1
+                    progress.update(task, advance=1)
+
+                    if batch_count >= self.batchsize:
+                        session.bulk_save_objects(objects_to_commit)
+                        objects_to_commit = []
+                        batch_count = 0
+
+                if objects_to_commit:
+                    session.bulk_save_objects(objects_to_commit)
+                session.commit()
+
+    def clear_table(self):
+        """Clears the table in the database that corresponds to the file"""
+
+        with session:
+            session.query(StopModel).filter(StopModel.dataset == self.dataset).delete()
+            session.commit()
+
+
+class ShapeImporter(GTFSImporter):
+    def __init__(
+        self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 50000
+    ):
+        self.reader = reader
+        self.row_count = row_count
+        self.dataset = dataset
+        self.batchsize = batchsize
+
+    def __str__(self) -> str:
+        return "ShapeImporter"
+
+    def import_data(self):
+        """Imports the data from the csv.DictReader object into the database"""
+
+        with rp.Progress(*progress_columns) as progress:
+            task = progress.add_task(f"[green]Importing Shapes...", total=self.row_count)
+            batch_count = 0
+            objects_to_commit = []
+
+            with session:
+                for row in self.reader:
+                    new_shape = ShapeModel(
+                        shape_id=row["shape_id"],
+                        lat=float(row["shape_pt_lat"]),
+                        lon=float(row["shape_pt_lon"]),
+                        sequence=int(row["shape_pt_sequence"]),
+                        distance=float(row["shape_dist_traveled"])
+                        if row["shape_dist_traveled"] != ""
+                        else None,
+                        dataset=self.dataset,
+                    )
+
+                    objects_to_commit.append(new_shape)
+                    batch_count += 1
+                    progress.update(task, advance=1)
+
+                    if batch_count >= self.batchsize:
+                        session.bulk_save_objects(objects_to_commit)
+                        objects_to_commit = []
+                        batch_count = 0
+
+                if objects_to_commit:
+                    session.bulk_save_objects(objects_to_commit)
+                session.commit()
+
+    def clear_table(self):
+        """Clears the table in the database that corresponds to the file"""
+
+        with session:
+            session.query(ShapeModel).filter(ShapeModel.dataset == self.dataset).delete()
             session.commit()

@@ -4,7 +4,7 @@ from litestar import Litestar
 from collections import abc
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def app() -> Litestar:
     """Always use this `app` fixture and never do `from app.main import app`
     inside a test module. We need to delay import of the `app.main` module
@@ -17,10 +17,10 @@ def app() -> Litestar:
     # don't want main imported until everything patched.
     from SimplyTransport.app import create_app
 
-    return create_app(debug=True)
+    return create_app()
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def client(app: Litestar) -> abc.Iterator[TestClient]:
     """Client instance attached to app.
 

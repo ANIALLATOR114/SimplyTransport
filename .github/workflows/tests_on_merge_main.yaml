@@ -2,25 +2,25 @@ name: Tests on Merge Main
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
     services:
-        postgres:
-          image: postgres
-          env:
-            POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-            POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          options: >-
-            --health-cmd pg_isready
-            --health-interval 2s
-            --health-timeout 5s
-            --health-retries 20
-          ports:
-            - 5432:5432
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 20
+        ports:
+          - 5432:5432
 
     strategy:
       matrix:
@@ -40,6 +40,12 @@ jobs:
         run: psql -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }} -d postgres -a -f sql_scripts/create_db.sql
         env:
           PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
+      - name: Create database tables
+        run: LITESTAR_APP=SimplyTransport.app:create_app litestar create_tables
+
+      - name: Populate GTFS test data
+        run: echo "y" | LITESTAR_APP=SimplyTransport.app:create_app litestar importgtfs -dir ./tests/gtfs_test_data/TFI/
 
       - name: Run tests
         run: pytest
