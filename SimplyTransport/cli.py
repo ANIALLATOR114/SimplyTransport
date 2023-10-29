@@ -98,7 +98,13 @@ class CLIPlugin(CLIPluginProtocol):
                 console.print(f"[red]Aborting import...")
                 return
 
-            files_to_import = ["agency.txt", "calendar.txt", "calendar_dates.txt", "routes.txt", "trips.txt"]
+            files_to_import = [
+                "agency.txt",
+                "calendar.txt",
+                "calendar_dates.txt",
+                "routes.txt",
+                "trips.txt",
+            ]
 
             for file in files_to_import:
                 if not (os.path.exists(dir) and os.path.isfile(dir + file)):

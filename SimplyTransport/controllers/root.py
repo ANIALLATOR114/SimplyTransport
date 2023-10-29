@@ -10,11 +10,9 @@ class RootController(Controller):
     async def root(self) -> str:
         return "Hello World"
 
-
     @get("/healthcheck")
     async def healthcheck(self) -> str:
         return "OK"
-
 
     @get("/favicon.ico")
     async def favicon(self) -> str:

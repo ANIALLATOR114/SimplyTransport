@@ -230,7 +230,9 @@ class RouteImporter(GTFSImporter):
 
 
 class TripImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 10000):
+    def __init__(
+        self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 10000
+    ):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -267,7 +269,7 @@ class TripImporter(GTFSImporter):
                         session.bulk_save_objects(objects_to_commit)
                         objects_to_commit = []
                         batch_count = 0
-                
+
                 if objects_to_commit:
                     session.bulk_save_objects(objects_to_commit)
                 session.commit()

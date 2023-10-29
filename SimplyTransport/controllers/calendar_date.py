@@ -23,7 +23,6 @@ class CalendarDateController(Controller):
         result = await repo.list()
         return [CalendarDate.model_validate(obj) for obj in result]
 
-
     @get("/count", summary="All calendar dates with total count")
     async def get_all_calendars_and_count(
         self, repo: CalendarDateRepository
@@ -32,7 +31,6 @@ class CalendarDateController(Controller):
         return CalendarDateWithTotal(
             total=total, calendars=[CalendarDate.model_validate(obj) for obj in result]
         )
-
 
     @get("/{id:int}", summary="CalendarDate by ID", raises=[NotFoundException])
     async def get_calendar_date_by_id(
@@ -43,7 +41,6 @@ class CalendarDateController(Controller):
         except NotFoundError:
             raise NotFoundException(detail=f"CalendarDate not found with id {id}")
         return CalendarDate.model_validate(result)
-
 
     @get(
         "/date/{date:date}",
