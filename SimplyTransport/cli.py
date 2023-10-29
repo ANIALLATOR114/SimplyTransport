@@ -98,14 +98,20 @@ class CLIPlugin(CLIPluginProtocol):
                 console.print(f"[red]Aborting import...")
                 return
 
-            files_to_import = ["agency.txt", "calendar.txt", "calendar_dates.txt", "routes.txt"]
+            files_to_import = [
+                "agency.txt",
+                "calendar.txt",
+                "calendar_dates.txt",
+                "routes.txt",
+                "trips.txt",
+            ]
 
             for file in files_to_import:
                 if not (os.path.exists(dir) and os.path.isfile(dir + file)):
                     console.print(f"[red]Error: File '{file}' does not exist. Skipping...")
                     continue
 
-                generic_importer = imp.GTFSImporter(file, dir, dataset)
+                generic_importer = imp.GTFSImporter(file, dir)
                 reader = generic_importer.get_reader()
                 row_count = generic_importer.get_row_count()
                 try:

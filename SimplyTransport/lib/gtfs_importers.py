@@ -7,6 +7,7 @@ from SimplyTransport.domain.agency.model import AgencyModel
 from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
 from SimplyTransport.domain.route.model import RouteModel, RouteType
+from SimplyTransport.domain.trip.model import TripModel
 from SimplyTransport.lib.db.database import session
 
 progress_columns = (
@@ -30,6 +31,7 @@ def get_importer_for_file(file: str, reader: csv.DictReader, row_count: int, dat
         "calendar.txt": CalendarImporter,
         "calendar_dates.txt": CalendarDateImporter,
         "routes.txt": RouteImporter,
+        "trips.txt": TripImporter,
     }
     try:
         importer_class = map_file_to_importer[file]
@@ -40,10 +42,9 @@ def get_importer_for_file(file: str, reader: csv.DictReader, row_count: int, dat
 
 
 class GTFSImporter:
-    def __init__(self, filename: str, path: str, batchsize: int = 1000):
+    def __init__(self, filename: str, path: str):
         self.path = path
         self.filename = filename
-        self.batchsize = batchsize
 
     def get_reader(self):
         """Returns a csv.DictReader object"""
@@ -225,4 +226,57 @@ class RouteImporter(GTFSImporter):
 
         with session:
             session.query(RouteModel).filter(RouteModel.dataset == self.dataset).delete()
+            session.commit()
+
+
+class TripImporter(GTFSImporter):
+    def __init__(
+        self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 10000
+    ):
+        self.reader = reader
+        self.row_count = row_count
+        self.dataset = dataset
+        self.batchsize = batchsize
+
+    def __str__(self) -> str:
+        return "TripImporter"
+
+    def import_data(self):
+        """Imports the data from the csv.DictReader object into the database"""
+
+        with rp.Progress(*progress_columns) as progress:
+            task = progress.add_task(f"[green]Importing Trips...", total=self.row_count)
+            batch_count = 0
+            objects_to_commit = []
+
+            with session:
+                for row in self.reader:
+                    new_trip = TripModel(
+                        id=row["trip_id"],
+                        route_id=row["route_id"],
+                        service_id=row["service_id"],
+                        headsign=row["trip_headsign"],
+                        short_name=row["trip_short_name"],
+                        direction=int(row["direction_id"]),
+                        block_id=row["block_id"],
+                        dataset=self.dataset,
+                    )
+                    objects_to_commit.append(new_trip)
+                    batch_count += 1
+                    progress.update(task, advance=1)
+
+                    if batch_count >= self.batchsize:
+                        session.bulk_save_objects(objects_to_commit)
+                        objects_to_commit = []
+                        batch_count = 0
+
+                if objects_to_commit:
+                    session.bulk_save_objects(objects_to_commit)
+                session.commit()
+
+    def clear_table(self):
+        """Clears the table in the database that corresponds to the file"""
+
+        with session:
+            session.query(TripModel).filter(TripModel.dataset == self.dataset).delete()
             session.commit()
