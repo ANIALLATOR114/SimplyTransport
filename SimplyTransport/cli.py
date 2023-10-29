@@ -103,6 +103,8 @@ class CLIPlugin(CLIPluginProtocol):
                 "calendar.txt",
                 "calendar_dates.txt",
                 "routes.txt",
+                "stops.txt",
+                "shapes.txt",
                 "trips.txt",
             ]
 

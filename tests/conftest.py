@@ -17,7 +17,7 @@ def app() -> Litestar:
     # don't want main imported until everything patched.
     from SimplyTransport.app import create_app
 
-    return create_app(debug=True)
+    return create_app()
 
 
 @pytest.fixture()

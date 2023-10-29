@@ -7,6 +7,7 @@ from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
 from SimplyTransport.domain.route.model import RouteModel
 from SimplyTransport.domain.trip.model import TripModel
+from SimplyTransport.domain.stop.model import StopModel
 
 
 async def create_database() -> None:
