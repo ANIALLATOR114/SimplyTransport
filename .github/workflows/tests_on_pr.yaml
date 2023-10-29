@@ -44,6 +44,12 @@ jobs:
         env:
           PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          envkey_LITESTAR_APP: SimplyTransport.app:create_app
+          file_name: .env
+
       - name: Populate GTFS test data
         run: echo "y" | litestar importgtfs -dir ./tests/gtfs_test_data/TFI/
 

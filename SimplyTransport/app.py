@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Any
 
 import uvicorn
 from litestar import Litestar
