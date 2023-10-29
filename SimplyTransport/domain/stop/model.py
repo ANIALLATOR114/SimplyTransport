@@ -11,12 +11,14 @@ class BaseModel(_BaseModel):
 
     model_config = {"from_attributes": True}
 
+
 class LocationType(int, Enum):
     STOP = 0
     STATION = 1
     ENTRANCE_EXIT = 2
     GENERIC_NODE = 3
     BOARDING_AREA = 4
+
 
 class StopModel(BigIntAuditBase):
     __tablename__ = "stop"
@@ -30,7 +32,9 @@ class StopModel(BigIntAuditBase):
     zone_id: Mapped[Optional[str]] = mapped_column(String(length=1000))
     url: Mapped[Optional[str]] = mapped_column(String(length=1000))
     location_type: Mapped[Optional[LocationType]] = mapped_column(Integer)
-    parent_station: Mapped[Optional[str]] = mapped_column(String(length=1000),ForeignKey("stop.id"))
+    parent_station: Mapped[Optional[str]] = mapped_column(
+        String(length=1000), ForeignKey("stop.id")
+    )
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 

@@ -1,5 +1,6 @@
 from httpx import AsyncClient
 
+
 def test_agency_list_all(client: AsyncClient) -> None:
     response = client.get("api/v1/agency/")
     assert response.status_code == 200
@@ -10,6 +11,7 @@ def test_agency_list_all(client: AsyncClient) -> None:
     assert response_json[0]["url"] == "https://www.goaheadireland.ie/"
     assert response_json[0]["timezone"] == "Europe/London"
     assert response_json[0]["dataset"] == "TFI"
+
 
 def test_agency_list_all_and_count(client: AsyncClient) -> None:
     response = client.get("api/v1/agency/count")
@@ -33,6 +35,7 @@ def test_agency_get_by_id(client: AsyncClient) -> None:
     assert response_json["url"] == "https://www.goaheadireland.ie/"
     assert response_json["timezone"] == "Europe/London"
     assert response_json["dataset"] == "TFI"
+
 
 def test_agency_get_by_id_not_found(client: AsyncClient) -> None:
     response = client.get("api/v1/agency/7778007")

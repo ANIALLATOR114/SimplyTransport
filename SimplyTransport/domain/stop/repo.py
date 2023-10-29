@@ -14,16 +14,22 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
         """Get a stop by code."""
 
         return await self.get_one(code=code)
-    
-    async def list_by_name_or_code(self, search: str, limit_offset: LimitOffset) -> list[StopModel]:
+
+    async def list_by_name_or_code(
+        self, search: str, limit_offset: LimitOffset
+    ) -> list[StopModel]:
         """List stops that start with name/code."""
 
-        results = await self.list(StopModel.name.istartswith(search) | StopModel.code.istartswith(search), limit_offset)
-        total = await self.count(StopModel.name.istartswith(search) | StopModel.code.istartswith(search))
+        results = await self.list(
+            StopModel.name.istartswith(search) | StopModel.code.istartswith(search), limit_offset
+        )
+        total = await self.count(
+            StopModel.name.istartswith(search) | StopModel.code.istartswith(search)
+        )
 
         if total == 0:
             raise NotFoundError()
-        
+
         return results, total
 
 

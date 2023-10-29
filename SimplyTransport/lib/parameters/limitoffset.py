@@ -1,6 +1,7 @@
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
 
+
 async def provide_limit_offset_pagination(
     current_page: int = Parameter(ge=1, query="currentPage", default=1, required=False),
     page_size: int = Parameter(

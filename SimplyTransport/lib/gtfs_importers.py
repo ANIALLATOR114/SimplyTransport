@@ -287,7 +287,9 @@ class TripImporter(GTFSImporter):
 
 
 class StopImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 10000):
+    def __init__(
+        self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 10000
+    ):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -352,7 +354,9 @@ class StopImporter(GTFSImporter):
 
 
 class ShapeImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 50000):
+    def __init__(
+        self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 50000
+    ):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
