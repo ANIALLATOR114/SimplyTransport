@@ -139,7 +139,6 @@ class CLIPlugin(CLIPluginProtocol):
             finish: float = time.perf_counter()
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
-
         @cli.command(name="create_tables", help="Creates the database tables")
         def create_tables():
             """Creates the database tables"""

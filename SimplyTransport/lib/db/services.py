@@ -21,7 +21,7 @@ async def create_database() -> None:
             f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {_db.sqlalchemy_config.get_engine().url}\n"
         )
         raise e
-    
+
 
 def create_database_sync() -> None:
     try:
