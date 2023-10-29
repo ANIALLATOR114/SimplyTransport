@@ -44,6 +44,9 @@ jobs:
         env:
           PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
+      - name: Create database tables
+        run: LITESTAR_APP=SimplyTransport.app:create_app litestar create_table
+
       - name: Populate GTFS test data
         run: echo "y" | LITESTAR_APP=SimplyTransport.app:create_app litestar importgtfs -dir ./tests/gtfs_test_data/TFI/
 
