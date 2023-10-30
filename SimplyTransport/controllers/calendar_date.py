@@ -29,7 +29,7 @@ class CalendarDateController(Controller):
     ) -> CalendarDateWithTotal:
         result, total = await repo.list_and_count()
         return CalendarDateWithTotal(
-            total=total, calendars=[CalendarDate.model_validate(obj) for obj in result]
+            total=total, calendar_dates=[CalendarDate.model_validate(obj) for obj in result]
         )
 
     @get("/{id:int}", summary="CalendarDate by ID", raises=[NotFoundException])

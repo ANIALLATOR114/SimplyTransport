@@ -31,13 +31,13 @@ SimplyTransport is...
 _**- WIP**_
 
 - [x] Agencies
-- [ ] Stops
-- [ ] Routes
-- [ ] Calendar
-- [ ] CalendarDates
+- [x] Stops
+- [x] Routes
+- [x] Calendar
+- [x] CalendarDates
 - [ ] StopTimes
-- [ ] Trips
-- [ ] Shapes
+- [x] Trips
+- [x] Shapes
 - [ ] Realtime
   - [ ] Stop
   - [ ] Route
@@ -62,7 +62,7 @@ _**- WIP**_
 
 - [x] Application Settings `settings`
 - [x] Documentation Links `docs`
-- [ ] GTFS Importer `gtfs-import`
+- [x] GTFS Importer `importgtfs`
 - [ ] Realtime Updater `realtime-update`
 
 ## About
@@ -114,6 +114,11 @@ cp .env.example .env
 ## Database
 
 This application expects a Postgres database to be available at the url specificed in the .env file
+There is a docker-compose.yaml available in the root directory of the project which will create a postgres database for you
+
+```
+docker-compose up -d
+```
 
 ## Running
 
