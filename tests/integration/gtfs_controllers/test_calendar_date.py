@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 
 
-def test_calendar_date_all(client: AsyncClient)-> None:
+def test_calendar_date_all(client: AsyncClient) -> None:
     response = client.get("api/v1/calendardate/")
     assert response.status_code == 200
     response_json = response.json()
@@ -12,7 +12,7 @@ def test_calendar_date_all(client: AsyncClient)-> None:
     assert response_json[0]["dataset"] == "TFI"
 
 
-def test_calendar_date_all_and_count(client: AsyncClient)-> None:
+def test_calendar_date_all_and_count(client: AsyncClient) -> None:
     response = client.get("api/v1/calendardate/count")
     assert response.status_code == 200
     response_json = response.json()
@@ -20,7 +20,7 @@ def test_calendar_date_all_and_count(client: AsyncClient)-> None:
     assert len(response_json["calendar_dates"]) == 238
 
 
-def test_get_calendar_date_by_id(client: AsyncClient)-> None:
+def test_get_calendar_date_by_id(client: AsyncClient) -> None:
     response = client.get("api/v1/calendardate/3571")
     assert response.status_code == 200
     response_json = response.json()
@@ -38,7 +38,7 @@ def test_get_calendar_date_by_id(client: AsyncClient)-> None:
     assert response_json["dataset"] == "TFI"
 
 
-def test_get_active_calendar_dates_on_date(client: AsyncClient)-> None:
+def test_get_active_calendar_dates_on_date(client: AsyncClient) -> None:
     response = client.get("api/v1/calendardate/date/2023-10-30")
     assert response.status_code == 200
     response_json = response.json()

@@ -12,9 +12,7 @@ __all__ = ["shapeController"]
 class ShapeController(Controller):
     dependencies = {"repo": Provide(provide_shape_repo)}
 
-    @get(
-        "/{shape_id:str}", summary="List of Shapes by shape Id", raises=[NotFoundException]
-    )
+    @get("/{shape_id:str}", summary="List of Shapes by shape Id", raises=[NotFoundException])
     async def get_shape_by_shape_id(
         self, repo: ShapeRepository, shape_id: str, order_by_shape: OrderBy
     ) -> list[Shape]:
