@@ -1,6 +1,6 @@
 from litestar import Router
 
-from . import root, agency, calendar, calendar_date, route, trip, stop, shape
+from . import root, agency, calendar, calendar_date, route, trip, stop, shape, stoptime
 
 __all__ = ["create_api_router", "create_views_router"]
 
@@ -12,8 +12,6 @@ def create_views_router() -> Router:
 
 
 def create_api_router() -> Router:
-    # This is an example of how to create a router with a subpath
-    # This generates /api/v1/agency/...
     agency_route_handler = Router(
         path="/agency", tags=["Agency"], security=[{}], route_handlers=[agency.AgencyController]
     )
@@ -46,6 +44,13 @@ def create_api_router() -> Router:
         path="/shape", tags=["Shape"], security=[{}], route_handlers=[shape.ShapeController]
     )
 
+    stop_time_handler = Router(
+        path="/stoptime",
+        tags=["StopTime"],
+        security=[{}],
+        route_handlers=[stoptime.StopTimeController],
+    )
+
     return Router(
         path="/api/v1",
         route_handlers=[
@@ -56,5 +61,6 @@ def create_api_router() -> Router:
             trip_route_handler,
             stop_route_handler,
             shape_route_handler,
+            stop_time_handler,
         ],
     )

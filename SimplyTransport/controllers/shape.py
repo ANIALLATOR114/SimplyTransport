@@ -4,13 +4,17 @@ from litestar.exceptions import NotFoundException
 
 from SimplyTransport.domain.shape.model import Shape
 from SimplyTransport.domain.shape.repo import ShapeRepository, provide_shape_repo
+from SimplyTransport.lib.parameters.orderby_shapes import provide_order_by_shapes
 from advanced_alchemy.filters import OrderBy
 
 __all__ = ["shapeController"]
 
 
 class ShapeController(Controller):
-    dependencies = {"repo": Provide(provide_shape_repo)}
+    dependencies = {
+        "repo": Provide(provide_shape_repo),
+        "order_by_shape": Provide(provide_order_by_shapes),
+    }
 
     @get("/{shape_id:str}", summary="List of Shapes by shape Id", raises=[NotFoundException])
     async def get_shape_by_shape_id(

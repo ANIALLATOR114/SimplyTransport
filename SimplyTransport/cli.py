@@ -104,8 +104,9 @@ class CLIPlugin(CLIPluginProtocol):
                 "calendar_dates.txt",
                 "routes.txt",
                 "stops.txt",
-                "shapes.txt",
                 "trips.txt",
+                "stop_times.txt",
+                "shapes.txt",
             ]
 
             for file in files_to_import:
