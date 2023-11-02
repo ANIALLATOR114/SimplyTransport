@@ -10,8 +10,8 @@ def test_get_stop_by_id(client: AsyncClient) -> None:
     assert response_json["code"] == "324"
     assert response_json["name"] == "Harristown"
     assert response_json["description"] == ""
-    assert response_json["lat"] == 53.4177226807631
-    assert response_json["lon"] == -6.27864416912576
+    assert response_json["lat"] == 53.41772268
+    assert response_json["lon"] == -6.278644169
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
     assert response_json["location_type"] == None
@@ -26,8 +26,8 @@ def test_get_stop_by_id(client: AsyncClient) -> None:
     assert response_json["code"] == "7132"
     assert response_json["name"] == "Charlestown SC"
     assert response_json["description"] == ""
-    assert response_json["lat"] == 53.4030889703329
-    assert response_json["lon"] == -6.30430656007654
+    assert response_json["lat"] == 53.40308897
+    assert response_json["lon"] == -6.304306560
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
     assert response_json["location_type"] == None
@@ -51,8 +51,8 @@ def test_get_stop_by_code(client: AsyncClient) -> None:
     assert response_json["code"] == "324"
     assert response_json["name"] == "Harristown"
     assert response_json["description"] == ""
-    assert response_json["lat"] == 53.4177226807631
-    assert response_json["lon"] == -6.27864416912576
+    assert response_json["lat"] == 53.41772268
+    assert response_json["lon"] == -6.278644169
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
     assert response_json["location_type"] == None
@@ -67,8 +67,8 @@ def test_get_stop_by_code(client: AsyncClient) -> None:
     assert response_json["code"] == "7132"
     assert response_json["name"] == "Charlestown SC"
     assert response_json["description"] == ""
-    assert response_json["lat"] == 53.4030889703329
-    assert response_json["lon"] == -6.30430656007654
+    assert response_json["lat"] == 53.40308897
+    assert response_json["lon"] == -6.304306560
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
     assert response_json["location_type"] == None

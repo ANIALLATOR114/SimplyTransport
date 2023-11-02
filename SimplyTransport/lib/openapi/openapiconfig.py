@@ -20,7 +20,7 @@ def CustomOpenApiConfig() -> OpenAPIConfig:
             Tag(
                 name="CalendarDate", description="CalendarDates are the exceptions to a calendar"
             ),
-            Tag(name="Shapes", description="Shapes are the points that a route follows"),
+            Tag(name="Shape", description="Shapes are the points that a route follows"),
         ],
         security=[{"BearerToken": []}],
         components=Components(

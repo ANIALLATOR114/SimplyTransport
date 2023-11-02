@@ -33,7 +33,6 @@ def create_app() -> Litestar:
         ),
         dependencies={
             "limit_offset": Provide(provide_limit_offset_pagination),
-            "order_by_shape": Provide(provide_order_by_shapes),
         },
     )
 

@@ -31,11 +31,12 @@ class TripModel(BigIntAuditBase):
         String(length=1000), ForeignKey("calendar.id", ondelete="CASCADE")
     )
     service: Mapped["CalendarModel"] = relationship(back_populates="trips")
+    stop_times: Mapped[list["StopTimeModel"]] = relationship(back_populates="trip")
     headsign: Mapped[Optional[str]] = mapped_column(String(length=1000))
     short_name: Mapped[Optional[str]] = mapped_column(String(length=1000))
     direction: Mapped[Direction] = mapped_column(Integer)
     block_id: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    # shape id
+    shape_id: Mapped[str] = mapped_column(String(length=1000))
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 
@@ -43,6 +44,7 @@ class Trip(BaseModel):
     id: str
     route_id: str
     service_id: str
+    shape_id: str
     headsign: Optional[str]
     short_name: Optional[str]
     direction: Direction = Field(

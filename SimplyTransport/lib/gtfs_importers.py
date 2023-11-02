@@ -10,6 +10,7 @@ from SimplyTransport.domain.route.model import RouteModel, RouteType
 from SimplyTransport.domain.trip.model import TripModel
 from SimplyTransport.domain.stop.model import StopModel
 from SimplyTransport.domain.shape.model import ShapeModel
+from SimplyTransport.domain.stop_times.model import StopTimeModel
 from SimplyTransport.lib.db.database import session
 
 progress_columns = (
@@ -36,6 +37,7 @@ def get_importer_for_file(file: str, reader: csv.DictReader, row_count: int, dat
         "stops.txt": StopImporter,
         "trips.txt": TripImporter,
         "shapes.txt": ShapeImporter,
+        "stop_times.txt": StopTimeImporter,
     }
     try:
         importer_class = map_file_to_importer[file]
@@ -259,6 +261,7 @@ class TripImporter(GTFSImporter):
                         id=row["trip_id"],
                         route_id=row["route_id"],
                         service_id=row["service_id"],
+                        shape_id=row["shape_id"],
                         headsign=row["trip_headsign"],
                         short_name=row["trip_short_name"],
                         direction=int(row["direction_id"]),
@@ -404,4 +407,78 @@ class ShapeImporter(GTFSImporter):
 
         with session:
             session.query(ShapeModel).filter(ShapeModel.dataset == self.dataset).delete()
+            session.commit()
+
+
+class StopTimeImporter(GTFSImporter):
+    def __init__(
+        self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 50000
+    ):
+        self.reader = reader
+        self.row_count = row_count
+        self.dataset = dataset
+        self.batchsize = batchsize
+
+    def __str__(self) -> str:
+        return "StopTimeImporter"
+
+    def import_data(self):
+        """Imports the data from the csv.DictReader object into the database"""
+
+        with rp.Progress(*progress_columns) as progress:
+            task = progress.add_task(f"[green]Importing Stop Times...", total=self.row_count)
+            batch_count = 0
+            objects_to_commit = []
+
+            with session:
+                for row in self.reader:
+                    arrival_time = datetime.strptime(row["arrival_time"], "%H:%M:%S").time()
+                    departure_time = datetime.strptime(row["departure_time"], "%H:%M:%S").time()
+
+                    if row["pickup_type"] == "":
+                        pickup_type = None
+                    else:
+                        pickup_type = int(row["pickup_type"])
+
+                    if row["drop_off_type"] == "":
+                        drop_off_type = None
+                    else:
+                        drop_off_type = int(row["drop_off_type"])
+
+                    if row["timepoint"] == "":
+                        timepoint = None
+                    else:
+                        timepoint = int(row["timepoint"])
+
+                    new_stop_time = StopTimeModel(
+                        trip_id=row["trip_id"],
+                        arrival_time=arrival_time,
+                        departure_time=departure_time,
+                        stop_id=row["stop_id"],
+                        stop_sequence=int(row["stop_sequence"]),
+                        stop_headsign=row["stop_headsign"],
+                        pickup_type=pickup_type,
+                        dropoff_type=drop_off_type,
+                        timepoint=timepoint,
+                        dataset=self.dataset,
+                    )
+
+                    objects_to_commit.append(new_stop_time)
+                    batch_count += 1
+                    progress.update(task, advance=1)
+
+                    if batch_count >= self.batchsize:
+                        session.bulk_save_objects(objects_to_commit)
+                        objects_to_commit = []
+                        batch_count = 0
+
+                if objects_to_commit:
+                    session.bulk_save_objects(objects_to_commit)
+                session.commit()
+        
+    def clear_table(self):
+        """Clears the table in the database that corresponds to the file"""
+
+        with session:
+            session.query(StopTimeModel).filter(StopTimeModel.dataset == self.dataset).delete()
             session.commit()

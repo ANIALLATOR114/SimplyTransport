@@ -1,6 +1,6 @@
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from sqlalchemy import String, Integer, ForeignKey, Float
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel, Field
 from enum import Enum
 from typing import Optional
@@ -34,6 +34,11 @@ class StopModel(BigIntAuditBase):
     location_type: Mapped[Optional[LocationType]] = mapped_column(Integer)
     parent_station: Mapped[Optional[str]] = mapped_column(
         String(length=1000), ForeignKey("stop.id")
+    )
+    stop_times: Mapped[list["StopTimeModel"]] = relationship(
+        back_populates="stop",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     dataset: Mapped[str] = mapped_column(String(length=80))
 

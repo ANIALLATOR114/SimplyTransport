@@ -9,6 +9,7 @@ from SimplyTransport.domain.route.model import RouteModel
 from SimplyTransport.domain.trip.model import TripModel
 from SimplyTransport.domain.stop.model import StopModel
 from SimplyTransport.domain.shape.model import ShapeModel
+from SimplyTransport.domain.stop_times.model import StopTimeModel
 
 
 async def create_database() -> None:
