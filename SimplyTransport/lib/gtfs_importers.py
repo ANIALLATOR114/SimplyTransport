@@ -475,7 +475,7 @@ class StopTimeImporter(GTFSImporter):
                 if objects_to_commit:
                     session.bulk_save_objects(objects_to_commit)
                 session.commit()
-        
+
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
 

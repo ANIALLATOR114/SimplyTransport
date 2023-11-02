@@ -12,6 +12,7 @@ class BaseModel(_BaseModel):
 
     model_config = {"from_attributes": True}
 
+
 class PickupType(int, Enum):
     """Indicates pickup method"""
 
@@ -19,6 +20,7 @@ class PickupType(int, Enum):
     NO_PICKUP = 1
     MUST_PHONE_AGENCY = 2
     MUST_COORDINATE_WITH_DRIVER = 3
+
 
 class DropoffType(int, Enum):
     """Indicates dropoff method"""
@@ -28,9 +30,10 @@ class DropoffType(int, Enum):
     MUST_PHONE_AGENCY = 2
     MUST_COORDINATE_WITH_DRIVER = 3
 
+
 class Timepoint(int, Enum):
     """Indicates if arrival and departure times for a stop are strictly adhered to by the vehicle or if they are instead approximate and/or interpolated times
-       A null value here means EXACT
+    A null value here means EXACT
     """
 
     APPROXIMATE = 0
