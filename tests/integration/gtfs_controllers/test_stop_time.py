@@ -1,6 +1,7 @@
 from httpx import AsyncClient
 from SimplyTransport.domain.stop_times.model import StopTime
 
+
 def test_get_stop_times_by_stop_id(client: AsyncClient) -> None:
     response = client.get("api/v1/stoptime/stop/8240DB000324")
     assert response.status_code == 200
