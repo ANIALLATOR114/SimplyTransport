@@ -22,11 +22,11 @@ SimplyTransport is...
 
 ## API Documentation
 
-[Redoc](schema/redoc)
+[Redoc](docs/redoc)
 
-[Swagger](schema/swagger)
+[Swagger](docs/swagger)
 
-[Elements](schema/elements)
+[Elements](docs/elements)
 
 _**- WIP**_
 
