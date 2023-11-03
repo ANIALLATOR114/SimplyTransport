@@ -1,7 +1,7 @@
 from litestar import Controller, get
 
 __all__ = [
-    "rootController",
+    "RootController",
 ]
 
 

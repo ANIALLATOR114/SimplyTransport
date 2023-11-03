@@ -7,7 +7,7 @@ from SimplyTransport.domain.shape.repo import ShapeRepository, provide_shape_rep
 from SimplyTransport.lib.parameters.orderby_shapes import provide_order_by_shapes
 from advanced_alchemy.filters import OrderBy
 
-__all__ = ["shapeController"]
+__all__ = ["ShapeController"]
 
 
 class ShapeController(Controller):

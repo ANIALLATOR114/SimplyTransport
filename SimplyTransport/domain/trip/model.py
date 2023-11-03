@@ -23,15 +23,15 @@ class TripModel(BigIntAuditBase):
     __tablename__ = "trip"
 
     id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
-    route: Mapped["RouteModel"] = relationship(back_populates="trips")
+    route: Mapped["RouteModel"] = relationship(back_populates="trips")  # noqa: F821
     route_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("route.id", ondelete="CASCADE")
     )
     service_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("calendar.id", ondelete="CASCADE")
     )
-    service: Mapped["CalendarModel"] = relationship(back_populates="trips")
-    stop_times: Mapped[list["StopTimeModel"]] = relationship(back_populates="trip")
+    service: Mapped["CalendarModel"] = relationship(back_populates="trips")  # noqa: F821
+    stop_times: Mapped[list["StopTimeModel"]] = relationship(back_populates="trip")  # noqa: F821
     headsign: Mapped[Optional[str]] = mapped_column(String(length=1000))
     short_name: Mapped[Optional[str]] = mapped_column(String(length=1000))
     direction: Mapped[Direction] = mapped_column(Integer)

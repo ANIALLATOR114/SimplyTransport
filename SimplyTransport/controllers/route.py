@@ -7,7 +7,7 @@ from advanced_alchemy import NotFoundError
 from SimplyTransport.domain.route.model import Route, RouteWithTotal
 from SimplyTransport.domain.route.repo import RouteRepository, provide_route_repo
 
-__all__ = ["calendarController"]
+__all__ = ["RouteController"]
 
 
 class RouteController(Controller):

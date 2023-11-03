@@ -6,7 +6,7 @@ from advanced_alchemy import NotFoundError
 from SimplyTransport.domain.agency.model import Agency, AgencyWithTotal
 from SimplyTransport.domain.agency.repo import provide_agency_repo, AgencyRepository
 
-__all__ = ["agencyController"]
+__all__ = ["AgencyController"]
 
 
 class AgencyController(Controller):

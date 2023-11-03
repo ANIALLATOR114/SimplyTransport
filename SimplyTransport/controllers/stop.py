@@ -9,7 +9,7 @@ from advanced_alchemy.filters import LimitOffset
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 
-__all__ = ["stopController"]
+__all__ = ["StopController"]
 
 
 class StopController(Controller):
