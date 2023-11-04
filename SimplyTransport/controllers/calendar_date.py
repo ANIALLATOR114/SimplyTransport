@@ -3,7 +3,6 @@ from datetime import date
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
-from advanced_alchemy import NotFoundError
 from advanced_alchemy.filters import OnBeforeAfter
 
 from SimplyTransport.domain.calendar_dates.model import CalendarDate, CalendarDateWithTotal
@@ -12,7 +11,7 @@ from SimplyTransport.domain.calendar_dates.repo import (
     CalendarDateRepository,
 )
 
-__all__ = ["calendarDateController"]
+__all__ = ["CalendarDateController"]
 
 
 class CalendarDateController(Controller):

@@ -88,7 +88,7 @@ class AgencyImporter(GTFSImporter):
         """Imports the data from the csv.DictReader object into the database"""
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(f"[green]Importing Agencies...", total=self.row_count)
+            task = progress.add_task("[green]Importing Agencies...", total=self.row_count)
             with session:
                 for row in self.reader:
                     new_agency = AgencyModel(
@@ -123,7 +123,7 @@ class CalendarImporter(GTFSImporter):
         """Imports the data from the csv.DictReader object into the database"""
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(f"[green]Importing Calendars...", total=self.row_count)
+            task = progress.add_task("[green]Importing Calendars...", total=self.row_count)
             with session:
                 for row in self.reader:
                     new_calendar = CalendarModel(
@@ -164,7 +164,7 @@ class CalendarDateImporter(GTFSImporter):
         """Imports the data from the csv.DictReader object into the database"""
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(f"[green]Importing Calendar Dates...", total=self.row_count)
+            task = progress.add_task("[green]Importing Calendar Dates...", total=self.row_count)
             with session:
                 for row in self.reader:
                     if row["exception_type"] == "1":
@@ -206,7 +206,7 @@ class RouteImporter(GTFSImporter):
         """Imports the data from the csv.DictReader object into the database"""
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(f"[green]Importing Routes...", total=self.row_count)
+            task = progress.add_task("[green]Importing Routes...", total=self.row_count)
             with session:
                 for row in self.reader:
                     route_type = RouteType(int(row["route_type"]))
@@ -251,7 +251,7 @@ class TripImporter(GTFSImporter):
         """Imports the data from the csv.DictReader object into the database"""
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(f"[green]Importing Trips...", total=self.row_count)
+            task = progress.add_task("[green]Importing Trips...", total=self.row_count)
             batch_count = 0
             objects_to_commit = []
 
@@ -305,7 +305,7 @@ class StopImporter(GTFSImporter):
         """Imports the data from the csv.DictReader object into the database"""
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(f"[green]Importing Stops...", total=self.row_count)
+            task = progress.add_task("[green]Importing Stops...", total=self.row_count)
             batch_count = 0
             objects_to_commit = []
 
@@ -372,7 +372,7 @@ class ShapeImporter(GTFSImporter):
         """Imports the data from the csv.DictReader object into the database"""
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(f"[green]Importing Shapes...", total=self.row_count)
+            task = progress.add_task("[green]Importing Shapes...", total=self.row_count)
             batch_count = 0
             objects_to_commit = []
 
@@ -426,7 +426,7 @@ class StopTimeImporter(GTFSImporter):
         """Imports the data from the csv.DictReader object into the database"""
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(f"[green]Importing Stop Times...", total=self.row_count)
+            task = progress.add_task("[green]Importing Stop Times...", total=self.row_count)
             batch_count = 0
             objects_to_commit = []
 

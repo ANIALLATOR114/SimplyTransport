@@ -95,7 +95,7 @@ class CLIPlugin(CLIPluginProtocol):
                 show_default=False,
             )
             if response != "y":
-                console.print(f"[red]Aborting import...")
+                console.print("[red]Aborting import...")
                 return
 
             files_to_import = [
@@ -131,7 +131,7 @@ class CLIPlugin(CLIPluginProtocol):
                     "[progress.description]{task.description}",
                     rp.TimeElapsedColumn(),
                 ) as progress:
-                    task = progress.add_task(f"[red]Clearing database table...", total=1)
+                    task = progress.add_task("[red]Clearing database table...", total=1)
                     importer.clear_table()
                     progress.update(task, advance=1)
 

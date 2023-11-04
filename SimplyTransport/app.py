@@ -13,7 +13,6 @@ from SimplyTransport.lib.db.database import sqlalchemy_plugin
 from SimplyTransport.lib.openapi.openapiconfig import CustomOpenApiConfig
 from SimplyTransport.cli import CLIPlugin
 from SimplyTransport.lib.parameters.limitoffset import provide_limit_offset_pagination
-from SimplyTransport.lib.parameters.orderby_shapes import provide_order_by_shapes
 
 __all__ = ["create_app"]
 

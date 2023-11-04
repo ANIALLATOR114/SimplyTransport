@@ -6,7 +6,7 @@ from advanced_alchemy import NotFoundError
 from SimplyTransport.domain.trip.model import Trip, TripsWithTotal
 from SimplyTransport.domain.trip.repo import TripRepository, provide_trip_repo
 
-__all__ = ["tripController"]
+__all__ = ["TripController"]
 
 
 class TripController(Controller):

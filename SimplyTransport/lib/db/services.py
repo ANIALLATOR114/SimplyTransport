@@ -1,16 +1,6 @@
 import SimplyTransport.lib.db.database as _db
 from litestar.contrib.sqlalchemy.base import UUIDBase
 
-# Import all models here so that they are registered with SQLAlchemy
-from SimplyTransport.domain.agency.model import AgencyModel
-from SimplyTransport.domain.calendar.model import CalendarModel
-from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
-from SimplyTransport.domain.route.model import RouteModel
-from SimplyTransport.domain.trip.model import TripModel
-from SimplyTransport.domain.stop.model import StopModel
-from SimplyTransport.domain.shape.model import ShapeModel
-from SimplyTransport.domain.stop_times.model import StopTimeModel
-
 
 async def create_database() -> None:
     try:
