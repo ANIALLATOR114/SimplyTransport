@@ -8,8 +8,12 @@ class BaseEnvSettings(BaseSettings):
 
     DEBUG: bool = False
     ENVIRONMENT: Literal["DEV", "PROD", "TEST", "CI_TEST"] = "DEV"
+    if ENVIRONMENT != "PROD":
+        NAME: str = f"SimplyTransport {ENVIRONMENT}"
+    else:
+        NAME: str = "SimplyTransport"
     LOG_LEVEL: Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"] = "INFO"
-    NAME: str = "SimplyTransport"
+    VERSION: str = "0.1.0"
     SECRET_KEY: str = "secret"
     LITESTAR_APP: str = "SimplyTransport.app:create_app"
 

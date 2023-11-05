@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ request.app.openapi_config.title }} - API docs
+{% endblock title %}
+{% block content %}
+    <div class="narrow-container">
+        <h1 class="page-header">API Documentation</h1>
+        <p class="dense-text">The SimplyTransport API docs are available under multiple schemas.</p>
+        <ul class="bullet-points">
+            <li class="dense-text">
+                <a class="link-style" href="/docs/redoc">ReDoc</a> - A simple, clean, responsive documentation page.
+            </li>
+            <li class="dense-text">
+                <a class="link-style" href="/docs/swagger">Swagger UI</a> - A more complex, but feature-rich documentation page.
+            </li>
+            <li class="dense-text">
+                <a class="link-style" href="/docs/elements">StopLight</a> - Interactive API Docs with embeddable web components.
+            </li class="dense-text">
+            <li class="dense-text">
+                <a class="link-style" href="/docs/openapi.json">OpenAPI JSON</a> - The raw JSON used to generate the documentation.
+            </li>
+            <li class="dense-text">
+                <a class="link-style" href="/docs/openapi.yaml">OpenAPI YAML</a> - The raw YAML file used to generate the documentation.
+            </li>
+        </ul>
+    </div>
+{% endblock content %}

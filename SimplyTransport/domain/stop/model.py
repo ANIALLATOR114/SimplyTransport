@@ -35,7 +35,7 @@ class StopModel(BigIntAuditBase):
     parent_station: Mapped[Optional[str]] = mapped_column(
         String(length=1000), ForeignKey("stop.id")
     )
-    stop_times: Mapped[list["StopTimeModel"]] = relationship(
+    stop_times: Mapped[list["StopTimeModel"]] = relationship(  # noqa: F821
         back_populates="stop",
         cascade="all, delete-orphan",
         passive_deletes=True,

@@ -1,10 +1,7 @@
-"""Name of the static directory."""
+APP_DIR = "SimplyTransport"
+"""Name of the app directory."""
+
 STATIC_DIR = "static"
-"""Path static files are served from."""
-STATIC_PATH = f"/{STATIC_DIR}"
-FAVICON_PATH = f"{STATIC_PATH}/favicon.ico"
-
-
-"""OpenAPI/Swagger documentation."""
-OPENAPI_TITLE = "SimplyTransport"
-OPENAPI_VERSION = "0.1.0"
+"""Name of the static directory."""
+TEMPLATE_DIR = "templates"
+"""Name of the templates directory."""

@@ -1,0 +1,107 @@
+:root {
+	--bg-color: rgb(17 24 39) !important;
+	--bg-color-highlight: rgb(35, 49, 80) !important;
+	--bg-color-light: rgb(56, 80, 132) !important;
+	--font-color: rgb(230 230 230) !important;
+	--font-color-secondary: rgb(215 215 215) !important;
+	--font-color-highlight: rgb(130, 74, 175) !important;
+	--font-color-highlight-light: rgb(206, 181, 227) !important;
+}
+
+* {
+	font-family: "Roboto", sans-serif;
+}
+
+::-webkit-scrollbar {
+	width: 0.6rem;
+	height: 0.4rem;
+}
+
+::-webkit-scrollbar-track {
+	background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--bg-color-light);
+}
+
+body {
+	background-color: var(--bg-color);
+	color: var(--font-color);
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.italic {
+	font-style: italic;
+}
+
+.t-big {
+	font-size: 1.5rem;
+}
+
+.t-bigger {
+	font-size: 2rem;
+}
+
+.container {
+	max-width: 1300px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 1rem;
+}
+
+.narrow-container {
+	max-width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 1rem;
+}
+
+.dense-text {
+	letter-spacing: 0.08rem;
+	color: var(--font-color-secondary);
+	line-height: 1.4rem;
+}
+
+.page-header {
+	font-size: 2.5rem;
+	font-weight: bold;
+	color: var(--font-color);
+	letter-spacing: 0.15rem;
+}
+
+.bullet-points li {
+	margin-bottom: 1.5rem;
+}
+
+.bullet-points {
+	margin-block-end: 1.5rem !important;
+	margin-block-start: 1.5rem !important;
+}
+
+.link-style {
+	color: var(--font-color-highlight);
+	text-decoration: underline;
+	transition: all 0.2s ease-in-out;
+}
+
+.link-style:hover {
+	color: var(--font-color-highlight-light);
+}
+
+@media screen and (max-width: 900px) {
+	.container {
+		padding: 0.7rem;
+	}
+
+	.page-header {
+		font-size: 1.8rem;
+	}
+
+	.dense-text {
+		font-size: 0.9rem;
+	}
+}
