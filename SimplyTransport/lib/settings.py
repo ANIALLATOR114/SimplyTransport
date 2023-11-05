@@ -11,7 +11,7 @@ class BaseEnvSettings(BaseSettings):
     if ENVIRONMENT != "PROD":
         NAME: str = f"SimplyTransport {ENVIRONMENT}"
     else:
-        NAME :str = "SimplyTransport"
+        NAME: str = "SimplyTransport"
     LOG_LEVEL: Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"] = "INFO"
     VERSION: str = "0.1.0"
     SECRET_KEY: str = "secret"

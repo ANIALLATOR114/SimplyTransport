@@ -12,7 +12,10 @@ def create_views_router() -> Router:
     )
 
     search_route_handler = Router(
-        path="/search", route_handlers=[search.SearchController], security=[{}], include_in_schema=False
+        path="/search",
+        route_handlers=[search.SearchController],
+        security=[{}],
+        include_in_schema=False,
     )
 
     return Router(

@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from litestar.template.config import TemplateConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
