@@ -1,6 +1,6 @@
 from litestar.openapi import OpenAPIConfig, OpenAPIController
 from litestar.openapi.spec import Components, SecurityScheme, Tag
-from SimplyTransport.lib.constants import OPENAPI_TITLE, OPENAPI_VERSION
+from SimplyTransport.lib import settings
 
 
 class MyOpenAPIController(OpenAPIController):
@@ -8,9 +8,10 @@ class MyOpenAPIController(OpenAPIController):
 
 
 def CustomOpenApiConfig() -> OpenAPIConfig:
+    env_settings = settings.BaseEnvSettings()
     return OpenAPIConfig(
-        title=OPENAPI_TITLE,
-        version=OPENAPI_VERSION,
+        title=env_settings.NAME,
+        version=env_settings.VERSION,
         openapi_controller=MyOpenAPIController,
         create_examples=True,
         description="SimplyTransport API - An API for retrieving transport information",

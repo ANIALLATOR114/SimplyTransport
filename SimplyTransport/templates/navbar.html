@@ -1,0 +1,200 @@
+<style>
+    .navbar {
+        width: 100%;
+        border-bottom: 1px solid rgb(100, 100, 100);
+        display: flex;
+        align-items: center;
+        position: sticky;
+        top:0;
+        background-color: var(--bg-color);
+        z-index: 999;
+    }
+
+    .navbar-flex {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 100%;
+        gap: 0.6rem;
+    }
+
+    .navbar-head {
+        display: flex;
+        font-size: 1.5rem;
+        font-weight: 700;
+        align-items: center;
+        margin-right: 30px;
+    }
+
+    .navbar-item {
+        display: flex;
+        margin-right: 10px;
+    }
+
+    .nav-logo {
+        width: 2rem;
+        margin-right: 0.5rem;
+        margin-left: 0.5rem;
+    }
+
+    .nav-search-logo {
+        margin-right: 0.3rem;
+        width: 1.2rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-button{
+        border-radius: 10px;
+        background: transparent;
+        padding: 0.6rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border: 2px solid rgb(180, 180, 180);
+        color: var(--font-color);
+        font-weight: 500;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .nav-button:hover{
+        background-color: var(--bg-color-highlight);
+        transition: all 0.2s ease-in-out;
+    }
+
+    .nav-link{
+        font-weight: 500;
+        font-size: 1.1rem;
+        padding: 0.6rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        color: var(--font-color);
+        cursor: pointer;
+        border-radius: 10px;
+    }
+
+    .nav-link-text {
+        text-decoration: none;
+        color: var(--font-color);
+    }
+
+    .nav-link:hover{
+        background-color: var(--bg-color-highlight);
+        transition: all 0.2s ease-in-out;
+    }
+
+    .version-tag{
+        font-weight: 500;
+        font-size: 1.0rem;
+        padding-top: 0.1rem;
+        padding-bottom: 0.1rem;
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
+        margin-left: 0.6rem;
+        border-radius: 5px;
+        background-color: rgb(93, 110, 159);
+    }
+
+    .header-link {
+        text-decoration: none;
+        color: var(--font-color);
+    }
+
+    @media screen and (max-width: 900px) {
+	.navbar-flex {
+        flex-direction: column;
+	}
+
+    .nav-button {
+        font-size: 1rem;
+    }
+
+    .nav-search-logo {
+        width: 1rem;
+    }
+
+    .nav-link {
+        font-size: 1rem;
+    }
+    .navbar {
+        position: relative;
+    }
+}
+</style>
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-flex">
+            <a class="header-link" href="/">
+                <div class="navbar-head">
+                    <div class="nav-logo">
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             xmlns="http://www.w3.org/2000/svg"
+                             stroke="#ffffff">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0">
+                            </g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                            </g>
+                            <g id="SVGRepo_iconCarrier">
+                            <path d="M6 21C7.5 19.4 9 17.9673 9 16.2C9 14.4327 7.65685 13 6 13C4.34315 13 3 14.4327 3 16.2C3 17.9673 4.5 19.4 6 21ZM6 21H17.5C18.8807 21 20 19.8807 20 18.5C20 17.1193 18.8807 16 17.5 16H15M18 11C19.5 9.4 21 7.96731 21 6.2C21 4.43269 19.6569 3 18 3C16.3431 3 15 4.43269 15 6.2C15 7.96731 16.5 9.4 18 11ZM18 11H14.5C13.1193 11 12 12.1193 12 13.5C12 14.8807 13.1193 16 14.5 16H15.6" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            </path>
+                            </g>
+                        </svg>
+                    </div>
+                    <div>{{ request.app.openapi_config.title }}</div>
+                    <span class="version-tag">{{ request.app.openapi_config.version }}</span>
+                </div>
+            </a>
+            <div class="navbar-item">
+                <a href="/stops" style="text-decoration:none;">
+                    <button class="nav-button">
+                        <div class="nav-search-logo">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0">
+                                </g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                </g>
+                                <g id="SVGRepo_iconCarrier">
+                                <path d="M14.9536 14.9458L21 21M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                </path>
+                                </g>
+                            </svg>
+                        </div>
+                        <span>Stops</span>
+                    </button>
+                </a>
+            </div>
+            <div class="navbar-item">
+                <a href="/routes" style="text-decoration:none;">
+                    <button class="nav-button">
+                        <div class="nav-search-logo">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0">
+                                </g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                </g>
+                                <g id="SVGRepo_iconCarrier">
+                                <path d="M14.9536 14.9458L21 21M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                </path>
+                                </g>
+                            </svg>
+                        </div>
+                        <span>Routes</span>
+                    </button>
+                </a>
+            </div>
+            <div class="navbar-item">
+                <div class="nav-link">
+                    <a class="nav-link-text" href="/apidocs">API Docs</a>
+                </div>
+            </div>
+            <div class="navbar-item">
+                <div class="nav-link">
+                    <a class="nav-link-text" href="/about">About</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

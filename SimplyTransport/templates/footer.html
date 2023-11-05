@@ -1,0 +1,50 @@
+<style>
+.footer-flex {
+    display: flex;
+    justify-content: space-around;
+    align-content: center;
+    align-items: center;
+}
+
+.footer {
+	position: absolute;
+    width: 100%;
+	color: var(--font-color);
+	bottom: 0;
+    border-top: 1px solid rgb(100, 100, 100);
+}
+
+.footer-item {
+    padding: 1rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+}
+
+.page-container {
+	position: relative;
+	min-height: 100vh;
+}
+
+.content-wrap {
+	padding-bottom: 35px; /* Footer height */
+}
+
+@media only screen and (max-width: 600px) {
+    .footer-flex {
+        flex-direction: column;
+    }
+    .content-wrap {
+		padding-bottom: 90px; /* Footer height */
+	}
+}
+
+</style>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-flex">
+            <div class="footer-item">Footer item</div>
+            <div class="footer-item">SimplyTransport</div>
+            <div class="footer-item">2023</div>
+        </div>
+    </div>
+</footer>

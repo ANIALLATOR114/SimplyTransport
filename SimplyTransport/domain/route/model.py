@@ -32,7 +32,7 @@ class RouteModel(BigIntAuditBase):
     agency_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("agency.id", ondelete="CASCADE")
     )
-    agency: Mapped["AgencyModel"] = relationship(back_populates="routes")
+    agency: Mapped["AgencyModel"] = relationship(back_populates="routes")  # noqa: F821
     short_name: Mapped[str] = mapped_column(String(length=1000))
     long_name: Mapped[str] = mapped_column(String(length=1000))
     description: Mapped[Optional[str]] = mapped_column(String(length=1000))
@@ -40,7 +40,7 @@ class RouteModel(BigIntAuditBase):
     url: Mapped[Optional[str]] = mapped_column(String(length=1000))
     color: Mapped[Optional[str]] = mapped_column(String(length=1000))
     text_color: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    trips: Mapped[list["TripModel"]] = relationship(back_populates="route")
+    trips: Mapped[list["TripModel"]] = relationship(back_populates="route")   # noqa: F821
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 

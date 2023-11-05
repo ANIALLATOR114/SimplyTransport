@@ -35,7 +35,7 @@ _**- WIP**_
 - [x] Routes
 - [x] Calendar
 - [x] CalendarDates
-- [ ] StopTimes
+- [x] StopTimes
 - [x] Trips
 - [x] Shapes
 - [ ] Realtime
@@ -47,6 +47,8 @@ _**- WIP**_
 
 _**- WIP**_
 
+- [x] Homepage
+- [ ] About
 - [ ] Stop
 - [ ] Route
 - [ ] Search Page
@@ -126,4 +128,18 @@ You can run the app using the litestar run command which will use a uvicorn work
 
 ```
 litestar run
+```
+
+The custom commands I've added to the app can be run using the litestar command in the same way
+
+```
+litestar settings
+```
+
+```
+litestar docs
+```
+
+```
+litestar importgtfs
 ```
