@@ -40,7 +40,7 @@ class RouteModel(BigIntAuditBase):
     url: Mapped[Optional[str]] = mapped_column(String(length=1000))
     color: Mapped[Optional[str]] = mapped_column(String(length=1000))
     text_color: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    trips: Mapped[list["TripModel"]] = relationship(back_populates="route")   # noqa: F821
+    trips: Mapped[list["TripModel"]] = relationship(back_populates="route")  # noqa: F821
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 
