@@ -421,9 +421,21 @@ class StopTimeImporter(GTFSImporter):
 
     def __str__(self) -> str:
         return "StopTimeImporter"
+    
+    def convert_29_hours_to_24_hours(self, time: str) -> datetime.time:
+        """Converts a time in 29 hours format to 24 hours format"""
+        hours_str, minutes_str, seconds_str = time.split(":")
+        if int(hours_str) > 23:
+            hours_str = str(int(hours_str) - 24)
+        if len(hours_str) == 1:
+            hours_str = f"0{hours_str}"
+
+        fixed_arrival_time = f"{hours_str}:{minutes_str}:{seconds_str}"
+        return datetime.strptime(fixed_arrival_time, "%H:%M:%S").time()
 
     def import_data(self):
         """Imports the data from the csv.DictReader object into the database"""
+        
 
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing Stop Times...", total=self.row_count)
@@ -432,8 +444,8 @@ class StopTimeImporter(GTFSImporter):
 
             with session:
                 for row in self.reader:
-                    arrival_time = datetime.strptime(row["arrival_time"], "%H:%M:%S").time()
-                    departure_time = datetime.strptime(row["departure_time"], "%H:%M:%S").time()
+                    arrival_time = self.convert_29_hours_to_24_hours(row["arrival_time"])
+                    departure_time = self.convert_29_hours_to_24_hours(row["departure_time"])
 
                     if row["pickup_type"] == "":
                         pickup_type = None

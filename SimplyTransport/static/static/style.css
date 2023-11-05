@@ -1,5 +1,6 @@
 :root {
 	--bg-color: rgb(17 24 39) !important;
+	--bg-color-bump: rgb(25, 36, 59) !important;
 	--bg-color-highlight: rgb(35, 49, 80) !important;
 	--bg-color-light: rgb(56, 80, 132) !important;
 	--font-color: rgb(230 230 230) !important;
@@ -61,7 +62,7 @@ body {
 }
 
 .dense-text {
-	letter-spacing: 0.08rem;
+	letter-spacing: 0.07rem;
 	color: var(--font-color-secondary);
 	line-height: 1.4rem;
 }
@@ -90,6 +91,115 @@ body {
 
 .link-style:hover {
 	color: var(--font-color-highlight-light);
+}
+
+.inner-container {
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	border-radius: 0.5rem;
+	padding: 0.7rem;
+	background-color: var(--bg-color-bump);
+}
+
+.table-search {
+	width: 100%;
+}
+
+.table-search th {
+	padding: 0.6rem;
+	border-radius: 0.25rem;
+	text-align: left;
+	background-color: var(--bg-color-light);
+}
+
+.table-search tr th {
+	margin-right: 10px;
+}
+
+.table-search td {
+	padding: 0.6rem;
+	border-radius: 0.25rem;
+}
+
+.table-search tbody tr {
+	transition: all 0.2s ease-in-out;
+	cursor: pointer;
+}
+
+.table-search tbody tr:hover {
+	background-color: var(--bg-color-highlight);
+}
+
+.search-box {
+	border-radius: 0.25rem;
+	font-size: 1rem;
+	padding: 0.7rem;
+	outline: none;
+	border: 3px solid var(--bg-color-highlight);
+	background-color: var(--bg-color);
+	color: var(--font-color);
+	min-width: 300px;
+}
+
+.search-box:focus {
+	border: 3px solid var(--bg-color-light);
+}
+
+.pagination-total {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	padding-top: 0.5rem;
+	font-size: 0.8rem;
+	border-top: 1px solid var(--bg-color-highlight);
+}
+
+.pagination-button {
+	border-radius: 0.25rem;
+	font-size: 1rem;
+	padding: 0.5rem;
+	border: none;
+	background-color: var(--bg-color-highlight);
+	color: var(--font-color);
+	transition: all 0.2s ease-in-out;
+	cursor: pointer;
+}
+
+.pagination-button:hover {
+	background-color: var(--bg-color-light);
+}
+
+.code-highlight {
+	background-color: var(--bg-color-highlight) !important;
+	padding: 0.1rem;
+	padding-left: 0.3rem;
+	padding-right: 0.3rem;
+	border-radius: 0.25rem;
+}
+
+.input-with-loader {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.loader-svg {
+	animation: loader 1.5s infinite linear;
+	opacity: 0;
+	transition: all 0.2s ease-in-out;
+}
+
+.htmx-indicator.htmx-request .loader-svg {
+	opacity: 1;
+}
+
+@keyframes loader {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 @media screen and (max-width: 900px) {

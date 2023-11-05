@@ -1,0 +1,35 @@
+<table class="table-search">
+    <thead>
+        <tr>
+            <th class="dense-text">Code</th>
+            <th class="dense-text">Long Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for route in routes %}
+            <tr hx-get="/" hx-trigger="click" hx-target="body" hx-push-url="/">
+                <td class="dense-text">{{ route.short_name }}</td>
+                <td class="dense-text">{{ route.long_name }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="pagination-total">
+    <span class="dense-text">Page {{ page }} of {{ totalpages }} | Limit: {{ limit }} | Total: {{ total }}</span>
+    <div>
+        {% if page > 1 %}
+            <button class="pagination-button"
+                    hx-get="/search/routes?currentPage={{ page - 1 }}&pageSize=20"
+                    hx-target="#route-search-results"
+                    hx-swap="innerhtml"
+                    hx-include="[name='search']">Previous Page</button>
+        {% endif %}
+        {% if page < totalpages %}
+            <button class="pagination-button"
+                    hx-get="/search/routes?currentPage={{ page + 1 }}&pageSize=20"
+                    hx-target="#route-search-results"
+                    hx-swap="innerhtml"
+                    hx-include="[name='search']">Next Page</button>
+        {% endif %}
+    </div>
+</div>
