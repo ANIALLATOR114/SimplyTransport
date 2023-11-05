@@ -21,7 +21,9 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
         """List stops that start with name/code."""
 
         results, total = await self.list_and_count(
-            StopModel.name.istartswith(search) | StopModel.code.istartswith(search), limit_offset, OrderBy(StopModel.code, 'asc')
+            StopModel.name.istartswith(search) | StopModel.code.istartswith(search),
+            limit_offset,
+            OrderBy(StopModel.code, "asc"),
         )
 
         if total == 0:

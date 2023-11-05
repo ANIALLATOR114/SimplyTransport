@@ -421,7 +421,7 @@ class StopTimeImporter(GTFSImporter):
 
     def __str__(self) -> str:
         return "StopTimeImporter"
-    
+
     def convert_29_hours_to_24_hours(self, time: str) -> datetime.time:
         """Converts a time in 29 hours format to 24 hours format"""
         hours_str, minutes_str, seconds_str = time.split(":")
@@ -435,7 +435,6 @@ class StopTimeImporter(GTFSImporter):
 
     def import_data(self):
         """Imports the data from the csv.DictReader object into the database"""
-        
 
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing Stop Times...", total=self.row_count)

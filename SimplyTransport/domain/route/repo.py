@@ -14,7 +14,9 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
         """List stops that start with name/code."""
 
         results, total = await self.list_and_count(
-            RouteModel.short_name.istartswith(search) | RouteModel.long_name.istartswith(search), limit_offset, OrderBy(RouteModel.short_name, 'asc')
+            RouteModel.short_name.istartswith(search) | RouteModel.long_name.istartswith(search),
+            limit_offset,
+            OrderBy(RouteModel.short_name, "asc"),
         )
 
         if total == 0:
