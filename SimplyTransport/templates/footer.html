@@ -1,9 +1,9 @@
 <style>
 .footer-flex {
     display: flex;
-    justify-content: space-around;
-    align-content: center;
+    justify-content: center;
     align-items: center;
+    gap: 0.6rem;
 }
 
 .footer {
@@ -14,10 +14,17 @@
     border-top: 1px solid rgb(100, 100, 100);
 }
 
-.footer-item {
-    padding: 1rem;
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
+.footer-item{
+    padding-right: 2rem;
+}
+
+.social-icon{
+    width: 2rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+.social-icon:hover {
+    box-shadow: 0 0 14px #01FFF4;
 }
 
 .page-container {
@@ -26,7 +33,7 @@
 }
 
 .content-wrap {
-	padding-bottom: 35px; /* Footer height */
+	padding-bottom: 60px; /* Footer height */
 }
 
 @media only screen and (max-width: 600px) {
@@ -34,17 +41,38 @@
         flex-direction: column;
     }
     .content-wrap {
-		padding-bottom: 90px; /* Footer height */
+		padding-bottom: 120px; /* Footer height */
 	}
 }
+
 
 </style>
 <footer class="footer">
     <div class="container">
         <div class="footer-flex">
-            <div class="footer-item">Footer item</div>
-            <div class="footer-item">SimplyTransport</div>
-            <div class="footer-item">2023</div>
+            <div class="footer-item">
+                <div class="navbar-head">
+                    <div class="nav-logo">
+                        <img src="static/simply_transport_logo.svg"
+                             alt="logo"
+                             width="100%"
+                             height="100%">
+                    </div>
+                    <div style="font-size: 1rem;">{{ request.app.openapi_config.title }}</div>
+                    <span class="version-tag" style="font-size:0.7rem;">{{ request.app.openapi_config.version }}</span>
+                </div>
+            </div>
+            <div class="footer-item">
+                <a href="https://github.com/ANIALLATOR114/SimplyTransport"
+                   target="_blank">
+                    <div class="social-icon">
+                        <img src="static/social-github.svg"
+                             alt="github"
+                             width="100%"
+                             height="100%">
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 </footer>
