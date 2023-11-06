@@ -139,4 +139,4 @@ def test_search_stops_offsetpagination(client: AsyncClient) -> None:
     assert response_json["items"][0]["name"] == "Harristown"
 
     response = client.get("/api/v1/stop/search?search=Harristown&currentPage=2&pageSize=10")
-    assert response.status_code == 404 # No results on the second page
+    assert response.status_code == 404  # No results on the second page
