@@ -8,10 +8,9 @@ class MyOpenAPIController(OpenAPIController):
 
 
 def CustomOpenApiConfig() -> OpenAPIConfig:
-    env_settings = settings.BaseEnvSettings()
     return OpenAPIConfig(
-        title=env_settings.NAME,
-        version=env_settings.VERSION,
+        title=settings.app.NAME,
+        version=settings.app.VERSION,
         openapi_controller=MyOpenAPIController,
         create_examples=True,
         description="SimplyTransport API - An API for retrieving transport information",

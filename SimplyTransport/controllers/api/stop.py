@@ -13,6 +13,7 @@ __all__ = ["StopController"]
 
 
 class StopController(Controller):
+    
     dependencies = {"repo": Provide(provide_stop_repo)}
 
     @get("/{id:str}", summary="Stop by ID", raises=[NotFoundException])
