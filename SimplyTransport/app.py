@@ -17,7 +17,6 @@ __all__ = ["create_app"]
 
 
 def create_app() -> Litestar:
-
     return Litestar(
         debug=settings.app.DEBUG,
         route_handlers=[create_views_router(), create_api_router()],
