@@ -37,9 +37,9 @@ class AppSettings(BaseEnvSettings):
     DB_URL: str = "postgresql+asyncpg://user:password@localhost:5432/st_database"
     DB_URL_SYNC: str = "postgresql+psycopg2://user:password@localhost:5432/st_database"
 
-    POSTGRES_DB:str="example"
-    POSTGRES_USER:str="example"
-    POSTGRES_PASSWORD:str="example"
+    POSTGRES_DB: str = "example"
+    POSTGRES_USER: str = "example"
+    POSTGRES_PASSWORD: str = "example"
 
     # Loki
     LOKI_URL: str = "http://localhost:3100/loki/api/v1/push"

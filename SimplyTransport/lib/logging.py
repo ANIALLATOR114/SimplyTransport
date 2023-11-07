@@ -4,11 +4,15 @@ import logging_loki
 from multiprocessing import Queue
 
 
-class LokiHandler():
+class LokiHandler:
     """A handler for logging to Loki"""
 
     def __init__(self):
-        tags = {"app": settings.app.NAME, "env": settings.app.ENVIRONMENT, "version": settings.app.VERSION}
+        tags = {
+            "app": settings.app.NAME,
+            "env": settings.app.ENVIRONMENT,
+            "version": settings.app.VERSION,
+        }
 
         self.url = settings.app.LOKI_URL
         self.tags = tags
@@ -16,7 +20,7 @@ class LokiHandler():
         self.queue = Queue(-1)
         super().__init__()
 
-    def create_queue_handler(self)->logging.handlers.QueueHandler:
+    def create_queue_handler(self) -> logging.handlers.QueueHandler:
         handler = logging_loki.LokiQueueHandler(
             queue=self.queue,
             url=self.url,
@@ -24,16 +28,16 @@ class LokiHandler():
             version=self.version,
         )
         return handler
-    
-    def create_handler(self)->logging.Handler:
+
+    def create_handler(self) -> logging.Handler:
         handler = logging_loki.LokiHandler(
             url=self.url,
             tags=self.tags,
             version=self.version,
         )
         return handler
-    
-    
+
+
 class FilterDefaultTags(logging.Filter):
     def filter(self, record):
         r = record.__dict__
@@ -53,14 +57,16 @@ class FilterDefaultTags(logging.Filter):
         return True
 
 
-def provide_logger(logger_name:str) -> logging.Logger:
+def provide_logger(logger_name: str) -> logging.Logger:
     """Provides a configured named logger"""
 
     if not logger_name:
         raise ValueError("Logger_name is required")
-    
+
     time_format = "%Y-%m-%d %H:%M:%S"
-    formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(message)s', datefmt=time_format)
+    formatter = logging.Formatter(
+        fmt="%(asctime)s - %(levelname)s - %(message)s", datefmt=time_format
+    )
 
     logger = logging.getLogger(logger_name)
     logger.handlers = []
@@ -74,7 +80,7 @@ def provide_logger(logger_name:str) -> logging.Logger:
 
     if settings.app.ENVIRONMENT != "DEV":
         logger.propagate = False
-    
+
     return logger
 
 
