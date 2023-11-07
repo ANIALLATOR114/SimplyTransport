@@ -9,6 +9,7 @@ from SimplyTransport.lib.db.database import sqlalchemy_plugin
 from SimplyTransport.lib.openapi.openapiconfig import CustomOpenApiConfig
 from SimplyTransport.lib.template_engine import CustomTemplateConfig
 from SimplyTransport.lib.static_files import CustomStaticFilesConfigs
+from SimplyTransport.lib.logging import provide_logger
 from SimplyTransport.cli import CLIPlugin
 from SimplyTransport.lib.parameters.limitoffset import provide_limit_offset_pagination
 
@@ -16,10 +17,8 @@ __all__ = ["create_app"]
 
 
 def create_app() -> Litestar:
-    env_settings = settings.BaseEnvSettings()
-
     return Litestar(
-        debug=env_settings.DEBUG,
+        debug=settings.app.DEBUG,
         route_handlers=[create_views_router(), create_api_router()],
         on_startup=[db_services.create_database],
         plugins=[sqlalchemy_plugin, CLIPlugin()],
