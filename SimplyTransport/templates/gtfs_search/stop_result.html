@@ -6,12 +6,19 @@
         </tr>
     </thead>
     <tbody>
-        {% for stop in stops %}
-            <tr hx-get="/" hx-trigger="click" hx-target="body" hx-push-url="/">
-                <td class="dense-text">{{ stop.name }}</td>
-                <td class="dense-text">{{ stop.code }}</td>
-            </tr>
-        {% endfor %}
+        {% if stops %}
+            {% for stop in stops %}
+                <tr hx-get="/realtime/stop/{{ stop.id }}"
+                    hx-trigger="click"
+                    hx-target="body"
+                    hx-replace-url="/realtime/stop/{{ stop.id }}">
+                    <td class="dense-text">{{ stop.name }}</td>
+                    <td class="dense-text">{{ stop.code }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <td colspan="2" class="dense-text">No stops found 😔</td>
+        {% endif %}
     </tbody>
 </table>
 <div class="pagination-total">

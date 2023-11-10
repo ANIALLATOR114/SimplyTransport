@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}
+    SimplyTransport - Route {{ route.short_name }}
+{% endblock title %}
+{% block content %}
+    <div class="narrow-container">
+        <h1 class="dots-flashing-flex">Route: {{ route.short_name }}</h1>
+        {% if route.long_name != "" %}
+            <h2>{{ route.long_name }}</h2>
+        {% else %}
+            <h2>No full name available</h2>
+        {% endif %}
+        <p class="dense-text">This is a route number.....</p>
+        <div class="inner-container">
+            <table class="table-search">
+                <thead>
+                    <tr>
+                        <th class="dense-text">Stop</th>
+                        <th class="dense-text">Code</th>
+                        <th class="dense-text">Sequence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="dense-text">Coming Soon</td>
+                        <td class="dense-text"></td>
+                        <td class="dense-text"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}

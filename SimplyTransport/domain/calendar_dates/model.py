@@ -22,7 +22,7 @@ class CalendarDateModel(BigIntAuditBase):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     service_id: Mapped[str] = mapped_column(
-        String(length=1000), ForeignKey("calendar.id", ondelete="CASCADE")
+        String(length=1000), ForeignKey("calendar.id", ondelete="CASCADE"), index=True
     )
     service: Mapped["CalendarModel"] = relationship(back_populates="calendar_dates")  # noqa: F821
     date: Mapped[date] = mapped_column(Date)

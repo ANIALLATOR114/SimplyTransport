@@ -122,12 +122,31 @@ There is a docker-compose.yaml available in the root directory of the project wh
 docker-compose up -d
 ```
 
+### Migrations
+
+This application uses Alembic for migrations, you can create a new migration using the following command
+You should be in the root directory
+
+```
+alembic revision --autogenerate -m "The name of my migration"
+```
+
+To apply the migration to your database use the following command
+
+```
+alembic upgrade head
+```
+
 ## Running
 
 You can run the app using the litestar run command which will use a uvicorn worker to launch the app on 127.0.0.1:8000
 
 ```
 litestar run
+```
+
+```
+litestar run --reload # This will reload the app when changes are made dor development
 ```
 
 The custom commands I've added to the app can be run using the litestar command in the same way

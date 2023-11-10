@@ -30,11 +30,11 @@ class RouteModel(BigIntAuditBase):
 
     id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
     agency_id: Mapped[str] = mapped_column(
-        String(length=1000), ForeignKey("agency.id", ondelete="CASCADE")
+        String(length=1000), ForeignKey("agency.id", ondelete="CASCADE"), index=True
     )
     agency: Mapped["AgencyModel"] = relationship(back_populates="routes")  # noqa: F821
-    short_name: Mapped[str] = mapped_column(String(length=1000))
-    long_name: Mapped[str] = mapped_column(String(length=1000))
+    short_name: Mapped[str] = mapped_column(String(length=1000), index=True)
+    long_name: Mapped[str] = mapped_column(String(length=1000), index=True)
     description: Mapped[Optional[str]] = mapped_column(String(length=1000))
     route_type: Mapped[RouteType] = mapped_column(Integer)
     url: Mapped[Optional[str]] = mapped_column(String(length=1000))

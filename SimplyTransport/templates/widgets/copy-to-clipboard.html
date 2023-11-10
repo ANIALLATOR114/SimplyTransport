@@ -1,0 +1,86 @@
+<style>
+.popuptext{
+    visibility: hidden;
+    background-color: #555;
+    color: var(--font-color);
+    text-align: center;
+    border-radius: 6px;
+    padding :0.5rem;
+    position: absolute;
+    z-index: 1;
+    top: -30px;
+    transform: translateX(-25%);
+}
+
+.popuptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.show-popup {
+  visibility: visible;
+  -webkit-animation: fadeIn 0.5s;
+  animation: fadeIn 0.5s
+}
+
+@-webkit-keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity:1 ;}
+}
+</style>
+<script>
+    function copyTableToClipboard() {
+        const table = document.querySelector('.table-search');
+        const header = table.querySelector('thead').cloneNode(true);
+        const bodyRows = table.querySelectorAll('tbody tr');
+
+        const maxRows = 10;
+        const fragment = document.createDocumentFragment();
+
+        fragment.appendChild(header);
+
+        // Add up to 10 rows from the body
+        for (let i = 0; i < Math.min(bodyRows.length, maxRows); i++) {
+            fragment.appendChild(bodyRows[i].cloneNode(true));
+        }
+
+        const tempContainer = document.createElement('div');
+        tempContainer.appendChild(fragment);
+        
+        // Add the temporary container to the document so that it has a parent
+        document.body.appendChild(tempContainer);
+
+        const range = document.createRange();
+        range.selectNode(tempContainer);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+
+        try {
+            document.execCommand('copy');
+            var popup = document.getElementById("copyPopup");
+            popup.classList.toggle("show-popup");
+        } catch (err) {
+            console.error('Unable to copy table to clipboard: ', err);
+        } finally {
+            document.body.removeChild(tempContainer);
+        }
+
+        window.getSelection().removeAllRanges();
+    }
+
+    function hidePopup() {
+        var popup = document.getElementById("copyPopup");
+        popup.classList.toggle("show-popup");
+    }
+</script>

@@ -25,10 +25,10 @@ class TripModel(BigIntAuditBase):
     id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
     route: Mapped["RouteModel"] = relationship(back_populates="trips")  # noqa: F821
     route_id: Mapped[str] = mapped_column(
-        String(length=1000), ForeignKey("route.id", ondelete="CASCADE")
+        String(length=1000), ForeignKey("route.id", ondelete="CASCADE"), index=True
     )
     service_id: Mapped[str] = mapped_column(
-        String(length=1000), ForeignKey("calendar.id", ondelete="CASCADE")
+        String(length=1000), ForeignKey("calendar.id", ondelete="CASCADE"), index=True
     )
     service: Mapped["CalendarModel"] = relationship(back_populates="trips")  # noqa: F821
     stop_times: Mapped[list["StopTimeModel"]] = relationship(back_populates="trip")  # noqa: F821
@@ -36,7 +36,7 @@ class TripModel(BigIntAuditBase):
     short_name: Mapped[Optional[str]] = mapped_column(String(length=1000))
     direction: Mapped[Direction] = mapped_column(Integer)
     block_id: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    shape_id: Mapped[str] = mapped_column(String(length=1000))
+    shape_id: Mapped[str] = mapped_column(String(length=1000), index=True)
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 

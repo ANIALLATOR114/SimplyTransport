@@ -1,6 +1,6 @@
 from litestar import Router
 
-from . import root, search
+from . import root, search, realtime
 from .api import agency, calendar, calendar_date, route, trip, stop, shape, stoptime
 
 __all__ = ["create_api_router", "create_views_router"]
@@ -18,11 +18,19 @@ def create_views_router() -> Router:
         include_in_schema=False,
     )
 
+    realtime_route_handler = Router(
+        path="/realtime",
+        route_handlers=[realtime.RealtimeController],
+        security=[{}],
+        include_in_schema=False,
+    )
+
     return Router(
         path="/",
         route_handlers=[
             root_route_handler,
             search_route_handler,
+            realtime_route_handler,
         ],
     )
 
