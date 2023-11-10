@@ -6,12 +6,19 @@
         </tr>
     </thead>
     <tbody>
-        {% for route in routes %}
-            <tr hx-get="/" hx-trigger="click" hx-target="body" hx-push-url="/">
-                <td class="dense-text">{{ route.short_name }}</td>
-                <td class="dense-text">{{ route.long_name }}</td>
-            </tr>
-        {% endfor %}
+        {% if routes %}
+            {% for route in routes %}
+                <tr hx-get="/realtime/route/{{ route.id }}"
+                    hx-trigger="click"
+                    hx-target="body"
+                    hx-push-url="/realtime/route/{{ route.id }}">
+                    <td class="dense-text">{{ route.short_name }}</td>
+                    <td class="dense-text">{{ route.long_name }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <td colspan="2" class="dense-text">No routes found.</td>
+        {% endif %}
     </tbody>
 </table>
 <div class="pagination-total">

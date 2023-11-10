@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block content %}
     <div class="narrow-container">
-        <h1 class="page-header dots-flashing-flex">
+        <h1 class="dots-flashing-flex">
             Route Search
             {% include "widgets/dots_flashing.html" %}
             <div class="dot-flashing"></div>
@@ -16,7 +16,7 @@
             <div>
                 <input class="search-box"
                        hx-get="/search/routes?pageSize=20"
-                       hx-trigger="keyup[target.value.length > 0] changed delay:200ms, search"
+                       hx-trigger="keyup[target.value.length> 0] changed delay:200ms, search"
                        hx-target="#route-search-results"
                        hx-swap="innerhtml"
                        type="search"

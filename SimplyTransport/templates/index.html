@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block content %}
     <div class="narrow-container">
-        <h1 class="page-header">Welcome to SimplyTransport</h1>
+        <h1>Welcome to SimplyTransport</h1>
         <p class="dense-text">
             Your gateway to seamless and efficient transportation across the scenic landscapes of Ireland! Our mission is to make your journeys smoother, more accessible, and environmentally friendly.
         </p>
@@ -21,4 +21,41 @@
             Join us on a journey towards smarter, greener, and more accessible transportation. Start your adventure with SimplyTransport today, and let's move Ireland together, one ride at a time.
         </p>
     </div>
+    <div>
+        <img src="/static/bus-sideways.svg"
+             class="bus-animation"
+             alt="bus sideways svg">
+    </div>
+    <style>
+        .bus-animation {
+            width: 50px; /* Set the width of the bus */
+            position: fixed; /* Make the bus fixed at the bottom of the screen */
+            bottom: 0; /* Position it at the bottom of the screen */
+            -moz-animation: driveBus 22s linear infinite, rumble 1.5s linear infinite;
+            -webkit-animation: driveBus 22s linear infinite, rumble 1.5s linear infinite;
+            overflow-x: hidden;
+        }
+
+        @-moz-keyframes driveBus {
+            0% { left: -50%; }
+            100% { left: 110%; }
+        }
+
+        @-webkit-keyframes driveBus {
+            0% { left: -50%; }
+            100% { left: 110%; }
+        }
+
+        @keyframes rumble {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateY(-1px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateY(1px);
+            }
+        }
+    </style>
 {% endblock content %}

@@ -36,6 +36,7 @@ class AppSettings(BaseEnvSettings):
     # Database
     DB_URL: str = "postgresql+asyncpg://user:password@localhost:5432/st_database"
     DB_URL_SYNC: str = "postgresql+psycopg2://user:password@localhost:5432/st_database"
+    DB_ECHO: bool = False
 
     POSTGRES_DB: str = "example"
     POSTGRES_USER: str = "example"

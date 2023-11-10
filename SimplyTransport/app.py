@@ -9,7 +9,6 @@ from SimplyTransport.lib.db.database import sqlalchemy_plugin
 from SimplyTransport.lib.openapi.openapiconfig import CustomOpenApiConfig
 from SimplyTransport.lib.template_engine import CustomTemplateConfig
 from SimplyTransport.lib.static_files import CustomStaticFilesConfigs
-from SimplyTransport.lib.logging import provide_logger
 from SimplyTransport.cli import CLIPlugin
 from SimplyTransport.lib.parameters.limitoffset import provide_limit_offset_pagination
 

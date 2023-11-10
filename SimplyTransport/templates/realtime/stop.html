@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}
+    SimplyTransport - Stop {{ stop.name }}
+{% endblock title %}
+{% block content %}
+    <div class="narrow-container">
+        <h1 class="dots-flashing-flex">Stop: {{ stop.name }}</h1>
+        {% if stop.code != "" %}
+            <h2>Number: {{ stop.code }}</h2>
+        {% else %}
+            <h2>No number available</h2>
+        {% endif %}
+        <div class="flex-gap">
+            <a style="text-decoration: none"
+               href="https://www.google.com/maps?layer=c&amp;cbll={{ stop.lat }},{{ stop.lon }}&amp;cbp=0,0,,,"
+               target="_blank">
+                <button class="no-line-break link-button dense-text">Street View</button>
+            </a>
+            <a style="text-decoration: none"
+               href="https://www.google.com/maps/dir/?api=1&destination={{ stop.lat }},{{ stop.lon }}"
+               target="_blank">
+                <button class="no-line-break link-button dense-text">Google Maps Directions</button>
+            </a>
+        </div>
+        <div class="inner-container">
+            <div class="flex-separate table-search-top-text-pad">
+                <span class="dense-text">Showing <span class="word-highlight">-10</span> and <span class="word-highlight">+60</span> mins</span><span class="dense-text">{{ current_time.strftime("%H:%M:%S") }}</span>
+            </div>
+            <table class="table-search">
+                <thead>
+                    <tr>
+                        <th class="dense-text">Route</th>
+                        <th class="dense-text">RealTime (ETA)</th>
+                        <th class="dense-text">Delay</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="dense-text no-pointer">Coming Soon</td>
+                        <td class="dense-text no-pointer"></td>
+                        <td class="dense-text no-pointer"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination-total" style="position: relative;">
+                <button class="pagination-button" onclick="copyTableToClipboard()">Copy Table</button>
+                <span class="popuptext" id="copyPopup" onclick="hidePopup()">Table copied to clipboard ✅</span>
+            </div>
+        </div>
+        <div class="inner-container">
+            <h3>Routes:</h3>
+            <div class="flex-gap">
+                {% if routes %}
+                    {% for route in routes %}
+                        <a style="text-decoration: none" href="/realtime/route/{{ route.id }}">
+                            <button class="no-line-break route-link-button dense-text">{{ route.short_name }}</button>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <h3>No routes available at this stop</h3>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% include "widgets/copy-to-clipboard.html" %}
+{% endblock content %}
