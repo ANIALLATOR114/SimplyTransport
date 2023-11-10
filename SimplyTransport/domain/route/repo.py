@@ -27,11 +27,13 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
             raise NotFoundError()
 
         return results, total
-    
+
     async def get_by_stop_id(self, stop_id: str) -> list[RouteModel]:
         """Get a route by stop_id."""
 
-        return await self.list(RouteModel.trips.any(TripModel.stop_times.any(StopTimeModel.stop_id == stop_id)))
+        return await self.list(
+            RouteModel.trips.any(TripModel.stop_times.any(StopTimeModel.stop_id == stop_id))
+        )
 
     model_type = RouteModel
 

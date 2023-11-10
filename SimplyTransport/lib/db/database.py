@@ -22,6 +22,5 @@ engine = create_async_engine(
 )
 
 session_config = AsyncSessionConfig(expire_on_commit=False)
-sqlalchemy_config = SQLAlchemyAsyncConfig(engine_instance=engine, session_config=session_config
-)
+sqlalchemy_config = SQLAlchemyAsyncConfig(engine_instance=engine, session_config=session_config)
 sqlalchemy_plugin = SQLAlchemyInitPlugin(config=sqlalchemy_config)
