@@ -80,12 +80,30 @@ h2 {
 	letter-spacing: 0.15rem;
 }
 
+.h2-svg img {
+	width: 2.1rem;
+	cursor: pointer;
+	transition: all 0.3s ease-in-out;
+	border-radius: 50%;
+}
+
+.h2-svg:hover img {
+	transform: scale(1.1) rotate(180deg);
+}
+
 h3 {
-	font-size: 1.4rem;
+	font-size: 1.3rem;
 	color: var(--font-color);
-	letter-spacing: 0.15rem;
-	margin-top: 0.1rem;
-	margin-bottom: 0.6rem;
+	letter-spacing: 0.1rem;
+}
+
+.h3-table {
+	margin-top: 0.2rem;
+	margin-bottom: 1rem;
+}
+
+.hoverable {
+	cursor: pointer;
 }
 
 .bullet-points li {
@@ -108,8 +126,8 @@ h3 {
 }
 
 .inner-container {
-	margin-top: 1rem;
-	margin-bottom: 1rem;
+	margin-top: 1.5rem;
+	margin-bottom: 1.5rem;
 	border-radius: 0.5rem;
 	padding: 0.9rem;
 	background-color: var(--bg-color-bump);
@@ -122,7 +140,10 @@ h3 {
 }
 
 .table-search th {
-	padding: 0.6rem;
+	padding-left: 0.6rem;
+	padding-right: 0.6rem;
+	padding-top: 0.6rem;
+	padding-bottom: 0.5rem;
 	text-align: left;
 	background-color: var(--bg-color-light);
 }
@@ -140,7 +161,10 @@ h3 {
 }
 
 .table-search td {
-	padding: 0.6rem;
+	padding-left: 0.6rem;
+	padding-right: 0.6rem;
+	padding-top: 0.6rem;
+	padding-bottom: 0.5rem;
 }
 
 .table-search tbody tr {
@@ -201,6 +225,7 @@ h3 {
 	padding-left: 0.3rem;
 	padding-right: 0.3rem;
 	border-radius: 0.25rem;
+	font-size: 1.1rem;
 }
 
 .input-with-loader {
@@ -235,9 +260,7 @@ h3 {
 }
 
 .table-search-top-text-pad {
-	padding-bottom: 0.5rem;
-	padding-left: 0.6rem;
-	padding-right: 0.6rem;
+	padding-bottom: 0.7rem;
 }
 
 .link-button {
@@ -295,18 +318,42 @@ h3 {
 
 @media screen and (max-width: 900px) {
 	.container {
-		padding: 0.7rem;
+		padding: 0.6rem;
 	}
 
 	h1 {
-		font-size: 1.8rem;
+		font-size: 1.5rem;
 	}
 
 	h2 {
-		font-size: 1.3rem;
+		font-size: 1.1rem;
+	}
+
+	h3 {
+		font-size: 1rem;
 	}
 
 	.dense-text {
-		font-size: 0.9rem;
+		font-size: 0.8rem;
+	}
+
+	.narrow-container {
+		padding: 0rem;
+	}
+
+	.code-highlight {
+		font-size: 0.95rem;
+	}
+
+	.table-search th {
+		padding-right: 0.4rem;
+		padding-top: 0.4rem;
+		padding-bottom: 0.3rem;
+	}
+
+	.table-search td {
+		padding-right: 0.4rem;
+		padding-top: 0.4rem;
+		padding-bottom: 0.3rem;
 	}
 }

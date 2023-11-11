@@ -8,10 +8,10 @@
     <tbody>
         {% if routes %}
             {% for route in routes %}
-                <tr hx-get="/realtime/route/{{ route.id }}"
+                <tr hx-get="/realtime/route/{{ route.id }}/1"
                     hx-trigger="click"
                     hx-target="body"
-                    hx-push-url="/realtime/route/{{ route.id }}">
+                    hx-push-url="/realtime/route/{{ route.id }}/1">
                     <td class="dense-text">{{ route.short_name }}</td>
                     <td class="dense-text">{{ route.long_name }}</td>
                 </tr>
@@ -28,14 +28,14 @@
             <button class="pagination-button"
                     hx-get="/search/routes?currentPage={{ page - 1 }}&pageSize=20"
                     hx-target="#route-search-results"
-                    hx-swap="innerhtml"
+                    hx-swap="innerhtml transition:true"
                     hx-include="[name='search']">Previous Page</button>
         {% endif %}
         {% if page < totalpages %}
             <button class="pagination-button"
                     hx-get="/search/routes?currentPage={{ page + 1 }}&pageSize=20"
                     hx-target="#route-search-results"
-                    hx-swap="innerhtml"
+                    hx-swap="innerhtml transition:true"
                     hx-include="[name='search']">Next Page</button>
         {% endif %}
     </div>

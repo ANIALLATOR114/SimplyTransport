@@ -18,7 +18,7 @@
                        hx-get="/search/stops?pageSize=20"
                        hx-trigger="keyup[target.value.length > 0] changed delay:200ms, search"
                        hx-target="#stop-search-results"
-                       hx-swap="innerhtml"
+                       hx-swap="innerhtml transition:true"
                        type="search"
                        name="search"
                        placeholder="Search..."

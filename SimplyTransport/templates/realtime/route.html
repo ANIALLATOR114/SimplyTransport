@@ -10,22 +10,44 @@
         {% else %}
             <h2>No full name available</h2>
         {% endif %}
-        <p class="dense-text">This is a route number.....</p>
+        {% if route.agency %}
+            <h2>Operator: {{ route.agency.name }}</h2>
+        {% else %}
+            <h2>No operator found</h2>
+        {% endif %}
+        <h2 class="flex-gap">
+            <a href="/realtime/route/{{ route.id }}/{% if direction == 1 %}0{% else %}1{% endif %}"><span class="h2-svg">
+                <img src="/static/swap-arrow.svg"
+                     alt="Two arrows going up and down"
+                     width="100%">
+            </span></a>
+            {% if direction == 1 %}
+                Northbound
+            {% else %}
+                Southbound
+            {% endif %}
+        </h2>
         <div class="inner-container">
-            <table class="table-search">
-                <thead>
+            <h3 class="h3-table">Stops:</h3>
+            <table class="table-search table-sortable">
+                <thead class="hoverable">
                     <tr>
-                        <th class="dense-text">Stop</th>
-                        <th class="dense-text">Code</th>
-                        <th class="dense-text">Sequence</th>
+                        <th class="dense-text">Number</th>
+                        <th class="dense-text">Name</th>
+                        <th class="dense-text" data-type="number">Sequence</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="dense-text">Coming Soon</td>
-                        <td class="dense-text"></td>
-                        <td class="dense-text"></td>
-                    </tr>
+                    {% for stop, sequence in stops %}
+                        <tr hx-get="/realtime/stop/{{ stop.id }}"
+                            hx-trigger="click"
+                            hx-target="body"
+                            hx-replace-url="/realtime/stop/{{ stop.id }}">
+                            <td class="dense-text">{{ stop.code }}</td>
+                            <td class="dense-text">{{ stop.name }}</td>
+                            <td class="dense-text">{{ sequence }}</td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
