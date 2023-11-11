@@ -9,6 +9,7 @@ from SimplyTransport.lib.db.database import sqlalchemy_plugin
 from SimplyTransport.lib.openapi.openapiconfig import CustomOpenApiConfig
 from SimplyTransport.lib.template_engine import CustomTemplateConfig
 from SimplyTransport.lib.static_files import CustomStaticFilesConfigs
+from SimplyTransport.lib.cache import cache_config
 from SimplyTransport.cli import CLIPlugin
 from SimplyTransport.lib.parameters.limitoffset import provide_limit_offset_pagination
 
@@ -27,6 +28,7 @@ def create_app() -> Litestar:
         dependencies={
             "limit_offset": Provide(provide_limit_offset_pagination),
         },
+        response_cache_config=cache_config,
     )
 
 

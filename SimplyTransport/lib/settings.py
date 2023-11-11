@@ -42,6 +42,10 @@ class AppSettings(BaseEnvSettings):
     POSTGRES_USER: str = "example"
     POSTGRES_PASSWORD: str = "example"
 
+    # Redis
+    REDIS_HOST: str = "127.0.0.1"
+    REDIS_PORT: int = 6379
+
     # Loki
     LOKI_URL: str = "http://localhost:3100/loki/api/v1/push"
 
