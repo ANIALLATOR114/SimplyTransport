@@ -5,6 +5,7 @@ from litestar.di import Provide
 from litestar.response import Template
 from SimplyTransport.domain.stop.repo import StopRepository, provide_stop_repo
 from SimplyTransport.domain.route.repo import RouteRepository, provide_route_repo
+from SimplyTransport.domain.trip.model import Direction
 
 
 __all__ = [
@@ -30,7 +31,8 @@ class RealtimeController(Controller):
             context={"stop": stop, "current_time": current_time, "routes": routes},
         )
 
-    @get("/route/{route_id:str}")
-    async def realtime_route(self, route_id: str, route_repo: RouteRepository) -> Template:
-        route = await route_repo.get(route_id)
-        return Template(template_name="realtime/route.html", context={"route": route})
+    @get("/route/{route_id:str}/{direction:int}")
+    async def realtime_route(self, route_id: str, direction:Direction , route_repo: RouteRepository, stop_repo: StopRepository) -> Template:
+        route = await route_repo.get_by_id_with_agency(route_id)
+        stops_and_sequences = await stop_repo.get_by_route_id_with_sequence(route.id, direction)
+        return Template(template_name="realtime/route.html", context={"route": route, "stops": stops_and_sequences, "direction": direction})

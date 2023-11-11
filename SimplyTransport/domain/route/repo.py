@@ -1,9 +1,9 @@
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from .model import RouteModel
 from ..trip.model import TripModel
-from ..agency.model import AgencyModel
-from ..stop.model import StopModel
 from ..stop_times.model import StopTimeModel
 from advanced_alchemy.filters import LimitOffset, OrderBy
 from advanced_alchemy import NotFoundError
@@ -34,7 +34,12 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
         return await self.list(
             RouteModel.trips.any(TripModel.stop_times.any(StopTimeModel.stop_id == stop_id))
         )
+    
+    async def get_by_id_with_agency(self, id: str) -> RouteModel:
+        """Get a route by id with agency."""
 
+        return await self.get(id, statement=select(RouteModel).options(joinedload(RouteModel.agency)))
+    
     model_type = RouteModel
 
 
