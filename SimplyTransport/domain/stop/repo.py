@@ -34,31 +34,34 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             raise NotFoundError()
 
         return results, total
-    
-    async def get_by_route_id(self, route_id: str, direction :int) -> list[StopModel]:
+
+    async def get_by_route_id(self, route_id: str, direction: int) -> list[StopModel]:
         """Get a stop by route_id."""
 
         return await self.list(
             statement=select(StopModel)
-                .join(StopTimeModel, StopTimeModel.stop_id == StopModel.id)
-                .join(TripModel, TripModel.id == StopTimeModel.trip_id)
-                .join(RouteModel, RouteModel.id == TripModel.route_id)
-                .where(TripModel.direction == direction, RouteModel.id == route_id)
-                .group_by(StopModel.id)
+            .join(StopTimeModel, StopTimeModel.stop_id == StopModel.id)
+            .join(TripModel, TripModel.id == StopTimeModel.trip_id)
+            .join(RouteModel, RouteModel.id == TripModel.route_id)
+            .where(TripModel.direction == direction, RouteModel.id == route_id)
+            .group_by(StopModel.id)
         )
-    
-    async def get_by_route_id_with_sequence(self, route_id: str, direction :int) -> list[StopModel, int]:
+
+    async def get_by_route_id_with_sequence(
+        self, route_id: str, direction: int
+    ) -> list[StopModel, int]:
         """Get a stop by route_id with a stop_sequence."""
 
         return await self._execute(
             statement=select(StopModel, StopTimeModel.stop_sequence)
-                .join(StopTimeModel, StopTimeModel.stop_id == StopModel.id)
-                .join(TripModel, TripModel.id == StopTimeModel.trip_id)
-                .join(RouteModel, RouteModel.id == TripModel.route_id)
-                .where(TripModel.direction == direction, RouteModel.id == route_id)
-                .group_by(StopModel.id, StopTimeModel.stop_sequence)
-                .order_by(StopTimeModel.stop_sequence)
+            .join(StopTimeModel, StopTimeModel.stop_id == StopModel.id)
+            .join(TripModel, TripModel.id == StopTimeModel.trip_id)
+            .join(RouteModel, RouteModel.id == TripModel.route_id)
+            .where(TripModel.direction == direction, RouteModel.id == route_id)
+            .group_by(StopModel.id, StopTimeModel.stop_sequence)
+            .order_by(StopTimeModel.stop_sequence)
         )
+
 
 async def provide_stop_repo(db_session: AsyncSession) -> StopRepository:
     """This provides the Stop repository."""

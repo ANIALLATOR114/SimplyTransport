@@ -32,7 +32,16 @@ class RealtimeController(Controller):
         )
 
     @get("/route/{route_id:str}/{direction:int}")
-    async def realtime_route(self, route_id: str, direction:Direction , route_repo: RouteRepository, stop_repo: StopRepository) -> Template:
+    async def realtime_route(
+        self,
+        route_id: str,
+        direction: Direction,
+        route_repo: RouteRepository,
+        stop_repo: StopRepository,
+    ) -> Template:
         route = await route_repo.get_by_id_with_agency(route_id)
         stops_and_sequences = await stop_repo.get_by_route_id_with_sequence(route.id, direction)
-        return Template(template_name="realtime/route.html", context={"route": route, "stops": stops_and_sequences, "direction": direction})
+        return Template(
+            template_name="realtime/route.html",
+            context={"route": route, "stops": stops_and_sequences, "direction": direction},
+        )
