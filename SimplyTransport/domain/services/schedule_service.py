@@ -2,7 +2,8 @@ from SimplyTransport.domain.schedule.repo import ScheduleRepository
 from SimplyTransport.domain.schedule.model import StaticSchedule
 from SimplyTransport.domain.schedule.model import DayOfWeek
 
-class ScheduleService():
+
+class ScheduleService:
     def __init__(self, repository: ScheduleRepository):
         self.repository = repository
 

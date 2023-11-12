@@ -16,9 +16,11 @@ __all__ = [
     "RealtimeController",
 ]
 
+
 def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:
     """Constructs repository and service objects for the request."""
     return ScheduleService(ScheduleRepository(session=db_session))
+
 
 class RealtimeController(Controller):
     dependencies = {
@@ -29,7 +31,12 @@ class RealtimeController(Controller):
 
     @get("/stop/{stop_id:str}")
     async def realtime_stop(
-        self, stop_id: str, stop_repo: StopRepository, route_repo: RouteRepository, schedule_service: ScheduleService, day: DayOfWeek = datetime.now().weekday(),
+        self,
+        stop_id: str,
+        stop_repo: StopRepository,
+        route_repo: RouteRepository,
+        schedule_service: ScheduleService,
+        day: DayOfWeek = datetime.now().weekday(),
     ) -> Template:
         stop = await stop_repo.get(stop_id)
         routes = await route_repo.get_by_stop_id(stop.id)
@@ -37,7 +44,12 @@ class RealtimeController(Controller):
         current_time = datetime.now()
         return Template(
             template_name="realtime/stop.html",
-            context={"stop": stop, "current_time": current_time, "routes": routes, "schedules": schedules},
+            context={
+                "stop": stop,
+                "current_time": current_time,
+                "routes": routes,
+                "schedules": schedules,
+            },
         )
 
     @get("/route/{route_id:str}/{direction:int}")
