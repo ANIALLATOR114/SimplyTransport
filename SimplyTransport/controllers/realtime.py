@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 
-def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:
+async def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:
     """Constructs repository and service objects for the request."""
     return ScheduleService(
         ScheduleRepository(session=db_session), CalendarDateRepository(session=db_session)
