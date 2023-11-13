@@ -20,7 +20,9 @@ __all__ = [
 
 def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:
     """Constructs repository and service objects for the request."""
-    return ScheduleService(ScheduleRepository(session=db_session), CalendarDateRepository(session=db_session))
+    return ScheduleService(
+        ScheduleRepository(session=db_session), CalendarDateRepository(session=db_session)
+    )
 
 
 class RealtimeController(Controller):
@@ -50,7 +52,7 @@ class RealtimeController(Controller):
                 "day_string": DayOfWeek(current_time.weekday()).name.capitalize(),
             },
         )
-    
+
     @get("/stop/{stop_id:str}/schedule")
     async def realtime_stop_schedule(
         self,
@@ -60,7 +62,7 @@ class RealtimeController(Controller):
     ) -> Template:
         schedules = await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
         schedules = await schedule_service.remove_exceptions_and_inactive_calendars(schedules)
-        schedules = await schedule_service.add_in_added_exceptions(schedules) #TODO
+        schedules = await schedule_service.add_in_added_exceptions(schedules)  # TODO
 
         return Template(
             template_name="realtime/stop_schedule.html",

@@ -20,25 +20,25 @@ class ScheduleRepository:
         conditions = []
         if day == DayOfWeek.MONDAY:
             conditions.append(CalendarModel.monday == 1)
-        elif  day == DayOfWeek.TUESDAY:
+        elif day == DayOfWeek.TUESDAY:
             conditions.append(CalendarModel.tuesday == 1)
-        elif  day == DayOfWeek.WEDNESDAY:
+        elif day == DayOfWeek.WEDNESDAY:
             conditions.append(CalendarModel.wednesday == 1)
-        elif  day == DayOfWeek.THURSDAY:
+        elif day == DayOfWeek.THURSDAY:
             conditions.append(CalendarModel.thursday == 1)
-        elif  day == DayOfWeek.FRIDAY:
+        elif day == DayOfWeek.FRIDAY:
             conditions.append(CalendarModel.friday == 1)
-        elif  day == DayOfWeek.SATURDAY:
+        elif day == DayOfWeek.SATURDAY:
             conditions.append(CalendarModel.saturday == 1)
-        elif  day == DayOfWeek.SUNDAY:
+        elif day == DayOfWeek.SUNDAY:
             conditions.append(CalendarModel.sunday == 1)
         else:
             raise ValueError(f"Invalid day of week {day}")
-        
+
         conditions.append(StopModel.id == stop_id)
 
         statement = (
-            select(StopTimeModel,RouteModel,CalendarModel)
+            select(StopTimeModel, RouteModel, CalendarModel)
             .join(TripModel, TripModel.id == StopTimeModel.trip_id)
             .join(StopModel, StopModel.id == StopTimeModel.stop_id)
             .join(RouteModel, RouteModel.id == TripModel.route_id)
