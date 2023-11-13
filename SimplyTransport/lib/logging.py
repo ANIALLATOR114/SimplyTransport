@@ -1,7 +1,7 @@
 from SimplyTransport.lib import settings
 import logging.handlers
 import logging_loki
-from multiprocessing import Queue
+from queue import Queue
 
 
 class LokiHandler:

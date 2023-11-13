@@ -5,7 +5,12 @@ from litestar.di import Provide
 from litestar.response import Template
 from SimplyTransport.domain.stop.repo import StopRepository, provide_stop_repo
 from SimplyTransport.domain.route.repo import RouteRepository, provide_route_repo
+from SimplyTransport.domain.services.schedule_service import ScheduleService
+from SimplyTransport.domain.schedule.model import DayOfWeek
 from SimplyTransport.domain.trip.model import Direction
+from sqlalchemy.ext.asyncio import AsyncSession
+from SimplyTransport.domain.schedule.repo import ScheduleRepository
+from SimplyTransport.domain.calendar_dates.repo import CalendarDateRepository
 
 
 __all__ = [
@@ -13,22 +18,58 @@ __all__ = [
 ]
 
 
+async def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:
+    """Constructs repository and service objects for the request."""
+    return ScheduleService(
+        ScheduleRepository(session=db_session), CalendarDateRepository(session=db_session)
+    )
+
+
 class RealtimeController(Controller):
     dependencies = {
         "stop_repo": Provide(provide_stop_repo),
         "route_repo": Provide(provide_route_repo),
+        "schedule_service": Provide(provide_schedule_service),
     }
 
     @get("/stop/{stop_id:str}")
     async def realtime_stop(
-        self, stop_id: str, stop_repo: StopRepository, route_repo: RouteRepository
+        self,
+        stop_id: str,
+        stop_repo: StopRepository,
+        route_repo: RouteRepository,
     ) -> Template:
         stop = await stop_repo.get(stop_id)
         routes = await route_repo.get_by_stop_id(stop.id)
+
         current_time = datetime.now()
         return Template(
             template_name="realtime/stop.html",
-            context={"stop": stop, "current_time": current_time, "routes": routes},
+            context={
+                "stop": stop,
+                "current_time": current_time,
+                "routes": routes,
+                "day_string": DayOfWeek(current_time.weekday()).name.capitalize(),
+            },
+        )
+
+    @get("/stop/{stop_id:str}/schedule")
+    async def realtime_stop_schedule(
+        self,
+        stop_id: str,
+        schedule_service: ScheduleService,
+        day: DayOfWeek = datetime.now().weekday(),
+    ) -> Template:
+        schedules = await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
+        schedules = await schedule_service.remove_exceptions_and_inactive_calendars(schedules)
+        schedules = await schedule_service.add_in_added_exceptions(schedules)  # TODO
+
+        return Template(
+            template_name="realtime/stop_schedule.html",
+            context={
+                "schedules": schedules,
+                "day_string": DayOfWeek(day).name.capitalize(),
+            },
         )
 
     @get("/route/{route_id:str}/{direction:int}")

@@ -1,0 +1,24 @@
+<script>
+    function filterTable() {
+        // Get input value and convert to lowercase for case-insensitive comparison
+        var filterValue = document.querySelector('.search-box').value.toLowerCase();
+        
+        // Get all rows in the table body
+        var rows = document.querySelectorAll('.table-search tbody tr');
+
+        // Iterate through each row and check if it contains the filter value
+        rows.forEach(function(row) {
+            var routeName = row.querySelector('.dense-text').textContent.toLowerCase();
+
+            // If the row contains the filter value, display it; otherwise, hide it
+            if (routeName.includes(filterValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Attach the filterTable function to the input's 'input' event
+    document.querySelector('.search-box').addEventListener('input', filterTable);
+</script>

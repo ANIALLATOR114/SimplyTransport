@@ -6,6 +6,8 @@ from pydantic import BaseModel as _BaseModel
 from typing import Optional
 from enum import Enum
 
+import datetime as DateTime
+
 
 class BaseModel(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
@@ -57,6 +59,11 @@ class StopTimeModel(BigIntAuditBase):
     dropoff_type: Mapped[Optional[DropoffType]] = mapped_column(Integer)
     timepoint: Mapped[Optional[Timepoint]] = mapped_column(Integer)
     dataset: Mapped[str] = mapped_column(String(length=80))
+
+    def true_if_active_between_times(self, start_time: DateTime.time, end_time: DateTime.time):
+        """Returns True if the stop time arrival_time is active between the two times"""
+        if start_time <= self.arrival_time <= end_time:
+            return True
 
 
 class StopTime(BaseModel):

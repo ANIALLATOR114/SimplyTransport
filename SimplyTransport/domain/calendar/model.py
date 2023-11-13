@@ -4,6 +4,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel
 from datetime import date
 
+import datetime as DateTime
+from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
+
 
 class BaseModel(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
@@ -29,6 +32,18 @@ class CalendarModel(BigIntAuditBase):
         back_populates="service", cascade="all, delete"
     )
     trips: Mapped[list["TripModel"]] = relationship(back_populates="service")  # noqa: F821
+
+    def true_if_active(self, date: DateTime.date):
+        """Returns True if the calendar is active on the given date"""
+        if self.start_date <= date <= self.end_date:
+            return True
+        return False
+
+    def in_exceptions(self, exceptions: list[CalendarDateModel]):
+        """This assumes that the exceptions passed are active on the given date"""
+        for exception in exceptions:
+            if exception.service_id == self.id:
+                return True
 
 
 class Calendar(BaseModel):
