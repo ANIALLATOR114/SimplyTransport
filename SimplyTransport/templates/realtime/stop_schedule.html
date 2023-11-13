@@ -1,0 +1,36 @@
+<h3 class="h3-table">Day: {{ day_string }}</h3>
+<table class="table-search no-stripe table-sortable">
+    <thead class="hoverable">
+        <tr>
+            <th class="dense-text">Route</th>
+            <th class="dense-text">Scheduled Arrival</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for schedule in schedules %}
+            <tr>
+                <td class="dense-text no-pointer align-horizontal">
+                    <a class="no-underline align-horizontal"
+                       href="/realtime/route/{{ schedule.route.id }}/1">
+                        <img class="link-icon-table" src="/static/link.svg">
+                    </a>{{ schedule.route.short_name }}
+                </td>
+                <td class="dense-text no-pointer">{{ schedule.stop_time.arrival_time }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script>
+document.querySelectorAll(".table-sortable th").forEach((headerCell) => {
+  headerCell.addEventListener("click", () => {
+    const tableElement = headerCell.parentElement.parentElement.parentElement;
+    const headerIndex = Array.prototype.indexOf.call(
+      headerCell.parentElement.children,
+      headerCell
+    );
+    const currentIsAscending = headerCell.classList.contains("th-sort-asc");
+
+    sortTableByColumn(tableElement, headerIndex, !currentIsAscending);
+  });
+});
+</script>

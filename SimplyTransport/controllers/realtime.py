@@ -10,6 +10,7 @@ from SimplyTransport.domain.schedule.model import DayOfWeek
 from SimplyTransport.domain.trip.model import Direction
 from sqlalchemy.ext.asyncio import AsyncSession
 from SimplyTransport.domain.schedule.repo import ScheduleRepository
+from SimplyTransport.domain.calendar_dates.repo import CalendarDateRepository
 
 
 __all__ = [
@@ -19,7 +20,7 @@ __all__ = [
 
 def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:
     """Constructs repository and service objects for the request."""
-    return ScheduleService(ScheduleRepository(session=db_session))
+    return ScheduleService(ScheduleRepository(session=db_session), CalendarDateRepository(session=db_session))
 
 
 class RealtimeController(Controller):
@@ -35,12 +36,10 @@ class RealtimeController(Controller):
         stop_id: str,
         stop_repo: StopRepository,
         route_repo: RouteRepository,
-        schedule_service: ScheduleService,
-        day: DayOfWeek = datetime.now().weekday(),
     ) -> Template:
         stop = await stop_repo.get(stop_id)
         routes = await route_repo.get_by_stop_id(stop.id)
-        schedules = await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
+
         current_time = datetime.now()
         return Template(
             template_name="realtime/stop.html",
@@ -48,7 +47,26 @@ class RealtimeController(Controller):
                 "stop": stop,
                 "current_time": current_time,
                 "routes": routes,
+                "day_string": DayOfWeek(current_time.weekday()).name.capitalize(),
+            },
+        )
+    
+    @get("/stop/{stop_id:str}/schedule")
+    async def realtime_stop_schedule(
+        self,
+        stop_id: str,
+        schedule_service: ScheduleService,
+        day: DayOfWeek = datetime.now().weekday(),
+    ) -> Template:
+        schedules = await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
+        schedules = await schedule_service.remove_exceptions_and_inactive_calendars(schedules)
+        schedules = await schedule_service.add_in_added_exceptions(schedules) #TODO
+
+        return Template(
+            template_name="realtime/stop_schedule.html",
+            context={
                 "schedules": schedules,
+                "day_string": DayOfWeek(day).name.capitalize(),
             },
         )
 

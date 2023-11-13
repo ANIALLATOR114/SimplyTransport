@@ -22,10 +22,10 @@ class StaticSchedule:
             start_time=start_time, end_time=end_time
         )
 
-    def not_in_exceptions(self, list_of_exceptions: list[CalendarDateModel]):
+    def in_exceptions(self, list_of_exceptions: list[CalendarDateModel]):
         """This assumes that the exceptions passed are active on the given date"""
 
-        return self.calendar.not_in_exceptions(list_of_exceptions)
+        return self.calendar.in_exceptions(list_of_exceptions)
 
 
 class DayOfWeek(int, Enum):

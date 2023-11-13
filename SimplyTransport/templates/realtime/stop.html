@@ -61,10 +61,45 @@
                 {% endif %}
             </div>
         </div>
-        <div class="inner-container">
-            <h3 class="h3-table">Set Schedule:</h3>
-            <p>Coming soon...</p>
+        <div class="inner-container"
+             hx-get="/realtime/stop/{{ stop.id }}/schedule"
+             hx-trigger="load"
+             hx-target="#schedule-table"
+             hx-swap="transition:true">
+            <h3 class="h3-table">Predicted Schedule:</h3>
+            <div class="load-with-dropdown">
+                <button hx-get="/realtime/stop/{{ stop.id }}/schedule"
+                        hx-trigger="click"
+                        hx-target="#schedule-table"
+                        hx-swap="transition:true"
+                        hx-include="[name='day']"
+                        class="pagination-button">Reload</button>
+                <select class="dropdown" name="day">
+                    <option value=0>Monday</option>
+                    <option value=1>Tuesday</option>
+                    <option value=2>Wednesday</option>
+                    <option value=3>Thursday</option>
+                    <option value=4>Friday</option>
+                    <option value=5>Saturday</option>
+                    <option value=6>Sunday</option>
+                </select>
+            </div>
+            <div class="bottom-margin">
+                <input class="search-box" placeholder="Filter by route...">
+            </div>
+            <div id="schedule-table">
+                <h3 class="h3-table">Day: {{ day_string }}</h3>
+                <table class="table-search no-stripe table-sortable">
+                    <thead class="hoverable">
+                        <tr>
+                            <th class="dense-text">Route</th>
+                            <th class="dense-text">Scheduled Arrival</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
     {% include "widgets/copy-to-clipboard.html" %}
+    {% include "widgets/filter_table.html" %}
 {% endblock content %}

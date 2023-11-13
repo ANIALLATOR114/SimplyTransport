@@ -59,7 +59,8 @@ body {
 	max-width: 800px;
 	margin-left: auto;
 	margin-right: auto;
-	padding: 1rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
 }
 
 .dense-text {
@@ -100,6 +101,46 @@ h3 {
 .h3-table {
 	margin-top: 0.2rem;
 	margin-bottom: 1rem;
+}
+
+.align-horizontal {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.link-icon-table {
+	width: 1rem;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+.link-icon-table:hover {
+	transform: scale(1.2);
+}
+
+.no-underline {
+	text-decoration: none;
+}
+
+.bottom-margin {
+	margin-bottom: 1rem;
+}
+
+.load-with-dropdown {
+	display: flex;
+	align-items: center;
+	gap: 0.7rem;
+	margin-bottom: 1rem;
+	font-size: 1rem;
+}
+
+.dropdown {
+	background-color: var(--bg-color-highlight);
+	border-radius: 0.25rem;
+	color: var(--font-color);
+	padding: 0.5rem;
+	border: none;
 }
 
 .hoverable {
@@ -176,8 +217,30 @@ h3 {
 	background-color: var(--bg-color-bump-even);
 }
 
+.table-search.no-stripe tbody tr {
+	background-color: var(--bg-color-bump-even);
+}
+
+.table-sortable .th-sort-asc::after {
+	content: "\25b4";
+}
+
+.table-sortable .th-sort-desc::after {
+	content: "\25be";
+}
+
+.table-sortable .th-sort-asc::after,
+.table-sortable .th-sort-desc::after {
+	margin-left: 5px;
+}
+
 .table-search tbody tr:hover {
 	background-color: var(--bg-color-highlight);
+}
+
+.hover-cell {
+	transition: all 0.2s ease-in-out;
+	background-color: var(--bg-color-light);
 }
 
 .search-box {

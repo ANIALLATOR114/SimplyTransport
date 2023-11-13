@@ -39,14 +39,11 @@ class CalendarModel(BigIntAuditBase):
             return True
         return False
 
-    def not_in_exceptions(self, exceptions: list[CalendarDateModel]):
+    def in_exceptions(self, exceptions: list[CalendarDateModel]):
         """This assumes that the exceptions passed are active on the given date"""
         for exception in exceptions:
-            if (
-                exception.date == self.start_date
-                and exception.exception_type == exception.exception_type.removed
-            ):
-                return False
+            if exception.service_id == self.id:
+                return True
 
 
 class Calendar(BaseModel):

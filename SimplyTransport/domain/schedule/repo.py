@@ -1,13 +1,12 @@
 from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.schedule.model import DayOfWeek
 from sqlalchemy.ext.asyncio import AsyncSession
-from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import select
-from sqlalchemy.orm import joinedload
 
 from SimplyTransport.domain.route.model import RouteModel
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 from SimplyTransport.domain.trip.model import TripModel
+from SimplyTransport.domain.stop.model import StopModel
 
 
 class ScheduleRepository:
@@ -19,38 +18,37 @@ class ScheduleRepository:
     async def get_schedule_on_stop_for_day(self, stop_id: str, day: DayOfWeek):
         """Returns a list of schedules for the given stop and day"""
         conditions = []
-        if day == day.MONDAY:
+        if day == DayOfWeek.MONDAY:
             conditions.append(CalendarModel.monday == 1)
-        if day == day.TUESDAY:
+        elif  day == DayOfWeek.TUESDAY:
             conditions.append(CalendarModel.tuesday == 1)
-        if day == day.WEDNESDAY:
+        elif  day == DayOfWeek.WEDNESDAY:
             conditions.append(CalendarModel.wednesday == 1)
-        if day == day.THURSDAY:
+        elif  day == DayOfWeek.THURSDAY:
             conditions.append(CalendarModel.thursday == 1)
-        if day == day.FRIDAY:
+        elif  day == DayOfWeek.FRIDAY:
             conditions.append(CalendarModel.friday == 1)
-        if day == day.SATURDAY:
+        elif  day == DayOfWeek.SATURDAY:
             conditions.append(CalendarModel.saturday == 1)
-        if day == day.SUNDAY:
+        elif  day == DayOfWeek.SUNDAY:
             conditions.append(CalendarModel.sunday == 1)
         else:
             raise ValueError(f"Invalid day of week {day}")
+        
+        conditions.append(StopModel.id == stop_id)
 
         statement = (
-            select(StopTimeModel)
-            .options(joinedload(StopTimeModel.trip))
+            select(StopTimeModel,RouteModel,CalendarModel)
+            .join(TripModel, TripModel.id == StopTimeModel.trip_id)
+            .join(StopModel, StopModel.id == StopTimeModel.stop_id)
+            .join(RouteModel, RouteModel.id == TripModel.route_id)
+            .join(CalendarModel, CalendarModel.id == TripModel.service_id)
             .where(
-                StopTimeModel.stop_id == stop_id,
-                StopTimeModel.trip_id == TripModel.id,
-                TripModel.service_id == CalendarModel.id,
-                TripModel.route_id == RouteModel.id,
                 *conditions,
             )
             .order_by(StopTimeModel.arrival_time)
         )
-        result = await self.session.execute(statement)
-        for res in result:
-            print(res)
+        return await self.session.execute(statement)
 
 
 async def provide_schedule_repo(db_session: AsyncSession) -> ScheduleRepository:
