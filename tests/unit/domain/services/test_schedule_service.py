@@ -32,6 +32,7 @@ async def test_get_schedule_on_stop_for_day_should_call_repository():
         stop_id=stop_id, day=day
     )
 
+
 @pytest.mark.asyncio
 async def test_get_schedule_on_stop_for_day_should_have_equal_static_schedules():
     # Arrange
@@ -73,7 +74,9 @@ async def test_get_schedule_on_stop_for_day_between_times_should_call_repository
     end_time = "end_time"
 
     # Act
-    await schedule_service.get_schedule_on_stop_for_day_between_times(stop_id=stop_id, day=day, start_time=start_time, end_time=end_time)
+    await schedule_service.get_schedule_on_stop_for_day_between_times(
+        stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
+    )
 
     # Assert
     schedule_repository.get_schedule_on_stop_for_day_between_times.assert_called_once_with(
@@ -86,7 +89,9 @@ async def test_get_schedule_on_stop_for_day_between_times_should_have_equal_stat
     # Arrange
     mock_schedule_data = [AsyncMock(), AsyncMock()]
     schedule_repository = AsyncMock()
-    schedule_repository.get_schedule_on_stop_for_day_between_times.return_value = mock_schedule_data
+    schedule_repository.get_schedule_on_stop_for_day_between_times.return_value = (
+        mock_schedule_data
+    )
     calendar_date_repository = AsyncMock()
     schedule_service = ScheduleService(
         schedule_repository=schedule_repository,
@@ -99,7 +104,9 @@ async def test_get_schedule_on_stop_for_day_between_times_should_have_equal_stat
     end_time = "end_time"
 
     # Act
-    result = await schedule_service.get_schedule_on_stop_for_day_between_times(stop_id=stop_id, day=day, start_time=start_time, end_time=end_time)
+    result = await schedule_service.get_schedule_on_stop_for_day_between_times(
+        stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
+    )
 
     # Assert
     schedule_repository.get_schedule_on_stop_for_day_between_times.assert_called_once_with(
@@ -111,7 +118,22 @@ async def test_get_schedule_on_stop_for_day_between_times_should_have_equal_stat
 @pytest.mark.asyncio
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_reverse():
     # Arrange
-    mock_schedule_data = [StaticSchedule(stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:01:01")), route=AsyncMock(), calendar=AsyncMock(), stop=AsyncMock(), trip=AsyncMock()), StaticSchedule(stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")), route=AsyncMock(), calendar=AsyncMock(), stop=AsyncMock(), trip=AsyncMock())]
+    mock_schedule_data = [
+        StaticSchedule(
+            stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:01:01")),
+            route=AsyncMock(),
+            calendar=AsyncMock(),
+            stop=AsyncMock(),
+            trip=AsyncMock(),
+        ),
+        StaticSchedule(
+            stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
+            route=AsyncMock(),
+            calendar=AsyncMock(),
+            stop=AsyncMock(),
+            trip=AsyncMock(),
+        ),
+    ]
     schedule_repository = AsyncMock()
     calendar_date_repository = AsyncMock()
     schedule_service = ScheduleService(
@@ -131,7 +153,22 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_reverse():
 @pytest.mark.asyncio
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change():
     # Arrange
-    mock_schedule_data = [StaticSchedule(stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")), route=AsyncMock(), calendar=AsyncMock(), stop=AsyncMock(), trip=AsyncMock()), StaticSchedule(stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:01:01")), route=AsyncMock(), calendar=AsyncMock(), stop=AsyncMock(), trip=AsyncMock())]
+    mock_schedule_data = [
+        StaticSchedule(
+            stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
+            route=AsyncMock(),
+            calendar=AsyncMock(),
+            stop=AsyncMock(),
+            trip=AsyncMock(),
+        ),
+        StaticSchedule(
+            stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:01:01")),
+            route=AsyncMock(),
+            calendar=AsyncMock(),
+            stop=AsyncMock(),
+            trip=AsyncMock(),
+        ),
+    ]
     schedule_repository = AsyncMock()
     calendar_date_repository = AsyncMock()
     schedule_service = ScheduleService(
@@ -151,7 +188,22 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change():
 @pytest.mark.asyncio
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change_normal_times():
     # Arrange
-    mock_schedule_data = [StaticSchedule(stop_time=StopTimeModel(arrival_time=time.fromisoformat("21:00:00")), route=AsyncMock(), calendar=AsyncMock(), stop=AsyncMock(), trip=AsyncMock()), StaticSchedule(stop_time=StopTimeModel(arrival_time=time.fromisoformat("21:01:01")), route=AsyncMock(), calendar=AsyncMock(), stop=AsyncMock(), trip=AsyncMock())]
+    mock_schedule_data = [
+        StaticSchedule(
+            stop_time=StopTimeModel(arrival_time=time.fromisoformat("21:00:00")),
+            route=AsyncMock(),
+            calendar=AsyncMock(),
+            stop=AsyncMock(),
+            trip=AsyncMock(),
+        ),
+        StaticSchedule(
+            stop_time=StopTimeModel(arrival_time=time.fromisoformat("21:01:01")),
+            route=AsyncMock(),
+            calendar=AsyncMock(),
+            stop=AsyncMock(),
+            trip=AsyncMock(),
+        ),
+    ]
     schedule_repository = AsyncMock()
     calendar_date_repository = AsyncMock()
     schedule_service = ScheduleService(
@@ -192,10 +244,33 @@ async def test_remove_exceptions_and_inactive_calendars_should_call_repository()
 @pytest.mark.asyncio
 async def test_remove_exceptions_and_inactive_calendars_should_return_list_without_exceptions():
     # Arrange
-    mock_schedule_data = [StaticSchedule(stop_time=AsyncMock(), route=AsyncMock(), calendar=CalendarModel(id="service_id", start_date=date.today(),end_date=date.today()), stop=AsyncMock(), trip=AsyncMock()), StaticSchedule(stop_time=AsyncMock(), route=AsyncMock(), calendar=CalendarModel(id="a_different_service_id", start_date=date.today(),end_date=date.today()), stop=AsyncMock(), trip=AsyncMock())]
+    mock_schedule_data = [
+        StaticSchedule(
+            stop_time=AsyncMock(),
+            route=AsyncMock(),
+            calendar=CalendarModel(
+                id="service_id", start_date=date.today(), end_date=date.today()
+            ),
+            stop=AsyncMock(),
+            trip=AsyncMock(),
+        ),
+        StaticSchedule(
+            stop_time=AsyncMock(),
+            route=AsyncMock(),
+            calendar=CalendarModel(
+                id="a_different_service_id", start_date=date.today(), end_date=date.today()
+            ),
+            stop=AsyncMock(),
+            trip=AsyncMock(),
+        ),
+    ]
     schedule_repository = AsyncMock()
     calendar_date_repository = AsyncMock()
-    calendar_date_repository.get_removed_exceptions_on_date.return_value = [CalendarDateModel(date=date.today(), exception_type=ExceptionType.removed, service_id="service_id")]
+    calendar_date_repository.get_removed_exceptions_on_date.return_value = [
+        CalendarDateModel(
+            date=date.today(), exception_type=ExceptionType.removed, service_id="service_id"
+        )
+    ]
     schedule_service = ScheduleService(
         schedule_repository=schedule_repository,
         calendar_date_repository=calendar_date_repository,

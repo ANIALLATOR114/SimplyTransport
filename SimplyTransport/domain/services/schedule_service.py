@@ -33,13 +33,15 @@ class ScheduleService:
         ]
 
         return static_schedules
-    
+
     async def get_schedule_on_stop_for_day_between_times(
         self, stop_id: str, day: DayOfWeek, start_time: time, end_time: time
     ) -> list[StaticSchedule]:
         """Returns a list of schedules for the given stop and day"""
-        schedules_from_db = await self.schedule_repository.get_schedule_on_stop_for_day_between_times(
-            stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
+        schedules_from_db = (
+            await self.schedule_repository.get_schedule_on_stop_for_day_between_times(
+                stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
+            )
         )
         static_schedules = [
             StaticSchedule(
@@ -53,12 +55,12 @@ class ScheduleService:
         ]
 
         return static_schedules
-    
+
     async def apply_custom_23_00_sorting(
         self, static_schedules: list[StaticSchedule]
     ) -> list[StaticSchedule]:
         """Sorts the schedules in a custom way"""
-        
+
         def custom_sort_key(static_schedule: StaticSchedule):
             arrival_time = static_schedule.stop_time.arrival_time
 
@@ -95,14 +97,10 @@ class ScheduleService:
         pass  # TODO
 
         return static_schedules
-    
-    async def get_by_trip_id(
-        self, trip_id: str
-    ) -> list[StaticSchedule]:
+
+    async def get_by_trip_id(self, trip_id: str) -> list[StaticSchedule]:
         """Returns a list of schedules for the given trip_id"""
-        schedules_from_db = await self.schedule_repository.get_by_trip_id(
-            trip_id=trip_id
-        )
+        schedules_from_db = await self.schedule_repository.get_by_trip_id(trip_id=trip_id)
         static_schedules = [
             StaticSchedule(
                 route=schedule.RouteModel,

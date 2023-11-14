@@ -9,7 +9,14 @@ from enum import Enum
 
 
 class StaticSchedule:
-    def __init__(self, route: RouteModel, stop_time: StopTimeModel, calendar: CalendarModel, stop:StopModel, trip: TripModel):
+    def __init__(
+        self,
+        route: RouteModel,
+        stop_time: StopTimeModel,
+        calendar: CalendarModel,
+        stop: StopModel,
+        trip: TripModel,
+    ):
         self.route = route
         self.stop_time = stop_time
         self.calendar = calendar

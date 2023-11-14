@@ -48,11 +48,14 @@ class ScheduleRepository:
             .where(
                 *conditions,
             )
-            .order_by(StopTimeModel.arrival_time))
-        
+            .order_by(StopTimeModel.arrival_time)
+        )
+
         return await self.session.execute(statement)
-    
-    async def get_schedule_on_stop_for_day_between_times(self, stop_id: str, day: DayOfWeek, start_time: time, end_time: time):
+
+    async def get_schedule_on_stop_for_day_between_times(
+        self, stop_id: str, day: DayOfWeek, start_time: time, end_time: time
+    ):
         """Returns a list of schedules for the given stop and day"""
         conditions = []
         if day == DayOfWeek.MONDAY:
@@ -75,7 +78,12 @@ class ScheduleRepository:
         conditions.append(StopModel.id == stop_id)
 
         if start_time > end_time:
-            conditions.append(or_(StopTimeModel.arrival_time >= start_time, StopTimeModel.arrival_time <= end_time))
+            conditions.append(
+                or_(
+                    StopTimeModel.arrival_time >= start_time,
+                    StopTimeModel.arrival_time <= end_time,
+                )
+            )
         else:
             conditions.append(StopTimeModel.arrival_time >= start_time)
             conditions.append(StopTimeModel.arrival_time <= end_time)
@@ -92,7 +100,7 @@ class ScheduleRepository:
             .order_by(StopTimeModel.arrival_time)
         )
         return await self.session.execute(statement)
-    
+
     async def get_by_trip_id(self, trip_id: str):
         """Returns a list of schedules for the given trip"""
         statement = (

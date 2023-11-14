@@ -49,7 +49,12 @@ class RealtimeController(Controller):
         start_time = (current_time + timedelta(minutes=start_time_difference)).time()
         end_time = (current_time + timedelta(minutes=end_time_difference)).time()
 
-        schedules = await schedule_service.get_schedule_on_stop_for_day_between_times(stop_id=stop_id, day=datetime.now().weekday(), start_time=start_time, end_time=end_time)
+        schedules = await schedule_service.get_schedule_on_stop_for_day_between_times(
+            stop_id=stop_id,
+            day=datetime.now().weekday(),
+            start_time=start_time,
+            end_time=end_time,
+        )
         schedules = await schedule_service.remove_exceptions_and_inactive_calendars(schedules)
         schedules = await schedule_service.add_in_added_exceptions(schedules)  # TODO
         schedules = await schedule_service.apply_custom_23_00_sorting(schedules)
@@ -101,7 +106,6 @@ class RealtimeController(Controller):
             context={"route": route, "stops": stops_and_sequences, "direction": direction},
         )
 
-
     @get("/trip/{trip_id:str}")
     async def realtime_trip(
         self,
@@ -111,9 +115,9 @@ class RealtimeController(Controller):
         schedules = await schedule_service.get_by_trip_id(trip_id=trip_id)
 
         if len(schedules) == 0:
-            return str("No schedules found for trip") #TODO 404
-            #accessing list position 0 here so will throw an error if there arent any schedules
-        
+            return str("No schedules found for trip")  # TODO 404
+            # accessing list position 0 here so will throw an error if there arent any schedules
+
         direction_value = schedules[0].trip.direction
         direction_string = "Southbound" if direction_value == 0 else "Northbound"
 
