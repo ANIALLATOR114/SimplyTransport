@@ -44,6 +44,7 @@ class CalendarModel(BigIntAuditBase):
         for exception in exceptions:
             if exception.service_id == self.id:
                 return True
+        return False
 
 
 class Calendar(BaseModel):
