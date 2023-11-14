@@ -3,6 +3,7 @@ from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
 
 from datetime import date
 
+
 def test_calendar_model_returns_true_if_active():
     """Test that the CalendarModel returns True if the calendar is active on the given date"""
     calendar = CalendarModel(
@@ -41,23 +42,29 @@ def test_calendar_model_returns_true_if_in_exceptions():
         dataset="test",
     )
     assert calendar.in_exceptions([]) is False
-    assert calendar.in_exceptions(
-        [
-            CalendarDateModel(
-                service_id="1",
-                date=date(2021, 1, 1),
-                exception_type=1,
-                dataset="test",
-            )
-        ]
-    ) is True
-    assert calendar.in_exceptions(
-        [
-            CalendarDateModel(
-                service_id="different_id",
-                date=date(2021, 1, 1),
-                exception_type=1,
-                dataset="test",
-            )
-        ]
-    ) is False
+    assert (
+        calendar.in_exceptions(
+            [
+                CalendarDateModel(
+                    service_id="1",
+                    date=date(2021, 1, 1),
+                    exception_type=1,
+                    dataset="test",
+                )
+            ]
+        )
+        is True
+    )
+    assert (
+        calendar.in_exceptions(
+            [
+                CalendarDateModel(
+                    service_id="different_id",
+                    date=date(2021, 1, 1),
+                    exception_type=1,
+                    dataset="test",
+                )
+            ]
+        )
+        is False
+    )
