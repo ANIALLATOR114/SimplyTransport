@@ -1,0 +1,8 @@
+[program:simplytransport]
+directory={PATH TO PROJECT}
+command={PATH TO PROJECT}/venv/bin/uvicorn SimplyTransport.app:create_app --port {PORT} --env-file .env
+user={USRERNAME}
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true

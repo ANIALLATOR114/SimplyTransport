@@ -48,12 +48,13 @@ _**- WIP**_
 _**- WIP**_
 
 - [x] Homepage
-- [ ] About
-- [ ] Stop
-- [ ] Route
-- [ ] Search Page
-  - [ ] Stops
-  - [ ] Routes
+- [x] About
+- [x] Stop
+- [x] Route
+- [x] Trip
+- [x] Search Page
+  - [x] Stops
+  - [x] Routes
 
 ## CLI Interface
 
@@ -95,19 +96,19 @@ First clone down the project in your desired directory
 git clone https://github.com/ANIALLATOR114/SimplyTransport.git
 ```
 
-Second create a virtual environment inside the root directory of the project
+Create a virtual environment inside the root directory of the project
 
 ```
 python3 -m venv /venv
 ```
 
-Third install the dependencies to your virtual environment
+Install the dependencies to your virtual environment
 
 ```
 pip install -r requirements.txt
 ```
 
-Fourth create a copy of .env.example and populate it with your environment variables
+Create a copy of .env.example and populate it with your environment variables
 
 ```
 cp .env.example .env
@@ -116,7 +117,7 @@ cp .env.example .env
 ## Database
 
 This application expects a Postgres database to be available at the url specificed in the .env file
-There is a docker-compose.yaml available in the root directory of the project which will create a postgres database for you
+There is a docker-compose.yaml available in the root directory of the project which will create a postgres database for you as well as a redis instance
 
 ```
 docker-compose up -d
@@ -137,9 +138,9 @@ To apply the migration to your database use the following command
 alembic upgrade head
 ```
 
-## Running
+## Running Locally
 
-You can run the app using the litestar run command which will use a uvicorn worker to launch the app on 127.0.0.1:8000
+You can run the app using the litestar run command for local development which will use a uvicorn worker to launch the app on 127.0.0.1:8000
 
 ```
 litestar run
@@ -161,4 +162,29 @@ litestar docs
 
 ```
 litestar importgtfs
+```
+
+## Running in Production
+
+You should use uvicorn directly to run the app in production
+
+```
+uvicorn SimplyTransport.app:create_app --port 8000 --env-file .env
+```
+
+Example configs are available for Supervisor and Nginx for hosting on Linux.
+This allows you to run the app as a service and proxy requests to it from Nginx, Supervisor will manage the processess and restart them if they fail.
+Once configured you can start the app under supervisor using the following command
+
+```
+supervisorctl start simplytransport
+```
+
+It is advisable to have nginx serve the static files for the app, you can do this by adding the following to your nginx config.
+A similar line is already present in the example config as well as a robots.txt example
+
+```
+location /static {
+    alias /path/to/SimplyTransport/static;
+}
 ```
