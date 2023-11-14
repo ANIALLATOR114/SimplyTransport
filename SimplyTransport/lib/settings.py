@@ -6,10 +6,11 @@ from pydantic_settings import BaseSettings
 class BaseEnvSettings(BaseSettings):
     """Base settings class for environment variables."""
 
-    env_file:str = ".env"
-    env_file_encoding:str = "utf-8"
+    env_file: str = ".env"
+    env_file_encoding: str = "utf-8"
 
     model_config = {"from_attributes": True}
+
 
 class AppSettings(BaseEnvSettings):
     """Settings class for environment variables."""
