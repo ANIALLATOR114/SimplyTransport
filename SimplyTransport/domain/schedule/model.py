@@ -2,15 +2,19 @@ from SimplyTransport.domain.route.model import RouteModel
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
+from SimplyTransport.domain.stop.model import StopModel
+from SimplyTransport.domain.trip.model import TripModel
 import datetime as DateTime
 from enum import Enum
 
 
 class StaticSchedule:
-    def __init__(self, route: RouteModel, stop_time: StopTimeModel, calendar: CalendarModel):
+    def __init__(self, route: RouteModel, stop_time: StopTimeModel, calendar: CalendarModel, stop:StopModel, trip: TripModel):
         self.route = route
         self.stop_time = stop_time
         self.calendar = calendar
+        self.stop = stop
+        self.trip = trip
 
     def true_if_active(self, date: DateTime.date):
         return self.calendar.true_if_active(date)

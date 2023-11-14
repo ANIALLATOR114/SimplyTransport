@@ -5,6 +5,46 @@
 {% block content %}
     <div class="narrow-container">
         <h1>About SimplyTransport</h1>
-        <p class="dense-text">Something to say what this website is about.</p>
+        <p class="dense-text">
+            SimplyTransport is a web application designed to provide comprehensive and comprehensible Transport Information in Ireland.
+        </p>
+        <p class="dense-text">
+            The website and backend are open-source at <a class="link-style"
+    target="_blank"
+    href="https://github.com/ANIALLATOR114/SimplyTransport">SimplyTransport</a>
+        </p>
+        <p class="dense-text">
+            This project has been solely developed by <a class="link-style"
+    target="_blank"
+    href="https://github.com/ANIALLATOR114">Niall</a>
+        </p>
+        <p class="dense-text">
+            As development is on-going, new featues are being added all the time. If you have any suggestions, please feel free to open an issue on the GitHub repository. It's possible it may already be planned, but if not, I'd love to hear about the use-case!
+        </p>
+        <h2>Transport Data</h2>
+        <p class="dense-text">
+            The data used by SimplyTransport is provided by <a class="link-style"
+    target="_blank"
+    href="https://www.transportforireland.ie/transitData/PT_Data.html">Transport For Ireland</a> in the <a class="link-style" target="_blank" href="https://gtfs.org/">GTFS</a> format.
+        </p>
+        <p class="dense-text">More technical explanations of the data can be found on the GitHub repository.</p>
+        <h2>API</h2>
+        <p class="dense-text">
+            SimplyTransport provides an API for accessing formatted GTFS data with the ability to query specific sub-sets of data. The limited government APIs do not have this functionality and when I asked them about it they informaed me it wasn't coming any time soon.
+        </p>
+        <p class="dense-text">
+            I have also added additional models of data I have defined to make working with the datasets more acessible. For example, the API provides a list of all stops in a route, which is not available in the GTFS data, and much more.
+        </p>
+        <h2>Technology</h2>
+        <p class="dense-text">SimplyTransport is built using the following technologies:</p>
+        <ul class="dense-text">
+            <li>Python</li>
+            <li>Litestar (web framework)</li>
+            <li>PostgreSQL</li>
+            <li>Redis</li>
+            <li>Docker</li>
+            <li>NginX</li>
+            <li>CloudFlare</li>
+        </ul>
     </div>
 {% endblock content %}

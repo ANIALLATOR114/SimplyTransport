@@ -9,13 +9,16 @@
     <tbody>
         {% for schedule in schedules %}
             <tr>
-                <td class="dense-text no-pointer align-horizontal">
-                    <a class="no-underline align-horizontal"
-                       href="/realtime/route/{{ schedule.route.id }}/1">
+                <td class="dense-text no-pointer bold-highlight">
+                    <a class="no-underline" href="/realtime/route/{{ schedule.route.id }}/1">
                         <img class="link-icon-table" src="/static/link.svg">
-                    </a>{{ schedule.route.short_name }}
+                    </a><span class="code-highlight">{{ schedule.route.short_name }}</span>
                 </td>
-                <td class="dense-text no-pointer">{{ schedule.stop_time.arrival_time }}</td>
+                <td class="dense-text no-pointer">
+                    <a class="no-underline" href="/realtime/trip/{{ schedule.trip.id }}">
+                        <img class="link-icon-table" src="/static/link.svg">
+                    </a>{{ schedule.stop_time.arrival_time }}
+                </td>
             </tr>
         {% endfor %}
     </tbody>
