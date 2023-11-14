@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}
+    SimplyTransport - Trip {{ schedules[0].trip.short_name }} on Route {{ schedules[0].route.short_name }}
+{% endblock title %}
+{% block content %}
+    <div class="narrow-container">
+        <h1>Trip: {{ schedules[0].trip.short_name }}</h1>
+        <div class="flex-gap">
+            <a style="text-decoration: none"
+               href="/realtime/route/{{ schedules[0].route.id }}/1"
+               target="_blank">
+                <button class="no-line-break link-button dense-text">Route: {{ schedules[0].route.short_name }}</button>
+            </a>
+            <button class="no-line-break link-button dense-text">Direction: {{ direction_string }}</button>
+        </div>
+        <div class="inner-container">
+            <h3 class="h3-table">Predicted Schedule:</h3>
+            <div id="schedule-table">
+                <table class="table-search no-stripe table-sortable">
+                    <thead class="hoverable">
+                        <tr>
+                            <th class="dense-text">Stop Name</th>
+                            <th class="dense-text">Stop Code</th>
+                            <th class="dense-text">Arrival</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in schedules %}
+                            <tr>
+                                <td class="dense-text no-pointer">
+                                    <a class="no-underline" href="/realtime/stop/{{ schedule.stop.id }}">
+                                        <img class="link-icon-table" src="/static/link.svg", alt="link-icon">
+                                    </a>{{ schedule.stop.name }}
+                                </td>
+                                <td class="dense-text no-pointer">{{ schedule.stop.code }}</td>
+                                <td class="dense-text no-pointer">{{ schedule.stop_time.arrival_time }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% include "widgets/copy-to-clipboard.html" %}
+    {% include "widgets/filter_table.html" %}
+{% endblock content %}

@@ -1,12 +1,14 @@
-from SimplyTransport.domain.calendar.model import CalendarModel
-from SimplyTransport.domain.schedule.model import DayOfWeek
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from datetime import time
 
+from sqlalchemy import or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.route.model import RouteModel
+from SimplyTransport.domain.schedule.model import DayOfWeek
+from SimplyTransport.domain.stop.model import StopModel
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 from SimplyTransport.domain.trip.model import TripModel
-from SimplyTransport.domain.stop.model import StopModel
 
 
 class ScheduleRepository:
@@ -38,13 +40,77 @@ class ScheduleRepository:
         conditions.append(StopModel.id == stop_id)
 
         statement = (
-            select(StopTimeModel, RouteModel, CalendarModel)
+            select(StopTimeModel, RouteModel, CalendarModel, StopModel, TripModel)
             .join(TripModel, TripModel.id == StopTimeModel.trip_id)
             .join(StopModel, StopModel.id == StopTimeModel.stop_id)
             .join(RouteModel, RouteModel.id == TripModel.route_id)
             .join(CalendarModel, CalendarModel.id == TripModel.service_id)
             .where(
                 *conditions,
+            )
+            .order_by(StopTimeModel.arrival_time)
+        )
+
+        return await self.session.execute(statement)
+
+    async def get_schedule_on_stop_for_day_between_times(
+        self, stop_id: str, day: DayOfWeek, start_time: time, end_time: time
+    ):
+        """Returns a list of schedules for the given stop and day"""
+        conditions = []
+        if day == DayOfWeek.MONDAY:
+            conditions.append(CalendarModel.monday == 1)
+        elif day == DayOfWeek.TUESDAY:
+            conditions.append(CalendarModel.tuesday == 1)
+        elif day == DayOfWeek.WEDNESDAY:
+            conditions.append(CalendarModel.wednesday == 1)
+        elif day == DayOfWeek.THURSDAY:
+            conditions.append(CalendarModel.thursday == 1)
+        elif day == DayOfWeek.FRIDAY:
+            conditions.append(CalendarModel.friday == 1)
+        elif day == DayOfWeek.SATURDAY:
+            conditions.append(CalendarModel.saturday == 1)
+        elif day == DayOfWeek.SUNDAY:
+            conditions.append(CalendarModel.sunday == 1)
+        else:
+            raise ValueError(f"Invalid day of week {day}")
+
+        conditions.append(StopModel.id == stop_id)
+
+        if start_time > end_time:
+            conditions.append(
+                or_(
+                    StopTimeModel.arrival_time >= start_time,
+                    StopTimeModel.arrival_time <= end_time,
+                )
+            )
+        else:
+            conditions.append(StopTimeModel.arrival_time >= start_time)
+            conditions.append(StopTimeModel.arrival_time <= end_time)
+
+        statement = (
+            select(StopTimeModel, RouteModel, CalendarModel, StopModel, TripModel)
+            .join(TripModel, TripModel.id == StopTimeModel.trip_id)
+            .join(StopModel, StopModel.id == StopTimeModel.stop_id)
+            .join(RouteModel, RouteModel.id == TripModel.route_id)
+            .join(CalendarModel, CalendarModel.id == TripModel.service_id)
+            .where(
+                *conditions,
+            )
+            .order_by(StopTimeModel.arrival_time)
+        )
+        return await self.session.execute(statement)
+
+    async def get_by_trip_id(self, trip_id: str):
+        """Returns a list of schedules for the given trip"""
+        statement = (
+            select(StopTimeModel, RouteModel, CalendarModel, StopModel, TripModel)
+            .join(TripModel, TripModel.id == StopTimeModel.trip_id)
+            .join(StopModel, StopModel.id == StopTimeModel.stop_id)
+            .join(RouteModel, RouteModel.id == TripModel.route_id)
+            .join(CalendarModel, CalendarModel.id == TripModel.service_id)
+            .where(
+                TripModel.id == trip_id,
             )
             .order_by(StopTimeModel.arrival_time)
         )
