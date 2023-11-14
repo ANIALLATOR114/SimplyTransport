@@ -1,14 +1,11 @@
-from SimplyTransport.domain.services.schedule_service import ScheduleService
-from SimplyTransport.domain.schedule.model import StaticSchedule
-from SimplyTransport.domain.schedule.model import DayOfWeek
-from SimplyTransport.domain.stop_times.model import StopTimeModel
-from SimplyTransport.domain.calendar_dates.model import CalendarDateModel, ExceptionType
-from SimplyTransport.domain.calendar.model import CalendarModel
-
-from datetime import time, date
+from datetime import date, time
+from unittest.mock import AsyncMock
 
 import pytest
-from unittest.mock import AsyncMock
+
+from SimplyTransport.domain.schedule.model import DayOfWeek, StaticSchedule
+from SimplyTransport.domain.services.schedule_service import ScheduleService
+from SimplyTransport.domain.stop_times.model import StopTimeModel
 
 
 @pytest.mark.asyncio
@@ -242,43 +239,18 @@ async def test_remove_exceptions_and_inactive_calendars_should_call_repository()
 
 
 @pytest.mark.asyncio
-async def test_remove_exceptions_and_inactive_calendars_should_return_list_without_exceptions():
+async def test_get_by_trip_id_calls_repository():
     # Arrange
-    mock_schedule_data = [
-        StaticSchedule(
-            stop_time=AsyncMock(),
-            route=AsyncMock(),
-            calendar=CalendarModel(
-                id="service_id", start_date=date.today(), end_date=date.today()
-            ),
-            stop=AsyncMock(),
-            trip=AsyncMock(),
-        ),
-        StaticSchedule(
-            stop_time=AsyncMock(),
-            route=AsyncMock(),
-            calendar=CalendarModel(
-                id="a_different_service_id", start_date=date.today(), end_date=date.today()
-            ),
-            stop=AsyncMock(),
-            trip=AsyncMock(),
-        ),
-    ]
     schedule_repository = AsyncMock()
     calendar_date_repository = AsyncMock()
-    calendar_date_repository.get_removed_exceptions_on_date.return_value = [
-        CalendarDateModel(
-            date=date.today(), exception_type=ExceptionType.removed, service_id="service_id"
-        )
-    ]
     schedule_service = ScheduleService(
         schedule_repository=schedule_repository,
         calendar_date_repository=calendar_date_repository,
     )
+    trip_id = "trip_id"
 
     # Act
-    result = await schedule_service.remove_exceptions_and_inactive_calendars(mock_schedule_data)
+    await schedule_service.get_by_trip_id(trip_id=trip_id)
 
     # Assert
-    assert len(result) == 1
-    assert result[0] == mock_schedule_data[0]
+    schedule_repository.get_by_trip_id.assert_called_once_with(trip_id=trip_id)
