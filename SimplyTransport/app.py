@@ -13,8 +13,6 @@ from SimplyTransport.lib.cache import cache_config
 from SimplyTransport.cli import CLIPlugin
 from SimplyTransport.lib.parameters.limitoffset import provide_limit_offset_pagination
 
-__all__ = ["create_app"]
-
 
 def create_app() -> Litestar:
     return Litestar(
