@@ -1,6 +1,5 @@
-from typing import Literal
-
 from pydantic_settings import BaseSettings
+from pydantic import validator
 
 
 class BaseEnvSettings(BaseSettings):
@@ -18,16 +17,9 @@ class AppSettings(BaseEnvSettings):
     model_config = {"from_attributes": True}
 
     DEBUG: bool = False
-    ENVIRONMENT: Literal["DEV", "PROD", "TEST", "CI_TEST"] = "DEV"
-    if ENVIRONMENT != "PROD":
-        NAME: str = f"SimplyTransport {ENVIRONMENT}"
-    else:
-        NAME: str = "SimplyTransport"
-
-    if ENVIRONMENT == "DEV":
-        LOG_LEVEL: str = "DEBUG"
-    else:
-        LOG_LEVEL: str = "INFO"
+    ENVIRONMENT: str = "DEV"
+    NAME: str = "SimplyTransport"
+    LOG_LEVEL: str = "DEBUG"
 
     VERSION: str = "0.1.0"
     SECRET_KEY: str = "secret"
@@ -48,6 +40,18 @@ class AppSettings(BaseEnvSettings):
 
     # Loki
     LOKI_URL: str = "http://localhost:3100/loki/api/v1/push"
+
+    @validator("NAME", pre=True, always=True)
+    def set_name(cls, v, values):
+        return (
+            v
+            if values.get("ENVIRONMENT") == "PROD"
+            else f"SimplyTransport {values.get('ENVIRONMENT')}"
+        )
+
+    @validator("LOG_LEVEL", pre=True, always=True)
+    def set_log_level(cls, v, values):
+        return "INFO" if values.get("ENVIRONMENT") != "DEV" else "DEBUG"
 
 
 app = AppSettings.model_validate({})
