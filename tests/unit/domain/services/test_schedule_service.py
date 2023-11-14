@@ -1,5 +1,5 @@
 from datetime import date, time
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
@@ -227,7 +227,7 @@ async def test_remove_exceptions_and_inactive_calendars_should_call_repository()
         calendar_date_repository=calendar_date_repository,
     )
 
-    mock_schedule_data = [AsyncMock(), AsyncMock()]
+    mock_schedule_data = [Mock(), Mock()]
 
     # Act
     await schedule_service.remove_exceptions_and_inactive_calendars(mock_schedule_data)
