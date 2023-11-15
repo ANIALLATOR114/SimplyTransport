@@ -143,11 +143,12 @@ class CLIPlugin(CLIPluginProtocol):
             finish: float = time.perf_counter()
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
-
         @cli.command(name="importrealtime", help="Imports GTFS realtime data into the database")
         @click.option("-url", help="Override the default URL for the GTFS realtime data")
         @click.option("-apikey", help="Override the default API key for the GTFS realtime data")
-        @click.option("-dataset", help="Override the default dataset that the data will be saved against")
+        @click.option(
+            "-dataset", help="Override the default dataset that the data will be saved against"
+        )
         def importrealtime(url: str, apikey: str, dataset: str):
             """Imports GTFS realtime data into the database"""
 
@@ -173,22 +174,24 @@ class CLIPlugin(CLIPluginProtocol):
                 realtime_dataset = dataset
                 console.print("Overriding dataset: " + realtime_dataset)
             else:
-                realtime_dataset = "TFI" # Only supports TFI for now
+                realtime_dataset = "TFI"  # Only supports TFI for now
 
-            importer = RealTimeImporter(url=realtime_url, api_key=realtime_apikey, dataset=realtime_dataset)
+            importer = RealTimeImporter(
+                url=realtime_url, api_key=realtime_apikey, dataset=realtime_dataset
+            )
 
             data = importer.get_data()
 
             if data is None:
-                console.print("[red]Error: No data returned from API, either response was not 200 or JSON was invalid.")
+                console.print(
+                    "[red]Error: No data returned from API, either response was not 200 or JSON was invalid."
+                )
                 return
-            
+
             console.print(f"{len(data)} rows returned from API")
 
             importer.clear_table_stop_trip()
             importer.import_stop_times(data)
-
-            
 
         @cli.command(name="create_tables", help="Creates the database tables")
         def create_tables():
