@@ -6,12 +6,14 @@ import rich.progress as rp
 from SimplyTransport.domain.agency.model import AgencyModel
 from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
-from SimplyTransport.domain.route.model import RouteModel, RouteType
+from SimplyTransport.domain.enums import RouteType
+from SimplyTransport.domain.route.model import RouteModel
 from SimplyTransport.domain.trip.model import TripModel
 from SimplyTransport.domain.stop.model import StopModel
 from SimplyTransport.domain.shape.model import ShapeModel
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 from SimplyTransport.lib.db.database import session
+from SimplyTransport.lib import time_date_conversions as tdc
 
 progress_columns = (
     rp.SpinnerColumn(finished_text="✅"),
@@ -135,8 +137,8 @@ class CalendarImporter(GTFSImporter):
                         friday=row["friday"],
                         saturday=row["saturday"],
                         sunday=row["sunday"],
-                        start_date=datetime.strptime(row["start_date"], "%Y%m%d").date(),
-                        end_date=datetime.strptime(row["end_date"], "%Y%m%d").date(),
+                        start_date=tdc.convert_joined_date_to_date(row["start_date"]),
+                        end_date=tdc.convert_joined_date_to_date(row["end_date"]),
                         dataset=self.dataset,
                     )
                     session.add(new_calendar)
@@ -175,7 +177,7 @@ class CalendarDateImporter(GTFSImporter):
                         raise ValueError(f"Invalid exception_type '{row['exception_type']}'")
                     new_calendar_date = CalendarDateModel(
                         service_id=row["service_id"],
-                        date=datetime.strptime(row["date"], "%Y%m%d").date(),
+                        date=tdc.convert_joined_date_to_date(row["date"]),
                         exception_type=exception_type,
                         dataset=self.dataset,
                     )
@@ -422,17 +424,6 @@ class StopTimeImporter(GTFSImporter):
     def __str__(self) -> str:
         return "StopTimeImporter"
 
-    def convert_29_hours_to_24_hours(self, time: str) -> datetime.time:
-        """Converts a time in 29 hours format to 24 hours format"""
-        hours_str, minutes_str, seconds_str = time.split(":")
-        if int(hours_str) > 23:
-            hours_str = str(int(hours_str) - 24)
-        if len(hours_str) == 1:
-            hours_str = f"0{hours_str}"
-
-        fixed_arrival_time = f"{hours_str}:{minutes_str}:{seconds_str}"
-        return datetime.strptime(fixed_arrival_time, "%H:%M:%S").time()
-
     def import_data(self):
         """Imports the data from the csv.DictReader object into the database"""
 
@@ -443,8 +434,8 @@ class StopTimeImporter(GTFSImporter):
 
             with session:
                 for row in self.reader:
-                    arrival_time = self.convert_29_hours_to_24_hours(row["arrival_time"])
-                    departure_time = self.convert_29_hours_to_24_hours(row["departure_time"])
+                    arrival_time = tdc.convert_29_hours_to_24_hours(row["arrival_time"])
+                    departure_time = tdc.convert_29_hours_to_24_hours(row["departure_time"])
 
                     if row["pickup_type"] == "":
                         pickup_type = None

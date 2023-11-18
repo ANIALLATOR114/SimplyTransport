@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.table import Table
 
 import SimplyTransport.lib.gtfs_importers as imp
+from SimplyTransport.lib.gtfs_realtime_importers import RealTimeImporter
 
 
 def gtfs_directory_validator(dir: str, console: Console):
@@ -33,22 +34,24 @@ class CLIPlugin(CLIPluginProtocol):
 
             from SimplyTransport.lib import settings
 
-            env_settings = settings.BaseEnvSettings()
             console = Console()
 
             table = Table()
             table.add_column("Setting", style="cyan")
             table.add_column("Value")
 
-            table.add_row("LITESTAR_APP", env_settings.LITESTAR_APP)
-            if env_settings.DEBUG:
+            table.add_row("LITESTAR_APP", settings.app.LITESTAR_APP)
+            if settings.app.DEBUG:
                 debug_style = "green"
             else:
                 debug_style = "red"
-            table.add_row("Debug", str(env_settings.DEBUG), style=debug_style)
-            table.add_row("Environment", env_settings.ENVIRONMENT)
-            table.add_row("Database URL", env_settings.DB_URL)
-            table.add_row("Log Level", env_settings.LOG_LEVEL)
+
+            table.add_row("Debug", str(settings.app.DEBUG), style=debug_style)
+            table.add_row("Environment", settings.app.ENVIRONMENT)
+            table.add_row("Database URL", settings.app.DB_URL)
+            table.add_row("Database SYNC URL", settings.app.DB_URL_SYNC)
+            table.add_row("Database Echo", str(settings.app.DB_ECHO))
+            table.add_row("Log Level", settings.app.LOG_LEVEL)
 
             console.print(table)
 
@@ -76,7 +79,7 @@ class CLIPlugin(CLIPluginProtocol):
             console.print(table)
 
         @cli.command(name="importgtfs", help="Imports GTFS data into the database")
-        @click.option("-dir", help="The directory containing the GTFS data to import")
+        @click.option("-dir", help="Override the directory containing the GTFS data to import")
         def importgtfs(dir: str):
             """Imports GTFS data into the database"""
 
@@ -136,6 +139,65 @@ class CLIPlugin(CLIPluginProtocol):
                     progress.update(task, advance=1)
 
                 importer.import_data()
+
+            finish: float = time.perf_counter()
+            console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
+
+        @cli.command(name="importrealtime", help="Imports GTFS realtime data into the database")
+        @click.option("-url", help="Override the default URL for the GTFS realtime data")
+        @click.option("-apikey", help="Override the default API key for the GTFS realtime data")
+        @click.option(
+            "-dataset", help="Override the default dataset that the data will be saved against"
+        )
+        def importrealtime(url: str, apikey: str, dataset: str):
+            """Imports GTFS realtime data into the database"""
+
+            start: float = time.perf_counter()
+            console = Console()
+            console.print("Importing GTFS realtime data...")
+
+            from SimplyTransport.lib import settings
+
+            if url:
+                realtime_url = url
+                console.print(f"\nOverriding URL: {realtime_url}")
+            else:
+                realtime_url = settings.app.GTFS_TFI_REALTIME_URL
+
+            if apikey:
+                realtime_apikey = apikey
+                console.print(f"\nOverriding API key: {realtime_apikey}")
+            else:
+                realtime_apikey = settings.app.GTFS_TFI_API_KEY_1
+
+            if dataset:
+                realtime_dataset = dataset
+                console.print(f"\nOverriding dataset: {realtime_dataset}")
+            else:
+                realtime_dataset = settings.app.GTFS_TFI_DATASET
+
+            importer = RealTimeImporter(
+                url=realtime_url, api_key=realtime_apikey, dataset=realtime_dataset
+            )
+
+            console.print(f"\nImporting using dataset: {realtime_dataset} from {realtime_url}")
+
+            data = importer.get_data()
+
+            if data is None:
+                console.print(
+                    "[red]Error: No data returned from API, either response was not 200 or JSON was invalid."
+                )
+                return
+
+            console.print(f"\n{len(data['entity'])} entities returned from API")
+
+            importer.clear_table_stop_trip()
+            console.print("\nImporting Stop Times")
+            importer.import_stop_times(data)
+
+            console.print("\nImporting Trips")
+            importer.import_trips(data)
 
             finish: float = time.perf_counter()
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")

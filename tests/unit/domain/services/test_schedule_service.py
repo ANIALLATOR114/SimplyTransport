@@ -2,8 +2,9 @@ from datetime import date, time
 from unittest.mock import AsyncMock, Mock
 
 import pytest
+from SimplyTransport.domain.enums import DayOfWeek
 
-from SimplyTransport.domain.schedule.model import DayOfWeek, StaticSchedule
+from SimplyTransport.domain.schedule.model import StaticSchedule
 from SimplyTransport.domain.services.schedule_service import ScheduleService
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 

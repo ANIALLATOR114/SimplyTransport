@@ -85,6 +85,43 @@ _**- WIP**_
 
 # Development
 
+## Project Structure
+
+This app is a Litestar Python ASGI web application, it's organised into controllers, domain, services, lib extensions and templates.
+
+### Controllers
+
+This is where the endpoints for the app are defined, these are the entry points for the API and the web interface.
+Each controller will be injected with any services or repositories it requires to function.
+Controllers should be kept as thin as possible, they should only be responsible for handling the request and returning a response.
+The routing for each controller is configured in the init file in the controllers directory.
+Schema generation is also defined here, "non-api" controllers will be ignored by the schema generator.
+
+### Domain
+
+This is where the models for the app are defined, these are the objects that are returned by the API and used in endpoints.
+Most of these will be based on the GTFS data but some are custom objects.
+Commonly these will have a SqlAlchemy model associated with them (should it require one).
+Each model should have its own dedicated repository which is used to query the database for that object.
+
+### Services
+
+This is where more complicated logic will be organised.
+Services should be injected with any repositories they require to function.
+Services will combine data from multiple repositories to create a more complex object or perform some logic.
+
+### Lib
+
+This is where any extensions to the app are defined.
+This includes things like the database, the schema generator, logging, etc.
+
+### Templates
+
+This is where the templates for the web interface are defined.
+These are jinja2 templates which are rendered by the controllers.
+There is a base template which is extended by any other templates that define a distinc web page.
+Partial templates are smaller templates that are returned with the intention to inject them into the calling template. HTMX is used to request and swap these partials in and out of the DOM.
+
 ## Installation
 
 > [!NOTE]

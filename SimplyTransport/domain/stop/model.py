@@ -2,22 +2,15 @@ from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from sqlalchemy import String, Integer, ForeignKey, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel, Field
-from enum import Enum
 from typing import Optional
+
+from SimplyTransport.domain.enums import LocationType
 
 
 class BaseModel(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
 
     model_config = {"from_attributes": True}
-
-
-class LocationType(int, Enum):
-    STOP = 0
-    STATION = 1
-    ENTRANCE_EXIT = 2
-    GENERIC_NODE = 3
-    BOARDING_AREA = 4
 
 
 class StopModel(BigIntAuditBase):
@@ -40,6 +33,9 @@ class StopModel(BigIntAuditBase):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(
+        back_populates="stop"
+    )  # noqa: F821
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 
