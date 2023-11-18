@@ -1,4 +1,4 @@
-from SimplyTransport.domain.realtime.stop.repo import RTStopRepository
+from SimplyTransport.domain.realtime.stop_time.repo import RTStopTimeRepository
 from SimplyTransport.domain.realtime.trip.repo import RTTripRepository
 from SimplyTransport.domain.realtime.vehicle.repo import RTVehicleRepository
 
@@ -6,7 +6,7 @@ from SimplyTransport.domain.realtime.vehicle.repo import RTVehicleRepository
 class RealTimeService:
     def __init__(
         self,
-        rt_stop_repository: RTStopRepository,
+        rt_stop_repository: RTStopTimeRepository,
         rt_trip_repository: RTTripRepository,
         rt_vehicle_repository: RTVehicleRepository,
     ):

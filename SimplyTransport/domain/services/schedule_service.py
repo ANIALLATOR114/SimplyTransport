@@ -1,7 +1,8 @@
 from datetime import date, time
 
 from SimplyTransport.domain.calendar_dates.repo import CalendarDateRepository
-from SimplyTransport.domain.schedule.model import DayOfWeek, StaticSchedule
+from SimplyTransport.domain.enums import DayOfWeek
+from SimplyTransport.domain.schedule.model import StaticSchedule
 from SimplyTransport.domain.schedule.repo import ScheduleRepository
 
 

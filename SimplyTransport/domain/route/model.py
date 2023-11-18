@@ -2,27 +2,15 @@ from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel, Field
-from enum import Enum
 from typing import Optional
+
+from SimplyTransport.domain.enums import RouteType
 
 
 class BaseModel(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
 
     model_config = {"from_attributes": True}
-
-
-class RouteType(int, Enum):
-    TRAM = 0
-    SUBWAY = 1
-    RAIL = 2
-    BUS = 3
-    FERRY = 4
-    CABLE_TRAM = 5
-    AERIAL_LIFT = 6
-    FUNICULAR = 7
-    TROLLYBUS = 11
-    MONORAIL = 12
 
 
 class RouteModel(BigIntAuditBase):
@@ -41,6 +29,7 @@ class RouteModel(BigIntAuditBase):
     color: Mapped[Optional[str]] = mapped_column(String(length=1000))
     text_color: Mapped[Optional[str]] = mapped_column(String(length=1000))
     trips: Mapped[list["TripModel"]] = relationship(back_populates="route")  # noqa: F821
+    rt_trips: Mapped[list["RTTripModel"]] = relationship(back_populates="route")  # noqa: F821
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 

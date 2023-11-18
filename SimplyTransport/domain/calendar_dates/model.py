@@ -3,18 +3,14 @@ from sqlalchemy import String, Date, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel, Field
 from datetime import date
-from enum import Enum
+
+from SimplyTransport.domain.enums import ExceptionType
 
 
 class BaseModel(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
 
     model_config = {"from_attributes": True}
-
-
-class ExceptionType(str, Enum):
-    added = "added"
-    removed = "removed"
 
 
 class CalendarDateModel(BigIntAuditBase):

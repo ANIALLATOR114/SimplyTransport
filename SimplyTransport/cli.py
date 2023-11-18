@@ -160,25 +160,27 @@ class CLIPlugin(CLIPluginProtocol):
 
             if url:
                 realtime_url = url
-                console.print("Overriding URL: " + realtime_url)
+                console.print(f"\nOverriding URL: {realtime_url}")
             else:
                 realtime_url = settings.app.GTFS_TFI_REALTIME_URL
 
             if apikey:
                 realtime_apikey = apikey
-                console.print("Overriding API key: " + realtime_apikey)
+                console.print(f"\nOverriding API key: {realtime_apikey}")
             else:
-                realtime_apikey = settings.app.GTFS_TFI_API_KEY
+                realtime_apikey = settings.app.GTFS_TFI_API_KEY_1
 
             if dataset:
                 realtime_dataset = dataset
-                console.print("Overriding dataset: " + realtime_dataset)
+                console.print(f"\nOverriding dataset: {realtime_dataset}")
             else:
-                realtime_dataset = "TFI"  # Only supports TFI for now
+                realtime_dataset = settings.app.GTFS_TFI_DATASET
 
             importer = RealTimeImporter(
                 url=realtime_url, api_key=realtime_apikey, dataset=realtime_dataset
             )
+
+            console.print(f"\nImporting using dataset: {realtime_dataset} from {realtime_url}")
 
             data = importer.get_data()
 
@@ -188,10 +190,17 @@ class CLIPlugin(CLIPluginProtocol):
                 )
                 return
 
-            console.print(f"{len(data)} rows returned from API")
+            console.print(f"\n{len(data['entity'])} entities returned from API")
 
             importer.clear_table_stop_trip()
+            console.print("\nImporting Stop Times")
             importer.import_stop_times(data)
+
+            console.print("\nImporting Trips")
+            importer.import_trips(data)
+
+            finish: float = time.perf_counter()
+            console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
         @cli.command(name="create_tables", help="Creates the database tables")
         def create_tables():

@@ -5,7 +5,6 @@ from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
 from SimplyTransport.domain.stop.model import StopModel
 from SimplyTransport.domain.trip.model import TripModel
 import datetime as DateTime
-from enum import Enum
 
 
 class StaticSchedule:
@@ -39,11 +38,3 @@ class StaticSchedule:
         return self.calendar.in_exceptions(list_of_exceptions)
 
 
-class DayOfWeek(int, Enum):
-    MONDAY = 0
-    TUESDAY = 1
-    WEDNESDAY = 2
-    THURSDAY = 3
-    FRIDAY = 4
-    SATURDAY = 5
-    SUNDAY = 6

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from SimplyTransport.domain.calendar_dates.repo import CalendarDateRepository
 from SimplyTransport.domain.route.repo import RouteRepository, provide_route_repo
-from SimplyTransport.domain.schedule.model import DayOfWeek
+from SimplyTransport.domain.enums import DayOfWeek
 from SimplyTransport.domain.schedule.repo import ScheduleRepository
 from SimplyTransport.domain.services.schedule_service import ScheduleService
 from SimplyTransport.domain.stop.repo import StopRepository, provide_stop_repo

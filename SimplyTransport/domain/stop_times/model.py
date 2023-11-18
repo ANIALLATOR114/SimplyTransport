@@ -1,6 +1,5 @@
 import datetime as DateTime
 from datetime import time
-from enum import Enum
 from typing import Optional
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
@@ -8,38 +7,12 @@ from pydantic import BaseModel as _BaseModel
 from sqlalchemy import ForeignKey, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from SimplyTransport.domain.enums import PickupType, DropoffType, Timepoint
 
 class BaseModel(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
 
     model_config = {"from_attributes": True}
-
-
-class PickupType(int, Enum):
-    """Indicates pickup method"""
-
-    REGULARLY_SCHEDULED = 0
-    NO_PICKUP = 1
-    MUST_PHONE_AGENCY = 2
-    MUST_COORDINATE_WITH_DRIVER = 3
-
-
-class DropoffType(int, Enum):
-    """Indicates dropoff method"""
-
-    REGULARLY_SCHEDULED = 0
-    NO_DROP_OFF = 1
-    MUST_PHONE_AGENCY = 2
-    MUST_COORDINATE_WITH_DRIVER = 3
-
-
-class Timepoint(int, Enum):
-    """Indicates if arrival and departure times for a stop are strictly adhered to by the vehicle or if they are instead approximate and/or interpolated times
-    A null value here means EXACT
-    """
-
-    APPROXIMATE = 0
-    EXACT = 1
 
 
 class StopTimeModel(BigIntAuditBase):

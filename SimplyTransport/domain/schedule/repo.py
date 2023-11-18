@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.route.model import RouteModel
-from SimplyTransport.domain.schedule.model import DayOfWeek
+from SimplyTransport.domain.enums import DayOfWeek
 from SimplyTransport.domain.stop.model import StopModel
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 from SimplyTransport.domain.trip.model import TripModel

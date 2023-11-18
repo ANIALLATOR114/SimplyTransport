@@ -42,11 +42,14 @@ class AppSettings(BaseEnvSettings):
     LOKI_URL: str = "http://localhost:3100/loki/api/v1/push"
 
     # GTFS TFI Realtime
-    GTFS_TFI_REALTIME_URL: str = "https://api.nationaltransport.ie/gtfsr/v2/gtfsr?format=json"
-    GTFS_TFI_API_KEY: str = "example"
+    GTFS_TFI_REALTIME_URL: str = "example"
+    GTFS_TFI_API_KEY_1: str = "example"
+    GTFS_TFI_API_KEY_2: str = "example"
+    GTFS_TFI_DATASET: str = "example"
 
     @validator("NAME", pre=True, always=True)
     def set_name(cls, v, values):
+        # Appends the evnironment to the name if not in production
         return (
             v
             if values.get("ENVIRONMENT") == "PROD"
@@ -54,8 +57,9 @@ class AppSettings(BaseEnvSettings):
         )
 
     @validator("LOG_LEVEL", pre=True, always=True)
-    def set_log_level(cls, values):
-        return "INFO" if values.get("ENVIRONMENT") != "DEV" else "DEBUG"
+    def set_log_level(cls, v, values):
+        # Sets the log level to DEBUG if in DEV else INFO
+        return "DEBUG" if values.get("ENVIRONMENT") == "DEV" else "INFO"
 
 
 app = AppSettings.model_validate({})
