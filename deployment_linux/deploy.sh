@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# This script pulls the latest version of the code from the git repository and tells supervisor to reboot the processes
+# This script pulls the latest version of the code from the git repository and tells supervisor to reboot the process
 
 restart_supervisor() {
     echo "Restarting Supervisor..."
-    supervisorctl restart all
+    supervisorctl restart simplytransport
 }
 
 trap restart_supervisor EXIT
