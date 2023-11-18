@@ -36,5 +36,3 @@ class StaticSchedule:
         """This assumes that the exceptions passed are active on the given date"""
 
         return self.calendar.in_exceptions(list_of_exceptions)
-
-

@@ -38,7 +38,9 @@ class TripModel(BigIntAuditBase):
     block_id: Mapped[Optional[str]] = mapped_column(String(length=1000))
     shape_id: Mapped[str] = mapped_column(String(length=1000), index=True)
     rt_trips: Mapped[list["RTTripModel"]] = relationship(back_populates="trip")  # noqa: F821
-    rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="trip")  # noqa: F821
+    rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(
+        back_populates="trip"
+    )  # noqa: F821
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 

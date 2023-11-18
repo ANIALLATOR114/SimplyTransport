@@ -29,10 +29,9 @@ class RealTimeImporter:
         self.dataset = dataset
 
     def get_data(self) -> dict | None:
+        # with open("./tests/gtfs_test_data/TFI/realtime_sample_response.json") as f:
+        # return json.loads(f.read())
 
-        #with open("./tests/gtfs_test_data/TFI/realtime_sample_response.json") as f:
-            #return json.loads(f.read())
-        
         header = {
             "Cache-Control": "no-cache",
             "x-api-key": self.api_key,
@@ -65,10 +64,13 @@ class RealTimeImporter:
         stop_time_update_count = sum(
             len(item["trip_update"]["stop_time_update"])
             for item in data["entity"]
-            if item["trip_update"]["trip"]["schedule_relationship"] != "CANCELED" and item["trip_update"]["trip"]["schedule_relationship"] != "ADDED"
+            if item["trip_update"]["trip"]["schedule_relationship"] != "CANCELED"
+            and item["trip_update"]["trip"]["schedule_relationship"] != "ADDED"
         )
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task("[green]Importing RT Stop Times...", total=stop_time_update_count)
+            task = progress.add_task(
+                "[green]Importing RT Stop Times...", total=stop_time_update_count
+            )
 
             with session:
                 objects_to_commit = []
@@ -77,17 +79,17 @@ class RealTimeImporter:
                     for item in data["entity"]:
                         try:
                             if item["trip_update"]["trip"]["schedule_relationship"] == "CANCELED":
-                                continue # TODO: Import canceled trips
+                                continue  # TODO: Import canceled trips
 
                             if item["trip_update"]["trip"]["schedule_relationship"] == "ADDED":
-                                continue # TODO: Import added trips
+                                continue  # TODO: Import added trips
 
                             for stop_time in item["trip_update"]["stop_time_update"]:
                                 arrival_delay = None
                                 departure_delay = None
 
                                 if stop_time["schedule_relationship"] == "SKIPPED":
-                                    continue # TODO: Import skipped stops
+                                    continue  # TODO: Import skipped stops
 
                                 if "arrival" in stop_time and "delay" in stop_time["arrival"]:
                                     arrival_delay = stop_time["arrival"]["delay"]
@@ -104,7 +106,6 @@ class RealTimeImporter:
                                     departure_delay=departure_delay,
                                     entity_id=item["id"],
                                     dataset=self.dataset,
-                                    
                                 )
 
                                 objects_to_commit.append(new_rt_stop_time)
@@ -130,7 +131,8 @@ class RealTimeImporter:
         trip_update_count = sum(
             1
             for item in data["entity"]
-            if item["trip_update"]["trip"]["schedule_relationship"] != "CANCELED" and item["trip_update"]["trip"]["schedule_relationship"] != "ADDED"
+            if item["trip_update"]["trip"]["schedule_relationship"] != "CANCELED"
+            and item["trip_update"]["trip"]["schedule_relationship"] != "ADDED"
         )
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing RT Trips...", total=trip_update_count)
@@ -142,17 +144,23 @@ class RealTimeImporter:
                     for item in data["entity"]:
                         try:
                             if item["trip_update"]["trip"]["schedule_relationship"] == "CANCELED":
-                                continue # TODO: Import canceled trips
+                                continue  # TODO: Import canceled trips
 
                             if item["trip_update"]["trip"]["schedule_relationship"] == "ADDED":
-                                continue # TODO: Import added trips
+                                continue  # TODO: Import added trips
 
                             new_rt_trip = RTTripModel(
                                 trip_id=item["trip_update"]["trip"]["trip_id"],
                                 route_id=item["trip_update"]["trip"]["route_id"],
-                                start_time=tdc.convert_29_hours_to_24_hours(item["trip_update"]["trip"]["start_time"]),
-                                start_date=tdc.convert_joined_date_to_date(item["trip_update"]["trip"]["start_date"]),
-                                schedule_relationship=item["trip_update"]["trip"]["schedule_relationship"],
+                                start_time=tdc.convert_29_hours_to_24_hours(
+                                    item["trip_update"]["trip"]["start_time"]
+                                ),
+                                start_date=tdc.convert_joined_date_to_date(
+                                    item["trip_update"]["trip"]["start_date"]
+                                ),
+                                schedule_relationship=item["trip_update"]["trip"][
+                                    "schedule_relationship"
+                                ],
                                 direction=item["trip_update"]["trip"]["direction_id"],
                                 entity_id=item["id"],
                                 dataset=self.dataset,
@@ -161,7 +169,9 @@ class RealTimeImporter:
                             objects_to_commit.append(new_rt_trip)
                             progress.update(task, advance=1)
                         except KeyError as e:
-                            logger.warning(f"RealTime: {self.url} returned invalid JSON in trips: {e} - {item}")
+                            logger.warning(
+                                f"RealTime: {self.url} returned invalid JSON in trips: {e} - {item}"
+                            )
                             continue
                     try:
                         session.bulk_save_objects(objects_to_commit)

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 def convert_29_hours_to_24_hours(time: str) -> datetime.time:
     """Converts a time in 29 hours format to 24 hours format"""
     hours_str, minutes_str, seconds_str = time.split(":")
@@ -12,5 +13,5 @@ def convert_29_hours_to_24_hours(time: str) -> datetime.time:
     return datetime.strptime(fixed_arrival_time, "%H:%M:%S").time()
 
 
-def convert_joined_date_to_date(date:str) -> datetime.date:
+def convert_joined_date_to_date(date: str) -> datetime.date:
     return datetime.strptime(date, "%Y%m%d").date()
