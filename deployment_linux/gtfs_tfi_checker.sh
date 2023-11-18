@@ -24,6 +24,6 @@ EXISTING_DIR_DATE=$(stat -c %y "$EXISTING_DIR/agency.txt")
 
 if  [ "$FORCE_OPERATION" == true ] || [[ "$CREATION_DATE" > "$EXISTING_DIR_DATE" ]]; then
 	unzip -o "$DOWNLOAD_DIR/GTFS_Realtime.zip" -d "$EXISTING_DIR"
-    y | /home/niall/SimplyTransport/venv/bin/litestar importgtfs # This uses the CLI command
+    echo y | /home/niall/SimplyTransport/venv/bin/litestar importgtfs # This uses the CLI command
 
 fi
