@@ -1,5 +1,7 @@
 from datetime import date, time
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from SimplyTransport.domain.calendar_dates.repo import CalendarDateRepository
 from SimplyTransport.domain.enums import DayOfWeek
 from SimplyTransport.domain.schedule.model import StaticSchedule
@@ -83,13 +85,17 @@ class ScheduleService:
         exceptions_from_db = await self.calendar_date_respository.get_removed_exceptions_on_date(
             date=current_day
         )
+
+        static_schedules_filtered = []
         for schedule in static_schedules:
             if not schedule.true_if_active(date=current_day):
-                static_schedules.remove(schedule)
+                continue
             elif schedule.in_exceptions(list_of_exceptions=exceptions_from_db):
-                static_schedules.remove(schedule)
-
-        return static_schedules
+                continue
+            else:
+                static_schedules_filtered.append(schedule)
+                
+        return static_schedules_filtered
 
     async def add_in_added_exceptions(
         self, static_schedules: list[StaticSchedule]
@@ -114,3 +120,10 @@ class ScheduleService:
         ]
 
         return static_schedules
+
+
+async def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:
+    """Constructs repository and service objects for the schedule service."""
+    return ScheduleService(
+        ScheduleRepository(session=db_session), CalendarDateRepository(session=db_session)
+    )

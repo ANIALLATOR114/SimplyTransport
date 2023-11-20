@@ -3,13 +3,11 @@ from datetime import datetime, timedelta
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.response import Template
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from SimplyTransport.domain.calendar_dates.repo import CalendarDateRepository
 from SimplyTransport.domain.route.repo import RouteRepository, provide_route_repo
 from SimplyTransport.domain.enums import DayOfWeek
-from SimplyTransport.domain.schedule.repo import ScheduleRepository
-from SimplyTransport.domain.services.schedule_service import ScheduleService
+from SimplyTransport.domain.services.schedule_service import ScheduleService, provide_schedule_service
+from SimplyTransport.domain.services.realtime_service import RealTimeService, provide_realtime_service
 from SimplyTransport.domain.stop.repo import StopRepository, provide_stop_repo
 from SimplyTransport.domain.trip.model import Direction
 
@@ -18,18 +16,12 @@ __all__ = [
 ]
 
 
-async def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:
-    """Constructs repository and service objects for the request."""
-    return ScheduleService(
-        ScheduleRepository(session=db_session), CalendarDateRepository(session=db_session)
-    )
-
-
 class RealtimeController(Controller):
     dependencies = {
         "stop_repo": Provide(provide_stop_repo),
         "route_repo": Provide(provide_route_repo),
         "schedule_service": Provide(provide_schedule_service),
+        "realtime_service": Provide(provide_realtime_service),
     }
 
     @get("/stop/{stop_id:str}")
@@ -39,6 +31,7 @@ class RealtimeController(Controller):
         stop_repo: StopRepository,
         route_repo: RouteRepository,
         schedule_service: ScheduleService,
+        realtime_service: RealTimeService,
     ) -> Template:
         stop = await stop_repo.get(stop_id)
         routes = await route_repo.get_by_stop_id(stop.id)

@@ -68,7 +68,7 @@
         </div>
         <div class="inner-container"
              hx-get="/realtime/stop/{{ stop.id }}/schedule"
-             hx-trigger="load"
+             hx-trigger="revealed"
              hx-target="#schedule-table"
              hx-swap="transition:true">
             <h3 class="h3-table">Predicted Schedule:</h3>
