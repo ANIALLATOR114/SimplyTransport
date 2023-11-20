@@ -1,7 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-
 class ScheduleUpdateRepository:
     """ScheduleUpdateRepository repository."""
 

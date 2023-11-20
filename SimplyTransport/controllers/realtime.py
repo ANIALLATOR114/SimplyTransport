@@ -6,8 +6,14 @@ from litestar.response import Template
 
 from SimplyTransport.domain.route.repo import RouteRepository, provide_route_repo
 from SimplyTransport.domain.enums import DayOfWeek
-from SimplyTransport.domain.services.schedule_service import ScheduleService, provide_schedule_service
-from SimplyTransport.domain.services.realtime_service import RealTimeService, provide_realtime_service
+from SimplyTransport.domain.services.schedule_service import (
+    ScheduleService,
+    provide_schedule_service,
+)
+from SimplyTransport.domain.services.realtime_service import (
+    RealTimeService,
+    provide_realtime_service,
+)
 from SimplyTransport.domain.stop.repo import StopRepository, provide_stop_repo
 from SimplyTransport.domain.trip.model import Direction
 

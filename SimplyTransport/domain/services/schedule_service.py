@@ -94,7 +94,7 @@ class ScheduleService:
                 continue
             else:
                 static_schedules_filtered.append(schedule)
-                
+
         return static_schedules_filtered
 
     async def add_in_added_exceptions(
