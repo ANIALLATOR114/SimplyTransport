@@ -1,12 +1,12 @@
 [![CI/CD](https://github.com/ANIALLATOR114/SimplyTransport/actions/workflows/tests_on_merge_main.yaml/badge.svg?branch=main)](https://github.com/ANIALLATOR114/SimplyTransport/actions/workflows/tests_on_merge_main.yaml)
 
-# SimplyTransport
+# 🚌 SimplyTransport
 
 - Litestar Python ASGI web app
 - API & Website for real-time transport updates and schedules
 - GTFS and GTFS-R data ingestor
 
-## Content
+## 📖 Content
 
 - [About](#about)
 - [API Docs](#api-documentation)
