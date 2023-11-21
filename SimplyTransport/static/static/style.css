@@ -415,7 +415,17 @@ h3 {
 	}
 
 	.code-highlight {
-		font-size: 0.95rem;
+		font-size: 0.85rem;
+	}
+
+	.pagination-button {
+		font-size: 0.85rem;
+		padding: 0.4rem;
+	}
+
+	.dropdown {
+		font-size: 0.85rem;
+		padding: 0.4rem;
 	}
 
 	.table-search th {
