@@ -6,28 +6,16 @@ on:
       - opened
 
 jobs:
-  comment:
+  add-comment:
     runs-on: ubuntu-latest
-
+    permissions:
+      issues: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Comment on new issue
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const issueNumber = context.payload.issue.number;
-            const repo = context.repo.repo;
-            const owner = context.repo.owner;
-
-            const commentBody = `Thank you for opening an issue! Please make sure to read the contributing guidelines [CONTRIBUTING.md](https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md)`;
-
-            const response = await github.issues.createComment({
-              owner,
-              repo,
-              issue_number: issueNumber,
-              body: commentBody,
-            });
-            console.log(response);
+      - name: Add comment
+        run: gh issue comment "$NUMBER" --repo "$REPO" --body "$BODY"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          BODY: >
+            Please make sure you have read and understood the contributing guidelines: [CONTRIBUTING.md](https://github.com/${{ github.repository.owner }}/${{ github.repository }}/blob/main/CONTRIBUTING.md)
