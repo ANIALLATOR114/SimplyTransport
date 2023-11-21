@@ -12,6 +12,7 @@
 - [API Docs](#api-documentation)
 - [Web Interface](#web-interface)
 - [CLI Interface](#cli-interface)
+- [Contributing](CONTRIBUTING.md)
 
 - [Installation](#installation)
 
