@@ -128,16 +128,34 @@ Create a copy of .env.example and populate it with your environment variables
 ```
 cp .env.example .env
 ```
+Open the `.env` file and change the example variables for the following fields. You can set these to whatever you like as they will be unique to your local deployment.
+
+Notice how the `POSTGRES_` variables map into the URL you're going to try and connect to. Docker-compose will create a DB using these variables for you.
+```
+# Database
+DB_URL=postgresql+asyncpg://example2:example3@localhost:5432/example1
+DB_URL_SYNC=postgresql+psycopg2://example2:example3@localhost:5432/example1
+DB_ECHO=false
+
+# Postgres Docker
+POSTGRES_DB=example1
+POSTGRES_USER=example2
+POSTGRES_PASSWORD=example3
+```
+
+Once you have the variables above set please run the command in [Database](#database)
 
 ## Running Locally
 
 You can run the app using the litestar run command for local development which will use a uvicorn worker to launch the app on 127.0.0.1:8000
 
+When you run `litestar <command>` it will try and find the Litestar app to launch via the `.env` file. You shouldnt need to have changed this from the `.env.example`
+
 ```
 litestar run
 ```
 
-This will reload the app when changes are made dor development
+This will reload the app when changes are made for development convenience
 
 ```
 litestar run --reload
