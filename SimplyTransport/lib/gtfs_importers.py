@@ -1,5 +1,4 @@
 import csv
-from datetime import datetime
 
 import rich.progress as rp
 

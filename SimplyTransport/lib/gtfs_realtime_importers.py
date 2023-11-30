@@ -5,7 +5,6 @@ from SimplyTransport.lib import time_date_conversions as tdc
 
 from SimplyTransport.domain.realtime.stop_time.model import RTStopTimeModel
 from SimplyTransport.domain.realtime.trip.model import RTTripModel
-import json
 
 import rich.progress as rp
 
