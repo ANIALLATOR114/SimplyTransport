@@ -29,9 +29,7 @@ class SearchController(Controller):
         ),
     ) -> Template:
         try:
-            results, total = await stop_repo.list_by_name_or_code(
-                search=search, limit_offset=limit_offset
-            )
+            results, total = await stop_repo.list_by_name_or_code(search=search, limit_offset=limit_offset)
             current_page = round(limit_offset.offset / limit_offset.limit) + 1
             if total < limit_offset.limit:
                 total_pages = 1

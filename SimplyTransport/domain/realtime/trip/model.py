@@ -37,6 +37,4 @@ class RTTrip(BaseModel):
     start_time: time
     start_date: date
     schedule_relationship: ScheduleRealtionship
-    direction: Direction = Field(
-        description="Direction of travel. Mapping between agencies could differ."
-    )
+    direction: Direction = Field(description="Direction of travel. Mapping between agencies could differ.")

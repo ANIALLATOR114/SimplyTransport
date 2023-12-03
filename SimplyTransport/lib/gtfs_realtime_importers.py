@@ -51,9 +51,7 @@ class RealTimeImporter:
         """Clears the table in the database that corresponds to the dataset"""
 
         with session:
-            session.query(RTStopTimeModel).filter(
-                RTStopTimeModel.dataset == self.dataset
-            ).delete()
+            session.query(RTStopTimeModel).filter(RTStopTimeModel.dataset == self.dataset).delete()
             session.query(RTTripModel).filter(RTTripModel.dataset == self.dataset).delete()
             session.commit()
 
@@ -67,9 +65,7 @@ class RealTimeImporter:
             and item["trip_update"]["trip"]["schedule_relationship"] != "ADDED"
         )
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(
-                "[green]Importing RT Stop Times...", total=stop_time_update_count
-            )
+            task = progress.add_task("[green]Importing RT Stop Times...", total=stop_time_update_count)
 
             with session:
                 objects_to_commit = []
@@ -157,9 +153,7 @@ class RealTimeImporter:
                                 start_date=tdc.convert_joined_date_to_date(
                                     item["trip_update"]["trip"]["start_date"]
                                 ),
-                                schedule_relationship=item["trip_update"]["trip"][
-                                    "schedule_relationship"
-                                ],
+                                schedule_relationship=item["trip_update"]["trip"]["schedule_relationship"],
                                 direction=item["trip_update"]["trip"]["direction_id"],
                                 entity_id=item["id"],
                                 dataset=self.dataset,

@@ -24,9 +24,7 @@ class RealTimeSchedule:
 
     def set_real_arrival_time(self):
         delay = max(self.rt_stop_time.arrival_delay or 0, self.rt_stop_time.departure_delay or 0)
-        self.real_arrival_time = self.static_schedule.stop_time.arrival_time + timedelta(
-            seconds=delay
-        )
+        self.real_arrival_time = self.static_schedule.stop_time.arrival_time + timedelta(seconds=delay)
 
     def set_real_eta_text(self):
         current_time = datetime.now()

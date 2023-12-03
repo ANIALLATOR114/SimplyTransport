@@ -46,13 +46,9 @@ class StopController(Controller):
         ),
     ) -> OffsetPagination[Stop]:
         try:
-            results, total = await repo.list_by_name_or_code(
-                search=search, limit_offset=limit_offset
-            )
+            results, total = await repo.list_by_name_or_code(search=search, limit_offset=limit_offset)
         except NotFoundError:
-            raise NotFoundException(
-                detail=f"Stops not found with name/code beginning with {search}"
-            )
+            raise NotFoundException(detail=f"Stops not found with name/code beginning with {search}")
         return OffsetPagination[Stop](
             total=total,
             items=[Stop.model_validate(obj) for obj in results],

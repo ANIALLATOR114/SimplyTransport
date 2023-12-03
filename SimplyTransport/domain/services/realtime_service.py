@@ -38,10 +38,7 @@ class RealTimeService:
         for stop_time, trip in realtime_updates:
             most_recent_update = most_recent_realtime_updates.get(trip.trip_id)
 
-            if (
-                most_recent_update is None
-                or stop_time.stop_sequence > most_recent_update[0].stop_sequence
-            ):
+            if most_recent_update is None or stop_time.stop_sequence > most_recent_update[0].stop_sequence:
                 most_recent_realtime_updates[trip.trip_id] = (stop_time, trip)
 
         return list(most_recent_realtime_updates.values())
@@ -55,10 +52,8 @@ class RealTimeService:
             return []
 
         trip_ids = [schedule.trip.id for schedule in schedules]
-        realtime_schedules_from_db = (
-            await self.realtime_schedule_repository.get_realtime_schedules_for_trips(
-                trips=trip_ids
-            )
+        realtime_schedules_from_db = await self.realtime_schedule_repository.get_realtime_schedules_for_trips(
+            trips=trip_ids
         )
 
         only_most_recent_realtime_schedules = self.parse_most_recent_realtime_update(
@@ -73,9 +68,7 @@ class RealTimeService:
 
             if found_realtime_schedule:
                 stop_time, trip = next(
-                    (st, t)
-                    for st, t in only_most_recent_realtime_schedules
-                    if t.trip_id == static.trip.id
+                    (st, t) for st, t in only_most_recent_realtime_schedules if t.trip_id == static.trip.id
                 )
                 realtime_schedules.append(
                     RealTimeSchedule(static_schedule=static, rt_trip=trip, rt_stop_time=stop_time)

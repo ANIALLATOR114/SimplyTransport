@@ -25,17 +25,13 @@ class StopModel(BigIntAuditBase):
     zone_id: Mapped[Optional[str]] = mapped_column(String(length=1000))
     url: Mapped[Optional[str]] = mapped_column(String(length=1000))
     location_type: Mapped[Optional[LocationType]] = mapped_column(Integer)
-    parent_station: Mapped[Optional[str]] = mapped_column(
-        String(length=1000), ForeignKey("stop.id")
-    )
+    parent_station: Mapped[Optional[str]] = mapped_column(String(length=1000), ForeignKey("stop.id"))
     stop_times: Mapped[list["StopTimeModel"]] = relationship(  # noqa: F821
         back_populates="stop",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(
-        back_populates="stop"
-    )  # noqa: F821
+    rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="stop")  # noqa: F821
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 
