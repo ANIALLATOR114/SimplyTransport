@@ -11,13 +11,12 @@ class RealtimeScheduleRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_realtime_schedules_for_trips(self, trips: list[str], stop_id: str):
+    async def get_realtime_schedules_for_trips(self, trips: list[str]):
         statement = (
             select(RTStopTimeModel, RTTripModel)
             .join(RTTripModel, RTTripModel.trip_id == RTStopTimeModel.trip_id)
             .where(
-                RTTripModel.trip_id.in_(trips),
-                RTStopTimeModel.stop_id == stop_id,
+                RTTripModel.trip_id.in_(trips)
             )
         )
         return await self.session.execute(statement)

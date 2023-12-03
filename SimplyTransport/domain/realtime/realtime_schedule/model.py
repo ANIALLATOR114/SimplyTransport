@@ -10,8 +10,8 @@ class RealTimeSchedule:
     def __init__(
         self,
         static_schedule: StaticSchedule,
-        rt_stop_time: RTStopTimeModel,
-        rt_trip: RTTripModel,
+        rt_stop_time: RTStopTimeModel = None,
+        rt_trip: RTTripModel = None,
     ):
         self.static_schedule = static_schedule
         self.rt_stop_time = rt_stop_time
