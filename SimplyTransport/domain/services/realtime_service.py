@@ -48,7 +48,7 @@ class RealTimeService:
         
         if not schedules:
             return []
-        
+
         trip_ids = [schedule.trip.id for schedule in schedules]
         realtime_schedules_from_db = await self.realtime_schedule_repository.get_realtime_schedules_for_trips(trips=trip_ids)
 
