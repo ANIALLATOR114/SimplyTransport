@@ -15,9 +15,7 @@ class RealtimeScheduleRepository:
         statement = (
             select(RTStopTimeModel, RTTripModel)
             .join(RTTripModel, RTTripModel.trip_id == RTStopTimeModel.trip_id)
-            .where(
-                RTTripModel.trip_id.in_(trips)
-            )
+            .where(RTTripModel.trip_id.in_(trips))
         )
         return await self.session.execute(statement)
 
