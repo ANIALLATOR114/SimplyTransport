@@ -1,0 +1,74 @@
+from json import dumps
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+from yaml import dump as dump_yaml
+
+from litestar import Litestar
+from litestar._openapi.typescript_converter.converter import (
+    convert_openapi_to_typescript,
+)
+from litestar.cli._utils import JSBEAUTIFIER_INSTALLED, RICH_CLICK_INSTALLED, LitestarCLIException, LitestarGroup
+
+if TYPE_CHECKING or not RICH_CLICK_INSTALLED:  # pragma: no cover
+    from click import Path as ClickPath
+    from click import group, option
+else:
+    from rich_click import Path as ClickPath
+    from rich_click import group, option
+
+if JSBEAUTIFIER_INSTALLED:  # pragma: no cover
+    from jsbeautifier import Beautifier
+
+    beautifier = Beautifier()
+
+
+__all__ = ("generate_openapi_schema", "generate_typescript_specs", "schema_group")
+
+
+@group(cls=LitestarGroup, name="schema")
+def schema_group() -> None:
+    """Manage server-side OpenAPI schemas."""
+
+
+@schema_group.command("openapi")  # type: ignore
+@option(
+    "--output",
+    help="output file path",
+    type=ClickPath(dir_okay=False, path_type=Path),
+    default=Path("openapi_schema.json"),
+    show_default=True,
+)
+def generate_openapi_schema(app: Litestar, output: Path) -> None:
+    """Generate an OpenAPI Schema."""
+    if output.suffix in (".yml", ".yaml"):
+        content = dump_yaml(app.openapi_schema.to_schema(), default_flow_style=False)
+    else:
+        content = dumps(app.openapi_schema.to_schema(), indent=4)
+
+    try:
+        output.write_text(content)
+    except OSError as e:  # pragma: no cover
+        raise LitestarCLIException(f"failed to write schema to path {output}") from e
+
+
+@schema_group.command("typescript")  # type: ignore
+@option(
+    "--output",
+    help="output file path",
+    type=ClickPath(dir_okay=False, path_type=Path),
+    default=Path("api-specs.ts"),
+    show_default=True,
+)
+@option("--namespace", help="namespace to use for the typescript specs", type=str, default="API")
+def generate_typescript_specs(app: Litestar, output: Path, namespace: str) -> None:
+    """Generate TypeScript specs from the OpenAPI schema."""
+    try:
+        specs = convert_openapi_to_typescript(app.openapi_schema, namespace)
+        # beautifier will be defined if JSBEAUTIFIER_INSTALLED is True
+        specs_output = (
+            beautifier.beautify(specs.write()) if JSBEAUTIFIER_INSTALLED else specs.write()  # pyright: ignore
+        )
+        output.write_text(specs_output)
+    except OSError as e:  # pragma: no cover
+        raise LitestarCLIException(f"failed to write schema to path {output}") from e
