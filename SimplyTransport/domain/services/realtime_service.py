@@ -77,7 +77,24 @@ class RealTimeService:
                 realtime_schedules.append(RealTimeSchedule(static_schedule=static))
 
         return realtime_schedules
+    
 
+    def apply_custom_23_00_sorting(self, realtime_schedules: list[RealTimeSchedule]) -> list[RealTimeSchedule]:
+        """Sorts the realtime schedules by realtime arrival time"""
+
+        def custom_sort_key(realtime_schedule: RealTimeSchedule):
+            arrival_time = realtime_schedule.real_arrival_time
+
+            # Handle the exception case where times in the range 00:00 to 02:00 sort after times in the range 23:00 to 23:59
+            if 0 <= arrival_time.hour <= 2:
+                return (24, arrival_time.hour, arrival_time.minute, arrival_time.second)
+            else:
+                return (arrival_time.hour, arrival_time.minute, arrival_time.second)
+        
+        sorted_schedules = sorted(realtime_schedules, key=custom_sort_key)
+
+        return sorted_schedules
+        
 
 async def provide_realtime_service(db_session: AsyncSession) -> RealTimeService:
     """Constructs repository and service objects for the realtime service."""

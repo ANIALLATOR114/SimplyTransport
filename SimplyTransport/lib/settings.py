@@ -21,7 +21,7 @@ class AppSettings(BaseEnvSettings):
     NAME: str = "SimplyTransport"
     LOG_LEVEL: str = "DEBUG"
 
-    VERSION: str = "0.1.1"  # Version bumping will cache bust static css/js files
+    VERSION: str = "0.2.0"  # Version bumping will cache bust static css/js files
     SECRET_KEY: str = "secret"
     LITESTAR_APP: str = "SimplyTransport.app:create_app"
 

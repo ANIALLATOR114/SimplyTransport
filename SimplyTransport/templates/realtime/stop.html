@@ -31,18 +31,31 @@
                 <thead>
                     <tr>
                         <th class="dense-text">Route</th>
-                        <th class="dense-text">RealTime (ETA)</th>
+                        <th class="dense-text">RealTime</th>
+                        <th class="dense-text">ETA</th>
                         <th class="dense-text">Delay</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for schedule in schedules %}
+                    {% for rt in realtime_schedules %}
                         <tr>
-                            <td class="dense-text no-pointer bold-highlight color-on-time">
-                                <span class="code-highlight">{{ schedule.route.short_name }}</span>
+                            {% if rt.on_time_status == "UNKNOWN" %}
+                                {% set on_time_style = "color-unknown" %}
+                            {% elif rt.on_time_status == "EARLY" %}
+                                {% set on_time_style = "color-early" %}
+                            {% elif rt.on_time_status == "LATE" %}
+                                {% set on_time_style = "color-late" %}
+                            {% elif rt.on_time_status == "ON_TIME" %}
+                                {% set on_time_style = "color-on-time" %}
+                            {% else %}
+                                {% set on_time_style = "color-unknown" %}
+                            {% endif %}
+                            <td class="dense-text no-pointer bold-highlight {{ on_time_style }}">
+                                <span class="code-highlight">{{ rt.static_schedule.route.short_name }}</span>
                             </td>
-                            <td class="dense-text no-pointer">{{ schedule.stop_time.arrival_time }}</td>
-                            <td class="dense-text no-pointer">0</td>
+                            <td class="dense-text no-pointer">{{ rt.real_arrival_time }}</td>
+                            <td class="dense-text no-pointer">{{ rt.real_eta_text }}</td>
+                            <td class="dense-text no-pointer">{{ rt.delay }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

@@ -15,4 +15,3 @@ class OnTimeStatus(str, Enum):
     ON_TIME = "ON_TIME"
     LATE = "LATE"
     UNKNOWN = "UNKNOWN"
-    NO_DATA = "NO_DATA"

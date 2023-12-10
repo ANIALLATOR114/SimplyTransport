@@ -1,10 +1,12 @@
 import requests
+
 from SimplyTransport.lib.logging import logger
 from SimplyTransport.lib.db.database import session
 from SimplyTransport.lib import time_date_conversions as tdc
 
 from SimplyTransport.domain.realtime.stop_time.model import RTStopTimeModel
 from SimplyTransport.domain.realtime.trip.model import RTTripModel
+from SimplyTransport.domain.route.model import RouteModel
 
 import rich.progress as rp
 
@@ -134,6 +136,9 @@ class RealTimeImporter:
 
             with session:
                 objects_to_commit = []
+                # Foreign key exceptions
+                routes_in_db = session.query(RouteModel.id).filter(RouteModel.dataset == self.dataset).all()
+                routes_in_db = {route[0] for route in routes_in_db}
 
                 try:
                     for item in data["entity"]:
@@ -143,6 +148,10 @@ class RealTimeImporter:
 
                             if item["trip_update"]["trip"]["schedule_relationship"] == "ADDED":
                                 continue  # TODO: Import added trips
+
+                            # Foreign key exceptions
+                            if item["trip_update"]["trip"]["route_id"] not in routes_in_db:
+                                continue
 
                             new_rt_trip = RTTripModel(
                                 trip_id=item["trip_update"]["trip"]["trip_id"],
@@ -171,6 +180,7 @@ class RealTimeImporter:
                         session.commit()
                     except Exception as e:
                         logger.error(f"RealTime: {self.url} failed to commit trips: {e}")
+                    
                 except KeyError as e:
                     logger.warning(f"RealTime: {self.url} returned invalid JSON in entitys: {e}")
                     return None

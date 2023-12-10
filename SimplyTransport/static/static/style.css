@@ -6,7 +6,7 @@
 	--bg-color-light: rgb(56, 80, 132) !important;
 	--font-color: rgb(230 230 230) !important;
 	--font-color-secondary: rgb(215 215 215) !important;
-	--font-color-highlight: rgb(130, 74, 175) !important;
+	--font-color-highlight: rgb(143, 91, 185) !important;
 	--font-color-highlight-light: rgb(206, 181, 227) !important;
 }
 
@@ -76,9 +76,9 @@ h1 {
 }
 
 h2 {
-	font-size: 1.7rem;
+	font-size: 1.6rem;
 	color: var(--font-color);
-	letter-spacing: 0.15rem;
+	letter-spacing: 0.13rem;
 }
 
 .h2-svg img {
@@ -93,7 +93,7 @@ h2 {
 }
 
 h3 {
-	font-size: 1.3rem;
+	font-size: 1.2rem;
 	color: var(--font-color);
 	letter-spacing: 0.1rem;
 }
@@ -248,6 +248,10 @@ h3 {
 	border-left: 3px solid rgb(189, 132, 0);
 }
 
+.color-unknown {
+	border-left: 3px solid rgb(100, 100, 100);
+}
+
 .hover-cell {
 	transition: all 0.2s ease-in-out;
 	background-color: var(--bg-color-light);
@@ -261,7 +265,6 @@ h3 {
 	border: 3px solid var(--bg-color-highlight);
 	background-color: var(--bg-color);
 	color: var(--font-color);
-	min-width: 300px;
 }
 
 .search-box:focus {
@@ -391,7 +394,7 @@ h3 {
 
 @media screen and (max-width: 900px) {
 	.container {
-		padding: 0.6rem;
+		padding: 0.2rem;
 	}
 
 	h1 {
@@ -407,7 +410,7 @@ h3 {
 	}
 
 	.dense-text {
-		font-size: 0.8rem;
+		font-size: 0.9rem;
 	}
 
 	.narrow-container {
@@ -438,5 +441,9 @@ h3 {
 		padding-right: 0.4rem;
 		padding-top: 0.4rem;
 		padding-bottom: 0.3rem;
+	}
+
+	.h2-svg img {
+		width: 1.4rem;
 	}
 }
