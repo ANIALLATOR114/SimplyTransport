@@ -71,6 +71,12 @@
                 </a>
             </div>
             <div class="footer-item">
+                <p>© 
+                    <span id="year"></span>
+                    SimplyTransport
+                </p>
+            </div>
+            <div class="footer-item">
                 <a href="https://github.com/ANIALLATOR114/SimplyTransport"
                    target="_blank">
                     <div class="social-icon">
@@ -81,6 +87,9 @@
                     </div>
                 </a>
             </div>
+            <script>
+                document.getElementById("year").innerHTML = new Date().getFullYear();
+            </script>
         </div>
     </div>
 </footer>
