@@ -56,10 +56,10 @@ class RealtimeController(Controller):
         )
         schedules = await schedule_service.remove_exceptions_and_inactive_calendars(schedules)
         schedules = await schedule_service.add_in_added_exceptions(schedules)  # TODO
-        schedules = schedule_service.apply_custom_23_00_sorting(schedules)
+        schedules = await schedule_service.apply_custom_23_00_sorting(schedules)
 
         realtime_schedules = await realtime_service.get_realtime_schedules_for_static_schedules(schedules)
-        realtime_schedules = realtime_service.apply_custom_23_00_sorting(realtime_schedules)
+        realtime_schedules = await realtime_service.apply_custom_23_00_sorting(realtime_schedules)
 
         return Template(
             template_name="realtime/stop.html",

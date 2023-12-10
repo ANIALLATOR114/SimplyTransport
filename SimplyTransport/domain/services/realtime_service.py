@@ -79,7 +79,7 @@ class RealTimeService:
         return realtime_schedules
     
 
-    def apply_custom_23_00_sorting(self, realtime_schedules: list[RealTimeSchedule]) -> list[RealTimeSchedule]:
+    async def apply_custom_23_00_sorting(self, realtime_schedules: list[RealTimeSchedule]) -> list[RealTimeSchedule]:
         """Sorts the realtime schedules by realtime arrival time"""
 
         def custom_sort_key(realtime_schedule: RealTimeSchedule):
