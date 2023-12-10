@@ -55,9 +55,7 @@ class ScheduleService:
 
         return static_schedules
 
-    def apply_custom_23_00_sorting(
-        self, static_schedules: list[StaticSchedule]
-    ) -> list[StaticSchedule]:
+    def apply_custom_23_00_sorting(self, static_schedules: list[StaticSchedule]) -> list[StaticSchedule]:
         """Sorts the schedules by arrival time"""
 
         def custom_sort_key(static_schedule: StaticSchedule):
