@@ -17,9 +17,7 @@ class ScheduleService:
         self.schedule_repository = schedule_repository
         self.calendar_date_respository = calendar_date_repository
 
-    async def get_schedule_on_stop_for_day(
-        self, stop_id: str, day: DayOfWeek
-    ) -> list[StaticSchedule]:
+    async def get_schedule_on_stop_for_day(self, stop_id: str, day: DayOfWeek) -> list[StaticSchedule]:
         """Returns a list of schedules for the given stop and day"""
         schedules_from_db = await self.schedule_repository.get_schedule_on_stop_for_day(
             stop_id=stop_id, day=day
@@ -41,10 +39,8 @@ class ScheduleService:
         self, stop_id: str, day: DayOfWeek, start_time: time, end_time: time
     ) -> list[StaticSchedule]:
         """Returns a list of schedules for the given stop and day"""
-        schedules_from_db = (
-            await self.schedule_repository.get_schedule_on_stop_for_day_between_times(
-                stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
-            )
+        schedules_from_db = await self.schedule_repository.get_schedule_on_stop_for_day_between_times(
+            stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
         )
         static_schedules = [
             StaticSchedule(
@@ -62,7 +58,7 @@ class ScheduleService:
     async def apply_custom_23_00_sorting(
         self, static_schedules: list[StaticSchedule]
     ) -> list[StaticSchedule]:
-        """Sorts the schedules in a custom way"""
+        """Sorts the schedules by arrival time"""
 
         def custom_sort_key(static_schedule: StaticSchedule):
             arrival_time = static_schedule.stop_time.arrival_time
@@ -97,9 +93,7 @@ class ScheduleService:
 
         return static_schedules_filtered
 
-    async def add_in_added_exceptions(
-        self, static_schedules: list[StaticSchedule]
-    ) -> list[StaticSchedule]:
+    async def add_in_added_exceptions(self, static_schedules: list[StaticSchedule]) -> list[StaticSchedule]:
         """Adds in added exceptions from the list of schedules"""
         pass  # TODO
 
@@ -124,6 +118,4 @@ class ScheduleService:
 
 async def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:
     """Constructs repository and service objects for the schedule service."""
-    return ScheduleService(
-        ScheduleRepository(session=db_session), CalendarDateRepository(session=db_session)
-    )
+    return ScheduleService(ScheduleRepository(session=db_session), CalendarDateRepository(session=db_session))

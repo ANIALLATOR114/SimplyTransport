@@ -58,6 +58,9 @@ class RealtimeController(Controller):
         schedules = await schedule_service.add_in_added_exceptions(schedules)  # TODO
         schedules = await schedule_service.apply_custom_23_00_sorting(schedules)
 
+        realtime_schedules = await realtime_service.get_realtime_schedules_for_static_schedules(schedules)
+        realtime_schedules = await realtime_service.apply_custom_23_00_sorting(realtime_schedules)
+
         return Template(
             template_name="realtime/stop.html",
             context={
@@ -66,6 +69,7 @@ class RealtimeController(Controller):
                 "routes": routes,
                 "day_string": DayOfWeek(current_time.weekday()).name.capitalize(),
                 "schedules": schedules,
+                "realtime_schedules": realtime_schedules,
                 "start_time_difference": start_time_difference,
                 "end_time_difference": end_time_difference,
             },

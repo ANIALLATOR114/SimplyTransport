@@ -23,9 +23,7 @@ class CalendarDateController(Controller):
         return [CalendarDate.model_validate(obj) for obj in result]
 
     @get("/count", summary="All calendar dates with total count")
-    async def get_all_calendars_and_count(
-        self, repo: CalendarDateRepository
-    ) -> CalendarDateWithTotal:
+    async def get_all_calendars_and_count(self, repo: CalendarDateRepository) -> CalendarDateWithTotal:
         result, total = await repo.list_and_count()
         return CalendarDateWithTotal(
             total=total, calendar_dates=[CalendarDate.model_validate(obj) for obj in result]
@@ -37,9 +35,7 @@ class CalendarDateController(Controller):
     ) -> list[CalendarDate]:
         result = await repo.list(service_id=service_id)
         if result is None or len(result) == 0:
-            raise NotFoundException(
-                detail=f"CalendarDate nots found with service_id {service_id}"
-            )
+            raise NotFoundException(detail=f"CalendarDate nots found with service_id {service_id}")
         return [CalendarDate.model_validate(obj) for obj in result]
 
     @get(

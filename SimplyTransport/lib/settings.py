@@ -21,7 +21,7 @@ class AppSettings(BaseEnvSettings):
     NAME: str = "SimplyTransport"
     LOG_LEVEL: str = "DEBUG"
 
-    VERSION: str = "0.1.1"  # Version bumping will cache bust static css/js files
+    VERSION: str = "0.2.0"  # Version bumping will cache bust static css/js files
     SECRET_KEY: str = "secret"
     LITESTAR_APP: str = "SimplyTransport.app:create_app"
 
@@ -50,11 +50,7 @@ class AppSettings(BaseEnvSettings):
     @validator("NAME", pre=True, always=True)
     def set_name(cls, v, values):
         # Appends the evnironment to the name if not in production
-        return (
-            v
-            if values.get("ENVIRONMENT") == "PROD"
-            else f"SimplyTransport {values.get('ENVIRONMENT')}"
-        )
+        return v if values.get("ENVIRONMENT") == "PROD" else f"SimplyTransport {values.get('ENVIRONMENT')}"
 
     @validator("LOG_LEVEL", pre=True, always=True)
     def set_log_level(cls, v, values):

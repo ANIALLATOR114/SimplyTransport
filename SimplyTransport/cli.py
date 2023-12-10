@@ -64,9 +64,7 @@ class CLIPlugin(CLIPluginProtocol):
             docs_path = app.openapi_config.openapi_controller.path
             redoc_path = list(app.openapi_config.openapi_controller.redoc.paths)[0]
             swagger_path = list(app.openapi_config.openapi_controller.swagger_ui.paths)[0]
-            elements_path = list(app.openapi_config.openapi_controller.stoplight_elements.paths)[
-                0
-            ]
+            elements_path = list(app.openapi_config.openapi_controller.stoplight_elements.paths)[0]
             table = Table()
             table.add_column("Doc Type", style="cyan")
             table.add_column("URL")
@@ -146,9 +144,7 @@ class CLIPlugin(CLIPluginProtocol):
         @cli.command(name="importrealtime", help="Imports GTFS realtime data into the database")
         @click.option("-url", help="Override the default URL for the GTFS realtime data")
         @click.option("-apikey", help="Override the default API key for the GTFS realtime data")
-        @click.option(
-            "-dataset", help="Override the default dataset that the data will be saved against"
-        )
+        @click.option("-dataset", help="Override the default dataset that the data will be saved against")
         def importrealtime(url: str, apikey: str, dataset: str):
             """Imports GTFS realtime data into the database"""
 
@@ -176,9 +172,7 @@ class CLIPlugin(CLIPluginProtocol):
             else:
                 realtime_dataset = settings.app.GTFS_TFI_DATASET
 
-            importer = RealTimeImporter(
-                url=realtime_url, api_key=realtime_apikey, dataset=realtime_dataset
-            )
+            importer = RealTimeImporter(url=realtime_url, api_key=realtime_apikey, dataset=realtime_dataset)
 
             console.print(f"\nImporting using dataset: {realtime_dataset} from {realtime_url}")
 

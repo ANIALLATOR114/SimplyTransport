@@ -3,7 +3,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.6rem;
+    gap: 2rem;
 }
 
 .footer {
@@ -12,10 +12,6 @@
 	color: var(--font-color);
 	bottom: 0;
     border-top: 1px solid rgb(100, 100, 100);
-}
-
-.footer-item{
-    padding-right: 2rem;
 }
 
 .social-icon{
@@ -35,15 +31,16 @@
 }
 
 .content-wrap {
-	padding-bottom: 60px; /* Footer height */
+	padding-bottom: 80px; /* Footer height */
 }
 
 @media only screen and (max-width: 600px) {
     .footer-flex {
         flex-direction: column;
+        gap: 0rem;
     }
     .content-wrap {
-		padding-bottom: 120px; /* Footer height */
+		padding-bottom: 140px; /* Footer height */
 	}
 
     .footer-item{
@@ -71,9 +68,8 @@
                 </a>
             </div>
             <div class="footer-item">
-                <p>© 
-                    <span id="year"></span>
-                    SimplyTransport
+                <p>
+                    ©<span id="year"></span>SimplyTransport
                 </p>
             </div>
             <div class="footer-item">
@@ -87,9 +83,7 @@
                     </div>
                 </a>
             </div>
-            <script>
-                document.getElementById("year").innerHTML = new Date().getFullYear();
-            </script>
+            <script>document.getElementById("year").innerHTML = new Date().getFullYear();</script>
         </div>
     </div>
 </footer>

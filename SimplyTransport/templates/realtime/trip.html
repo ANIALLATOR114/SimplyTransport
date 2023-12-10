@@ -7,11 +7,13 @@
         <h1>Trip: {{ schedules[0].trip.short_name }}</h1>
         <div class="flex-gap">
             <a style="text-decoration: none"
-               href="/realtime/route/{{ schedules[0].route.id }}/1"
-               target="_blank">
+               href="/realtime/route/{{ schedules[0].route.id }}/{{ schedules[0].trip.direction }}">
                 <button class="no-line-break link-button dense-text">Route: {{ schedules[0].route.short_name }}</button>
             </a>
-            <button class="no-line-break link-button dense-text">Direction: {{ direction_string }}</button>
+            <a style="text-decoration: none"
+               href="/realtime/route/{{ schedules[0].route.id }}/{{ schedules[0].trip.direction }}">
+                <button class="no-line-break link-button dense-text">Direction: {{ direction_string }}</button>
+            </a>
         </div>
         <div class="inner-container">
             <h3 class="h3-table">Predicted Schedule:</h3>

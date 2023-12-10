@@ -33,9 +33,7 @@ def CustomOpenApiConfig() -> OpenAPIConfig:
                 description="StopTimes are when a vehicle arrives at and departs from stops for each trip.",
             ),
             Tag(name="Calendar", description="Calendars are the weekly schedules of a route"),
-            Tag(
-                name="CalendarDate", description="CalendarDates are the exceptions to a calendar"
-            ),
+            Tag(name="CalendarDate", description="CalendarDates are the exceptions to a calendar"),
             Tag(
                 name="Shape",
                 description="Shapes define the path that a vehicle travels along a route",

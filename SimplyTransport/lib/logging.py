@@ -64,9 +64,7 @@ def provide_logger(logger_name: str) -> logging.Logger:
         raise ValueError("Logger_name is required")
 
     time_format = "%Y-%m-%d %H:%M:%S"
-    formatter = logging.Formatter(
-        fmt="%(asctime)s - %(levelname)s - %(message)s", datefmt=time_format
-    )
+    formatter = logging.Formatter(fmt="%(asctime)s - %(levelname)s - %(message)s", datefmt=time_format)
 
     logger = logging.getLogger(logger_name)
     logger.handlers = []

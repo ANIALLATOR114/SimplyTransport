@@ -19,9 +19,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
 
         return await self.get_one(code=code)
 
-    async def list_by_name_or_code(
-        self, search: str, limit_offset: LimitOffset
-    ) -> list[StopModel]:
+    async def list_by_name_or_code(self, search: str, limit_offset: LimitOffset) -> list[StopModel]:
         """List stops that start with name/code."""
 
         results, total = await self.list_and_count(
@@ -47,9 +45,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             .group_by(StopModel.id)
         )
 
-    async def get_by_route_id_with_sequence(
-        self, route_id: str, direction: int
-    ) -> list[StopModel, int]:
+    async def get_by_route_id_with_sequence(self, route_id: str, direction: int) -> list[StopModel, int]:
         """Get a stop by route_id with a stop_sequence."""
 
         return await self._execute(
