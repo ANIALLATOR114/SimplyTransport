@@ -180,7 +180,7 @@ class RealTimeImporter:
                         session.commit()
                     except Exception as e:
                         logger.error(f"RealTime: {self.url} failed to commit trips: {e}")
-                    
+
                 except KeyError as e:
                     logger.warning(f"RealTime: {self.url} returned invalid JSON in entitys: {e}")
                     return None
