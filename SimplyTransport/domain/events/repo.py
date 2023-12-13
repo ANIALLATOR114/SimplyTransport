@@ -5,38 +5,44 @@ from advanced_alchemy.filters import OrderBy, LimitOffset
 
 from .model import EventModel
 
+
 class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
     """Event repository."""
 
-    async def create_event(self, event_type: str, description: str, attributes: dict, expiry_time: datetime = None) -> EventModel:
+    async def create_event(
+        self, event_type: str, description: str, attributes: dict, expiry_time: datetime = None
+    ) -> EventModel:
         """Create event."""
 
         if expiry_time is None:
             # Set the default expiry
             expiry_time = datetime.now(tz=UTC) + timedelta(days=90)
 
-        event = EventModel(event_type=event_type, description=description, expiry_time=expiry_time, attributes=attributes)
+        event = EventModel(
+            event_type=event_type, description=description, expiry_time=expiry_time, attributes=attributes
+        )
         new_event = await self.add(event)
         await self.session.commit()
         return new_event
-
 
     async def get_events_by_type(self, event_type: str) -> list[EventModel]:
         """Get events by type."""
 
         return await self.list(EventModel.event_type == event_type, OrderBy(EventModel.created_at, "desc"))
-    
 
-    async def get_paginated_events_by_type(self, event_type: str, limit_offset: LimitOffset) -> list[EventModel]:
+    async def get_paginated_events_by_type(
+        self, event_type: str, limit_offset: LimitOffset
+    ) -> list[EventModel]:
         """Get paginated events by type."""
 
-        return await self.list(EventModel.event_type == event_type, OrderBy(EventModel.created_at, "desc"), limit_offset)
-    
+        return await self.list(
+            EventModel.event_type == event_type, OrderBy(EventModel.created_at, "desc"), limit_offset
+        )
+
     async def get_paginated_events(self, limit_offset: LimitOffset) -> list[EventModel]:
         """Get paginated events."""
 
         return await self.list(OrderBy(EventModel.created_at, "desc"), limit_offset)
-    
 
     async def get_events_by_type_on_date(self, event_type: str, date: date) -> list[EventModel]:
         """Get events by type on date."""
@@ -44,7 +50,12 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
         start_of_day = datetime.combine(date, datetime.min.time())
         start_of_next_day = datetime.combine(date, datetime.min.time()) + timedelta(days=1)
 
-        return await self.list(EventModel.event_type == event_type, EventModel.created_at >= start_of_day, EventModel.created_at < start_of_next_day, OrderBy(EventModel.created_at, "desc"))
+        return await self.list(
+            EventModel.event_type == event_type,
+            EventModel.created_at >= start_of_day,
+            EventModel.created_at < start_of_next_day,
+            OrderBy(EventModel.created_at, "desc"),
+        )
 
     model_type = EventModel
 

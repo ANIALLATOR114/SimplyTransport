@@ -9,4 +9,3 @@ class EventType(str, Enum):
 
     # Realtime
     REALTIME_DATABASE_UPDATED = "realtime.database.updated"
-

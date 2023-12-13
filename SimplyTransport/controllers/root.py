@@ -8,7 +8,6 @@ __all__ = [
 
 
 class RootController(Controller):
-
     dependencies = {}
 
     @get("/")

@@ -18,11 +18,11 @@ class EventModel(BigIntAuditBase):
     __tablename__ = "event"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    event_type: Mapped[EventType] = mapped_column(String(length=255) , index=True)
+    event_type: Mapped[EventType] = mapped_column(String(length=255), index=True)
     description: Mapped[str] = mapped_column(String(length=1000))
     expiry_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     attributes: Mapped[dict] = mapped_column(JSONB)
-    
+
 
 class Event(BaseModel):
     id: int
