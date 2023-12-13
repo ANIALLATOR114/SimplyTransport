@@ -27,8 +27,7 @@ jobs:
           - 5432:5432
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           repository: ${{ github.repository }}
           ref: ${{ github.head_ref }}
