@@ -1,8 +1,6 @@
 from litestar import Controller, get
 from litestar.response import Template
 
-from SimplyTransport.lib.logging import logger
-
 
 __all__ = [
     "RootController",
@@ -10,9 +8,10 @@ __all__ = [
 
 
 class RootController(Controller):
+    dependencies = {}
+
     @get("/")
     async def root(self) -> Template:
-        logger.info("Hello World!")
         return Template(template_name="index.html")
 
     @get("/about")

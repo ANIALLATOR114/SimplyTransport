@@ -35,7 +35,7 @@ class CalendarDateController(Controller):
     ) -> list[CalendarDate]:
         result = await repo.list(service_id=service_id)
         if result is None or len(result) == 0:
-            raise NotFoundException(detail=f"CalendarDate nots found with service_id {service_id}")
+            raise NotFoundException(detail=f"CalendarDates not found with service_id {service_id}")
         return [CalendarDate.model_validate(obj) for obj in result]
 
     @get(
