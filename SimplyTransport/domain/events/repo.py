@@ -44,10 +44,12 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
 
         if total == 0:
             raise NotFoundError()
-        
+
         return results, total
 
-    async def get_paginated_events(self, limit_offset: LimitOffset, order="desc") -> Tuple[List[EventModel], int]:
+    async def get_paginated_events(
+        self, limit_offset: LimitOffset, order="desc"
+    ) -> Tuple[List[EventModel], int]:
         """Get paginated events."""
 
         results, total = await self.list_and_count(OrderBy(EventModel.created_at, order), limit_offset)

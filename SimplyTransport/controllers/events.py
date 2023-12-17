@@ -47,7 +47,9 @@ class EventsController(Controller):
             if type not in [event_type.value for event_type in EventType.__members__.values()]:
                 raise ValidationException("Invalid event type")
 
-            events, total = await event_repo.get_paginated_events_by_type(event_type=type, limit_offset=limit_offset, order=sort)
+            events, total = await event_repo.get_paginated_events_by_type(
+                event_type=type, limit_offset=limit_offset, order=sort
+            )
 
         events = [event.add_pretty_created_at() for event in events]
 
@@ -58,5 +60,14 @@ class EventsController(Controller):
             total_pages = round(total / limit_offset.limit)
 
         return Template(
-            template_name="events/list_of_events.html", context={"events": events, "type": type, "sort": sort, "limit_offset": limit_offset, "current_page": current_page, "total_pages": total_pages, "total": total}
+            template_name="events/list_of_events.html",
+            context={
+                "events": events,
+                "type": type,
+                "sort": sort,
+                "limit_offset": limit_offset,
+                "current_page": current_page,
+                "total_pages": total_pages,
+                "total": total,
+            },
         )
