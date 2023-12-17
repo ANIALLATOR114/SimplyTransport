@@ -34,7 +34,7 @@ class SearchController(Controller):
             if total < limit_offset.limit:
                 total_pages = 1
             else:
-                total_pages = round(total / limit_offset.limit) + 1
+                total_pages = round(total / limit_offset.limit)
         except NotFoundError:
             return Template(
                 "gtfs_search/stop_result.html",

@@ -1,7 +1,9 @@
-from datetime import datetime, timedelta, UTC, date
+from datetime import datetime, timedelta, UTC
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from advanced_alchemy.filters import OrderBy, LimitOffset
+from advanced_alchemy import NotFoundError
+from typing import List, Tuple
 
 from .model import EventModel
 from SimplyTransport.domain.events.event_types import EventType
@@ -33,32 +35,25 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
 
     async def get_paginated_events_by_type(
         self, event_type: EventType, limit_offset: LimitOffset, order="desc"
-    ) -> list[EventModel]:
+    ) -> Tuple[List[EventModel], int]:
         """Get paginated events by type."""
 
-        return await self.list(
+        results, total = await self.list_and_count(
             EventModel.event_type == event_type, OrderBy(EventModel.created_at, order), limit_offset
         )
 
-    async def get_paginated_events(self, limit_offset: LimitOffset, order="desc") -> list[EventModel]:
+        if total == 0:
+            raise NotFoundError()
+        
+        return results, total
+
+    async def get_paginated_events(self, limit_offset: LimitOffset, order="desc") -> Tuple[List[EventModel], int]:
         """Get paginated events."""
 
-        return await self.list(OrderBy(EventModel.created_at, order), limit_offset)
-
-    async def get_events_by_type_on_date(
-        self, event_type: EventType, date: date, order="desc"
-    ) -> list[EventModel]:
-        """Get events by type on date."""
-
-        start_of_day = datetime.combine(date, datetime.min.time())
-        start_of_next_day = datetime.combine(date, datetime.min.time()) + timedelta(days=1)
-
-        return await self.list(
-            EventModel.event_type == event_type,
-            EventModel.created_at >= start_of_day,
-            EventModel.created_at < start_of_next_day,
-            OrderBy(EventModel.created_at, order),
-        )
+        results, total = await self.list_and_count(OrderBy(EventModel.created_at, order), limit_offset)
+        if total == 0:
+            raise NotFoundError()
+        return results, total
 
     model_type = EventModel
 

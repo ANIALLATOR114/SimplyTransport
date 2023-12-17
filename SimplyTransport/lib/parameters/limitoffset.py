@@ -7,7 +7,8 @@ async def provide_limit_offset_pagination(
     page_size: int = Parameter(
         query="pageSize",
         ge=1,
-        default=30,
+        le=100,
+        default=20,
         required=False,
     ),
 ) -> LimitOffset:
