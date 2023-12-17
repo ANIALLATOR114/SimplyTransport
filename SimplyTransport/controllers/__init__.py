@@ -1,6 +1,6 @@
 from litestar import Router
 
-from . import root, search, realtime
+from . import root, search, realtime, events
 from .api import agency, calendar, calendar_date, route, trip, stop, shape, stoptime
 
 __all__ = ["create_api_router", "create_views_router"]
@@ -25,12 +25,20 @@ def create_views_router() -> Router:
         include_in_schema=False,
     )
 
+    events_route_handler = Router(
+        path="/events",
+        route_handlers=[events.EventsController],
+        security=[{}],
+        include_in_schema=False,
+    )
+
     return Router(
         path="/",
         route_handlers=[
             root_route_handler,
             search_route_handler,
             realtime_route_handler,
+            events_route_handler,
         ],
     )
 

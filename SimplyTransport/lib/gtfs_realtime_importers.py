@@ -57,7 +57,7 @@ class RealTimeImporter:
             session.query(RTTripModel).filter(RTTripModel.dataset == self.dataset).delete()
             session.commit()
 
-    def import_stop_times(self, data: dict):
+    def import_stop_times(self, data: dict) -> int:
         """Imports the stop times from the dataset into the database"""
 
         stop_time_update_count = sum(
@@ -120,9 +120,11 @@ class RealTimeImporter:
                         logger.error(f"RealTime: {self.url} failed to commit stop times: {e}")
                 except KeyError as e:
                     logger.warning(f"RealTime: {self.url} returned invalid JSON in entitys: {e}")
-                    return None
+                    return 0
 
-    def import_trips(self, data: dict):
+                return stop_time_update_count
+
+    def import_trips(self, data: dict) -> int:
         """Imports the trips from the dataset into the database"""
 
         trip_update_count = sum(
@@ -183,4 +185,6 @@ class RealTimeImporter:
 
                 except KeyError as e:
                     logger.warning(f"RealTime: {self.url} returned invalid JSON in entitys: {e}")
-                    return None
+                    return 0
+
+                return trip_update_count

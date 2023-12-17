@@ -18,9 +18,13 @@ class RTStopTimeModel(BigIntAuditBase):
     __tablename__ = "rt_stop_time"
 
     stop: Mapped["StopModel"] = relationship(back_populates="rt_stop_times")  # noqa: F821
-    stop_id: Mapped[str] = mapped_column(String(length=1000), ForeignKey("stop.id"), index=True)
+    stop_id: Mapped[str] = mapped_column(
+        String(length=1000), ForeignKey("stop.id", ondelete="CASCADE"), index=True
+    )
     trip: Mapped["TripModel"] = relationship(back_populates="rt_stop_times")  # noqa: F821
-    trip_id: Mapped[str] = mapped_column(String(length=1000), ForeignKey("trip.id"), index=True)
+    trip_id: Mapped[str] = mapped_column(
+        String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True
+    )
     stop_sequence: Mapped[int] = mapped_column(Integer)
     schedule_relationship: Mapped[ScheduleRealtionship] = mapped_column(String(length=1000))
     arrival_delay: Mapped[Optional[int]] = mapped_column(Integer)

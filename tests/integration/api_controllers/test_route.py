@@ -1,7 +1,7 @@
-from httpx import AsyncClient
+from litestar.testing import TestClient
 
 
-def test_route_all(client: AsyncClient) -> None:
+def test_route_all(client: TestClient) -> None:
     response = client.get("api/v1/route/")
     assert response.status_code == 200
     response_json = response.json()
@@ -29,7 +29,7 @@ def test_route_all(client: AsyncClient) -> None:
     assert response_json[1]["dataset"] == "TFI"
 
 
-def test_route_filtered_by_agency_id(client: AsyncClient) -> None:
+def test_route_filtered_by_agency_id(client: TestClient) -> None:
     response = client.get("api/v1/route/?agency_id=7778019")
     assert response.status_code == 200
     response_json = response.json()
@@ -57,14 +57,14 @@ def test_route_filtered_by_agency_id(client: AsyncClient) -> None:
     assert response_json[1]["dataset"] == "TFI"
 
 
-def test_route_filtered_by_agency_id_not_found(client: AsyncClient) -> None:
+def test_route_filtered_by_agency_id_not_found(client: TestClient) -> None:
     response = client.get("api/v1/route/?agencyId=7778801877788018")
     assert response.status_code == 404
     response_json = response.json()
     assert response_json["detail"] == "Routes not found with agency id 7778801877788018"
 
 
-def test_all_route_and_count(client: AsyncClient) -> None:
+def test_all_route_and_count(client: TestClient) -> None:
     response = client.get("api/v1/route/count")
     assert response.status_code == 200
     response_json = response.json()
@@ -72,7 +72,7 @@ def test_all_route_and_count(client: AsyncClient) -> None:
     assert len(response_json["routes"]) == 2
 
 
-def test_all_route_and_count_by_agency_id(client: AsyncClient) -> None:
+def test_all_route_and_count_by_agency_id(client: TestClient) -> None:
     response = client.get("api/v1/route/count?agency_id=7778019")
     assert response.status_code == 200
     response_json = response.json()
@@ -80,14 +80,14 @@ def test_all_route_and_count_by_agency_id(client: AsyncClient) -> None:
     assert len(response_json["routes"]) == 2
 
 
-def test_all_route_and_count_by_agency_id_not_found(client: AsyncClient) -> None:
+def test_all_route_and_count_by_agency_id_not_found(client: TestClient) -> None:
     response = client.get("api/v1/route/count?agencyId=7778801877788018")
     assert response.status_code == 404
     response_json = response.json()
     assert response_json["detail"] == "Routes not found with agency id 7778801877788018"
 
 
-def test_get_route_by_id(client: AsyncClient) -> None:
+def test_get_route_by_id(client: TestClient) -> None:
     response = client.get("api/v1/route/3623_54684")
     assert response.status_code == 200
     response_json = response.json()
@@ -117,7 +117,7 @@ def test_get_route_by_id(client: AsyncClient) -> None:
     assert response_json["dataset"] == "TFI"
 
 
-def test_get_route_by_id_not_found(client: AsyncClient) -> None:
+def test_get_route_by_id_not_found(client: TestClient) -> None:
     response = client.get("api/v1/route/3623_54691_")
     assert response.status_code == 404
     response_json = response.json()

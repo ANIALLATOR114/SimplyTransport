@@ -1,27 +1,18 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import validator
 
 
-class BaseEnvSettings(BaseSettings):
-    """Base settings class for environment variables."""
-
-    env_file: str = ".env"
-    env_file_encoding: str = "utf-8"
-
-    model_config = {"from_attributes": True}
-
-
-class AppSettings(BaseEnvSettings):
+class AppSettings(BaseSettings):
     """Settings class for environment variables."""
 
-    model_config = {"from_attributes": True}
+    model_config = SettingsConfigDict(env_file=(".env"))
 
     DEBUG: bool = False
     ENVIRONMENT: str = "DEV"
     NAME: str = "SimplyTransport"
     LOG_LEVEL: str = "DEBUG"
 
-    VERSION: str = "0.2.0"  # Version bumping will cache bust static css/js files
+    VERSION: str = "0.2.1"  # Version bumping will cache bust static css/js files
     SECRET_KEY: str = "secret"
     LITESTAR_APP: str = "SimplyTransport.app:create_app"
 
@@ -58,4 +49,4 @@ class AppSettings(BaseEnvSettings):
         return "DEBUG" if values.get("ENVIRONMENT") == "DEV" else "INFO"
 
 
-app = AppSettings.model_validate({})
+app = AppSettings()

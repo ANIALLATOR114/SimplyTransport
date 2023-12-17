@@ -5,7 +5,7 @@ from litestar.contrib.sqlalchemy.plugins import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
 )
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 # Sync version for importer
 from sqlalchemy import create_engine
@@ -16,11 +16,13 @@ session = Session(engine)
 
 
 # Async version for main API
-engine = create_async_engine(
+async_engine = create_async_engine(
     settings.app.DB_URL,
     echo=settings.app.DB_ECHO,
 )
 
 session_config = AsyncSessionConfig(expire_on_commit=False)
-sqlalchemy_config = SQLAlchemyAsyncConfig(engine_instance=engine, session_config=session_config)
+sqlalchemy_config = SQLAlchemyAsyncConfig(engine_instance=async_engine, session_config=session_config)
 sqlalchemy_plugin = SQLAlchemyInitPlugin(config=sqlalchemy_config)
+
+async_session_factory = async_sessionmaker(async_engine, expire_on_commit=False)

@@ -1,5 +1,6 @@
 import os
 import time
+import asyncio
 
 import click
 import rich.progress as rp
@@ -10,6 +11,8 @@ from rich.table import Table
 
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.gtfs_realtime_importers import RealTimeImporter
+from SimplyTransport.domain.events.repo import create_event_with_session
+from SimplyTransport.domain.events.event_types import EventType
 
 
 def gtfs_directory_validator(dir: str, console: Console):
@@ -109,10 +112,17 @@ class CLIPlugin(CLIPluginProtocol):
                 "stop_times.txt",
                 "shapes.txt",
             ]
+            attributes_of_total_rows = {}
 
             for file in files_to_import:
+                start = time.perf_counter()
                 if not (os.path.exists(dir) and os.path.isfile(dir + file)):
                     console.print(f"[red]Error: File '{file}' does not exist. Skipping...")
+                    attributes_of_total_rows[file.replace(".txt", "")] = {
+                        "time_taken(s)": 0,
+                        "row_count": 0,
+                        "error": f"File '{file}' does not exist.",
+                    }
                     continue
 
                 generic_importer = imp.GTFSImporter(file, dir)
@@ -124,6 +134,11 @@ class CLIPlugin(CLIPluginProtocol):
                     console.print(
                         f"\n[red]Error: File '{file}' does not have a supported importer. Skipping..."
                     )
+                    attributes_of_total_rows[file.replace(".txt", "")] = {
+                        "time_taken(s)": 0,
+                        "row_count": row_count,
+                        "error": f"File '{file}' does not have a supported importer.",
+                    }
                     continue
 
                 console.print(f"\nLoaded {importer} for {row_count} rows")
@@ -138,7 +153,25 @@ class CLIPlugin(CLIPluginProtocol):
 
                 importer.import_data()
 
+                finish = time.perf_counter()
+                attributes_of_total_rows[file.replace(".txt", "")] = {
+                    "time_taken(s)": round(finish - start, 2),
+                    "row_count": row_count,
+                }
+
             finish: float = time.perf_counter()
+            attributes = {
+                "dataset": dataset,
+                "totals": attributes_of_total_rows,
+                "total_time_taken(s)": round(finish - start, 2),
+            }
+            asyncio.run(
+                create_event_with_session(
+                    EventType.GTFS_DATABASE_UPDATED,
+                    "GTFS static data updated with latest schedules",
+                    attributes,
+                )
+            )
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
         @cli.command(name="importrealtime", help="Imports GTFS realtime data into the database")
@@ -188,12 +221,25 @@ class CLIPlugin(CLIPluginProtocol):
 
             importer.clear_table_stop_trip()
             console.print("\nImporting Stop Times")
-            importer.import_stop_times(data)
+            total_stop_times = importer.import_stop_times(data)
 
             console.print("\nImporting Trips")
-            importer.import_trips(data)
+            total_trips = importer.import_trips(data)
 
             finish: float = time.perf_counter()
+            attributes = {
+                "dataset": realtime_dataset,
+                "total_trips": total_trips,
+                "total_stop_times": total_stop_times,
+                "time_taken(s)": round(finish - start, 2),
+            }
+            asyncio.run(
+                create_event_with_session(
+                    EventType.REALTIME_DATABASE_UPDATED,
+                    "Realtime database updated with new realtime information",
+                    attributes,
+                )
+            )
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
         @cli.command(name="create_tables", help="Creates the database tables")

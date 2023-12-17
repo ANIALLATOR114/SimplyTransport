@@ -1,7 +1,7 @@
-from httpx import AsyncClient
+from litestar.testing import TestClient
 
 
-def test_get_stop_by_id(client: AsyncClient) -> None:
+def test_get_stop_by_id(client: TestClient) -> None:
     response = client.get("/api/v1/stop/8240DB000324")
     assert response.status_code == 200
     response_json = response.json()
@@ -35,14 +35,14 @@ def test_get_stop_by_id(client: AsyncClient) -> None:
     assert response_json["dataset"] == "TFI"
 
 
-def test_get_stop_by_id_not_found(client: AsyncClient) -> None:
+def test_get_stop_by_id_not_found(client: TestClient) -> None:
     response = client.get("/api/v1/stop/8240DB0003241")
     assert response.status_code == 404
     response_json = response.json()
     assert response_json["detail"] == "Stop not found with id 8240DB0003241"
 
 
-def test_get_stop_by_code(client: AsyncClient) -> None:
+def test_get_stop_by_code(client: TestClient) -> None:
     response = client.get("/api/v1/stop/code/324")
     assert response.status_code == 200
     response_json = response.json()
@@ -76,14 +76,14 @@ def test_get_stop_by_code(client: AsyncClient) -> None:
     assert response_json["dataset"] == "TFI"
 
 
-def test_get_stop_by_code_not_found(client: AsyncClient) -> None:
+def test_get_stop_by_code_not_found(client: TestClient) -> None:
     response = client.get("/api/v1/stop/code/3241")
     assert response.status_code == 404
     response_json = response.json()
     assert response_json["detail"] == "Stop not found with code 3241"
 
 
-def test_search_stops_by_name(client: AsyncClient) -> None:
+def test_search_stops_by_name(client: TestClient) -> None:
     response = client.get("/api/v1/stop/search?search=Harristown")
     assert response.status_code == 200
     response_json = response.json()
@@ -109,7 +109,7 @@ def test_search_stops_by_name(client: AsyncClient) -> None:
     assert response_json["items"][0]["name"] == "Charlestown SC"
 
 
-def test_search_stops_by_code(client: AsyncClient) -> None:
+def test_search_stops_by_code(client: TestClient) -> None:
     response = client.get("/api/v1/stop/search?search=324")
     assert response.status_code == 200
     response_json = response.json()
@@ -127,7 +127,7 @@ def test_search_stops_by_code(client: AsyncClient) -> None:
     assert response_json["items"][0]["name"] == "Charlestown SC"
 
 
-def test_search_stops_offsetpagination(client: AsyncClient) -> None:
+def test_search_stops_offsetpagination(client: TestClient) -> None:
     response = client.get("/api/v1/stop/search?search=Harristown&currentPage=1&pageSize=10")
     assert response.status_code == 200
     response_json = response.json()

@@ -1,7 +1,7 @@
-from httpx import AsyncClient
+from litestar.testing import TestClient
 
 
-def test_get_shape_by_shape_id_asc(client: AsyncClient) -> None:
+def test_get_shape_by_shape_id_asc(client: TestClient) -> None:
     response = client.get("/api/v1/shape/3623_278?orderBy=sequence&sortOrder=asc'")
     assert response.status_code == 200
     response_json = response.json()
@@ -19,7 +19,7 @@ def test_get_shape_by_shape_id_asc(client: AsyncClient) -> None:
         assert response_json[0]["shape_id"] == "3623_278"
 
 
-def test_get_shape_by_shape_id_desc(client: AsyncClient) -> None:
+def test_get_shape_by_shape_id_desc(client: TestClient) -> None:
     response = client.get("/api/v1/shape/3623_278?orderBy=sequence&sortOrder=desc")
     assert response.status_code == 200
     response_json = response.json()
@@ -37,7 +37,7 @@ def test_get_shape_by_shape_id_desc(client: AsyncClient) -> None:
         assert response_json[0]["shape_id"] == "3623_278"
 
 
-def test_get_shape_by_shape_id_not_found(client: AsyncClient) -> None:
+def test_get_shape_by_shape_id_not_found(client: TestClient) -> None:
     response = client.get("/api/v1/shape/3623323_279?orderBy=sequence&sortOrder=asc'")
     assert response.status_code == 404
     response_json = response.json()
