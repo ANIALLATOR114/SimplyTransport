@@ -123,6 +123,7 @@ h3 {
 
 .load-with-dropdown {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: 0.7rem;
 	margin-bottom: 1rem;
@@ -131,10 +132,11 @@ h3 {
 
 .dropdown {
 	background-color: var(--bg-color-highlight);
-	border-radius: 0.25rem;
+	border-radius: 0.3rem;
 	color: var(--font-color);
-	padding: 0.5rem;
+	padding: 0.6rem;
 	border: none;
+	font-size: 1rem;
 }
 
 .hoverable {
@@ -258,7 +260,7 @@ h3 {
 }
 
 .search-box {
-	border-radius: 0.25rem;
+	border-radius: 0.3rem;
 	font-size: 1rem;
 	padding: 0.7rem;
 	outline: none;
@@ -281,9 +283,9 @@ h3 {
 }
 
 .pagination-button {
-	border-radius: 0.25rem;
+	border-radius: 0.3rem;
 	font-size: 1rem;
-	padding: 0.5rem;
+	padding: 0.6rem;
 	border: none;
 	background-color: var(--bg-color-highlight);
 	color: var(--font-color);
@@ -422,13 +424,13 @@ h3 {
 	}
 
 	.pagination-button {
-		font-size: 0.85rem;
-		padding: 0.4rem;
+		font-size: 0.9rem;
+		padding: 0.5rem;
 	}
 
 	.dropdown {
-		font-size: 0.85rem;
-		padding: 0.4rem;
+		font-size: 0.9rem;
+		padding: 0.5rem;
 	}
 
 	.table-search th {

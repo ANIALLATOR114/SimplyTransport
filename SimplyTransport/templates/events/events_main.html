@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ request.app.openapi_config.title }} - Events
+{% endblock title %}
+{% block content %}
+    <link rel="stylesheet"
+          href="/static/event.css?{{ request.app.openapi_config.version }}" />
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+    <div class="narrow-container">
+        <h1>Events</h1>
+        <p class="dense-text">Events are records of things that have happened in the system.</p>
+        <div class="load-with-dropdown">
+            <button hx-get="/events/search"
+                    hx-trigger="click"
+                    hx-target="#events-container"
+                    hx-swap="transition:true"
+                    hx-include="[name='type'],[name='sort']"
+                    class="pagination-button">Reload</button>
+            <select class="dropdown" name="type">
+                {% for event in event_types %}<option value="{{ event }}">{{ event }}</option>{% endfor %}
+            </select>
+            <select class="dropdown" name="sort">
+                <option value="desc">desc</option>
+                <option value="asc">asc</option>
+            </select>
+        </div>
+        <div class="events-container"
+             id="events-container"
+             hx-trigger="load"
+             hx-get="/events/search"></div>
+    </div>
+{% endblock content %}
