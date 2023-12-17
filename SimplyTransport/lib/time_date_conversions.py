@@ -21,5 +21,5 @@ def convert_joined_date_to_date(date: str) -> datetime.date:
 class DateTimeEncoderForJson(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
-            return obj.strftime('%H:%M:%S %d-%m-%Y')
+            return obj.strftime("%H:%M:%S %d-%m-%Y")
         return super().default(obj)

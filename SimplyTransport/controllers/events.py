@@ -15,25 +15,28 @@ __all__ = [
 
 
 class EventsController(Controller):
-
     dependencies = {
         "event_repo": Provide(provide_event_repo),
     }
-    
+
     @get("/")
     async def root(self) -> Template:
-        event_types  = [event_type.value for event_type in EventType.__members__.values()]
+        event_types = [event_type.value for event_type in EventType.__members__.values()]
         event_types.insert(0, "all.event.types")
 
         return Template(template_name="events/events_main.html", context={"event_types": event_types})
-    
-    @get("/search")
-    async def search(self, event_repo: EventRepository, limit_offset: LimitOffset, type: str | None = Parameter(
-            query="type", required=False, description="Search events by type"
-        ),sort: str | None = Parameter(
-            query="sort", required=False, description="Sort events ascending or descending by creation time"
-        )) -> Template:
 
+    @get("/search")
+    async def search(
+        self,
+        event_repo: EventRepository,
+        limit_offset: LimitOffset,
+        type: str | None = Parameter(query="type", required=False, description="Search events by type"),
+        sort: str
+        | None = Parameter(
+            query="sort", required=False, description="Sort events ascending or descending by creation time"
+        ),
+    ) -> Template:
         if sort is None:
             sort = "desc"
 
@@ -43,9 +46,11 @@ class EventsController(Controller):
         else:
             if type not in [event_type.value for event_type in EventType.__members__.values()]:
                 raise ValidationException("Invalid event type")
-        
+
             events = await event_repo.get_paginated_events_by_type(type, limit_offset, order=sort)
 
         events = [event.add_pretty_created_at() for event in events]
 
-        return Template(template_name="events/list_of_events.html", context={"events": events, "type": type, "sort": sort})
+        return Template(
+            template_name="events/list_of_events.html", context={"events": events, "type": type, "sort": sort}
+        )

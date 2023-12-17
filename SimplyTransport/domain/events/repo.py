@@ -6,6 +6,7 @@ from advanced_alchemy.filters import OrderBy, LimitOffset
 from .model import EventModel
 from SimplyTransport.domain.events.event_types import EventType
 
+
 class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
     """Event repository."""
 
@@ -25,13 +26,13 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
         await self.session.commit()
         return new_event
 
-    async def get_events_by_type(self, event_type: EventType, order = "desc") -> list[EventModel]:
+    async def get_events_by_type(self, event_type: EventType, order="desc") -> list[EventModel]:
         """Get events by type."""
 
         return await self.list(EventModel.event_type == event_type, OrderBy(EventModel.created_at, order))
 
     async def get_paginated_events_by_type(
-        self, event_type: EventType, limit_offset: LimitOffset, order = "desc"
+        self, event_type: EventType, limit_offset: LimitOffset, order="desc"
     ) -> list[EventModel]:
         """Get paginated events by type."""
 
@@ -39,12 +40,14 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
             EventModel.event_type == event_type, OrderBy(EventModel.created_at, order), limit_offset
         )
 
-    async def get_paginated_events(self, limit_offset: LimitOffset, order = "desc") -> list[EventModel]:
+    async def get_paginated_events(self, limit_offset: LimitOffset, order="desc") -> list[EventModel]:
         """Get paginated events."""
 
         return await self.list(OrderBy(EventModel.created_at, order), limit_offset)
 
-    async def get_events_by_type_on_date(self, event_type: EventType, date: date, order = "desc") -> list[EventModel]:
+    async def get_events_by_type_on_date(
+        self, event_type: EventType, date: date, order="desc"
+    ) -> list[EventModel]:
         """Get events by type on date."""
 
         start_of_day = datetime.combine(date, datetime.min.time())
