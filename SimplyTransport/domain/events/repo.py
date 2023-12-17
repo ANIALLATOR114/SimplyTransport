@@ -7,6 +7,7 @@ from typing import List, Tuple
 
 from .model import EventModel
 from SimplyTransport.domain.events.event_types import EventType
+from SimplyTransport.lib.db.database import async_session_factory
 
 
 class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
@@ -64,3 +65,9 @@ async def provide_event_repo(db_session: AsyncSession) -> EventRepository:
     """This provides the Event repository."""
 
     return EventRepository(session=db_session)
+
+
+async def create_event_with_session(event_type: EventType, description: str, attributes: dict, expiry_time: datetime = None):
+    async with async_session_factory() as db_session:
+        event_repo = await provide_event_repo(db_session=db_session)
+        await event_repo.create_event(event_type, description, attributes, expiry_time)

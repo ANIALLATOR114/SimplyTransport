@@ -1,7 +1,7 @@
-from httpx import AsyncClient
+from litestar.testing import TestClient
 
 
-def test_calendar_all(client: AsyncClient) -> None:
+def test_calendar_all(client: TestClient) -> None:
     response = client.get("api/v1/calendar/")
     assert response.status_code == 200
     response_json = response.json()
@@ -19,7 +19,7 @@ def test_calendar_all(client: AsyncClient) -> None:
     assert response_json[0]["dataset"] == "TFI"
 
 
-def test_calendar_all_and_count(client: AsyncClient) -> None:
+def test_calendar_all_and_count(client: TestClient) -> None:
     response = client.get("api/v1/calendar/count")
     assert response.status_code == 200
     response_json = response.json()
@@ -27,7 +27,7 @@ def test_calendar_all_and_count(client: AsyncClient) -> None:
     assert len(response_json["calendars"]) == 117
 
 
-def test_get_calendar_by_id(client: AsyncClient) -> None:
+def test_get_calendar_by_id(client: TestClient) -> None:
     response = client.get("api/v1/calendar/27")
     assert response.status_code == 200
     response_json = response.json()
@@ -59,7 +59,7 @@ def test_get_calendar_by_id(client: AsyncClient) -> None:
     assert response_json["dataset"] == "TFI"
 
 
-def test_get_calendars_active_on_date(client: AsyncClient) -> None:
+def test_get_calendars_active_on_date(client: TestClient) -> None:
     response = client.get("api/v1/calendar/date/2023-11-24")
     assert response.status_code == 200
     response_json = response.json()

@@ -1,20 +1,13 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import validator
 
 
-class BaseEnvSettings(BaseSettings):
-    """Base settings class for environment variables."""
-
-    env_file: str = ".env"
-    env_file_encoding: str = "utf-8"
-
-    model_config = {"from_attributes": True}
-
-
-class AppSettings(BaseEnvSettings):
+class AppSettings(BaseSettings):
     """Settings class for environment variables."""
 
-    model_config = {"from_attributes": True}
+    model_config = SettingsConfigDict(
+        env_file=('.env')
+    )
 
     DEBUG: bool = False
     ENVIRONMENT: str = "DEV"
@@ -58,4 +51,4 @@ class AppSettings(BaseEnvSettings):
         return "DEBUG" if values.get("ENVIRONMENT") == "DEV" else "INFO"
 
 
-app = AppSettings.model_validate({})
+app = AppSettings()

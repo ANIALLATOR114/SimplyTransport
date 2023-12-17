@@ -1,7 +1,7 @@
 import pytest
-from litestar.testing import TestClient
-from litestar import Litestar
+from litestar.testing import AsyncTestClient, TestClient
 from collections import abc
+from litestar import Litestar
 
 
 @pytest.fixture(scope="session")
@@ -18,6 +18,11 @@ def app() -> Litestar:
     from SimplyTransport.app import create_app
 
     return create_app()
+
+
+@pytest.fixture(scope="session")
+def async_client(app: Litestar) -> AsyncTestClient:
+    return AsyncTestClient(app=app)
 
 
 @pytest.fixture(scope="session")
