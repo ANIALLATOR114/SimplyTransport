@@ -5,9 +5,7 @@ from pydantic import validator
 class AppSettings(BaseSettings):
     """Settings class for environment variables."""
 
-    model_config = SettingsConfigDict(
-        env_file=('.env')
-    )
+    model_config = SettingsConfigDict(env_file=(".env"))
 
     DEBUG: bool = False
     ENVIRONMENT: str = "DEV"

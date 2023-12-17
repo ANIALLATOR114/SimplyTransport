@@ -20,9 +20,13 @@ class RTTripModel(BigIntAuditBase):
     __tablename__ = "rt_trip"
 
     trip: Mapped["TripModel"] = relationship(back_populates="rt_trips")  # noqa: F821
-    trip_id: Mapped[str] = mapped_column(String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True)
+    trip_id: Mapped[str] = mapped_column(
+        String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True
+    )
     route: Mapped["RouteModel"] = relationship(back_populates="rt_trips")  # noqa: F821
-    route_id: Mapped[str] = mapped_column(String(length=1000), ForeignKey("route.id", ondelete="CASCADE"), index=True)
+    route_id: Mapped[str] = mapped_column(
+        String(length=1000), ForeignKey("route.id", ondelete="CASCADE"), index=True
+    )
     start_time: Mapped[time] = mapped_column(Time)
     start_date: Mapped[date] = mapped_column(Date)
     schedule_relationship: Mapped[ScheduleRealtionship] = mapped_column(String(length=1000))

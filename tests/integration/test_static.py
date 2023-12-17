@@ -1,6 +1,7 @@
 from litestar.testing import AsyncTestClient
 import pytest
 
+
 @pytest.mark.asyncio
 async def test_favicon(async_client: AsyncTestClient) -> None:
     response = await async_client.get("/favicon.ico")

@@ -1,7 +1,8 @@
 import pytest
 from litestar.testing import AsyncTestClient
 
-urls = ["/", "/events/", "/stops/", "/routes/", "/apidocs","/about"]
+urls = ["/", "/events/", "/stops/", "/routes/", "/apidocs", "/about"]
+
 
 @pytest.mark.parametrize("url", urls)
 @pytest.mark.asyncio

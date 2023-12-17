@@ -121,7 +121,7 @@ class RealTimeImporter:
                 except KeyError as e:
                     logger.warning(f"RealTime: {self.url} returned invalid JSON in entitys: {e}")
                     return 0
-                
+
                 return stop_time_update_count
 
     def import_trips(self, data: dict) -> int:
@@ -186,5 +186,5 @@ class RealTimeImporter:
                 except KeyError as e:
                     logger.warning(f"RealTime: {self.url} returned invalid JSON in entitys: {e}")
                     return 0
-                
+
                 return trip_update_count
