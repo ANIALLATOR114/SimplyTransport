@@ -31,6 +31,7 @@
 - [Testing](#testing)
   - [Integration Tests](#integration-tests)
   - [Unit Tests](#unit-tests)
+  - [Code Coverage](#code-coverage)
 
 ## About
 
@@ -128,9 +129,11 @@ Create a copy of .env.example and populate it with your environment variables
 ```
 cp .env.example .env
 ```
+
 Open the `.env` file and change the example variables for the following fields. You can set these to whatever you like as they will be unique to your local deployment.
 
 Notice how the `POSTGRES_` variables map into the URL you're going to try and connect to. Docker-compose will create a DB using these variables for you.
+
 ```
 # Database
 DB_URL=postgresql+asyncpg://example2:example3@localhost:5432/example1
@@ -339,3 +342,25 @@ async def test_get_schedule_on_stop_for_day_should_call_repository():
 ```
 
 In this example we specifically want to ensure that the `get_schedule_on_stop_for_day` method on the `schedule_repository` is called with the correct arguments and just one time.
+
+## Code Coverage
+
+Code coverage is measured using coverage, you can run the tests with coverage using the following command in the root directory.
+
+```
+coverage run -m pytest
+```
+
+You can then generate a report on your cmd using the following command
+
+```
+coverage report
+```
+
+You can also generate a html report using the following command
+
+```
+coverage html --show-contexts
+```
+
+This will generate a htmlcov directory in the root directory where you can open index.html to view the report in your browser.
