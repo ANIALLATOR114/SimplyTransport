@@ -79,7 +79,7 @@ The static schedules can be updated as often as desired but typically a nightly 
 - [x] Homepage
 - [x] About
 - [x] Stop
-  - [ ] Realtime
+  - [x] Realtime
   - [x] Schedule
 - [x] Route
 - [x] Trip
@@ -116,6 +116,12 @@ Create a virtual environment inside the root directory of the project
 
 ```
 python3 -m venv venv
+```
+
+Activate the virtual environment
+
+```
+source venv/scripts/activate
 ```
 
 Install the dependencies in your virtual environment
