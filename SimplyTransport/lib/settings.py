@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import validator
+from pydantic import field_validator, ValidationInfo
 
 
 class AppSettings(BaseSettings):
@@ -38,15 +38,19 @@ class AppSettings(BaseSettings):
     GTFS_TFI_API_KEY_2: str = "example"
     GTFS_TFI_DATASET: str = "example"
 
-    @validator("NAME", pre=True, always=True)
-    def set_name(cls, v, values):
-        # Appends the evnironment to the name if not in production
-        return v if values.get("ENVIRONMENT") == "PROD" else f"SimplyTransport {values.get('ENVIRONMENT')}"
+    @field_validator("NAME")
+    def set_name(cls, v: str, values: ValidationInfo):
+        # Appends the environment to the name if not in production
+        return (
+            v
+            if values.data.get("ENVIRONMENT") == "PROD"
+            else f"SimplyTransport {values.data.get('ENVIRONMENT')}"
+        )
 
-    @validator("LOG_LEVEL", pre=True, always=True)
-    def set_log_level(cls, v, values):
+    @field_validator("LOG_LEVEL")
+    def set_log_level(cls, v: str, values: ValidationInfo):
         # Sets the log level to DEBUG if in DEV else INFO
-        return "DEBUG" if values.get("ENVIRONMENT") == "DEV" else "INFO"
+        return "DEBUG" if values.data.get("ENVIRONMENT") == "DEV" else "INFO"
 
 
 app = AppSettings()
