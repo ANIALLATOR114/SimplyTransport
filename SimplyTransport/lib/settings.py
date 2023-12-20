@@ -41,10 +41,14 @@ class AppSettings(BaseSettings):
     @field_validator("NAME")
     def set_name(cls, v: str, values: ValidationInfo):
         # Appends the environment to the name if not in production
-        return v if values.data.get("ENVIRONMENT") == "PROD" else f"SimplyTransport {values.data.get('ENVIRONMENT')}"
+        return (
+            v
+            if values.data.get("ENVIRONMENT") == "PROD"
+            else f"SimplyTransport {values.data.get('ENVIRONMENT')}"
+        )
 
     @field_validator("LOG_LEVEL")
-    def set_log_level(cls, v:str, values: ValidationInfo):
+    def set_log_level(cls, v: str, values: ValidationInfo):
         # Sets the log level to DEBUG if in DEV else INFO
         return "DEBUG" if values.data.get("ENVIRONMENT") == "DEV" else "INFO"
 
