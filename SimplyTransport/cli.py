@@ -68,6 +68,8 @@ class CLIPlugin(CLIPluginProtocol):
             redoc_path = list(app.openapi_config.openapi_controller.redoc.paths)[0]
             swagger_path = list(app.openapi_config.openapi_controller.swagger_ui.paths)[0]
             elements_path = list(app.openapi_config.openapi_controller.stoplight_elements.paths)[0]
+            rapidoc_path = list(app.openapi_config.openapi_controller.rapidoc.paths)[0]
+
             table = Table()
             table.add_column("Doc Type", style="cyan")
             table.add_column("URL")
@@ -76,6 +78,7 @@ class CLIPlugin(CLIPluginProtocol):
             table.add_row("Redoc", f"{base_url}{docs_path}{redoc_path}")
             table.add_row("Swagger", f"{base_url}{docs_path}{swagger_path}")
             table.add_row("Elements", f"{base_url}{docs_path}{elements_path}")
+            table.add_row("Rapidoc", f"{base_url}{docs_path}{rapidoc_path}")
 
             console.print(table)
 
