@@ -326,6 +326,41 @@ h3 {
 	white-space: nowrap;
 }
 
+.no-top-margin {
+	margin-top: 0rem;
+}
+
+.data-updates {
+	--gap: 1.7rem;
+	--line-offset: calc(var(--gap) / 2);
+	--line-thickness: 2px;
+	--line-color: var(--bg-color-highlight);
+
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	justify-items: start;
+	gap: var(--gap);
+	overflow: hidden;
+}
+
+.data-updates > div {
+	position: relative;
+}
+
+.data-updates > div::after {
+	content: "";
+	position: absolute;
+	background-color: var(--line-color);
+	z-index: 1;
+}
+
+.data-updates > div::after {
+	inline-size: 100vw;
+	block-size: var(--line-thickness);
+	inset-inline-start: 0;
+	inset-block-start: calc(var(--line-offset) * -1);
+}
+
 .flex-separate {
 	display: flex;
 	justify-content: space-between;

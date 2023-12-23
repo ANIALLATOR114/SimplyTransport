@@ -1,42 +1,34 @@
 {% extends "base.html" %}
 {% block title %}
-    {{ request.app.openapi_config.title }} - About
+    {{ request.app.openapi_config.title
+    }} - About
 {% endblock title %}
 {% block content %}
     <div class="narrow-container">
         <h1>About SimplyTransport</h1>
         <p class="dense-text">
-            SimplyTransport is a web application designed to provide comprehensive and comprehensible Transport Information in Ireland.
+            SimplyTransport is a project developed to simplify transit data lookup. It aims to provide an accessible and efficient way to access transport
+            data provided by
+            <a class="link-style"
+               target="_blank"
+               href="https://www.transportforireland.ie/transitData/PT_Data.html">Transport For Ireland</a>
+            in the
+            <a class="link-style" target="_blank" href="https://gtfs.org/">GTFS</a>
+            format.
         </p>
+        <h2>Features</h2>
         <p class="dense-text">
-            The website and backend are open-source at <a class="link-style"
-    target="_blank"
-    href="https://github.com/ANIALLATOR114/SimplyTransport">SimplyTransport</a>
-        </p>
-        <p class="dense-text">
-            This project has been developed by <a class="link-style"
-    target="_blank"
-    href="https://github.com/ANIALLATOR114">Niall</a>
-        </p>
-        <p class="dense-text">
-            As development is on-going, new featues are being added all the time. If you have any suggestions, please feel free to open an issue on the GitHub repository. It's possible it may already be planned, but if not, I'd love to hear about the use-case!
-        </p>
-        <h2>Transport Data</h2>
-        <p class="dense-text">
-            The data used by SimplyTransport is provided by <a class="link-style"
-    target="_blank"
-    href="https://www.transportforireland.ie/transitData/PT_Data.html">Transport For Ireland</a> in the <a class="link-style" target="_blank" href="https://gtfs.org/">GTFS</a> format.
-        </p>
-        <p class="dense-text">More technical explanations of the data can be found on the GitHub repository.</p>
-        <h2>API</h2>
-        <p class="dense-text">
-            SimplyTransport provides an API for accessing formatted GTFS data with the ability to query specific sub-sets of data. The limited government APIs do not have this functionality. When queried I was informed this functionality is not planned to be added.
-        </p>
-        <p class="dense-text">
-            I have also added additional models of data, that I have defined, to make working with the datasets more acessible. For example, the API provides a list of all stops on a route, which is not available in the GTFS data.
+            SimplyTransport is constantly growing, with new features being added
+            regularly. It provides an API for accessing formatted GTFS data, with the
+            ability to query specific subsets of data. This functionality is not
+            available in the limited government APIs. Additional data models have also
+            been defined to make working with the datasets more accessible.
         </p>
         <h2>Technology</h2>
-        <p class="dense-text">SimplyTransport is built using the following technologies:</p>
+        <p class="dense-text">
+            SimplyTransport is built using a variety of technologies to ensure
+            efficiency and reliability:
+        </p>
         <ul class="dense-text">
             <li>Python</li>
             <li>Litestar (web framework)</li>
@@ -46,5 +38,15 @@
             <li>NginX</li>
             <li>CloudFlare</li>
         </ul>
+        <h2>Contribute</h2>
+        <p class="dense-text">
+            Contributions to SimplyTransport are always welcome. If you have any
+            suggestions or want to report an issue, please feel free to open an issue on
+            the
+            <a class="link-style"
+               target="_blank"
+               href="https://github.com/ANIALLATOR114/SimplyTransport">GitHub repository</a>. More technical explanations of the data can be found on the GitHub
+            repository too as well as instructions on how to run the project.
+        </p>
     </div>
 {% endblock content %}
