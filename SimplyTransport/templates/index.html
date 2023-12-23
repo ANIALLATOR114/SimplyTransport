@@ -6,23 +6,42 @@
     <div class="narrow-container">
         <h1>Welcome to SimplyTransport</h1>
         <p class="dense-text">
-            Your gateway to seamless and efficient transportation across the scenic landscapes of Ireland! Our mission is to make your journeys smoother, more accessible, and environmentally friendly.
+            SimplyTransport is the one-stop solution for navigating Ireland's public transportation system.
         </p>
         <p class="dense-text">
-            At SimplyTransport, we harness the power of General Transit Feed Specifications (GTFS) to provide you with comprehensive, real-time information about Ireland's public transportation networks. Whether you're a local commuter or an adventurous traveler, we've got you covered.
+            Access vital transit information for Dublin Bus, Go-Ahead, Bus Éireann, Irish Rail, and Luas. SimplyTransport provides a simple, intuitive interface to quickly get the latest information on your journey.
         </p>
         <p class="dense-text">
-            Explore the charm of Ireland's vibrant cities, ancient towns, and picturesque countryside without the hassle of navigating complex transportation systems. Our user-friendly platform empowers you to plan routes, track schedules, and access vital information at your fingertips. You'll save time and reduce your carbon footprint by choosing eco-friendly transit options.
+            Read more about SimplyTransport <a href="/about">here</a>.
         </p>
         <p class="dense-text">
-            Discover the beauty of Ireland, from the rolling hills of the countryside to the bustling streets of Dublin, Cork, and Galway, with confidence and convenience. We are your dedicated partner in experiencing the heart of the Emerald Isle.
+            Have a look <a href="/realtime/stop/8220DB001359">at a stop</a> on dame street as an example!
         </p>
-        <p class="dense-text">
-            Join us on a journey towards smarter, greener, and more accessible transportation. Start your adventure with SimplyTransport today, and let's move Ireland together, one ride at a time.
-        </p>
+        <div class="inner-container">
+            <h2 class="no-top-margin">Datasets</h2>
+            <div class="data-updates">
+                <div class="dense-text bold-highlight">Dataset</div>
+                <div class="dense-text bold-highlight">Last Updated</div>
+                <div class="dense-text bold-highlight">Expected Frequency</div>
+                <div class="dense-text">GTFS Static Schedules</div>
+                <div class="dense-text">{{ gtfs_updated.created_at_pretty }}</div>
+                <div class="dense-text">Nightly(if needed)</div>
+                <div class="dense-text">Realtime Updates</div>
+                <div class="dense-text">{{ realtime_updated.created_at_pretty }}</div>
+                <div class="dense-text">Every minute</div>
+                <div class="dense-text">Vehicle Positions</div>
+                <div class="dense-text">Coming soon</div>
+                <div class="dense-text">Every minute</div>
+                <div class="dense-text">
+                    <a href="/events">Detailed</a>
+                </div>
+            </div>
+        </div>
     </div>
     <div>
         <img src="/static/bus-sideways.svg"
+             height="50"
+             width="50"
              class="bus-animation"
              alt="bus sideways svg">
     </div>

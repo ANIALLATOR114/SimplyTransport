@@ -64,7 +64,7 @@ class RealTimeSchedule:
         if time_difference <= -1:
             self.real_eta_text = "Left"
         elif time_difference < 0:
-            self.real_eta_text = "Now"
+            self.real_eta_text = "Due"
         elif time_difference < 1:
             self.real_eta_text = "<1 min"
         else:

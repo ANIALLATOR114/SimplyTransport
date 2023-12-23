@@ -1,10 +1,9 @@
-from litestar.testing import AsyncTestClient
+from litestar.testing import AsyncTestClient, TestClient
 import pytest
 
 
-@pytest.mark.asyncio
-async def test_root_200(async_client: AsyncTestClient) -> None:
-    response = await async_client.get("/")
+def test_root_200(client: TestClient) -> None:
+    response = client.get("/")
     assert response.status_code == 200
     assert "Welcome to SimplyTransport" in response.text
 
