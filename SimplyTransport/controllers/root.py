@@ -2,6 +2,7 @@ from litestar import Controller, get
 from litestar.response import Template
 from litestar.di import Provide
 from advanced_alchemy.filters import LimitOffset
+from advanced_alchemy import NotFoundError
 
 from SimplyTransport.domain.events.repo import EventRepository, provide_event_repo
 from SimplyTransport.domain.events.event_types import EventType
@@ -22,17 +23,25 @@ class RootController(Controller):
         self,
         event_repo: EventRepository,
     ) -> Template:
-        gtfs_updated_events = await event_repo.get_paginated_events_by_type(
-            event_type=EventType.GTFS_DATABASE_UPDATED, limit_offset=LimitOffset(limit=1, offset=0)
-        )
-        gtfs_updated_event = gtfs_updated_events[0][0]
-        gtfs_updated_event.add_pretty_created_at()
+        try:
+            gtfs_updated_events = await event_repo.get_paginated_events_by_type(
+                event_type=EventType.GTFS_DATABASE_UPDATED, limit_offset=LimitOffset(limit=1, offset=0)
+            )
+        except NotFoundError:
+            gtfs_updated_event = None
+        else:
+            gtfs_updated_event = gtfs_updated_events[0][0]
+            gtfs_updated_event.add_pretty_created_at()
 
-        realtime_updated_events = await event_repo.get_paginated_events_by_type(
-            event_type=EventType.REALTIME_DATABASE_UPDATED, limit_offset=LimitOffset(limit=1, offset=0)
-        )
-        realtime_updated_event = realtime_updated_events[0][0]
-        realtime_updated_event.add_pretty_created_at()
+        try:
+            realtime_updated_events = await event_repo.get_paginated_events_by_type(
+                event_type=EventType.REALTIME_DATABASE_UPDATED, limit_offset=LimitOffset(limit=1, offset=0)
+            )
+        except NotFoundError:
+            realtime_updated_event = None
+        else:
+            realtime_updated_event = realtime_updated_events[0][0]
+            realtime_updated_event.add_pretty_created_at()
 
         return Template(
             template_name="index.html",

@@ -24,10 +24,22 @@
                 <div class="dense-text bold-highlight">Last Updated</div>
                 <div class="dense-text bold-highlight">Expected Frequency</div>
                 <div class="dense-text">GTFS Static Schedules</div>
-                <div class="dense-text">{{ gtfs_updated.created_at_pretty }}</div>
+                <div class="dense-text">
+                    {% if gtfs_updated %}
+                        {{ gtfs_updated.created_at_pretty }}
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </div>
                 <div class="dense-text">Nightly(if needed)</div>
                 <div class="dense-text">Realtime Updates</div>
-                <div class="dense-text">{{ realtime_updated.created_at_pretty }}</div>
+                <div class="dense-text">
+                    {% if realtime_updated %}
+                        {{ realtime_updated.created_at_pretty }}
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </div>
                 <div class="dense-text">Every minute</div>
                 <div class="dense-text">Vehicle Positions</div>
                 <div class="dense-text">Coming soon</div>
