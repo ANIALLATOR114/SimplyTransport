@@ -18,16 +18,26 @@ class RootController(Controller):
     }
 
     @get("/")
-    async def root(self, event_repo: EventRepository,) -> Template:
-        gtfs_updated_events = await event_repo.get_paginated_events_by_type(event_type=EventType.GTFS_DATABASE_UPDATED,limit_offset=LimitOffset(limit=1, offset=0))
+    async def root(
+        self,
+        event_repo: EventRepository,
+    ) -> Template:
+        gtfs_updated_events = await event_repo.get_paginated_events_by_type(
+            event_type=EventType.GTFS_DATABASE_UPDATED, limit_offset=LimitOffset(limit=1, offset=0)
+        )
         gtfs_updated_event = gtfs_updated_events[0][0]
         gtfs_updated_event.add_pretty_created_at()
 
-        realtime_updated_events = await event_repo.get_paginated_events_by_type(event_type=EventType.REALTIME_DATABASE_UPDATED,limit_offset=LimitOffset(limit=1, offset=0))
+        realtime_updated_events = await event_repo.get_paginated_events_by_type(
+            event_type=EventType.REALTIME_DATABASE_UPDATED, limit_offset=LimitOffset(limit=1, offset=0)
+        )
         realtime_updated_event = realtime_updated_events[0][0]
         realtime_updated_event.add_pretty_created_at()
-        
-        return Template(template_name="index.html", context={"gtfs_updated": gtfs_updated_event, "realtime_updated": realtime_updated_event})
+
+        return Template(
+            template_name="index.html",
+            context={"gtfs_updated": gtfs_updated_event, "realtime_updated": realtime_updated_event},
+        )
 
     @get("/about")
     async def about(self) -> Template:
