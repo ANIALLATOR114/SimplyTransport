@@ -62,3 +62,29 @@ class Timepoint(int, Enum):
 
     APPROXIMATE = 0
     EXACT = 1
+
+
+class StopType(str, Enum):
+    """Type marked (MKD) indicates the stops is marked with a physical
+    transport infrastructure item (pole, shelter or real time unit). Customs
+    and Practice (CUS) indicates there is no such infrastructure
+    """
+
+    MARKED = "MKD"
+    CUSTOMS = "CUS"
+    UNKNOWN = "Unknown"
+
+
+class Bearing(str, Enum):
+    """Bearing indicates the direction that traffic travels
+    """
+
+    NORTH = "N"
+    NORTH_EAST = "NE"
+    EAST = "E"
+    SOUTH_EAST = "SE"
+    SOUTH = "S"
+    SOUTH_WEST = "SW"
+    WEST = "W"
+    NORTH_WEST = "NW"
+    UNKNOWN = "U"

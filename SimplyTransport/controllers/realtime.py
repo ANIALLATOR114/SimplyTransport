@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from advanced_alchemy import NotFoundError
 
 from litestar import Controller, get
 from litestar.di import Provide
@@ -39,7 +40,10 @@ class RealtimeController(Controller):
         schedule_service: ScheduleService,
         realtime_service: RealTimeService,
     ) -> Template:
-        stop = await stop_repo.get(stop_id)
+        try:
+            stop = await stop_repo.get(stop_id)
+        except NotFoundError:
+            return Template(template_name="/errors/404.html", context={"message": "Stop not found"})
         routes = await route_repo.get_by_stop_id(stop.id)
 
         current_time = datetime.now()
