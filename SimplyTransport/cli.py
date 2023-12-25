@@ -259,7 +259,6 @@ class CLIPlugin(CLIPluginProtocol):
 
             db_services.create_database_sync()
 
-
         @cli.command(name="importstopfeatures", help="Imports stop features into the database")
         @click.option("-dir", help="Override the directory containing the stop feature data to import")
         def importstopfeatures(dir: str):
@@ -282,17 +281,19 @@ class CLIPlugin(CLIPluginProtocol):
             if response != "y":
                 console.print("[red]Aborting import...")
                 return
-            
+
             def geojson_cleaner(filename: str) -> geojson.FeatureCollection:
                 console.print(f"Cleaning {filename}...")
 
-                with open(filename, 'r', encoding='utf8') as f:
+                with open(filename, "r", encoding="utf8") as f:
                     data = json.load(f)
 
                 # Convert the coordinates to numbers from strings
                 # This is needed because geojson doesn't support floats and for some TFI reason thats what the data is formatted with
-                for feature in data['features']:
-                    feature['geometry']['coordinates'] = [float(coord) for coord in feature['geometry']['coordinates']]
+                for feature in data["features"]:
+                    feature["geometry"]["coordinates"] = [
+                        float(coord) for coord in feature["geometry"]["coordinates"]
+                    ]
 
                 json_string = json.dumps(data)
 
@@ -300,7 +301,7 @@ class CLIPlugin(CLIPluginProtocol):
                 json_string = json_string.replace('"False"', "false").replace('"True"', "true")
 
                 return geojson.loads(json_string)
-            
+
             console.print("\nReading files and cleaning data...")
             stops = geojson_cleaner(f"{dir}stops.geojson")
             poles = geojson_cleaner(f"{dir}poles.geojson")
@@ -308,7 +309,9 @@ class CLIPlugin(CLIPluginProtocol):
             rtpis = geojson_cleaner(f"{dir}rtpi.geojson")
 
             console.print("\nImporting stop features...")
-            importer = StopFeaturesImporter(dataset=dataset, stops=stops, poles=poles, shelters=shelters, rtpis=rtpis)
+            importer = StopFeaturesImporter(
+                dataset=dataset, stops=stops, poles=poles, shelters=shelters, rtpis=rtpis
+            )
 
             importer.clear_database()
 

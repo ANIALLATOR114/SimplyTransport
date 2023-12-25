@@ -21,7 +21,14 @@ progress_columns = (
 
 
 class StopFeaturesImporter:
-    def __init__(self, dataset: str, stops: list[FeatureCollection], poles: list[FeatureCollection], shelters: list[FeatureCollection], rtpis: list[FeatureCollection]):
+    def __init__(
+        self,
+        dataset: str,
+        stops: list[FeatureCollection],
+        poles: list[FeatureCollection],
+        shelters: list[FeatureCollection],
+        rtpis: list[FeatureCollection],
+    ):
         self.dataset = dataset
         self.stops = stops
         self.poles = poles
@@ -38,7 +45,6 @@ class StopFeaturesImporter:
                 session.commit()
                 progress.update(task, advance=1)
 
-
     def import_stop_features(self) -> dict:
         """Imports stop features from the given dataset"""
 
@@ -49,7 +55,10 @@ class StopFeaturesImporter:
 
             objects_to_commit = []
 
-            existing_stops = set(stop_id[0] for stop_id in session.query(StopModel.id).filter(StopModel.dataset == self.dataset).all())
+            existing_stops = set(
+                stop_id[0]
+                for stop_id in session.query(StopModel.id).filter(StopModel.dataset == self.dataset).all()
+            )
 
             for stop in self.stops["features"]:
                 if stop["properties"]["AtcoCode"] == "":
@@ -96,9 +105,7 @@ class StopFeaturesImporter:
                     if rtpi["properties"]["AtcoCode"] == stop_feature.stop_id:
                         stop_feature.rtpi_active = True
                         stop_feature.lines = rtpi["properties"]["Name"]
-                        stop_feature.integrated_into_shelter = rtpi["properties"][
-                            "IntegratedIntoShelter"
-                        ]
+                        stop_feature.integrated_into_shelter = rtpi["properties"]["IntegratedIntoShelter"]
                         stop_feature.last_updated_rtpi = datetime.strptime(
                             rtpi["properties"]["LastUpdatedDateUtc"][:-1], "%Y-%m-%d %H:%M:%S.%f"
                         )

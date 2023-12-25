@@ -76,8 +76,7 @@ class StopType(str, Enum):
 
 
 class Bearing(str, Enum):
-    """Bearing indicates the direction that traffic travels
-    """
+    """Bearing indicates the direction that traffic travels"""
 
     NORTH = "N"
     NORTH_EAST = "NE"

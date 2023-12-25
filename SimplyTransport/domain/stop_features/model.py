@@ -101,5 +101,3 @@ class StopFeature(BaseModel):
     socket_type: Optional[str]
     last_updated_pole: Optional[dateTime]
     dataset: str
-
-
