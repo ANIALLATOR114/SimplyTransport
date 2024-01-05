@@ -58,7 +58,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             .group_by(StopModel.id, StopTimeModel.stop_sequence)
             .order_by(StopTimeModel.stop_sequence)
         )
-    
+
     async def get_by_id_with_stop_feature(self, id: str) -> StopModel:
         """Get a stop by id with stop feature."""
 
