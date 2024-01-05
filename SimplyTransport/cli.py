@@ -174,7 +174,7 @@ class CLIPlugin(CLIPluginProtocol):
             attributes = {
                 "dataset": dataset,
                 "totals": attributes_of_total_rows,
-                "total_time_taken(s)": total_time_taken,
+                "total_time_taken(s)": round(total_time_taken, 2),
             }
             asyncio.run(
                 create_event_with_session(
