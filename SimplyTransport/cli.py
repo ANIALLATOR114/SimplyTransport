@@ -123,7 +123,7 @@ class CLIPlugin(CLIPluginProtocol):
             total_time_taken = 0.0
             start = time.perf_counter()
 
-            for file in files_to_import:          
+            for file in files_to_import:
                 file_start = time.perf_counter()
                 if not (os.path.exists(dir) and os.path.isfile(dir + file)):
                     console.print(f"[red]Error: File '{file}' does not exist. Skipping...")
@@ -165,13 +165,12 @@ class CLIPlugin(CLIPluginProtocol):
                 finish = time.perf_counter()
                 time_taken = round(finish - file_start, 2)
                 total_time_taken += time_taken
-    
+
                 attributes_of_total_rows[file.replace(".txt", "")] = {
                     "time_taken(s)": time_taken,
                     "row_count": row_count,
                 }
 
-            
             attributes = {
                 "dataset": dataset,
                 "totals": attributes_of_total_rows,
