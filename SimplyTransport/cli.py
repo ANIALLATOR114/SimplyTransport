@@ -120,8 +120,11 @@ class CLIPlugin(CLIPluginProtocol):
             ]
             attributes_of_total_rows = {}
 
-            for file in files_to_import:
-                start = time.perf_counter()
+            total_time_taken = 0.0
+            start = time.perf_counter()
+
+            for file in files_to_import:          
+                file_start = time.perf_counter()
                 if not (os.path.exists(dir) and os.path.isfile(dir + file)):
                     console.print(f"[red]Error: File '{file}' does not exist. Skipping...")
                     attributes_of_total_rows[file.replace(".txt", "")] = {
@@ -160,16 +163,19 @@ class CLIPlugin(CLIPluginProtocol):
                 importer.import_data()
 
                 finish = time.perf_counter()
+                time_taken = round(finish - file_start, 2)
+                total_time_taken += time_taken
+    
                 attributes_of_total_rows[file.replace(".txt", "")] = {
-                    "time_taken(s)": round(finish - start, 2),
+                    "time_taken(s)": time_taken,
                     "row_count": row_count,
                 }
 
-            finish: float = time.perf_counter()
+            
             attributes = {
                 "dataset": dataset,
                 "totals": attributes_of_total_rows,
-                "total_time_taken(s)": round(finish - start, 2),
+                "total_time_taken(s)": total_time_taken,
             }
             asyncio.run(
                 create_event_with_session(
