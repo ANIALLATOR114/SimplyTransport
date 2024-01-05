@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ request.app.openapi_config.title
+    }} - 500 Error
+{% endblock title %}
+{% block content %}
+    <h1>500 Errors</h1>
+    <p class="dense-text">Something went wrong here, you may have found a bug!</p>
+    {% if message %}<p class="dense-text">{{ message }}</p>{% endif %}
+{% endblock content %}

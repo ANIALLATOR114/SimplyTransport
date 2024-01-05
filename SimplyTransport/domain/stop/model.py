@@ -32,6 +32,7 @@ class StopModel(BigIntAuditBase):
         passive_deletes=True,
     )
     rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="stop")  # noqa: F821
+    stop_feature: Mapped["StopFeatureModel"] = relationship(back_populates="stop")  # noqa: F821
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 

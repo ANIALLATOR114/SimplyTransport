@@ -4,6 +4,7 @@ from litestar.di import Provide
 from litestar.params import Parameter
 from litestar.exceptions import ValidationException
 from advanced_alchemy.filters import LimitOffset
+from advanced_alchemy import NotFoundError
 
 from SimplyTransport.domain.events.repo import EventRepository, provide_event_repo
 from SimplyTransport.domain.events.event_types import EventType
@@ -42,14 +43,22 @@ class EventsController(Controller):
 
         if type is None or type == "all.event.types":
             type = "all.event.types"
-            events, total = await event_repo.get_paginated_events(limit_offset=limit_offset, order=sort)
+            try:
+                events, total = await event_repo.get_paginated_events(limit_offset=limit_offset, order=sort)
+            except NotFoundError:
+                events = []
+                total = 0
         else:
             if type not in [event_type.value for event_type in EventType.__members__.values()]:
                 raise ValidationException("Invalid event type")
 
-            events, total = await event_repo.get_paginated_events_by_type(
-                event_type=type, limit_offset=limit_offset, order=sort
-            )
+            try:
+                events, total = await event_repo.get_paginated_events_by_type(
+                    event_type=type, limit_offset=limit_offset, order=sort
+                )
+            except NotFoundError:
+                events = []
+                total = 0
 
         events = [event.add_pretty_created_at() for event in events]
 

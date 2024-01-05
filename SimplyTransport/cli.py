@@ -1,7 +1,9 @@
+import json
 import os
 import time
 import asyncio
 
+import geojson
 import click
 import rich.progress as rp
 from litestar import Litestar
@@ -11,6 +13,7 @@ from rich.table import Table
 
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.gtfs_realtime_importers import RealTimeImporter
+from SimplyTransport.lib.stop_features_importer import StopFeaturesImporter
 from SimplyTransport.domain.events.repo import create_event_with_session
 from SimplyTransport.domain.events.event_types import EventType
 
@@ -120,7 +123,7 @@ class CLIPlugin(CLIPluginProtocol):
             total_time_taken = 0.0
             start = time.perf_counter()
 
-            for file in files_to_import:          
+            for file in files_to_import:
                 file_start = time.perf_counter()
                 if not (os.path.exists(dir) and os.path.isfile(dir + file)):
                     console.print(f"[red]Error: File '{file}' does not exist. Skipping...")
@@ -162,17 +165,16 @@ class CLIPlugin(CLIPluginProtocol):
                 finish = time.perf_counter()
                 time_taken = round(finish - file_start, 2)
                 total_time_taken += time_taken
-    
+
                 attributes_of_total_rows[file.replace(".txt", "")] = {
                     "time_taken(s)": time_taken,
                     "row_count": row_count,
                 }
 
-            
             attributes = {
                 "dataset": dataset,
                 "totals": attributes_of_total_rows,
-                "total_time_taken(s)": total_time_taken,
+                "total_time_taken(s)": round(total_time_taken, 2),
             }
             asyncio.run(
                 create_event_with_session(
@@ -261,3 +263,79 @@ class CLIPlugin(CLIPluginProtocol):
             from SimplyTransport.lib.db import services as db_services
 
             db_services.create_database_sync()
+
+        @cli.command(name="importstopfeatures", help="Imports stop features into the database")
+        @click.option("-dir", help="Override the directory containing the stop feature data to import")
+        def importstopfeatures(dir: str):
+            """Imports stop features into the database"""
+
+            start: float = time.perf_counter()
+            console = Console()
+            console.print("Importing stop features data...")
+
+            dir = gtfs_directory_validator(dir, console)
+
+            dir_path = dir.split("/")
+            dataset = dir_path[-2]
+            response = click.prompt(
+                f"\nYou are about to import this dataset and assign it to '{dataset}'. Press 'y' to continue, anything else to abort: ",
+                type=str,
+                default="",
+                show_default=False,
+            )
+            if response != "y":
+                console.print("[red]Aborting import...")
+                return
+
+            def geojson_cleaner(filename: str) -> geojson.FeatureCollection:
+                console.print(f"Cleaning {filename}...")
+
+                with open(filename, "r", encoding="utf8") as f:
+                    data = json.load(f)
+
+                # Convert the coordinates to numbers from strings
+                # This is needed because geojson doesn't support floats and for some TFI reason thats what the data is formatted with
+                for feature in data["features"]:
+                    feature["geometry"]["coordinates"] = [
+                        float(coord) for coord in feature["geometry"]["coordinates"]
+                    ]
+
+                json_string = json.dumps(data)
+
+                # Some data has double quotes around booleans, this is invalid so we need to replace them
+                json_string = json_string.replace('"False"', "false").replace('"True"', "true")
+
+                return geojson.loads(json_string)
+
+            console.print("\nReading files and cleaning data...")
+            stops = geojson_cleaner(f"{dir}stops.geojson")
+            poles = geojson_cleaner(f"{dir}poles.geojson")
+            shelters = geojson_cleaner(f"{dir}shelters.geojson")
+            rtpis = geojson_cleaner(f"{dir}rtpi.geojson")
+
+            console.print("\nImporting stop features...")
+            importer = StopFeaturesImporter(
+                dataset=dataset, stops=stops, poles=poles, shelters=shelters, rtpis=rtpis
+            )
+
+            importer.clear_database()
+
+            stop_feature_attributes = importer.import_stop_features()
+
+            finish: float = time.perf_counter()
+
+            attributes = {
+                "stop_features": stop_feature_attributes,
+                "dataset": dataset,
+                "time_taken(s)": round(finish - start, 2),
+            }
+
+            asyncio.run(
+                create_event_with_session(
+                    EventType.STOP_FEATURES_DATABASE_UPDATED,
+                    "Stop features database updated with latest stop features",
+                    attributes,
+                )
+            )
+
+            console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")

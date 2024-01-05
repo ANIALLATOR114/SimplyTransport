@@ -65,26 +65,14 @@
                 <span class="popuptext" id="copyPopup" onclick="hidePopup()">Table copied to clipboard ✅</span>
             </div>
         </div>
-        <div class="inner-container">
-            <h3 class="h3-table">Routes:</h3>
-            <div class="flex-gap">
-                {% if routes %}
-                    {% for route in routes %}
-                        <a style="text-decoration: none" href="/realtime/route/{{ route.id }}/1">
-                            <button class="no-line-break route-link-button dense-text">{{ route.short_name }}</button>
-                        </a>
-                    {% endfor %}
-                {% else %}
-                    <h3>No routes available at this stop</h3>
-                {% endif %}
-            </div>
-        </div>
+        <div class="inner-container">{% include "/realtime/routes_partial.html" %}</div>
+        <div class="inner-container">{% include "/realtime/stop_features_partial.html" %}</div>
         <div class="inner-container"
              hx-get="/realtime/stop/{{ stop.id }}/schedule"
              hx-trigger="revealed"
              hx-target="#schedule-table"
              hx-swap="transition:true">
-            <h3 class="h3-table">Predicted Schedule:</h3>
+            <h3 class="h3-table">Set Schedule:</h3>
             <div class="load-with-dropdown">
                 <button hx-get="/realtime/stop/{{ stop.id }}/schedule"
                         hx-trigger="click"
@@ -93,13 +81,13 @@
                         hx-include="[name='day']"
                         class="pagination-button">Reload</button>
                 <select class="dropdown" name="day">
-                    <option value=0>Monday</option>
-                    <option value=1>Tuesday</option>
-                    <option value=2>Wednesday</option>
-                    <option value=3>Thursday</option>
-                    <option value=4>Friday</option>
-                    <option value=5>Saturday</option>
-                    <option value=6>Sunday</option>
+                    <option value=0 {% if day_int == 0 %}selected{% endif %}>Monday</option>
+                    <option value=1 {% if day_int == 1 %}selected{% endif %}>Tuesday</option>
+                    <option value=2 {% if day_int == 2 %}selected{% endif %}>Wednesday</option>
+                    <option value=3 {% if day_int == 3 %}selected{% endif %}>Thursday</option>
+                    <option value=4 {% if day_int == 4 %}selected{% endif %}>Friday</option>
+                    <option value=5 {% if day_int == 5 %}selected{% endif %}>Saturday</option>
+                    <option value=6 {% if day_int == 6 %}selected{% endif %}>Sunday</option>
                 </select>
             </div>
             <div class="bottom-margin">

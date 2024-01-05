@@ -73,6 +73,7 @@ The static schedules can be updated as often as desired but typically a nightly 
   - [ ] Stop
   - [ ] Route
   - [ ] Vehicles
+- [ ] StopFeatures
 
 ## Web Interface
 
@@ -81,6 +82,7 @@ The static schedules can be updated as often as desired but typically a nightly 
 - [x] Stop
   - [x] Realtime
   - [x] Schedule
+  - [ ] Stop Features
 - [x] Route
 - [x] Trip
 - [x] Search Page
@@ -93,12 +95,13 @@ The static schedules can be updated as often as desired but typically a nightly 
 > [!NOTE]
 > All commands are prefixed with `litestar`
 
-This extends the standard litestar cli
+This extends the standard litestar cli. You can view all the commands by just running `litestar`.
 
 - [x] Application Settings `settings`
 - [x] Documentation Links `docs`
 - [x] GTFS Importer `importgtfs`
 - [x] Realtime Updater `importrealtime`
+- [x] Stop Feature Importer `importstopfeatures`
 - [x] Create Database tables manually `create_tables`
 
 # Installation
@@ -306,9 +309,9 @@ The integration tests use a test client to make requests to a test version of Si
 Here is an example in `test_root.py`
 
 ```python
-from httpx import AsyncClient
+from litestar.testing import TestClient
 
-def test_root_200(client: AsyncClient) -> None:
+def test_root_200(client: TestClient) -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert "Welcome to SimplyTransport" in response.text
