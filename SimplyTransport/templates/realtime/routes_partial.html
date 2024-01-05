@@ -1,0 +1,12 @@
+<h3 class="h3-table">Routes:</h3>
+<div class="flex-gap">
+    {% if routes %}
+        {% for route in routes %}
+            <a style="text-decoration: none" href="/realtime/route/{{ route.id }}/1">
+                <button class="no-line-break route-link-button dense-text">{{ route.short_name }}</button>
+            </a>
+        {% endfor %}
+    {% else %}
+        <h3>No routes available at this stop</h3>
+    {% endif %}
+</div>

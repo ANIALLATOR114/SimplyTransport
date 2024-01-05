@@ -7,6 +7,7 @@ from ..stop_times.model import StopTimeModel
 from sqlalchemy import select
 from advanced_alchemy.filters import LimitOffset, OrderBy
 from advanced_alchemy import NotFoundError
+from sqlalchemy.orm import joinedload
 
 
 class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
@@ -57,6 +58,11 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             .group_by(StopModel.id, StopTimeModel.stop_sequence)
             .order_by(StopTimeModel.stop_sequence)
         )
+    
+    async def get_by_id_with_stop_feature(self, id: str) -> StopModel:
+        """Get a stop by id with stop feature."""
+
+        return await self.get(id, statement=select(StopModel).options(joinedload(StopModel.stop_feature)))
 
 
 async def provide_stop_repo(db_session: AsyncSession) -> StopRepository:

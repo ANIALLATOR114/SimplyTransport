@@ -41,7 +41,7 @@ class RealtimeController(Controller):
         realtime_service: RealTimeService,
     ) -> Template:
         try:
-            stop = await stop_repo.get(stop_id)
+            stop = await stop_repo.get_by_id_with_stop_feature(stop_id)
         except NotFoundError:
             return Template(template_name="/errors/404.html", context={"message": "Stop not found"})
         routes = await route_repo.get_by_stop_id(stop.id)
@@ -72,6 +72,7 @@ class RealtimeController(Controller):
                 "current_time": current_time,
                 "routes": routes,
                 "day_string": DayOfWeek(current_time.weekday()).name.capitalize(),
+                "day_int": current_time.weekday(),
                 "schedules": schedules,
                 "realtime_schedules": realtime_schedules,
                 "start_time_difference": start_time_difference,
