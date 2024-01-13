@@ -410,10 +410,48 @@ h3 {
 	min-width: 5rem;
 }
 
+.stop-feature-container {
+	border-radius: 10px;
+	background: transparent;
+	padding: 1rem;
+	border: 2px solid var(--font-color-highlight);
+	color: var(--font-color);
+}
+
+.stop-feature-header {
+	font-weight: 600;
+	font-size: 1.1rem;
+	border-bottom: 2px solid var(--font-color-highlight);
+	display: flex;
+	justify-content: center;
+}
+
 .flex-gap {
 	display: flex;
 	gap: 0.6rem;
 	flex-wrap: wrap;
+}
+
+.flex-gap-bigger {
+	display: flex;
+	gap: 1.2rem;
+	flex-wrap: wrap;
+}
+
+.flex-column-gap {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+}
+
+.collapsible {
+	overflow: hidden;
+	transition: all 0.3s ease-in-out;
+}
+
+.toggle-visibility-button {
+	padding-left: 0.9rem;
+	padding-right: 0.9rem;
 }
 
 .no-pointer {

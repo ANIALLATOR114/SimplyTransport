@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel
 from typing import Optional
 from datetime import datetime as dateTime
+from datetime import datetime
 
 from SimplyTransport.domain.enums import Bearing, StopType
 
@@ -62,6 +63,17 @@ class StopFeatureModel(BigIntAuditBase):
     last_updated_pole: Mapped[Optional[dateTime]] = mapped_column(DateTime)
 
     dataset: Mapped[str] = mapped_column(String(length=1000), index=True)
+
+    def pretty_string(self, attr_name):
+        value = getattr(self, attr_name, None)
+        if value is None:
+            return "None"
+        elif isinstance(value, bool):
+            return str(value)
+        elif isinstance(value, datetime):
+            return value.strftime("%Y-%m-%d")  # Modify this to your preferred format
+        else:
+            return str(value)
 
 
 class StopFeature(BaseModel):

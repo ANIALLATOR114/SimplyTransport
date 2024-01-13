@@ -1,8 +1,168 @@
-<h3 class="h3-table">Stop Features:</h3>
-<div class="flex-gap">
-    {% if stop.stop_feature %}
-        <h3>Coming Soon</h3>
-    {% else %}
-        <h3>No information about the stop features are available</h3>
-    {% endif %}
+<h3 class="h3-table">
+    Stop Features
+    <button class="toggle-visibility-button pagination-button">▼</button>
+</h3>
+<div class="flex-gap-bigger collapsible" style="max-height:0;">
+    <div class="flex-gap-bigger">
+        {% if stop.stop_feature %}
+            <div class="flex-column-gap stop-feature-container">
+                <div class="stop-feature-header dense-text">
+                    <span>🚏 General 🚏</span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>☘️ {{ stop.stop_feature.pretty_string("stop_name_ie") }}</span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>⌚ Realtime Display:
+                        {% if stop.stop_feature.rtpi_active %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>⛺ Bus Shelter:
+                        {% if stop.stop_feature.shelter_active %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>🚏 Bus Pole:
+                        {% if stop.stop_feature.pole_active %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="flex-column-gap stop-feature-container">
+                <div class="stop-feature-header dense-text">
+                    <span>♿ Accessability ♿</span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>🚏 Wheelchair Accessible:
+                        {% if stop.stop_feature.wheelchair_accessability %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Kassel Kurb:
+                        {% if stop.stop_feature.castle_kerbing %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Step up:
+                        {% if stop.stop_feature.step_at_stop %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="flex-column-gap stop-feature-container">
+                <div class="stop-feature-header dense-text">
+                    <span>🚮 Facilities 🚮</span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>🪑 Bench:
+                        {% if stop.stop_feature.bench %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>🗑 Bin:
+                        {% if stop.stop_feature.bin %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Footpath:
+                        {% if stop.stop_feature.footpath_to_stop %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Number of bays: {{ stop.stop_feature.pretty_string("bays") }}</span>
+                </div>
+            </div>
+            <div class="flex-column-gap stop-feature-container">
+                <div class="stop-feature-header dense-text">
+                    <span>🚲 Bikes 🚲</span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Bike stand:
+                        {% if stop.stop_feature.bike_stand %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Bike Lane Front:
+                        {% if stop.stop_feature.bike_lane_front %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Bike Lane Rear:
+                        {% if stop.stop_feature.bike_lane_rear %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="flex-column-gap stop-feature-container">
+                <div class="stop-feature-header dense-text">
+                    <span>🕒 Last Surveyed 🕒</span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Realtime: {{ stop.stop_feature.pretty_string("last_updated_rtpi") }}</span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Shelter: {{ stop.stop_feature.pretty_string("last_updated_shelter") }}</span>
+                </div>
+                <div class="stop-feature-content dense-text">
+                    <span>Pole: {{ stop.stop_feature.pretty_string("last_updated_pole") }}</span>
+                </div>
+            </div>
+        {% else %}
+            <h3>No information available</h3>
+        {% endif %}
+    </div>
+    <div class="flex-gap">
+        <a style="text-decoration: none"
+           href="https://data.gov.ie/dataset/70c5967e-4df7-4dc8-82bb-c7e2b0e00888/resource/46702e02-79ac-456b-a3a9-d6cbd3c04abb/download/ptimsglossary.pdf"
+           target="_blank">
+            <button class="no-line-break route-link-button dense-text">Glossary</button>
+        </a>
+    </div>
 </div>
+{% include "widgets/toggle_visibility.html" %}
