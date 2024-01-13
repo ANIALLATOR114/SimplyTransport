@@ -7,6 +7,7 @@ from SimplyTransport.lib import time_date_conversions as tdc
 from SimplyTransport.domain.realtime.stop_time.model import RTStopTimeModel
 from SimplyTransport.domain.realtime.trip.model import RTTripModel
 from SimplyTransport.domain.route.model import RouteModel
+from SimplyTransport.domain.trip.model import TripModel
 
 import rich.progress as rp
 
@@ -71,6 +72,9 @@ class RealTimeImporter:
 
             with session:
                 objects_to_commit = []
+                # Foreign key exceptions
+                trips_in_db = session.query(TripModel.id).filter(TripModel.dataset == self.dataset).all()
+                trips_in_db = {trip[0] for trip in trips_in_db}
 
                 try:
                     for item in data["entity"]:
@@ -80,6 +84,10 @@ class RealTimeImporter:
 
                             if item["trip_update"]["trip"]["schedule_relationship"] == "ADDED":
                                 continue  # TODO: Import added trips
+
+                            # Foreign key exceptions
+                            if item["trip_update"]["trip"]["trip_id"] not in trips_in_db:
+                                continue
 
                             for stop_time in item["trip_update"]["stop_time_update"]:
                                 arrival_delay = None
