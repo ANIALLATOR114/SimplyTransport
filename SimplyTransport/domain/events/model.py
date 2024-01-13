@@ -19,9 +19,7 @@ class BaseModel(_BaseModel):
 
 class EventModel(BigIntAuditBase):
     __tablename__ = "event"
-    __table_args__ = (
-        Index("ix_event_created_at", "created_at"),
-    )
+    __table_args__ = (Index("ix_event_created_at", "created_at"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     event_type: Mapped[EventType] = mapped_column(String(length=255), index=True)
