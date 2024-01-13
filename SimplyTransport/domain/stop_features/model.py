@@ -75,6 +75,7 @@ class StopFeatureModel(BigIntAuditBase):
         else:
             return str(value)
 
+
 class StopFeature(BaseModel):
     stop_id: str
     stop_name_ie: Optional[str]
