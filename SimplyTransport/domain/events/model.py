@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from sqlalchemy import DateTime, String, Integer
+from sqlalchemy import DateTime, Index, String, Integer
 from typing import Any
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -19,6 +19,9 @@ class BaseModel(_BaseModel):
 
 class EventModel(BigIntAuditBase):
     __tablename__ = "event"
+    __table_args__ = (
+        Index("ix_event_created_at", "created_at"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     event_type: Mapped[EventType] = mapped_column(String(length=255), index=True)
