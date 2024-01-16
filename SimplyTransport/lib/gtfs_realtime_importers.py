@@ -56,8 +56,12 @@ class RealTimeImporter:
 
         sixty_mins_ago = datetime.now(timezone.utc) - timedelta(minutes=60)
         with session:
-            session.query(RTStopTimeModel).filter(RTStopTimeModel.created_at < sixty_mins_ago, RTStopTimeModel.dataset == self.dataset).delete()
-            session.query(RTTripModel).filter(RTTripModel.created_at < sixty_mins_ago, RTTripModel.dataset == self.dataset).delete()
+            session.query(RTStopTimeModel).filter(
+                RTStopTimeModel.created_at < sixty_mins_ago, RTStopTimeModel.dataset == self.dataset
+            ).delete()
+            session.query(RTTripModel).filter(
+                RTTripModel.created_at < sixty_mins_ago, RTTripModel.dataset == self.dataset
+            ).delete()
             session.commit()
 
     def import_stop_times(self, data: dict) -> int:
@@ -154,12 +158,8 @@ class RealTimeImporter:
                     new_rt_trip = RTTripModel(
                         trip_id=trip.get("trip_id"),
                         route_id=trip.get("route_id"),
-                        start_time=tdc.convert_29_hours_to_24_hours(
-                            trip.get("start_time")
-                        ),
-                        start_date=tdc.convert_joined_date_to_date(
-                            trip.get("start_date")
-                        ),
+                        start_time=tdc.convert_29_hours_to_24_hours(trip.get("start_time")),
+                        start_date=tdc.convert_joined_date_to_date(trip.get("start_date")),
                         schedule_relationship=schedule_relationship,
                         direction=trip.get("direction_id"),
                         entity_id=item.get("id"),

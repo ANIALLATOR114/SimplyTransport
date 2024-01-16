@@ -13,7 +13,9 @@ class RealtimeScheduleRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_realtime_schedules_for_trips(self, trips: list[str]) -> Result[Tuple[RTStopTimeModel, RTTripModel]]:
+    async def get_realtime_schedules_for_trips(
+        self, trips: list[str]
+    ) -> Result[Tuple[RTStopTimeModel, RTTripModel]]:
         """
         Returns all realtime schedules for the given trips
 
@@ -43,12 +45,16 @@ class RealtimeScheduleRepository:
                 RTTripModel,
             )
             .join(RTTripModel, RTTripModel.trip_id == RTStopTimeModel.trip_id)
-            .join(subquery_stop_time, 
-                (subquery_stop_time.c.trip_id == RTStopTimeModel.trip_id) & 
-                (subquery_stop_time.c.max_created_at == RTStopTimeModel.created_at))
-            .join(subquery_trip, 
-                (subquery_trip.c.trip_id == RTTripModel.trip_id) & 
-                (subquery_trip.c.max_created_at == RTTripModel.created_at))
+            .join(
+                subquery_stop_time,
+                (subquery_stop_time.c.trip_id == RTStopTimeModel.trip_id)
+                & (subquery_stop_time.c.max_created_at == RTStopTimeModel.created_at),
+            )
+            .join(
+                subquery_trip,
+                (subquery_trip.c.trip_id == RTTripModel.trip_id)
+                & (subquery_trip.c.max_created_at == RTTripModel.created_at),
+            )
             .where(RTTripModel.trip_id.in_(trips))
         )
 
