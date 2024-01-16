@@ -71,6 +71,7 @@
              hx-get="/realtime/stop/{{ stop.id }}/schedule"
              hx-trigger="revealed"
              hx-target="#schedule-table"
+             hx-include="[name='day']"
              hx-swap="transition:true">
             <h3 class="h3-table">Set Schedule:</h3>
             <div class="load-with-dropdown">
