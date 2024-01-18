@@ -2,6 +2,7 @@ import json
 import os
 import time
 import asyncio
+import functools
 
 import geojson
 import click
@@ -12,6 +13,7 @@ from rich.console import Console
 from rich.table import Table
 
 import SimplyTransport.lib.gtfs_importers as imp
+from SimplyTransport.lib.db import services as db_services
 from SimplyTransport.lib.gtfs_realtime_importers import RealTimeImporter
 from SimplyTransport.lib.stop_features_importer import StopFeaturesImporter
 from SimplyTransport.domain.events.repo import create_event_with_session
@@ -30,6 +32,17 @@ def gtfs_directory_validator(dir: str, console: Console):
         console.print(f"No directory specified, using default of {dir}")
 
     return dir
+
+
+# https://github.com/pallets/click/issues/2033
+def make_sync(func):
+    """Decorator to run async functions in a sync context"""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(func(*args, **kwargs))
+
+    return wrapper
 
 
 class CLIPlugin(CLIPluginProtocol):
@@ -87,7 +100,8 @@ class CLIPlugin(CLIPluginProtocol):
 
         @cli.command(name="importgtfs", help="Imports GTFS data into the database")
         @click.option("-dir", help="Override the directory containing the GTFS data to import")
-        def importgtfs(dir: str):
+        @make_sync
+        async def importgtfs(dir: str):
             """Imports GTFS data into the database"""
 
             start: float = time.perf_counter()
@@ -160,7 +174,10 @@ class CLIPlugin(CLIPluginProtocol):
                     importer.clear_table()
                     progress.update(task, advance=1)
 
-                importer.import_data()
+                if file in ["stop_times.txt", "shapes.txt", "trips.txt"]:
+                    await importer.import_data()
+                else:
+                    importer.import_data()
 
                 finish = time.perf_counter()
                 time_taken = round(finish - file_start, 2)
@@ -176,12 +193,10 @@ class CLIPlugin(CLIPluginProtocol):
                 "totals": attributes_of_total_rows,
                 "total_time_taken(s)": round(total_time_taken, 2),
             }
-            asyncio.run(
-                create_event_with_session(
-                    EventType.GTFS_DATABASE_UPDATED,
-                    "GTFS static data updated with latest schedules",
-                    attributes,
-                )
+            await create_event_with_session(
+                EventType.GTFS_DATABASE_UPDATED,
+                "GTFS static data updated with latest schedules",
+                attributes,
             )
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
@@ -189,7 +204,8 @@ class CLIPlugin(CLIPluginProtocol):
         @click.option("-url", help="Override the default URL for the GTFS realtime data")
         @click.option("-apikey", help="Override the default API key for the GTFS realtime data")
         @click.option("-dataset", help="Override the default dataset that the data will be saved against")
-        def importrealtime(url: str, apikey: str, dataset: str):
+        @make_sync
+        async def importrealtime(url: str, apikey: str, dataset: str):
             """Imports GTFS realtime data into the database"""
 
             start: float = time.perf_counter()
@@ -244,13 +260,12 @@ class CLIPlugin(CLIPluginProtocol):
                 "total_stop_times": total_stop_times,
                 "time_taken(s)": round(finish - start, 2),
             }
-            asyncio.run(
-                create_event_with_session(
-                    EventType.REALTIME_DATABASE_UPDATED,
-                    "Realtime database updated with new realtime information",
-                    attributes,
-                )
+            await create_event_with_session(
+                EventType.REALTIME_DATABASE_UPDATED,
+                "Realtime database updated with new realtime information",
+                attributes,
             )
+
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
         @cli.command(name="create_tables", help="Creates the database tables")
@@ -260,13 +275,12 @@ class CLIPlugin(CLIPluginProtocol):
             console = Console()
             console.print("Creating database tables...")
 
-            from SimplyTransport.lib.db import services as db_services
-
             db_services.create_database_sync()
 
         @cli.command(name="importstopfeatures", help="Imports stop features into the database")
         @click.option("-dir", help="Override the directory containing the stop feature data to import")
-        def importstopfeatures(dir: str):
+        @make_sync
+        async def importstopfeatures(dir: str):
             """Imports stop features into the database"""
 
             start: float = time.perf_counter()
@@ -330,12 +344,37 @@ class CLIPlugin(CLIPluginProtocol):
                 "time_taken(s)": round(finish - start, 2),
             }
 
-            asyncio.run(
-                create_event_with_session(
-                    EventType.STOP_FEATURES_DATABASE_UPDATED,
-                    "Stop features database updated with latest stop features",
-                    attributes,
-                )
+            await create_event_with_session(
+                EventType.STOP_FEATURES_DATABASE_UPDATED,
+                "Stop features database updated with latest stop features",
+                attributes,
             )
 
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
+
+        @cli.command(name="recreate_indexes", help="Recreates the indexes on a given table")
+        @click.option("-table", help="The table to recreate the indexes on")
+        def recreate_indexes(table: str):
+            """Recreates the indexes on a given table"""
+
+            console = Console()
+            console.print("Recreating indexes...")
+            if table is None:
+                console.print("[yellow]No table specified to recreate indexes on from the -table argument")
+                response = click.prompt(
+                    "\nYou are about to recreate indexes on all tables. Press 'y' to continue, anything else to abort: ",
+                    type=str,
+                    default="",
+                    show_default=False,
+                )
+                if response != "y":
+                    console.print("[red]Aborting recreate indexes...")
+                    return
+
+            start = time.perf_counter()
+
+            db_services.recreate_indexes(table)
+
+            finish = time.perf_counter()
+
+            console.print(f"\n[blue]Finished recreating indexes in {round(finish-start, 2)} second(s)")

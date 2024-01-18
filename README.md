@@ -103,6 +103,7 @@ This extends the standard litestar cli. You can view all the commands by just ru
 - [x] Realtime Updater `importrealtime`
 - [x] Stop Feature Importer `importstopfeatures`
 - [x] Create Database tables manually `create_tables`
+- [x] Recreate all database indexes `recreate_indexes`
 
 # Installation
 

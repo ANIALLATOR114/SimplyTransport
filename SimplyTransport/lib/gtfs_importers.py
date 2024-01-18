@@ -1,4 +1,5 @@
 import csv
+import asyncio
 
 import rich.progress as rp
 
@@ -11,7 +12,7 @@ from SimplyTransport.domain.trip.model import TripModel
 from SimplyTransport.domain.stop.model import StopModel
 from SimplyTransport.domain.shape.model import ShapeModel
 from SimplyTransport.domain.stop_times.model import StopTimeModel
-from SimplyTransport.lib.db.database import session
+from SimplyTransport.lib.db.database import session, async_session_factory
 from SimplyTransport.lib import time_date_conversions as tdc
 
 progress_columns = (
@@ -235,7 +236,7 @@ class RouteImporter(GTFSImporter):
 
 
 class TripImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 10000):
+    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 50000):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -244,39 +245,66 @@ class TripImporter(GTFSImporter):
     def __str__(self) -> str:
         return "TripImporter"
 
-    def import_data(self):
+    async def import_data(self):
         """Imports the data from the csv.DictReader object into the database"""
+
+        q = asyncio.Queue(maxsize=3)
+        number_of_consumers = 2
+        producer = asyncio.create_task(self.producer(q, number_of_consumers))
+        tasks = [asyncio.create_task(self.consumer(q)) for _ in range(number_of_consumers)]
+        tasks.append(producer)
+
+        await asyncio.gather(*tasks)
+
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
+        batch_count = 0
+        objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing Trips...", total=self.row_count)
-            batch_count = 0
-            objects_to_commit = []
 
-            with session:
-                for row in self.reader:
-                    new_trip = TripModel(
-                        id=row["trip_id"],
-                        route_id=row["route_id"],
-                        service_id=row["service_id"],
-                        shape_id=row["shape_id"],
-                        headsign=row["trip_headsign"],
-                        short_name=row["trip_short_name"],
-                        direction=int(row["direction_id"]),
-                        block_id=row["block_id"],
-                        dataset=self.dataset,
-                    )
-                    objects_to_commit.append(new_trip)
-                    batch_count += 1
-                    progress.update(task, advance=1)
+            for row in self.reader:
+                new_trip = TripModel(
+                    id=row["trip_id"],
+                    route_id=row["route_id"],
+                    service_id=row["service_id"],
+                    shape_id=row["shape_id"],
+                    headsign=row["trip_headsign"],
+                    short_name=row["trip_short_name"],
+                    direction=int(row["direction_id"]),
+                    block_id=row["block_id"],
+                    dataset=self.dataset,
+                )
 
-                    if batch_count >= self.batchsize:
-                        session.bulk_save_objects(objects_to_commit)
-                        objects_to_commit = []
-                        batch_count = 0
+                objects_to_commit.append(new_trip)
+                batch_count += 1
+                progress.update(task, advance=1)
 
-                if objects_to_commit:
-                    session.bulk_save_objects(objects_to_commit)
-                session.commit()
+                if batch_count >= self.batchsize:
+                    await q.put(objects_to_commit)
+                    objects_to_commit = []
+                    batch_count = 0
+
+            if objects_to_commit:
+                await q.put(objects_to_commit)
+
+            # Signal the consumer that the producer is done
+            for _ in range(number_of_consumers):
+                await q.put(None)
+
+    async def consumer(self, q: asyncio.Queue):
+        async with async_session_factory() as session:
+            while True:
+                objects_to_commit = await q.get()
+
+                # If the producer is done, break the loop
+                if objects_to_commit is None:
+                    break
+
+                session.add_all(objects_to_commit)
+                await session.commit()
+
+                q.task_done()
 
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
@@ -361,39 +389,63 @@ class ShapeImporter(GTFSImporter):
     def __str__(self) -> str:
         return "ShapeImporter"
 
-    def import_data(self):
+    async def import_data(self):
         """Imports the data from the csv.DictReader object into the database"""
+
+        q = asyncio.Queue(maxsize=3)
+        number_of_consumers = 2
+        producer = asyncio.create_task(self.producer(q, number_of_consumers))
+        tasks = [asyncio.create_task(self.consumer(q)) for _ in range(number_of_consumers)]
+        tasks.append(producer)
+
+        await asyncio.gather(*tasks)
+
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
+        batch_count = 0
+        objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing Shapes...", total=self.row_count)
-            batch_count = 0
-            objects_to_commit = []
 
-            with session:
-                for row in self.reader:
-                    new_shape = ShapeModel(
-                        shape_id=row["shape_id"],
-                        lat=float(row["shape_pt_lat"]),
-                        lon=float(row["shape_pt_lon"]),
-                        sequence=int(row["shape_pt_sequence"]),
-                        distance=float(row["shape_dist_traveled"])
-                        if row["shape_dist_traveled"] != ""
-                        else None,
-                        dataset=self.dataset,
-                    )
+            for row in self.reader:
+                new_shape = ShapeModel(
+                    shape_id=row["shape_id"],
+                    lat=float(row["shape_pt_lat"]),
+                    lon=float(row["shape_pt_lon"]),
+                    sequence=int(row["shape_pt_sequence"]),
+                    distance=float(row["shape_dist_traveled"]) if row["shape_dist_traveled"] != "" else None,
+                    dataset=self.dataset,
+                )
 
-                    objects_to_commit.append(new_shape)
-                    batch_count += 1
-                    progress.update(task, advance=1)
+                objects_to_commit.append(new_shape)
+                batch_count += 1
+                progress.update(task, advance=1)
 
-                    if batch_count >= self.batchsize:
-                        session.bulk_save_objects(objects_to_commit)
-                        objects_to_commit = []
-                        batch_count = 0
+                if batch_count >= self.batchsize:
+                    await q.put(objects_to_commit)
+                    objects_to_commit = []
+                    batch_count = 0
 
-                if objects_to_commit:
-                    session.bulk_save_objects(objects_to_commit)
-                session.commit()
+            if objects_to_commit:
+                await q.put(objects_to_commit)
+
+            # Signal the consumer that the producer is done
+            for _ in range(number_of_consumers):
+                await q.put(None)
+
+    async def consumer(self, q: asyncio.Queue):
+        async with async_session_factory() as session:
+            while True:
+                objects_to_commit = await q.get()
+
+                # If the producer is done, break the loop
+                if objects_to_commit is None:
+                    break
+
+                session.add_all(objects_to_commit)
+                await session.commit()
+
+                q.task_done()
 
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
@@ -413,59 +465,85 @@ class StopTimeImporter(GTFSImporter):
     def __str__(self) -> str:
         return "StopTimeImporter"
 
-    def import_data(self):
+    async def import_data(self):
         """Imports the data from the csv.DictReader object into the database"""
+
+        q = asyncio.Queue(maxsize=3)
+        number_of_consumers = 2
+        producer = asyncio.create_task(self.producer(q, number_of_consumers))
+        tasks = [asyncio.create_task(self.consumer(q)) for _ in range(number_of_consumers)]
+        tasks.append(producer)
+
+        await asyncio.gather(*tasks)
+
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
+        batch_count = 0
+        objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing Stop Times...", total=self.row_count)
-            batch_count = 0
-            objects_to_commit = []
 
-            with session:
-                for row in self.reader:
-                    arrival_time = tdc.convert_29_hours_to_24_hours(row["arrival_time"])
-                    departure_time = tdc.convert_29_hours_to_24_hours(row["departure_time"])
+            for row in self.reader:
+                arrival_time = tdc.convert_29_hours_to_24_hours(row["arrival_time"])
+                departure_time = tdc.convert_29_hours_to_24_hours(row["departure_time"])
 
-                    if row["pickup_type"] == "":
-                        pickup_type = None
-                    else:
-                        pickup_type = int(row["pickup_type"])
+                if row["pickup_type"] == "":
+                    pickup_type = None
+                else:
+                    pickup_type = int(row["pickup_type"])
 
-                    if row["drop_off_type"] == "":
-                        drop_off_type = None
-                    else:
-                        drop_off_type = int(row["drop_off_type"])
+                if row["drop_off_type"] == "":
+                    drop_off_type = None
+                else:
+                    drop_off_type = int(row["drop_off_type"])
 
-                    if row["timepoint"] == "":
-                        timepoint = None
-                    else:
-                        timepoint = int(row["timepoint"])
+                if row["timepoint"] == "":
+                    timepoint = None
+                else:
+                    timepoint = int(row["timepoint"])
 
-                    new_stop_time = StopTimeModel(
-                        trip_id=row["trip_id"],
-                        arrival_time=arrival_time,
-                        departure_time=departure_time,
-                        stop_id=row["stop_id"],
-                        stop_sequence=int(row["stop_sequence"]),
-                        stop_headsign=row["stop_headsign"],
-                        pickup_type=pickup_type,
-                        dropoff_type=drop_off_type,
-                        timepoint=timepoint,
-                        dataset=self.dataset,
-                    )
+                new_stop_time = StopTimeModel(
+                    trip_id=row["trip_id"],
+                    arrival_time=arrival_time,
+                    departure_time=departure_time,
+                    stop_id=row["stop_id"],
+                    stop_sequence=int(row["stop_sequence"]),
+                    stop_headsign=row["stop_headsign"],
+                    pickup_type=pickup_type,
+                    dropoff_type=drop_off_type,
+                    timepoint=timepoint,
+                    dataset=self.dataset,
+                )
 
-                    objects_to_commit.append(new_stop_time)
-                    batch_count += 1
-                    progress.update(task, advance=1)
+                objects_to_commit.append(new_stop_time)
+                batch_count += 1
+                progress.update(task, advance=1)
 
-                    if batch_count >= self.batchsize:
-                        session.bulk_save_objects(objects_to_commit)
-                        objects_to_commit = []
-                        batch_count = 0
+                if batch_count >= self.batchsize:
+                    await q.put(objects_to_commit)
+                    objects_to_commit = []
+                    batch_count = 0
 
-                if objects_to_commit:
-                    session.bulk_save_objects(objects_to_commit)
-                session.commit()
+            if objects_to_commit:
+                await q.put(objects_to_commit)
+
+            # Signal the consumer that the producer is done
+            for _ in range(number_of_consumers):
+                await q.put(None)
+
+    async def consumer(self, q: asyncio.Queue):
+        async with async_session_factory() as session:
+            while True:
+                objects_to_commit = await q.get()
+
+                # If the producer is done, break the loop
+                if objects_to_commit is None:
+                    break
+
+                session.add_all(objects_to_commit)
+                await session.commit()
+
+                q.task_done()
 
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
