@@ -27,9 +27,9 @@ def create_database_sync() -> None:
         raise e
 
 
-def recreate_indexes(table_name:str|None = None):
+def recreate_indexes(table_name: str | None = None):
     """Recreate all indexes"""
-    
+
     metadata = MetaData()
     metadata.reflect(bind=engine)
 
@@ -46,6 +46,6 @@ def recreate_indexes(table_name:str|None = None):
         table = metadata.tables[table_name]
         indexes = list(table.indexes)
         for index in indexes:
-                index.drop(bind=engine)
+            index.drop(bind=engine)
         for index in indexes:
             index.create(bind=engine)

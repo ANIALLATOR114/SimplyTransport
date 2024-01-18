@@ -33,13 +33,17 @@ def gtfs_directory_validator(dir: str, console: Console):
 
     return dir
 
+
 # https://github.com/pallets/click/issues/2033
 def make_sync(func):
-    '''Decorator to run async functions in a sync context'''
+    """Decorator to run async functions in a sync context"""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         return asyncio.run(func(*args, **kwargs))
+
     return wrapper
+
 
 class CLIPlugin(CLIPluginProtocol):
     def on_cli_init(self, cli: click.Group) -> None:
@@ -169,7 +173,7 @@ class CLIPlugin(CLIPluginProtocol):
                     task = progress.add_task("[red]Clearing database table...", total=1)
                     importer.clear_table()
                     progress.update(task, advance=1)
-                
+
                 if file in ["stop_times.txt", "shapes.txt", "trips.txt"]:
                     await importer.import_data()
                 else:
@@ -190,10 +194,10 @@ class CLIPlugin(CLIPluginProtocol):
                 "total_time_taken(s)": round(total_time_taken, 2),
             }
             await create_event_with_session(
-                    EventType.GTFS_DATABASE_UPDATED,
-                    "GTFS static data updated with latest schedules",
-                    attributes,
-                )
+                EventType.GTFS_DATABASE_UPDATED,
+                "GTFS static data updated with latest schedules",
+                attributes,
+            )
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
         @cli.command(name="importrealtime", help="Imports GTFS realtime data into the database")
@@ -257,11 +261,11 @@ class CLIPlugin(CLIPluginProtocol):
                 "time_taken(s)": round(finish - start, 2),
             }
             await create_event_with_session(
-                    EventType.REALTIME_DATABASE_UPDATED,
-                    "Realtime database updated with new realtime information",
-                    attributes,
-                )
-            
+                EventType.REALTIME_DATABASE_UPDATED,
+                "Realtime database updated with new realtime information",
+                attributes,
+            )
+
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
         @cli.command(name="create_tables", help="Creates the database tables")
@@ -341,13 +345,12 @@ class CLIPlugin(CLIPluginProtocol):
             }
 
             await create_event_with_session(
-                    EventType.STOP_FEATURES_DATABASE_UPDATED,
-                    "Stop features database updated with latest stop features",
-                    attributes,
-                )
+                EventType.STOP_FEATURES_DATABASE_UPDATED,
+                "Stop features database updated with latest stop features",
+                attributes,
+            )
 
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
-
 
         @cli.command(name="recreate_indexes", help="Recreates the indexes on a given table")
         @click.option("-table", help="The table to recreate the indexes on")
@@ -367,7 +370,7 @@ class CLIPlugin(CLIPluginProtocol):
                 if response != "y":
                     console.print("[red]Aborting recreate indexes...")
                     return
-            
+
             start = time.perf_counter()
 
             db_services.recreate_indexes(table)

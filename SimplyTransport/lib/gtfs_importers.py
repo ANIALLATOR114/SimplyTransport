@@ -250,13 +250,13 @@ class TripImporter(GTFSImporter):
 
         q = asyncio.Queue(maxsize=3)
         number_of_consumers = 2
-        producer = asyncio.create_task(self.producer(q,number_of_consumers))
+        producer = asyncio.create_task(self.producer(q, number_of_consumers))
         tasks = [asyncio.create_task(self.consumer(q)) for _ in range(number_of_consumers)]
         tasks.append(producer)
 
         await asyncio.gather(*tasks)
 
-    async def producer(self, q:asyncio.Queue,number_of_consumers:int):
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
         batch_count = 0
         objects_to_commit = []
 
@@ -292,7 +292,7 @@ class TripImporter(GTFSImporter):
             for _ in range(number_of_consumers):
                 await q.put(None)
 
-    async def consumer(self, q:asyncio.Queue):
+    async def consumer(self, q: asyncio.Queue):
         async with async_session_factory() as session:
             while True:
                 objects_to_commit = await q.get()
@@ -388,19 +388,19 @@ class ShapeImporter(GTFSImporter):
 
     def __str__(self) -> str:
         return "ShapeImporter"
-    
+
     async def import_data(self):
         """Imports the data from the csv.DictReader object into the database"""
 
         q = asyncio.Queue(maxsize=3)
         number_of_consumers = 2
-        producer = asyncio.create_task(self.producer(q,number_of_consumers))
+        producer = asyncio.create_task(self.producer(q, number_of_consumers))
         tasks = [asyncio.create_task(self.consumer(q)) for _ in range(number_of_consumers)]
         tasks.append(producer)
 
         await asyncio.gather(*tasks)
 
-    async def producer(self, q:asyncio.Queue,number_of_consumers:int):
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
         batch_count = 0
         objects_to_commit = []
 
@@ -413,9 +413,7 @@ class ShapeImporter(GTFSImporter):
                     lat=float(row["shape_pt_lat"]),
                     lon=float(row["shape_pt_lon"]),
                     sequence=int(row["shape_pt_sequence"]),
-                    distance=float(row["shape_dist_traveled"])
-                    if row["shape_dist_traveled"] != ""
-                    else None,
+                    distance=float(row["shape_dist_traveled"]) if row["shape_dist_traveled"] != "" else None,
                     dataset=self.dataset,
                 )
 
@@ -435,7 +433,7 @@ class ShapeImporter(GTFSImporter):
             for _ in range(number_of_consumers):
                 await q.put(None)
 
-    async def consumer(self, q:asyncio.Queue):
+    async def consumer(self, q: asyncio.Queue):
         async with async_session_factory() as session:
             while True:
                 objects_to_commit = await q.get()
@@ -466,19 +464,19 @@ class StopTimeImporter(GTFSImporter):
 
     def __str__(self) -> str:
         return "StopTimeImporter"
-    
+
     async def import_data(self):
         """Imports the data from the csv.DictReader object into the database"""
 
         q = asyncio.Queue(maxsize=3)
         number_of_consumers = 2
-        producer = asyncio.create_task(self.producer(q,number_of_consumers))
+        producer = asyncio.create_task(self.producer(q, number_of_consumers))
         tasks = [asyncio.create_task(self.consumer(q)) for _ in range(number_of_consumers)]
         tasks.append(producer)
 
         await asyncio.gather(*tasks)
 
-    async def producer(self, q:asyncio.Queue,number_of_consumers:int):
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
         batch_count = 0
         objects_to_commit = []
 
@@ -533,7 +531,7 @@ class StopTimeImporter(GTFSImporter):
             for _ in range(number_of_consumers):
                 await q.put(None)
 
-    async def consumer(self, q:asyncio.Queue):
+    async def consumer(self, q: asyncio.Queue):
         async with async_session_factory() as session:
             while True:
                 objects_to_commit = await q.get()
