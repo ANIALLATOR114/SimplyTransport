@@ -6,11 +6,26 @@ from advanced_alchemy import NotFoundError
 
 from SimplyTransport.domain.events.repo import EventRepository, provide_event_repo
 from SimplyTransport.domain.events.event_types import EventType
+from SimplyTransport.domain.events.model import EventModel
 
 
 __all__ = [
     "RootController",
 ]
+
+
+async def get_single_pretty_event_by_type(
+    event_repo: EventRepository, event_type: EventType
+) -> EventModel | None:
+    try:
+        events = await event_repo.get_paginated_events_by_type(
+            event_type=event_type, limit_offset=LimitOffset(limit=1, offset=0)
+        )
+    except NotFoundError:
+        return None
+    else:
+        event = events[0][0]
+        return event.add_pretty_created_at()
 
 
 class RootController(Controller):
@@ -23,29 +38,23 @@ class RootController(Controller):
         self,
         event_repo: EventRepository,
     ) -> Template:
-        try:
-            gtfs_updated_events = await event_repo.get_paginated_events_by_type(
-                event_type=EventType.GTFS_DATABASE_UPDATED, limit_offset=LimitOffset(limit=1, offset=0)
-            )
-        except NotFoundError:
-            gtfs_updated_event = None
-        else:
-            gtfs_updated_event = gtfs_updated_events[0][0]
-            gtfs_updated_event.add_pretty_created_at()
-
-        try:
-            realtime_updated_events = await event_repo.get_paginated_events_by_type(
-                event_type=EventType.REALTIME_DATABASE_UPDATED, limit_offset=LimitOffset(limit=1, offset=0)
-            )
-        except NotFoundError:
-            realtime_updated_event = None
-        else:
-            realtime_updated_event = realtime_updated_events[0][0]
-            realtime_updated_event.add_pretty_created_at()
+        gtfs_updated_event = await get_single_pretty_event_by_type(
+            event_repo, EventType.GTFS_DATABASE_UPDATED
+        )
+        realtime_updated_event = await get_single_pretty_event_by_type(
+            event_repo, EventType.REALTIME_DATABASE_UPDATED
+        )
+        stop_features_updated_event = await get_single_pretty_event_by_type(
+            event_repo, EventType.STOP_FEATURES_DATABASE_UPDATED
+        )
 
         return Template(
             template_name="index.html",
-            context={"gtfs_updated": gtfs_updated_event, "realtime_updated": realtime_updated_event},
+            context={
+                "gtfs_updated": gtfs_updated_event,
+                "realtime_updated": realtime_updated_event,
+                "stop_features_updated": stop_features_updated_event,
+            },
         )
 
     @get("/about")

@@ -1,3 +1,5 @@
+import math
+
 from litestar import Controller, get
 from litestar.response import Template
 from litestar.di import Provide
@@ -8,6 +10,7 @@ from advanced_alchemy import NotFoundError
 
 from SimplyTransport.domain.events.repo import EventRepository, provide_event_repo
 from SimplyTransport.domain.events.event_types import EventType
+from SimplyTransport.lib.parameters.pagination_page_numbers import generate_pagination_pages
 
 
 __all__ = [
@@ -62,11 +65,9 @@ class EventsController(Controller):
 
         events = [event.add_pretty_created_at() for event in events]
 
-        current_page = round(limit_offset.offset / limit_offset.limit) + 1
-        if total < limit_offset.limit:
-            total_pages = 1
-        else:
-            total_pages = round(total / limit_offset.limit)
+        current_page = limit_offset.offset // limit_offset.limit + 1
+        total_pages = math.ceil(total / limit_offset.limit)
+        pages = generate_pagination_pages(current_page, total_pages)
 
         return Template(
             template_name="events/list_of_events.html",
@@ -74,9 +75,10 @@ class EventsController(Controller):
                 "events": events,
                 "type": type,
                 "sort": sort,
-                "limit_offset": limit_offset,
+                "limit": limit_offset.limit,
                 "current_page": current_page,
                 "total_pages": total_pages,
                 "total": total,
+                "pages": pages,
             },
         )
