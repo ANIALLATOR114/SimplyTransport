@@ -22,21 +22,23 @@
     </tbody>
 </table>
 <div class="pagination-total">
-    <span class="dense-text">Page {{ page }} of {{ totalpages }} | Limit: {{ limit }} | Total: {{ total }}</span>
-    <div>
-        {% if page > 1 %}
-            <button class="pagination-button"
-                    hx-get="/search/routes?currentPage={{ page - 1 }}&pageSize=20"
-                    hx-target="#route-search-results"
-                    hx-swap="innerhtml transition:true"
-                    hx-include="[name='search']">Previous Page</button>
-        {% endif %}
-        {% if page < totalpages %}
-            <button class="pagination-button"
-                    hx-get="/search/routes?currentPage={{ page + 1 }}&pageSize=20"
-                    hx-target="#route-search-results"
-                    hx-swap="innerhtml transition:true"
-                    hx-include="[name='search']">Next Page</button>
-        {% endif %}
+    <div class="pagination-pages flex-start">
+        <span class="dense-text event-chip">Page {{ current_page }} of {{ total_pages }}</span>
+        <span class="dense-text event-chip">Limit: {{ limit }}</span>
+        <span class="dense-text event-chip">Total: {{ total }}</span>
+    </div>
+    <div class="pagination-pages">
+        {% for page in pages %}
+            {% if page == current_page %}
+                <button disabled class="pagination-button pagination-button-current">{{ page }}</button>
+            {% else %}
+                <button class="pagination-button"
+                        hx-get="/search/routes?currentPage={{ page }}&pageSize=20"
+                        hx-trigger="click"
+                        hx-target="#route-search-results"
+                        hx-swap="innerhtml transition:true"
+                        hx-include="[name='search']">{{ page }}</button>
+            {% endif %}
+        {% endfor %}
     </div>
 </div>

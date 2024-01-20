@@ -277,20 +277,38 @@ h3 {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-end;
-	padding-top: 0.5rem;
+	padding-top: 0.3rem;
 	font-size: 0.8rem;
 	border-top: 2px solid var(--bg-color-highlight);
 }
 
+.pagination-pages {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+}
+
+.flex-start {
+	justify-content: flex-start;
+}
+
 .pagination-button {
 	border-radius: 0.3rem;
-	font-size: 1rem;
-	padding: 0.6rem;
+	font-size: 0.9rem;
+	padding-top: 0.5rem;
+	padding-right: 1rem;
+	padding-bottom: 0.5rem;
+	padding-left: 1rem;
 	border: none;
 	background-color: var(--bg-color-highlight);
 	color: var(--font-color);
 	transition: all 0.2s ease-in-out;
 	cursor: pointer;
+}
+
+.pagination-button-current {
+	background-color: var(--bg-color-light);
 }
 
 .pagination-button:hover {
@@ -497,8 +515,11 @@ h3 {
 	}
 
 	.pagination-button {
-		font-size: 0.9rem;
-		padding: 0.5rem;
+		font-size: 0.85rem;
+		padding-top: 0.4rem;
+		padding-right: 0.9rem;
+		padding-bottom: 0.4rem;
+		padding-left: 0.9rem;
 	}
 
 	.dropdown {
