@@ -23,6 +23,6 @@ def generate_pagination_pages(current_page: int, total_pages: int) -> list[int]:
                 intermediate_pages.append(current_page + 2)
             elif current_page == total_pages - 1:
                 intermediate_pages.append(current_page - 2)
-        
+
         intermediate_pages = sorted(set(intermediate_pages))
         return intermediate_pages

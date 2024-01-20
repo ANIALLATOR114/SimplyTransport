@@ -13,7 +13,10 @@ __all__ = [
     "RootController",
 ]
 
-async def get_single_pretty_event_by_type(event_repo: EventRepository, event_type: EventType) -> EventModel | None:
+
+async def get_single_pretty_event_by_type(
+    event_repo: EventRepository, event_type: EventType
+) -> EventModel | None:
     try:
         events = await event_repo.get_paginated_events_by_type(
             event_type=event_type, limit_offset=LimitOffset(limit=1, offset=0)
@@ -35,16 +38,22 @@ class RootController(Controller):
         self,
         event_repo: EventRepository,
     ) -> Template:
-        gtfs_updated_event = await get_single_pretty_event_by_type(event_repo, EventType.GTFS_DATABASE_UPDATED)
-        realtime_updated_event = await get_single_pretty_event_by_type(event_repo, EventType.REALTIME_DATABASE_UPDATED)
-        stop_features_updated_event = await get_single_pretty_event_by_type(event_repo, EventType.STOP_FEATURES_DATABASE_UPDATED)
+        gtfs_updated_event = await get_single_pretty_event_by_type(
+            event_repo, EventType.GTFS_DATABASE_UPDATED
+        )
+        realtime_updated_event = await get_single_pretty_event_by_type(
+            event_repo, EventType.REALTIME_DATABASE_UPDATED
+        )
+        stop_features_updated_event = await get_single_pretty_event_by_type(
+            event_repo, EventType.STOP_FEATURES_DATABASE_UPDATED
+        )
 
         return Template(
             template_name="index.html",
             context={
-                "gtfs_updated": gtfs_updated_event, 
+                "gtfs_updated": gtfs_updated_event,
                 "realtime_updated": realtime_updated_event,
-                "stop_features_updated": stop_features_updated_event
+                "stop_features_updated": stop_features_updated_event,
             },
         )
 
