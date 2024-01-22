@@ -33,7 +33,13 @@
                 </div>
                 <div class="dense-text">Every minute</div>
                 <div class="dense-text">Vehicle Positions</div>
-                <div class="dense-text">Coming soon</div>
+                <div class="dense-text">
+                    {% if vehicles_updated %}
+                        {{ vehicles_updated.created_at_pretty }}
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </div>
                 <div class="dense-text">Every minute</div>
                 <div class="dense-text">GTFS Static Schedules</div>
                 <div class="dense-text">
@@ -52,7 +58,7 @@
                         Unknown
                     {% endif %}
                 </div>
-                <div class="dense-text">Very infrequently</div>
+                <div class="dense-text">Nightly (if needed)</div>
                 <div class="dense-text">
                     <a href="/events">Detailed</a>
                 </div>

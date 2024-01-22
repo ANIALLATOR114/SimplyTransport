@@ -14,7 +14,7 @@ from rich.table import Table
 
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.db import services as db_services
-from SimplyTransport.lib.gtfs_realtime_importers import RealTimeImporter
+from SimplyTransport.lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter
 from SimplyTransport.lib.stop_features_importer import StopFeaturesImporter
 from SimplyTransport.domain.events.repo import create_event_with_session
 from SimplyTransport.domain.events.event_types import EventType
@@ -263,6 +263,70 @@ class CLIPlugin(CLIPluginProtocol):
             await create_event_with_session(
                 EventType.REALTIME_DATABASE_UPDATED,
                 "Realtime database updated with new realtime information",
+                attributes,
+            )
+
+            console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
+
+        @cli.command(name="importrealtimevehicles", help="Imports GTFS realtime vehicle data into the database")
+        @click.option("-url", help="Override the default URL for the GTFS realtime vehicle data")
+        @click.option("-apikey", help="Override the default API key for the GTFS realtime vehicle data")
+        @click.option("-dataset", help="Override the default dataset that the data will be saved against")
+        @make_sync
+        async def importrealtimevehicles(url: str, apikey: str, dataset: str):
+            """Imports GTFS realtime data into the database"""
+
+            start: float = time.perf_counter()
+            console = Console()
+            console.print("Importing GTFS realtime data...")
+
+            from SimplyTransport.lib import settings
+
+            if url:
+                realtime_url = url
+                console.print(f"\nOverriding URL: {realtime_url}")
+            else:
+                realtime_url = settings.app.GTFS_TFI_REALTIME_VEHICLES_URL
+
+            if apikey:
+                realtime_apikey = apikey
+                console.print(f"\nOverriding API key: {realtime_apikey}")
+            else:
+                realtime_apikey = settings.app.GTFS_TFI_API_KEY_2
+
+            if dataset:
+                realtime_dataset = dataset
+                console.print(f"\nOverriding dataset: {realtime_dataset}")
+            else:
+                realtime_dataset = settings.app.GTFS_TFI_DATASET
+
+            importer = RealTimeVehiclesImporter(url=realtime_url, api_key=realtime_apikey, dataset=realtime_dataset)
+
+            console.print(f"\nImporting using dataset: {realtime_dataset} from {realtime_url}")
+
+            data = importer.get_data()
+
+            if data is None:
+                console.print(
+                    "[red]Error: No data returned from API, either response was not 200 or JSON was invalid."
+                )
+                return
+
+            console.print(f"\n{len(data['entity'])} entities returned from API")
+
+            importer.clear_table_vehicles()
+            console.print("\nImporting Vehicles")
+            total_vehicles = importer.import_vehicles(data)
+
+            finish: float = time.perf_counter()
+            attributes = {
+                "dataset": realtime_dataset,
+                "total_vehicles": total_vehicles,
+                "time_taken(s)": round(finish - start, 2),
+            }
+            await create_event_with_session(
+                EventType.REALTIME_VEHICLES_DATABASE_UPDATED,
+                "Realtime vehicles database updated with new realtime information",
                 attributes,
             )
 

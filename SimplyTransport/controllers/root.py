@@ -1,3 +1,5 @@
+from asyncio import gather
+
 from litestar import Controller, get
 from litestar.response import Template
 from litestar.di import Provide
@@ -38,14 +40,11 @@ class RootController(Controller):
         self,
         event_repo: EventRepository,
     ) -> Template:
-        gtfs_updated_event = await get_single_pretty_event_by_type(
-            event_repo, EventType.GTFS_DATABASE_UPDATED
-        )
-        realtime_updated_event = await get_single_pretty_event_by_type(
-            event_repo, EventType.REALTIME_DATABASE_UPDATED
-        )
-        stop_features_updated_event = await get_single_pretty_event_by_type(
-            event_repo, EventType.STOP_FEATURES_DATABASE_UPDATED
+        gtfs_updated_event, realtime_updated_event, vehicles_updated_event, stop_features_updated_event = await gather(
+            get_single_pretty_event_by_type(event_repo, EventType.GTFS_DATABASE_UPDATED),
+            get_single_pretty_event_by_type(event_repo, EventType.REALTIME_DATABASE_UPDATED),
+            get_single_pretty_event_by_type(event_repo, EventType.REALTIME_VEHICLES_DATABASE_UPDATED),
+            get_single_pretty_event_by_type(event_repo, EventType.STOP_FEATURES_DATABASE_UPDATED)
         )
 
         return Template(
@@ -53,6 +52,7 @@ class RootController(Controller):
             context={
                 "gtfs_updated": gtfs_updated_event,
                 "realtime_updated": realtime_updated_event,
+                "vehicles_updated": vehicles_updated_event,
                 "stop_features_updated": stop_features_updated_event,
             },
         )
