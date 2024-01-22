@@ -10,5 +10,8 @@ class EventType(str, Enum):
     # Realtime
     REALTIME_DATABASE_UPDATED = "realtime.database.updated"
 
+    # Realtime Vehicles
+    REALTIME_VEHICLES_DATABASE_UPDATED = "realtime_vehicles.database.updated"
+
     # Stop Features
     STOP_FEATURES_DATABASE_UPDATED = "stop_features.database.updated"

@@ -34,6 +34,7 @@ class AppSettings(BaseSettings):
 
     # GTFS TFI Realtime
     GTFS_TFI_REALTIME_URL: str = "example"
+    GTFS_TFI_REALTIME_VEHICLES_URL: str = "example"
     GTFS_TFI_API_KEY_1: str = "example"
     GTFS_TFI_API_KEY_2: str = "example"
     GTFS_TFI_DATASET: str = "example"
