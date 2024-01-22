@@ -177,7 +177,7 @@ class RealTimeImporter:
                     logger.error(f"RealTime: {self.url} failed to commit trips: {e}")
 
         return trip_update_count
-    
+
 
 class RealTimeVehiclesImporter:
     def __init__(self, url: str, api_key: str, dataset: str) -> None:
@@ -247,11 +247,11 @@ class RealTimeVehiclesImporter:
                             continue
 
                         new_rt_vehicle = RTVehicleModel(
-                            vehicle_id = int(vehicle_update.get("vehicle", {}).get("id")),
-                            trip_id = trip.get("trip_id"),
-                            time_of_update = datetime.fromtimestamp(int(vehicle_update.get("timestamp"))),
-                            lat = vehicle_update.get("position", {}).get("latitude"),
-                            lon = vehicle_update.get("position", {}).get("longitude"),
+                            vehicle_id=int(vehicle_update.get("vehicle", {}).get("id")),
+                            trip_id=trip.get("trip_id"),
+                            time_of_update=datetime.fromtimestamp(int(vehicle_update.get("timestamp"))),
+                            lat=vehicle_update.get("position", {}).get("latitude"),
+                            lon=vehicle_update.get("position", {}).get("longitude"),
                             dataset=self.dataset,
                         )
 

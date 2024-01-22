@@ -40,11 +40,16 @@ class RootController(Controller):
         self,
         event_repo: EventRepository,
     ) -> Template:
-        gtfs_updated_event, realtime_updated_event, vehicles_updated_event, stop_features_updated_event = await gather(
+        (
+            gtfs_updated_event,
+            realtime_updated_event,
+            vehicles_updated_event,
+            stop_features_updated_event,
+        ) = await gather(
             get_single_pretty_event_by_type(event_repo, EventType.GTFS_DATABASE_UPDATED),
             get_single_pretty_event_by_type(event_repo, EventType.REALTIME_DATABASE_UPDATED),
             get_single_pretty_event_by_type(event_repo, EventType.REALTIME_VEHICLES_DATABASE_UPDATED),
-            get_single_pretty_event_by_type(event_repo, EventType.STOP_FEATURES_DATABASE_UPDATED)
+            get_single_pretty_event_by_type(event_repo, EventType.STOP_FEATURES_DATABASE_UPDATED),
         )
 
         return Template(

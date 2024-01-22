@@ -268,7 +268,9 @@ class CLIPlugin(CLIPluginProtocol):
 
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
-        @cli.command(name="importrealtimevehicles", help="Imports GTFS realtime vehicle data into the database")
+        @cli.command(
+            name="importrealtimevehicles", help="Imports GTFS realtime vehicle data into the database"
+        )
         @click.option("-url", help="Override the default URL for the GTFS realtime vehicle data")
         @click.option("-apikey", help="Override the default API key for the GTFS realtime vehicle data")
         @click.option("-dataset", help="Override the default dataset that the data will be saved against")
@@ -300,7 +302,9 @@ class CLIPlugin(CLIPluginProtocol):
             else:
                 realtime_dataset = settings.app.GTFS_TFI_DATASET
 
-            importer = RealTimeVehiclesImporter(url=realtime_url, api_key=realtime_apikey, dataset=realtime_dataset)
+            importer = RealTimeVehiclesImporter(
+                url=realtime_url, api_key=realtime_apikey, dataset=realtime_dataset
+            )
 
             console.print(f"\nImporting using dataset: {realtime_dataset} from {realtime_url}")
 
