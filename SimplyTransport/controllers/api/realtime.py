@@ -32,9 +32,11 @@ class RealtimeController(Controller):
         schedule_service: ScheduleService,
         realtime_service: RealTimeService,
         stop_id: str,
-        start_time: time | None = Parameter(required=False, description="Start time, defaults to 10 minutes ago"),
-        end_time: time | None = Parameter(required=False, description="End time, defaults to 60 minutes from now"),
-        day: DayOfWeek= Parameter(required=False, description="Day of week"),
+        start_time: time
+        | None = Parameter(required=False, description="Start time, defaults to 10 minutes ago"),
+        end_time: time
+        | None = Parameter(required=False, description="End time, defaults to 60 minutes from now"),
+        day: DayOfWeek = Parameter(required=False, description="Day of week"),
     ) -> list[RealTimeSchedule]:
         """Returns a list of realtime schedules for the given stop_id"""
 
@@ -49,13 +51,15 @@ class RealtimeController(Controller):
 
         if start_time > end_time:
             raise NotFoundException("Start time cannot be after end time")
-        
+
         if start_time == end_time:
             raise NotFoundException("Start time cannot be equal to end time")
-        
+
         max_hours_apart = 3
         if (end_time.hour - start_time.hour) > max_hours_apart:
-            raise NotFoundException(f"Start time and end time cannot be more than {max_hours_apart} hours apart")
+            raise NotFoundException(
+                f"Start time and end time cannot be more than {max_hours_apart} hours apart"
+            )
 
         schedules = await schedule_service.get_schedule_on_stop_for_day_between_times(
             stop_id=stop_id,
@@ -69,5 +73,5 @@ class RealtimeController(Controller):
 
         realtime_schedules = await realtime_service.get_realtime_schedules_for_static_schedules(schedules)
         realtime_schedules = await realtime_service.apply_custom_23_00_sorting(realtime_schedules)
-                
+
         return [RealTimeSchedule.model_validate(realtime) for realtime in realtime_schedules]

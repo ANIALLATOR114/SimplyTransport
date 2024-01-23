@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel as _BaseModel
 from typing import Optional
 
@@ -9,10 +8,12 @@ from ..enums import OnTimeStatus
 
 from datetime import datetime, timedelta, time
 
+
 class BaseModel(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
 
     model_config = {"from_attributes": True}
+
 
 class RealTimeScheduleModel:
     def __init__(

@@ -26,9 +26,11 @@ class ScheduleController(Controller):
         self,
         schedule_service: ScheduleService,
         stop_id: str,
-        start_time: time | None = Parameter(required=False, description="Start time, defaults to 10 minutes ago"),
-        end_time: time | None = Parameter(required=False, description="End time, defaults to 60 minutes from now"),
-        day: DayOfWeek= Parameter(required=False, description="Day of week"),
+        start_time: time
+        | None = Parameter(required=False, description="Start time, defaults to 10 minutes ago"),
+        end_time: time
+        | None = Parameter(required=False, description="End time, defaults to 60 minutes from now"),
+        day: DayOfWeek = Parameter(required=False, description="Day of week"),
     ) -> list[StaticSchedule]:
         """Returns a list of schedules for the given stop_id"""
 
@@ -43,13 +45,15 @@ class ScheduleController(Controller):
 
         if start_time > end_time:
             raise ValidationException("Start time cannot be after end time")
-        
+
         if start_time == end_time:
             raise ValidationException("Start time cannot be equal to end time")
-        
+
         max_hours_apart = 3
         if (end_time.hour - start_time.hour) > max_hours_apart:
-            raise ValidationException(f"Start time and end time cannot be more than {max_hours_apart} hours apart")
+            raise ValidationException(
+                f"Start time and end time cannot be more than {max_hours_apart} hours apart"
+            )
 
         schedules = await schedule_service.get_schedule_on_stop_for_day_between_times(
             stop_id=stop_id,
@@ -57,7 +61,7 @@ class ScheduleController(Controller):
             start_time=start_time,
             end_time=end_time,
         )
-        
+
         schedules = await schedule_service.remove_exceptions_and_inactive_calendars(schedules)
         schedules = await schedule_service.add_in_added_exceptions(schedules)  # TODO
         schedules = await schedule_service.apply_custom_23_00_sorting(schedules)

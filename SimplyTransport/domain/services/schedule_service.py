@@ -93,7 +93,9 @@ class ScheduleService:
 
         return static_schedules_filtered
 
-    async def add_in_added_exceptions(self, static_schedules: list[StaticScheduleModel]) -> list[StaticScheduleModel]:
+    async def add_in_added_exceptions(
+        self, static_schedules: list[StaticScheduleModel]
+    ) -> list[StaticScheduleModel]:
         """Adds in added exceptions from the list of schedules"""
         pass  # TODO
 

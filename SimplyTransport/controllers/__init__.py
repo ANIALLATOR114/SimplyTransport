@@ -1,7 +1,18 @@
 from litestar import Router
 
 from . import root, search, realtime, events
-from .api import agency, calendar, calendar_date, route, trip, stop, shape, stoptime, realtime as realtimeAPI, schedule as scheduleAPI
+from .api import (
+    agency,
+    calendar,
+    calendar_date,
+    route,
+    trip,
+    stop,
+    shape,
+    stoptime,
+    realtime as realtimeAPI,
+    schedule as scheduleAPI,
+)
 
 __all__ = ["create_api_router", "create_views_router"]
 
