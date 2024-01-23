@@ -3,8 +3,8 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from advanced_alchemy import NotFoundError
 
-from SimplyTransport.domain.agency.model import Agency, AgencyWithTotal
-from SimplyTransport.domain.agency.repo import provide_agency_repo, AgencyRepository
+from ...domain.agency.model import Agency, AgencyWithTotal
+from ...domain.agency.repo import provide_agency_repo, AgencyRepository
 
 __all__ = ["AgencyController"]
 

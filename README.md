@@ -69,10 +69,9 @@ The static schedules can be updated as often as desired but typically a nightly 
 - [x] StopTimes
 - [x] Trips
 - [x] Shapes
-- [ ] Realtime
-  - [ ] Stop
-  - [ ] Route
-  - [ ] Vehicles
+- [x] Schedules
+- [x] Realtime
+- [ ] Realtime Vehicles
 - [ ] StopFeatures
 
 ## Web Interface
@@ -82,7 +81,7 @@ The static schedules can be updated as often as desired but typically a nightly 
 - [x] Stop
   - [x] Realtime
   - [x] Schedule
-  - [ ] Stop Features
+  - [x] Stop Features
 - [x] Route
 - [x] Trip
 - [x] Search Page

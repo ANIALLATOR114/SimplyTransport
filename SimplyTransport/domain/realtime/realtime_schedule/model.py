@@ -1,15 +1,23 @@
-from SimplyTransport.domain.realtime.stop_time.model import RTStopTimeModel
-from SimplyTransport.domain.realtime.trip.model import RTTripModel
-from SimplyTransport.domain.schedule.model import StaticSchedule
-from SimplyTransport.domain.realtime.enums import OnTimeStatus
 
-from datetime import datetime, timedelta
+from pydantic import BaseModel as _BaseModel
+from typing import Optional
 
+from ..stop_time.model import RTStopTimeModel, RTStopTime
+from ..trip.model import RTTripModel, RTTrip
+from ...schedule.model import StaticScheduleModel
+from ..enums import OnTimeStatus
 
-class RealTimeSchedule:
+from datetime import datetime, timedelta, time
+
+class BaseModel(_BaseModel):
+    """Extend Pydantic's BaseModel to enable ORM mode"""
+
+    model_config = {"from_attributes": True}
+
+class RealTimeScheduleModel:
     def __init__(
         self,
-        static_schedule: StaticSchedule,
+        static_schedule: StaticScheduleModel,
         rt_stop_time: RTStopTimeModel = None,
         rt_trip: RTTripModel = None,
     ):
@@ -89,3 +97,13 @@ class RealTimeSchedule:
             self.on_time_status = OnTimeStatus.LATE
         else:
             self.on_time_status = OnTimeStatus.ON_TIME
+
+
+class RealTimeSchedule(BaseModel):
+    rt_stop_time: Optional[RTStopTime]
+    rt_trip: Optional[RTTrip]
+    delay: str
+    delay_in_seconds: int
+    real_arrival_time: time
+    real_eta_text: str
+    on_time_status: OnTimeStatus

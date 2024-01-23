@@ -6,8 +6,8 @@ from litestar.exceptions import NotFoundException
 from advanced_alchemy import NotFoundError
 from advanced_alchemy.filters import OnBeforeAfter
 
-from SimplyTransport.domain.calendar.model import Calendar, CalendarWithTotal
-from SimplyTransport.domain.calendar.repo import provide_calendar_repo, CalendarRepository
+from ...domain.calendar.model import Calendar, CalendarWithTotal
+from ...domain.calendar.repo import provide_calendar_repo, CalendarRepository
 
 __all__ = ["CalendarController"]
 

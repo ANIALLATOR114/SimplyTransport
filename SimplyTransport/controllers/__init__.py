@@ -1,7 +1,7 @@
 from litestar import Router
 
 from . import root, search, realtime, events
-from .api import agency, calendar, calendar_date, route, trip, stop, shape, stoptime
+from .api import agency, calendar, calendar_date, route, trip, stop, shape, stoptime, realtime as realtimeAPI, schedule as scheduleAPI
 
 __all__ = ["create_api_router", "create_views_router"]
 
@@ -83,6 +83,14 @@ def create_api_router() -> Router:
         route_handlers=[stoptime.StopTimeController],
     )
 
+    realtime_route_handler = Router(
+        path="/realtime", tags=["Realtime"], security=[{}], route_handlers=[realtimeAPI.RealtimeController]
+    )
+
+    schedule_route_handler = Router(
+        path="/schedule", tags=["Schedule"], security=[{}], route_handlers=[scheduleAPI.ScheduleController]
+    )
+
     return Router(
         path="/api/v1",
         route_handlers=[
@@ -94,5 +102,7 @@ def create_api_router() -> Router:
             stop_route_handler,
             shape_route_handler,
             stop_time_handler,
+            realtime_route_handler,
+            schedule_route_handler,
         ],
     )

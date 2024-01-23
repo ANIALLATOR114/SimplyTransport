@@ -3,17 +3,17 @@ import asyncio
 
 import rich.progress as rp
 
-from SimplyTransport.domain.agency.model import AgencyModel
-from SimplyTransport.domain.calendar.model import CalendarModel
-from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
-from SimplyTransport.domain.enums import RouteType
-from SimplyTransport.domain.route.model import RouteModel
-from SimplyTransport.domain.trip.model import TripModel
-from SimplyTransport.domain.stop.model import StopModel
-from SimplyTransport.domain.shape.model import ShapeModel
-from SimplyTransport.domain.stop_times.model import StopTimeModel
-from SimplyTransport.lib.db.database import session, async_session_factory
-from SimplyTransport.lib import time_date_conversions as tdc
+from ..domain.agency.model import AgencyModel
+from ..domain.calendar.model import CalendarModel
+from ..domain.calendar_dates.model import CalendarDateModel
+from ..domain.enums import RouteType
+from ..domain.route.model import RouteModel
+from ..domain.trip.model import TripModel
+from ..domain.stop.model import StopModel
+from ..domain.shape.model import ShapeModel
+from ..domain.stop_times.model import StopTimeModel
+from .db.database import session, async_session_factory
+from . import time_date_conversions as tdc
 
 progress_columns = (
     rp.SpinnerColumn(finished_text="✅"),

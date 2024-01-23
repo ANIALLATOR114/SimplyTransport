@@ -5,8 +5,8 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from advanced_alchemy.filters import OnBeforeAfter
 
-from SimplyTransport.domain.calendar_dates.model import CalendarDate, CalendarDateWithTotal
-from SimplyTransport.domain.calendar_dates.repo import (
+from ...domain.calendar_dates.model import CalendarDate, CalendarDateWithTotal
+from ...domain.calendar_dates.repo import (
     provide_calendar_date_repo,
     CalendarDateRepository,
 )

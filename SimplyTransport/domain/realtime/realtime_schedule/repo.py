@@ -3,8 +3,8 @@ from sqlalchemy import select, func
 from typing import Tuple
 from sqlalchemy import Result
 
-from SimplyTransport.domain.realtime.stop_time.model import RTStopTimeModel
-from SimplyTransport.domain.realtime.trip.model import RTTripModel
+from ..stop_time.model import RTStopTimeModel
+from ..trip.model import RTTripModel
 
 
 class RealtimeScheduleRepository:

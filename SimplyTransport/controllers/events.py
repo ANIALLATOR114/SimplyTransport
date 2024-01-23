@@ -8,9 +8,9 @@ from litestar.exceptions import ValidationException
 from advanced_alchemy.filters import LimitOffset
 from advanced_alchemy import NotFoundError
 
-from SimplyTransport.domain.events.repo import EventRepository, provide_event_repo
-from SimplyTransport.domain.events.event_types import EventType
-from SimplyTransport.lib.parameters.pagination_page_numbers import generate_pagination_pages
+from ..domain.events.repo import EventRepository, provide_event_repo
+from ..domain.events.event_types import EventType
+from ..lib.parameters.pagination_page_numbers import generate_pagination_pages
 
 
 __all__ = [

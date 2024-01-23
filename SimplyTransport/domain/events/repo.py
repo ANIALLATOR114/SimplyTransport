@@ -6,8 +6,8 @@ from advanced_alchemy import NotFoundError
 from typing import List, Tuple
 
 from .model import EventModel
-from SimplyTransport.domain.events.event_types import EventType
-from SimplyTransport.lib.db.database import async_session_factory
+from .event_types import EventType
+from ...lib.db.database import async_session_factory
 
 
 class EventRepository(SQLAlchemyAsyncRepository[EventModel]):

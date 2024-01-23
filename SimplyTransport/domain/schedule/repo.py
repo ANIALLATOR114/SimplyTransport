@@ -3,12 +3,12 @@ from datetime import time
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from SimplyTransport.domain.calendar.model import CalendarModel
-from SimplyTransport.domain.route.model import RouteModel
-from SimplyTransport.domain.enums import DayOfWeek
-from SimplyTransport.domain.stop.model import StopModel
-from SimplyTransport.domain.stop_times.model import StopTimeModel
-from SimplyTransport.domain.trip.model import TripModel
+from ..calendar.model import CalendarModel
+from ..route.model import RouteModel
+from ..enums import DayOfWeek
+from ..stop.model import StopModel
+from ..stop_times.model import StopTimeModel
+from ..trip.model import TripModel
 
 
 class ScheduleRepository:

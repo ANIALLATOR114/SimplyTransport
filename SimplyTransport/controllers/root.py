@@ -6,9 +6,9 @@ from litestar.di import Provide
 from advanced_alchemy.filters import LimitOffset
 from advanced_alchemy import NotFoundError
 
-from SimplyTransport.domain.events.repo import EventRepository, provide_event_repo
-from SimplyTransport.domain.events.event_types import EventType
-from SimplyTransport.domain.events.model import EventModel
+from ..domain.events.repo import EventRepository, provide_event_repo
+from ..domain.events.event_types import EventType
+from ..domain.events.model import EventModel
 
 
 __all__ = [
