@@ -8,7 +8,7 @@ from pydantic import BaseModel as _BaseModel
 import json
 
 from .event_types import EventType
-from SimplyTransport.lib.time_date_conversions import DateTimeEncoderForJson
+from ...lib.time_date_conversions import DateTimeEncoderForJson
 
 
 class BaseModel(_BaseModel):

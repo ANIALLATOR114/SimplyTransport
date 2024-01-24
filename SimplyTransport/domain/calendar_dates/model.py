@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel, Field
 from datetime import date
 
-from SimplyTransport.domain.enums import ExceptionType
+from ..enums import ExceptionType
 
 
 class BaseModel(_BaseModel):

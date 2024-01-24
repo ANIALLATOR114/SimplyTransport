@@ -1,15 +1,15 @@
 from datetime import datetime, timedelta, timezone
 import requests
 
-from SimplyTransport.lib.logging import logger
-from SimplyTransport.lib.db.database import session
-from SimplyTransport.lib import time_date_conversions as tdc
+from .logging import logger
+from .db.database import session
+from . import time_date_conversions as tdc
 
-from SimplyTransport.domain.realtime.stop_time.model import RTStopTimeModel
-from SimplyTransport.domain.realtime.trip.model import RTTripModel
-from SimplyTransport.domain.route.model import RouteModel
-from SimplyTransport.domain.trip.model import TripModel
-from SimplyTransport.domain.realtime.vehicle.model import RTVehicleModel
+from ..domain.realtime.stop_time.model import RTStopTimeModel
+from ..domain.realtime.trip.model import RTTripModel
+from ..domain.route.model import RouteModel
+from ..domain.trip.model import TripModel
+from ..domain.realtime.vehicle.model import RTVehicleModel
 
 import rich.progress as rp
 

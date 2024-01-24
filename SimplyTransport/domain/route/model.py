@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel, Field
 from typing import Optional
 
-from SimplyTransport.domain.enums import RouteType
+from ..enums import RouteType
 
 
 class BaseModel(_BaseModel):

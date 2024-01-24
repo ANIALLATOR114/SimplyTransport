@@ -14,8 +14,8 @@ def test_get_stop_by_id(client: TestClient) -> None:
     assert response_json["lon"] == -6.278644169
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
-    assert response_json["location_type"] == None
-    assert response_json["parent_station"] == None
+    assert response_json["location_type"] is None
+    assert response_json["parent_station"] is None
     assert response_json["dataset"] == "TFI"
 
     response = client.get("/api/v1/stop/8240DB007132")
@@ -30,8 +30,8 @@ def test_get_stop_by_id(client: TestClient) -> None:
     assert response_json["lon"] == -6.304306560
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
-    assert response_json["location_type"] == None
-    assert response_json["parent_station"] == None
+    assert response_json["location_type"] is None
+    assert response_json["parent_station"] is None
     assert response_json["dataset"] == "TFI"
 
 
@@ -55,8 +55,8 @@ def test_get_stop_by_code(client: TestClient) -> None:
     assert response_json["lon"] == -6.278644169
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
-    assert response_json["location_type"] == None
-    assert response_json["parent_station"] == None
+    assert response_json["location_type"] is None
+    assert response_json["parent_station"] is None
     assert response_json["dataset"] == "TFI"
 
     response = client.get("/api/v1/stop/code/7132")
@@ -71,8 +71,8 @@ def test_get_stop_by_code(client: TestClient) -> None:
     assert response_json["lon"] == -6.304306560
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
-    assert response_json["location_type"] == None
-    assert response_json["parent_station"] == None
+    assert response_json["location_type"] is None
+    assert response_json["parent_station"] is None
     assert response_json["dataset"] == "TFI"
 
 

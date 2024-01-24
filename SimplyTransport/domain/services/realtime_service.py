@@ -6,8 +6,8 @@ from ..realtime.stop_time.repo import RTStopTimeRepository
 from ..realtime.trip.repo import RTTripRepository
 from ..realtime.vehicle.repo import RTVehicleRepository
 from ..realtime.realtime_schedule.repo import RealtimeScheduleRepository
-from ..realtime.realtime_schedule.model import RealTimeSchedule
-from ..schedule.model import StaticSchedule
+from ..realtime.realtime_schedule.model import RealTimeScheduleModel
+from ..schedule.model import StaticScheduleModel
 from ..realtime.stop_time.model import RTStopTimeModel
 from ..realtime.trip.model import RTTripModel
 
@@ -44,8 +44,8 @@ class RealTimeService:
         return list(most_recent_realtime_updates.values())
 
     async def get_realtime_schedules_for_static_schedules(
-        self, schedules: list[StaticSchedule]
-    ) -> list[RealTimeSchedule]:
+        self, schedules: list[StaticScheduleModel]
+    ) -> list[RealTimeScheduleModel]:
         """Returns a list of RealTimeSchedule objects for the given list of StaticSchedule objects"""
 
         if not schedules:
@@ -71,19 +71,19 @@ class RealTimeService:
                     (st, t) for st, t in only_most_recent_realtime_schedules if t.trip_id == static.trip.id
                 )
                 realtime_schedules.append(
-                    RealTimeSchedule(static_schedule=static, rt_trip=trip, rt_stop_time=stop_time)
+                    RealTimeScheduleModel(static_schedule=static, rt_trip=trip, rt_stop_time=stop_time)
                 )
             else:
-                realtime_schedules.append(RealTimeSchedule(static_schedule=static))
+                realtime_schedules.append(RealTimeScheduleModel(static_schedule=static))
 
         return realtime_schedules
 
     async def apply_custom_23_00_sorting(
-        self, realtime_schedules: list[RealTimeSchedule]
-    ) -> list[RealTimeSchedule]:
+        self, realtime_schedules: list[RealTimeScheduleModel]
+    ) -> list[RealTimeScheduleModel]:
         """Sorts the realtime schedules by realtime arrival time"""
 
-        def custom_sort_key(realtime_schedule: RealTimeSchedule):
+        def custom_sort_key(realtime_schedule: RealTimeScheduleModel):
             arrival_time = realtime_schedule.real_arrival_time
 
             # Handle the exception case where times in the range 00:00 to 02:00 sort after times in the range 23:00 to 23:59

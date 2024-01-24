@@ -4,8 +4,8 @@ from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
 from advanced_alchemy import NotFoundError
 
-from SimplyTransport.domain.route.model import Route, RouteWithTotal
-from SimplyTransport.domain.route.repo import RouteRepository, provide_route_repo
+from ...domain.route.model import Route, RouteWithTotal
+from ...domain.route.repo import RouteRepository, provide_route_repo
 
 __all__ = ["RouteController"]
 

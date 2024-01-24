@@ -1,10 +1,10 @@
 from geojson import FeatureCollection
 from datetime import datetime
-from SimplyTransport.domain.stop.model import StopModel
+from ..domain.stop.model import StopModel
 
-from SimplyTransport.lib.db.database import session
+from .db.database import session
 
-from SimplyTransport.domain.stop_features.model import StopFeatureModel
+from ..domain.stop_features.model import StopFeatureModel
 import rich.progress as rp
 
 progress_columns = (

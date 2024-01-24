@@ -6,7 +6,7 @@ from typing import Optional
 from datetime import datetime as dateTime
 from datetime import datetime
 
-from SimplyTransport.domain.enums import Bearing, StopType
+from ..enums import Bearing, StopType
 
 
 class BaseModel(_BaseModel):

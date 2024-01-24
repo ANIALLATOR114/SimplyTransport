@@ -7,7 +7,7 @@ from pydantic import BaseModel as _BaseModel
 from sqlalchemy import ForeignKey, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from SimplyTransport.domain.enums import PickupType, DropoffType, Timepoint
+from ..enums import PickupType, DropoffType, Timepoint
 
 
 class BaseModel(_BaseModel):

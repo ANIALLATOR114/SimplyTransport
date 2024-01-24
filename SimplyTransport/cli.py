@@ -14,10 +14,10 @@ from rich.table import Table
 
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.db import services as db_services
-from SimplyTransport.lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter
-from SimplyTransport.lib.stop_features_importer import StopFeaturesImporter
-from SimplyTransport.domain.events.repo import create_event_with_session
-from SimplyTransport.domain.events.event_types import EventType
+from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter
+from .lib.stop_features_importer import StopFeaturesImporter
+from .domain.events.repo import create_event_with_session
+from .domain.events.event_types import EventType
 
 
 def gtfs_directory_validator(dir: str, console: Console):

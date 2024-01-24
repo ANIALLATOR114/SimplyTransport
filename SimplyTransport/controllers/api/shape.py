@@ -2,9 +2,9 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 
-from SimplyTransport.domain.shape.model import Shape
-from SimplyTransport.domain.shape.repo import ShapeRepository, provide_shape_repo
-from SimplyTransport.lib.parameters.orderby_shapes import provide_order_by_shapes
+from ...domain.shape.model import Shape
+from ...domain.shape.repo import ShapeRepository, provide_shape_repo
+from ...lib.parameters.orderby_shapes import provide_order_by_shapes
 from advanced_alchemy.filters import OrderBy
 
 __all__ = ["ShapeController"]
