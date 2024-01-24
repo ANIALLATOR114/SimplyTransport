@@ -11,34 +11,46 @@ import pytest
 
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 
+
 @pytest.mark.asyncio
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change_normal_times():
     # Arrange
     mock_schedule_data = [
-        RealTimeSchedule(static_schedule=StaticSchedule(
-            stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
-            route=AsyncMock(),
-            calendar=AsyncMock(),
-            stop=AsyncMock(),
-            trip=AsyncMock(),
-        )),
-        RealTimeSchedule(static_schedule=StaticSchedule(
-            stop_time=StopTimeModel(arrival_time=time.fromisoformat("00:00:00")),
-            route=AsyncMock(),
-            calendar=AsyncMock(),
-            stop=AsyncMock(),
-            trip=AsyncMock(),
-        )),
-        RealTimeSchedule(static_schedule=StaticSchedule(
-            stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:00:00")),
-            route=AsyncMock(),
-            calendar=AsyncMock(),
-            stop=AsyncMock(),
-            trip=AsyncMock(),
-        ))
+        RealTimeSchedule(
+            static_schedule=StaticSchedule(
+                stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
+                route=AsyncMock(),
+                calendar=AsyncMock(),
+                stop=AsyncMock(),
+                trip=AsyncMock(),
+            )
+        ),
+        RealTimeSchedule(
+            static_schedule=StaticSchedule(
+                stop_time=StopTimeModel(arrival_time=time.fromisoformat("00:00:00")),
+                route=AsyncMock(),
+                calendar=AsyncMock(),
+                stop=AsyncMock(),
+                trip=AsyncMock(),
+            )
+        ),
+        RealTimeSchedule(
+            static_schedule=StaticSchedule(
+                stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:00:00")),
+                route=AsyncMock(),
+                calendar=AsyncMock(),
+                stop=AsyncMock(),
+                trip=AsyncMock(),
+            )
+        ),
     ]
-    
-    real_time_service = RealTimeService(rt_stop_repository=AsyncMock(), rt_trip_repository=AsyncMock(), rt_vehicle_repository=AsyncMock(), realtime_schedule_repository=AsyncMock())
+
+    real_time_service = RealTimeService(
+        rt_stop_repository=AsyncMock(),
+        rt_trip_repository=AsyncMock(),
+        rt_vehicle_repository=AsyncMock(),
+        realtime_schedule_repository=AsyncMock(),
+    )
 
     # Act
     result = await real_time_service.apply_custom_23_00_sorting(mock_schedule_data)
@@ -54,30 +66,41 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change_no
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_backwards():
     # Arrange
     mock_schedule_data = [
-        RealTimeSchedule(static_schedule=StaticSchedule(
-            stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:00:00")),
-            route=AsyncMock(),
-            calendar=AsyncMock(),
-            stop=AsyncMock(),
-            trip=AsyncMock(),
-        )),
-        RealTimeSchedule(static_schedule=StaticSchedule(
-            stop_time=StopTimeModel(arrival_time=time.fromisoformat("00:00:00")),
-            route=AsyncMock(),
-            calendar=AsyncMock(),
-            stop=AsyncMock(),
-            trip=AsyncMock(),
-        )),
-        RealTimeSchedule(static_schedule=StaticSchedule(
-            stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
-            route=AsyncMock(),
-            calendar=AsyncMock(),
-            stop=AsyncMock(),
-            trip=AsyncMock(),
-        ))
+        RealTimeSchedule(
+            static_schedule=StaticSchedule(
+                stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:00:00")),
+                route=AsyncMock(),
+                calendar=AsyncMock(),
+                stop=AsyncMock(),
+                trip=AsyncMock(),
+            )
+        ),
+        RealTimeSchedule(
+            static_schedule=StaticSchedule(
+                stop_time=StopTimeModel(arrival_time=time.fromisoformat("00:00:00")),
+                route=AsyncMock(),
+                calendar=AsyncMock(),
+                stop=AsyncMock(),
+                trip=AsyncMock(),
+            )
+        ),
+        RealTimeSchedule(
+            static_schedule=StaticSchedule(
+                stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
+                route=AsyncMock(),
+                calendar=AsyncMock(),
+                stop=AsyncMock(),
+                trip=AsyncMock(),
+            )
+        ),
     ]
-    
-    real_time_service = RealTimeService(rt_stop_repository=AsyncMock(), rt_trip_repository=AsyncMock(), rt_vehicle_repository=AsyncMock(), realtime_schedule_repository=AsyncMock())
+
+    real_time_service = RealTimeService(
+        rt_stop_repository=AsyncMock(),
+        rt_trip_repository=AsyncMock(),
+        rt_vehicle_repository=AsyncMock(),
+        realtime_schedule_repository=AsyncMock(),
+    )
 
     # Act
     result = await real_time_service.apply_custom_23_00_sorting(mock_schedule_data)
@@ -98,7 +121,12 @@ async def test_parse_most_recent_realtime_update_returns_most_recent_updates():
         (RTStopTimeModel(stop_sequence=1, trip_id="trip2"), RTTripModel(trip_id="trip2")),
     ]
 
-    real_time_service = RealTimeService(rt_stop_repository=AsyncMock(), rt_trip_repository=AsyncMock(), rt_vehicle_repository=AsyncMock(), realtime_schedule_repository=AsyncMock())
+    real_time_service = RealTimeService(
+        rt_stop_repository=AsyncMock(),
+        rt_trip_repository=AsyncMock(),
+        rt_vehicle_repository=AsyncMock(),
+        realtime_schedule_repository=AsyncMock(),
+    )
 
     # Act
     result = real_time_service.parse_most_recent_realtime_update(inputs)
@@ -116,7 +144,12 @@ async def test_parse_most_recent_realtime_update_returns_most_recent_updates():
 @pytest.mark.asyncio
 async def test_parse_most_recent_realtime_update_returns_empty_list_with_no_input():
     # Arrange
-    real_time_service = RealTimeService(rt_stop_repository=AsyncMock(), rt_trip_repository=AsyncMock(), rt_vehicle_repository=AsyncMock(), realtime_schedule_repository=AsyncMock())
+    real_time_service = RealTimeService(
+        rt_stop_repository=AsyncMock(),
+        rt_trip_repository=AsyncMock(),
+        rt_vehicle_repository=AsyncMock(),
+        realtime_schedule_repository=AsyncMock(),
+    )
 
     # Act
     result = real_time_service.parse_most_recent_realtime_update([])
@@ -134,7 +167,12 @@ async def test_parse_most_recent_realtime_update_is_order_independent():
         (RTStopTimeModel(stop_sequence=1, trip_id="trip2"), RTTripModel(trip_id="trip2")),
     ]
 
-    real_time_service = RealTimeService(rt_stop_repository=AsyncMock(), rt_trip_repository=AsyncMock(), rt_vehicle_repository=AsyncMock(), realtime_schedule_repository=AsyncMock())
+    real_time_service = RealTimeService(
+        rt_stop_repository=AsyncMock(),
+        rt_trip_repository=AsyncMock(),
+        rt_vehicle_repository=AsyncMock(),
+        realtime_schedule_repository=AsyncMock(),
+    )
 
     # Act
     result = real_time_service.parse_most_recent_realtime_update(inputs)
