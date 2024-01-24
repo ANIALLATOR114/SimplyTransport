@@ -5,7 +5,7 @@ from pydantic import BaseModel as _BaseModel
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from SimplyTransport.domain.realtime.enums import ScheduleRealtionship
+from ..enums import ScheduleRealtionship
 
 
 class BaseModel(_BaseModel):

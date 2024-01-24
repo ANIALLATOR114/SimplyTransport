@@ -3,8 +3,8 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from advanced_alchemy import NotFoundError
 
-from SimplyTransport.domain.trip.model import Trip, TripsWithTotal
-from SimplyTransport.domain.trip.repo import TripRepository, provide_trip_repo
+from ...domain.trip.model import Trip, TripsWithTotal
+from ...domain.trip.repo import TripRepository, provide_trip_repo
 
 __all__ = ["TripController"]
 

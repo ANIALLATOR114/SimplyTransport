@@ -5,7 +5,7 @@ from pydantic import BaseModel as _BaseModel
 from datetime import date
 
 import datetime as DateTime
-from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
+from ..calendar_dates.model import CalendarDateModel
 
 
 class BaseModel(_BaseModel):

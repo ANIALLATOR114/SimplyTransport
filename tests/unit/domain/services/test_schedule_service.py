@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from SimplyTransport.domain.enums import DayOfWeek
 
-from SimplyTransport.domain.schedule.model import StaticSchedule
+from SimplyTransport.domain.schedule.model import StaticScheduleModel
 from SimplyTransport.domain.services.schedule_service import ScheduleService
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 
@@ -111,14 +111,14 @@ async def test_get_schedule_on_stop_for_day_between_times_should_have_equal_stat
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_reverse():
     # Arrange
     mock_schedule_data = [
-        StaticSchedule(
+        StaticScheduleModel(
             stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:01:01")),
             route=AsyncMock(),
             calendar=AsyncMock(),
             stop=AsyncMock(),
             trip=AsyncMock(),
         ),
-        StaticSchedule(
+        StaticScheduleModel(
             stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
             route=AsyncMock(),
             calendar=AsyncMock(),
@@ -146,14 +146,14 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_reverse():
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change():
     # Arrange
     mock_schedule_data = [
-        StaticSchedule(
+        StaticScheduleModel(
             stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
             route=AsyncMock(),
             calendar=AsyncMock(),
             stop=AsyncMock(),
             trip=AsyncMock(),
         ),
-        StaticSchedule(
+        StaticScheduleModel(
             stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:01:01")),
             route=AsyncMock(),
             calendar=AsyncMock(),
@@ -181,14 +181,14 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change():
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change_normal_times():
     # Arrange
     mock_schedule_data = [
-        StaticSchedule(
+        StaticScheduleModel(
             stop_time=StopTimeModel(arrival_time=time.fromisoformat("21:00:00")),
             route=AsyncMock(),
             calendar=AsyncMock(),
             stop=AsyncMock(),
             trip=AsyncMock(),
         ),
-        StaticSchedule(
+        StaticScheduleModel(
             stop_time=StopTimeModel(arrival_time=time.fromisoformat("21:01:01")),
             route=AsyncMock(),
             calendar=AsyncMock(),

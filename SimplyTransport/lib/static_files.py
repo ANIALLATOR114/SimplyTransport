@@ -1,5 +1,5 @@
 from litestar.static_files.config import StaticFilesConfig
-from SimplyTransport.lib.constants import STATIC_DIR, APP_DIR
+from .constants import STATIC_DIR, APP_DIR
 
 
 def CustomStaticFilesConfigs() -> list[StaticFilesConfig]:

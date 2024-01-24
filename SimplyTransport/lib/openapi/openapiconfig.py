@@ -1,6 +1,6 @@
 from litestar.openapi import OpenAPIConfig, OpenAPIController
 from litestar.openapi.spec import Components, SecurityScheme, Tag
-from SimplyTransport.lib import settings
+from .. import settings
 
 
 class MyOpenAPIController(OpenAPIController):

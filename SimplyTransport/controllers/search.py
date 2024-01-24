@@ -3,13 +3,13 @@ import math
 from litestar import Controller, get
 from litestar.response import Template
 from litestar.di import Provide
-from SimplyTransport.domain.stop.repo import StopRepository, provide_stop_repo
-from SimplyTransport.domain.route.repo import RouteRepository, provide_route_repo
+from ..domain.stop.repo import StopRepository, provide_stop_repo
+from ..domain.route.repo import RouteRepository, provide_route_repo
 from advanced_alchemy.filters import LimitOffset
 from litestar.params import Parameter
 from advanced_alchemy import NotFoundError
 
-from SimplyTransport.lib.parameters.pagination_page_numbers import generate_pagination_pages
+from ..lib.parameters.pagination_page_numbers import generate_pagination_pages
 
 __all__ = [
     "SearchController",

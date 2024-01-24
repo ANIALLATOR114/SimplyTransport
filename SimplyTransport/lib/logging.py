@@ -1,4 +1,4 @@
-from SimplyTransport.lib import settings
+from . import settings
 import logging.handlers
 import logging_loki
 from queue import Queue

@@ -1,7 +1,7 @@
 import SimplyTransport.lib.db.database as _db
 from litestar.contrib.sqlalchemy.base import UUIDBase
 from sqlalchemy import MetaData
-from SimplyTransport.lib.db.database import engine
+from .database import engine
 
 
 async def create_database() -> None:

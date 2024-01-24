@@ -2,16 +2,16 @@ import uvicorn
 from litestar import Litestar
 from litestar.di import Provide
 
-from SimplyTransport.controllers import create_api_router, create_views_router
-from SimplyTransport.lib import settings
+from .controllers import create_api_router, create_views_router
+from .lib import settings
 from SimplyTransport.lib.db import services as db_services
-from SimplyTransport.lib.db.database import sqlalchemy_plugin
-from SimplyTransport.lib.openapi.openapiconfig import CustomOpenApiConfig
-from SimplyTransport.lib.template_engine import CustomTemplateConfig
-from SimplyTransport.lib.static_files import CustomStaticFilesConfigs
-from SimplyTransport.lib.cache import cache_config
-from SimplyTransport.cli import CLIPlugin
-from SimplyTransport.lib.parameters.limitoffset import provide_limit_offset_pagination
+from .lib.db.database import sqlalchemy_plugin
+from .lib.openapi.openapiconfig import CustomOpenApiConfig
+from .lib.template_engine import CustomTemplateConfig
+from .lib.static_files import CustomStaticFilesConfigs
+from .lib.cache import cache_config
+from .cli import CLIPlugin
+from .lib.parameters.limitoffset import provide_limit_offset_pagination
 
 
 def create_app() -> Litestar:

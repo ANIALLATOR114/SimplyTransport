@@ -1,13 +1,21 @@
-from SimplyTransport.domain.route.model import RouteModel
-from SimplyTransport.domain.stop_times.model import StopTimeModel
-from SimplyTransport.domain.calendar.model import CalendarModel
-from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
-from SimplyTransport.domain.stop.model import StopModel
-from SimplyTransport.domain.trip.model import TripModel
+from pydantic import BaseModel as _BaseModel
+
+from ..route.model import Route, RouteModel
+from ..stop_times.model import StopTime, StopTimeModel
+from ..calendar.model import CalendarModel
+from ..calendar_dates.model import CalendarDateModel
+from ..stop.model import StopModel
+from ..trip.model import Trip, TripModel
 import datetime as DateTime
 
 
-class StaticSchedule:
+class BaseModel(_BaseModel):
+    """Extend Pydantic's BaseModel to enable ORM mode"""
+
+    model_config = {"from_attributes": True}
+
+
+class StaticScheduleModel:
     def __init__(
         self,
         route: RouteModel,
@@ -36,3 +44,9 @@ class StaticSchedule:
         """This assumes that the exceptions passed are active on the given date"""
 
         return self.calendar.in_exceptions(list_of_exceptions)
+
+
+class StaticSchedule(BaseModel):
+    route: Route
+    stop_time: StopTime
+    trip: Trip

@@ -2,10 +2,10 @@ from datetime import date, time
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from SimplyTransport.domain.calendar_dates.repo import CalendarDateRepository
-from SimplyTransport.domain.enums import DayOfWeek
-from SimplyTransport.domain.schedule.model import StaticSchedule
-from SimplyTransport.domain.schedule.repo import ScheduleRepository
+from ..calendar_dates.repo import CalendarDateRepository
+from ..enums import DayOfWeek
+from ..schedule.model import StaticScheduleModel
+from ..schedule.repo import ScheduleRepository
 
 
 class ScheduleService:
@@ -17,13 +17,13 @@ class ScheduleService:
         self.schedule_repository = schedule_repository
         self.calendar_date_respository = calendar_date_repository
 
-    async def get_schedule_on_stop_for_day(self, stop_id: str, day: DayOfWeek) -> list[StaticSchedule]:
+    async def get_schedule_on_stop_for_day(self, stop_id: str, day: DayOfWeek) -> list[StaticScheduleModel]:
         """Returns a list of schedules for the given stop and day"""
         schedules_from_db = await self.schedule_repository.get_schedule_on_stop_for_day(
             stop_id=stop_id, day=day
         )
         static_schedules = [
-            StaticSchedule(
+            StaticScheduleModel(
                 route=schedule.RouteModel,
                 stop_time=schedule.StopTimeModel,
                 calendar=schedule.CalendarModel,
@@ -37,13 +37,13 @@ class ScheduleService:
 
     async def get_schedule_on_stop_for_day_between_times(
         self, stop_id: str, day: DayOfWeek, start_time: time, end_time: time
-    ) -> list[StaticSchedule]:
+    ) -> list[StaticScheduleModel]:
         """Returns a list of schedules for the given stop and day"""
         schedules_from_db = await self.schedule_repository.get_schedule_on_stop_for_day_between_times(
             stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
         )
         static_schedules = [
-            StaticSchedule(
+            StaticScheduleModel(
                 route=schedule.RouteModel,
                 stop_time=schedule.StopTimeModel,
                 calendar=schedule.CalendarModel,
@@ -56,11 +56,11 @@ class ScheduleService:
         return static_schedules
 
     async def apply_custom_23_00_sorting(
-        self, static_schedules: list[StaticSchedule]
-    ) -> list[StaticSchedule]:
+        self, static_schedules: list[StaticScheduleModel]
+    ) -> list[StaticScheduleModel]:
         """Sorts the schedules by arrival time"""
 
-        def custom_sort_key(static_schedule: StaticSchedule):
+        def custom_sort_key(static_schedule: StaticScheduleModel):
             arrival_time = static_schedule.stop_time.arrival_time
 
             # Handle the exception case where times in the range 00:00 to 02:00 sort after times in the range 23:00 to 23:59
@@ -74,8 +74,8 @@ class ScheduleService:
         return sorted_schedules
 
     async def remove_exceptions_and_inactive_calendars(
-        self, static_schedules: list[StaticSchedule]
-    ) -> list[StaticSchedule]:
+        self, static_schedules: list[StaticScheduleModel]
+    ) -> list[StaticScheduleModel]:
         """Removes exceptions from the list of schedules"""
         current_day = date.today()
         exceptions_from_db = await self.calendar_date_respository.get_removed_exceptions_on_date(
@@ -93,17 +93,19 @@ class ScheduleService:
 
         return static_schedules_filtered
 
-    async def add_in_added_exceptions(self, static_schedules: list[StaticSchedule]) -> list[StaticSchedule]:
+    async def add_in_added_exceptions(
+        self, static_schedules: list[StaticScheduleModel]
+    ) -> list[StaticScheduleModel]:
         """Adds in added exceptions from the list of schedules"""
         pass  # TODO
 
         return static_schedules
 
-    async def get_by_trip_id(self, trip_id: str) -> list[StaticSchedule]:
+    async def get_by_trip_id(self, trip_id: str) -> list[StaticScheduleModel]:
         """Returns a list of schedules for the given trip_id"""
         schedules_from_db = await self.schedule_repository.get_by_trip_id(trip_id=trip_id)
         static_schedules = [
-            StaticSchedule(
+            StaticScheduleModel(
                 route=schedule.RouteModel,
                 stop_time=schedule.StopTimeModel,
                 calendar=schedule.CalendarModel,
