@@ -2,14 +2,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Tuple, List
 from sqlalchemy import Result
 
-from SimplyTransport.domain.realtime.stop_time.repo import RTStopTimeRepository
-from SimplyTransport.domain.realtime.trip.repo import RTTripRepository
-from SimplyTransport.domain.realtime.vehicle.repo import RTVehicleRepository
-from SimplyTransport.domain.realtime.realtime_schedule.repo import RealtimeScheduleRepository
-from SimplyTransport.domain.realtime.realtime_schedule.model import RealTimeSchedule
-from SimplyTransport.domain.schedule.model import StaticSchedule
-from SimplyTransport.domain.realtime.stop_time.model import RTStopTimeModel
-from SimplyTransport.domain.realtime.trip.model import RTTripModel
+from ..realtime.stop_time.repo import RTStopTimeRepository
+from ..realtime.trip.repo import RTTripRepository
+from ..realtime.vehicle.repo import RTVehicleRepository
+from ..realtime.realtime_schedule.repo import RealtimeScheduleRepository
+from ..realtime.realtime_schedule.model import RealTimeSchedule
+from ..schedule.model import StaticSchedule
+from ..realtime.stop_time.model import RTStopTimeModel
+from ..realtime.trip.model import RTTripModel
 
 
 class RealTimeService:

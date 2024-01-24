@@ -2,10 +2,10 @@ from datetime import date, time
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from SimplyTransport.domain.calendar_dates.repo import CalendarDateRepository
-from SimplyTransport.domain.enums import DayOfWeek
-from SimplyTransport.domain.schedule.model import StaticSchedule
-from SimplyTransport.domain.schedule.repo import ScheduleRepository
+from ..calendar_dates.repo import CalendarDateRepository
+from ..enums import DayOfWeek
+from ..schedule.model import StaticSchedule
+from ..schedule.repo import ScheduleRepository
 
 
 class ScheduleService:
