@@ -2,10 +2,10 @@ from unittest.mock import AsyncMock
 
 from datetime import time
 
-from SimplyTransport.domain.realtime.realtime_schedule.model import RealTimeSchedule
+from SimplyTransport.domain.realtime.realtime_schedule.model import RealTimeScheduleModel
 from SimplyTransport.domain.realtime.stop_time.model import RTStopTimeModel
 from SimplyTransport.domain.realtime.trip.model import RTTripModel
-from SimplyTransport.domain.schedule.model import StaticSchedule
+from SimplyTransport.domain.schedule.model import StaticScheduleModel
 from SimplyTransport.domain.services.realtime_service import RealTimeService
 import pytest
 
@@ -16,8 +16,8 @@ from SimplyTransport.domain.stop_times.model import StopTimeModel
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change_normal_times():
     # Arrange
     mock_schedule_data = [
-        RealTimeSchedule(
-            static_schedule=StaticSchedule(
+        RealTimeScheduleModel(
+            static_schedule=StaticScheduleModel(
                 stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
                 route=AsyncMock(),
                 calendar=AsyncMock(),
@@ -25,8 +25,8 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change_no
                 trip=AsyncMock(),
             )
         ),
-        RealTimeSchedule(
-            static_schedule=StaticSchedule(
+        RealTimeScheduleModel(
+            static_schedule=StaticScheduleModel(
                 stop_time=StopTimeModel(arrival_time=time.fromisoformat("00:00:00")),
                 route=AsyncMock(),
                 calendar=AsyncMock(),
@@ -34,8 +34,8 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change_no
                 trip=AsyncMock(),
             )
         ),
-        RealTimeSchedule(
-            static_schedule=StaticSchedule(
+        RealTimeScheduleModel(
+            static_schedule=StaticScheduleModel(
                 stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:00:00")),
                 route=AsyncMock(),
                 calendar=AsyncMock(),
@@ -66,8 +66,8 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_no_change_no
 async def test_apply_custom_23_00_sorting_should_return_sorted_list_backwards():
     # Arrange
     mock_schedule_data = [
-        RealTimeSchedule(
-            static_schedule=StaticSchedule(
+        RealTimeScheduleModel(
+            static_schedule=StaticScheduleModel(
                 stop_time=StopTimeModel(arrival_time=time.fromisoformat("01:00:00")),
                 route=AsyncMock(),
                 calendar=AsyncMock(),
@@ -75,8 +75,8 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_backwards():
                 trip=AsyncMock(),
             )
         ),
-        RealTimeSchedule(
-            static_schedule=StaticSchedule(
+        RealTimeScheduleModel(
+            static_schedule=StaticScheduleModel(
                 stop_time=StopTimeModel(arrival_time=time.fromisoformat("00:00:00")),
                 route=AsyncMock(),
                 calendar=AsyncMock(),
@@ -84,8 +84,8 @@ async def test_apply_custom_23_00_sorting_should_return_sorted_list_backwards():
                 trip=AsyncMock(),
             )
         ),
-        RealTimeSchedule(
-            static_schedule=StaticSchedule(
+        RealTimeScheduleModel(
+            static_schedule=StaticScheduleModel(
                 stop_time=StopTimeModel(arrival_time=time.fromisoformat("23:00:00")),
                 route=AsyncMock(),
                 calendar=AsyncMock(),
