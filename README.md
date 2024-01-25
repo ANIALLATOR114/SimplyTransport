@@ -1,9 +1,9 @@
 [![CI/CD](https://github.com/ANIALLATOR114/SimplyTransport/actions/workflows/tests_on_merge_main.yaml/badge.svg?branch=main)](https://github.com/ANIALLATOR114/SimplyTransport/actions/workflows/tests_on_merge_main.yaml)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ANIALLATOR114_SimplyTransport&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ANIALLATOR114_SimplyTransport)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ANIALLATOR114_SimplyTransport&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=ANIALLATOR114_SimplyTransport)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ANIALLATOR114_SimplyTransport&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=ANIALLATOR114_SimplyTransport)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ANIALLATOR114_SimplyTransport&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ANIALLATOR114_SimplyTransport)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ANIALLATOR114_SimplyTransport&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ANIALLATOR114_SimplyTransport)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=SimplyTransport&metric=coverage)](https://sonarcloud.io/summary/new_code?id=SimplyTransport)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=SimplyTransport&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=SimplyTransport)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=SimplyTransport&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=SimplyTransport)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SimplyTransport&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=SimplyTransport)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=SimplyTransport&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=SimplyTransport)
 
 # 🚌 SimplyTransport
 
