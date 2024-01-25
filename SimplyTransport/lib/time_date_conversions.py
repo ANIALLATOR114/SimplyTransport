@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 import json
 
 
@@ -23,3 +23,14 @@ class DateTimeEncoderForJson(json.JSONEncoder):
         if isinstance(obj, datetime):
             return obj.strftime("%H:%M:%S %d-%m-%Y")
         return super().default(obj)
+
+
+def return_time_difference(start_time: time, end_time: time) -> int:
+    if start_time == end_time:
+        return 0
+
+    difference = (end_time.hour - start_time.hour) % 24
+    if difference > 12:
+        difference = 24 - difference
+
+    return difference
