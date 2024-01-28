@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta, timezone
 import requests
 
+from SimplyTransport.domain.stop.model import StopModel
+
 from .logging import logger
 from .db.database import session
 from . import time_date_conversions as tdc
@@ -81,6 +83,8 @@ class RealTimeImporter:
                 # Foreign key exceptions
                 trips_in_db = session.query(TripModel.id).filter(TripModel.dataset == self.dataset).all()
                 trips_in_db = {trip[0] for trip in trips_in_db}
+                stops_in_db = session.query(StopModel.id).filter(StopModel.dataset == self.dataset).all()
+                stops_in_db = {stop[0] for stop in stops_in_db}
 
                 try:
                     for item in data.get("entity", []):
@@ -98,6 +102,9 @@ class RealTimeImporter:
                         for stop_time in trip_update.get("stop_time_update", []):
                             if stop_time.get("schedule_relationship") == "SKIPPED":
                                 continue  # TODO: Import skipped stops
+
+                            if stop_time.get("stop_id") not in stops_in_db:
+                                continue
 
                             arrival = stop_time.get("arrival", {})
                             departure = stop_time.get("departure", {})
@@ -143,6 +150,8 @@ class RealTimeImporter:
                 # Foreign key exceptions
                 routes_in_db = session.query(RouteModel.id).filter(RouteModel.dataset == self.dataset).all()
                 routes_in_db = {route[0] for route in routes_in_db}
+                trips_in_db = session.query(TripModel.id).filter(TripModel.dataset == self.dataset).all()
+                trips_in_db = {trip[0] for trip in trips_in_db}
 
                 for item in data.get("entity", []):
                     trip_update = item.get("trip_update", {})
@@ -154,6 +163,9 @@ class RealTimeImporter:
 
                     # Foreign key exceptions
                     if trip.get("route_id") not in routes_in_db:
+                        continue
+
+                    if trip.get("trip_id") not in trips_in_db:
                         continue
 
                     new_rt_trip = RTTripModel(
