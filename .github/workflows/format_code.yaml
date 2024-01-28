@@ -3,9 +3,7 @@ name: Format Code
 on:
   pull_request:
     branches: ["*"]
-    types:
-      - opened
-      - synchronize
+    types: [opened, synchronize, reopened]
 
 jobs:
   Run_black:
