@@ -33,12 +33,10 @@ class RealtimeController(Controller):
         schedule_service: ScheduleService,
         realtime_service: RealTimeService,
         stop_id: str,
-        start_time: time
-        | None = Parameter(
+        start_time: time | None = Parameter(
             required=False, description="Start time, defaults to 10 minutes ago\n\nExample: 10:00:00"
         ),
-        end_time: time
-        | None = Parameter(
+        end_time: time | None = Parameter(
             required=False, description="End time, defaults to 60 minutes from now\n\nExample: 11:00:00"
         ),
         day: DayOfWeek | None = Parameter(required=False, description="Day of week, defaults to today"),

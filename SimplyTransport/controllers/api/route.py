@@ -24,8 +24,9 @@ class RouteController(Controller):
     async def get_all_routes(
         self,
         repo: RouteRepository,
-        agency_id: str
-        | None = Parameter(query="agencyId", required=False, description="Optional: Agency ID to filter by"),
+        agency_id: str | None = Parameter(
+            query="agencyId", required=False, description="Optional: Agency ID to filter by"
+        ),
     ) -> list[Route]:
         if agency_id:
             result = await repo.list(agency_id=agency_id)
@@ -44,8 +45,9 @@ class RouteController(Controller):
     async def get_all_routes_and_count(
         self,
         repo: RouteRepository,
-        agency_id: str
-        | None = Parameter(query="agencyId", required=False, description="Optional: Agency ID to filter by"),
+        agency_id: str | None = Parameter(
+            query="agencyId", required=False, description="Optional: Agency ID to filter by"
+        ),
     ) -> RouteWithTotal:
         if agency_id:
             result, total = await repo.list_and_count(agency_id=agency_id)
