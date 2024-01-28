@@ -16,7 +16,9 @@ class RTVehicleModel(BigIntAuditBase):
 
     vehicle_id: Mapped[int] = mapped_column(Integer)
     trip: Mapped["TripModel"] = relationship(back_populates="rt_vehicles")  # noqa: F821
-    trip_id: Mapped[str] = mapped_column(String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True)
+    trip_id: Mapped[str] = mapped_column(
+        String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True
+    )
     time_of_update: Mapped[datetime] = mapped_column(DateTime)
     lat: Mapped[float] = mapped_column(Float)
     lon: Mapped[float] = mapped_column(Float)
