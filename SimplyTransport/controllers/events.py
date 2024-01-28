@@ -19,6 +19,7 @@ __all__ = [
 
 ALL_EVENTS = "all.event.types"
 
+
 class EventsController(Controller):
     dependencies = {
         "event_repo": Provide(provide_event_repo),
