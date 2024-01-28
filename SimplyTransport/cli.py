@@ -20,18 +20,18 @@ from .domain.events.repo import create_event_with_session
 from .domain.events.event_types import EventType
 
 
-def gtfs_directory_validator(dir: str, console: Console):
-    if dir:
-        if os.path.exists(dir) and os.path.isdir(dir):
-            print("Using directory: " + dir)
+def gtfs_directory_validator(directory: str, console: Console):
+    if directory:
+        if os.path.exists(directory) and os.path.isdir(directory):
+            print("Using directory: " + directory)
         else:
-            console.print(f"[red]Error: Directory '{dir}' does not exist.")
+            console.print(f"[red]Error: Directory '{directory}' does not exist.")
             return
     else:
-        dir = "./gtfs_data/TFI/"
-        console.print(f"No directory specified, using default of {dir}")
+        directory = "./gtfs_data/TFI/"
+        console.print(f"No directory specified, using default of {directory}")
 
-    return dir
+    return directory
 
 
 # https://github.com/pallets/click/issues/2033

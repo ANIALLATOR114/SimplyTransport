@@ -4,7 +4,7 @@ from litestar.contrib.jinja import JinjaTemplateEngine
 from .constants import TEMPLATE_DIR, APP_DIR
 
 
-def CustomTemplateConfig() -> TemplateConfig:
+def custom_template_config() -> TemplateConfig:
     return TemplateConfig(
         directory=Path(f"./{APP_DIR}/{TEMPLATE_DIR}"),
         engine=JinjaTemplateEngine,

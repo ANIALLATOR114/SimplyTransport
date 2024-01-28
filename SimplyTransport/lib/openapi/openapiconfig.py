@@ -7,7 +7,7 @@ class MyOpenAPIController(OpenAPIController):
     path = "/docs"
 
 
-def CustomOpenApiConfig() -> OpenAPIConfig:
+def custom_open_api_config() -> OpenAPIConfig:
     return OpenAPIConfig(
         title=settings.app.NAME,
         version=settings.app.VERSION,

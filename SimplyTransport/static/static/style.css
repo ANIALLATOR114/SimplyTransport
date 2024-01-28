@@ -370,9 +370,6 @@ h3 {
 	position: absolute;
 	background-color: var(--line-color);
 	z-index: 1;
-}
-
-.data-updates > div::after {
 	inline-size: 100vw;
 	block-size: var(--line-thickness);
 	inset-inline-start: 0;
