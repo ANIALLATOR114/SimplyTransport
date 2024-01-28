@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta, timezone
 import requests
 
-from SimplyTransport.domain.stop.model import StopModel
-
 from .logging import logger
 from .db.database import session
 from . import time_date_conversions as tdc
@@ -12,6 +10,7 @@ from ..domain.realtime.trip.model import RTTripModel
 from ..domain.route.model import RouteModel
 from ..domain.trip.model import TripModel
 from ..domain.realtime.vehicle.model import RTVehicleModel
+from ..domain.stop.model import StopModel
 
 import rich.progress as rp
 
