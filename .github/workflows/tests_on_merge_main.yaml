@@ -74,3 +74,4 @@ jobs:
           args: -Dsonar.projectKey=SimplyTransport
             -Dsonar.organization=simplytransport
             -Dsonar.python.version=${{ matrix.python-version }}
+            -Dsonar.tests=tests/
