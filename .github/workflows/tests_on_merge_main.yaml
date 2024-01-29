@@ -54,7 +54,7 @@ jobs:
         run: echo "y" | LITESTAR_APP=SimplyTransport.app:create_app litestar importgtfs -dir ./tests/gtfs_test_data/TFI/
 
       - name: Run tests with coverage
-        run: coverage run --branch --source SimplyTransport,tests -m pytest
+        run: coverage run --branch --source SimplyTransport/,tests/ -m pytest
 
       - name: Create coverage reports
         run: coverage html --show-contexts && coverage xml
