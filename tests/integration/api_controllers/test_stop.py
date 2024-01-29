@@ -12,8 +12,8 @@ def test_get_stop_by_id(client: TestClient) -> None:
     assert response_json["code"] == "324"
     assert response_json["name"] == "Harristown"
     assert response_json["description"] == ""
-    assert math.isclose(response_json[0]["lat"], 53.41772268, abs_tol=1e-09)
-    assert math.isclose(response_json[0]["lon"], -6.278644169, abs_tol=1e-09)
+    assert math.isclose(response_json["lat"], 53.41772268, abs_tol=1e-09)
+    assert math.isclose(response_json["lon"], -6.278644169, abs_tol=1e-09)
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
     assert response_json["location_type"] is None
@@ -28,8 +28,8 @@ def test_get_stop_by_id(client: TestClient) -> None:
     assert response_json["code"] == "7132"
     assert response_json["name"] == "Charlestown SC"
     assert response_json["description"] == ""
-    assert math.isclose(response_json[0]["lat"], 53.40308897, abs_tol=1e-09)
-    assert math.isclose(response_json[0]["lon"], -6.304306560, abs_tol=1e-09)
+    assert math.isclose(response_json["lat"], 53.40308897, abs_tol=1e-09)
+    assert math.isclose(response_json["lon"], -6.304306560, abs_tol=1e-09)
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
     assert response_json["location_type"] is None
@@ -53,8 +53,8 @@ def test_get_stop_by_code(client: TestClient) -> None:
     assert response_json["code"] == "324"
     assert response_json["name"] == "Harristown"
     assert response_json["description"] == ""
-    assert math.isclose(response_json[0]["lat"], 53.41772268, abs_tol=1e-09)
-    assert math.isclose(response_json[0]["lon"], -6.278644169, abs_tol=1e-09)
+    assert math.isclose(response_json["lat"], 53.41772268, abs_tol=1e-09)
+    assert math.isclose(response_json["lon"], -6.278644169, abs_tol=1e-09)
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
     assert response_json["location_type"] is None
@@ -69,8 +69,8 @@ def test_get_stop_by_code(client: TestClient) -> None:
     assert response_json["code"] == "7132"
     assert response_json["name"] == "Charlestown SC"
     assert response_json["description"] == ""
-    assert math.isclose(response_json[0]["lat"], 53.40308897, abs_tol=1e-09)
-    assert math.isclose(response_json[0]["lon"], -6.304306560, abs_tol=1e-09)
+    assert math.isclose(response_json["lat"], 53.40308897, abs_tol=1e-09)
+    assert math.isclose(response_json["lon"], -6.304306560, abs_tol=1e-09)
     assert response_json["zone_id"] == ""
     assert response_json["url"] == ""
     assert response_json["location_type"] is None
