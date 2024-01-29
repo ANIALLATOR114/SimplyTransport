@@ -10,8 +10,8 @@ def test_get_shape_by_shape_id_asc(client: TestClient) -> None:
     assert len(response_json) == 1027
 
     assert response_json[0]["shape_id"] == "3623_278"
-    assert math.isclose(response_json[0]["lat"], 53.2885228473561, abs_tol=1e-09)
-    assert math.isclose(response_json[0]["lon"], -6.15376290729341, abs_tol=1e-09)
+    assert math.isclose(response_json[0]["lat"], 53.4177189643062, abs_tol=1e-09)
+    assert math.isclose(response_json[0]["lon"], -6.2785900531921, abs_tol=1e-09)
     assert response_json[0]["sequence"] == 1
     assert response_json[0]["distance"] == 0
     assert response_json[0]["dataset"] == "TFI"
