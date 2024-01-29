@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from .model import StopModel
@@ -20,7 +22,9 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
 
         return await self.get_one(code=code)
 
-    async def list_by_name_or_code(self, search: str, limit_offset: LimitOffset) -> list[StopModel]:
+    async def list_by_name_or_code(
+        self, search: str, limit_offset: LimitOffset
+    ) -> Tuple[List[StopModel], int]:
         """List stops that start with name/code."""
 
         results, total = await self.list_and_count(

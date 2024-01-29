@@ -27,7 +27,7 @@
             <div class="flex-separate table-search-top-text-pad">
                 <span class="dense-text">Showing <span class="word-highlight">{{ start_time_difference }}</span> and <span class="word-highlight">+{{ end_time_difference }}</span> mins</span><span class="code-highlight">{{ current_time.strftime("%H:%M:%S") }}</span>
             </div>
-            <table class="table-search">
+            <table class="table-search" aria-label="Realtime">
                 <thead>
                     <tr>
                         <th class="dense-text">Route</th>
@@ -96,7 +96,8 @@
             </div>
             <div id="schedule-table">
                 <h3 class="h3-table">Day: {{ day_string }}</h3>
-                <table class="table-search no-stripe table-sortable">
+                <table class="table-search no-stripe table-sortable"
+                       aria-label="Trips at stop">
                     <thead class="hoverable">
                         <tr>
                             <th class="dense-text">Route</th>

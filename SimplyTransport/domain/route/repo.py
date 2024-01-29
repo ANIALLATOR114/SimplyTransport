@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -14,7 +16,7 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
 
     async def list_by_short_name_or_long_name(
         self, search: str, limit_offset: LimitOffset
-    ) -> list[RouteModel]:
+    ) -> Tuple[List[RouteModel], int]:
         """List stops that start with name/code."""
 
         results, total = await self.list_and_count(

@@ -17,6 +17,8 @@ __all__ = [
     "EventsController",
 ]
 
+ALL_EVENTS = "all.event.types"
+
 
 class EventsController(Controller):
     dependencies = {
@@ -26,7 +28,7 @@ class EventsController(Controller):
     @get("/")
     async def root(self) -> Template:
         event_types = [event_type.value for event_type in EventType.__members__.values()]
-        event_types.insert(0, "all.event.types")
+        event_types.insert(0, ALL_EVENTS)
 
         return Template(template_name="events/events_main.html", context={"event_types": event_types})
 
@@ -43,8 +45,8 @@ class EventsController(Controller):
         if sort is None:
             sort = "desc"
 
-        if type is None or type == "all.event.types":
-            type = "all.event.types"
+        if type is None or type == ALL_EVENTS:
+            type = ALL_EVENTS
             try:
                 events, total = await event_repo.get_paginated_events(limit_offset=limit_offset, order=sort)
             except NotFoundError:
