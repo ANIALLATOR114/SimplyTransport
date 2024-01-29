@@ -58,7 +58,7 @@ jobs:
         run: coverage run -m pytest
 
       - name: Create coverage reports
-        run: coverage html --show-contexts && coverage xml --show-contexts
+        run: coverage html --show-contexts && coverage xml
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
