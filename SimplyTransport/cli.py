@@ -16,8 +16,9 @@ import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.db import services as db_services
 from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter
 from .lib.stop_features_importer import StopFeaturesImporter
-from .domain.events.repo import create_event_with_session
+from .domain.events.repo import create_event_with_session, provide_event_repo
 from .domain.events.event_types import EventType
+from .lib.db.database import async_session_factory
 
 
 def gtfs_directory_validator(directory: str, console: Console):
@@ -444,5 +445,34 @@ class CLIPlugin(CLIPluginProtocol):
             db_services.recreate_indexes(table)
 
             finish = time.perf_counter()
-
             console.print(f"\n[blue]Finished recreating indexes in {round(finish-start, 2)} second(s)")
+
+        @cli.command(name="cleanupevents", help="Cleans up expired events from the database")
+        @click.option("-event", help="Cleanup just a specific event type")
+        @make_sync
+        async def cleanupevents(event: str):
+            """Cleans up expired events from the database"""
+
+            start: float = time.perf_counter()
+            console = Console()
+            console.print("Cleaning up events...")
+            number_deleted = 0
+
+            try:
+                event = EventType(event)
+            except ValueError:
+                console.print(f"[red]Error: Event type '{event}' does not exist.")
+                return
+
+            async with async_session_factory() as session:
+                event_repo = await provide_event_repo(session)
+                if event:
+                    console.print(f"\nCleaning up just event type: {event}")
+                    number_deleted = await event_repo.cleanup_events(event_type=event)
+                else:
+                    console.print("\nCleaning up all events")
+                    number_deleted = await event_repo.cleanup_events()
+
+            finish: float = time.perf_counter()
+            console.print(f"\n[blue]Deleted {number_deleted} events")
+            console.print(f"\n[blue]Finished cleanup in {round(finish-start, 2)} second(s)")
