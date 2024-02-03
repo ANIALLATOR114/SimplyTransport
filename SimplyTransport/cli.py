@@ -450,20 +450,21 @@ class CLIPlugin(CLIPluginProtocol):
         @cli.command(name="cleanupevents", help="Cleans up expired events from the database")
         @click.option("-event", help="Cleanup just a specific event type")
         @make_sync
-        async def cleanupevents(event: str):
+        async def cleanupevents(event: str = None):
             """Cleans up expired events from the database"""
 
             start: float = time.perf_counter()
             console = Console()
             console.print("Cleaning up events...")
+            
+            if event:
+                try:
+                    event = EventType(event)
+                except ValueError:
+                    console.print(f"[red]Error: Event type '{event}' does not exist.")
+                    return
+                
             number_deleted = 0
-
-            try:
-                event = EventType(event)
-            except ValueError:
-                console.print(f"[red]Error: Event type '{event}' does not exist.")
-                return
-
             async with async_session_factory() as session:
                 event_repo = await provide_event_repo(session)
                 if event:
