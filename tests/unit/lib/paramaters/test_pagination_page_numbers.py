@@ -1,6 +1,7 @@
 import pytest
 from SimplyTransport.lib.parameters.pagination_page_numbers import generate_pagination_pages
 
+
 @pytest.mark.parametrize(
     "current_page, total_pages, expected",
     [

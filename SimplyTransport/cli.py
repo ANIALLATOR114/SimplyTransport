@@ -447,7 +447,6 @@ class CLIPlugin(CLIPluginProtocol):
             finish = time.perf_counter()
             console.print(f"\n[blue]Finished recreating indexes in {round(finish-start, 2)} second(s)")
 
-
         @cli.command(name="cleanupevents", help="Cleans up expired events from the database")
         @click.option("-event", help="Cleanup just a specific event type")
         @make_sync
