@@ -58,7 +58,7 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
             raise NotFoundError()
         return results, total
 
-    async def cleanup_events(self, event_type: EventType | None) -> int:
+    async def cleanup_events(self, event_type: EventType = None) -> int:
         """Cleanup events that have expired. If event_type is provided, only cleanup events of that type."""
 
         if event_type:
