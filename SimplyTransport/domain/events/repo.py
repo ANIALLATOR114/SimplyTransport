@@ -57,6 +57,21 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
         if total == 0:
             raise NotFoundError()
         return results, total
+    
+    async def cleanup_events(self, event_type: EventType | None) -> int:
+        """Cleanup events that have expired. If event_type is provided, only cleanup events of that type."""
+
+        if event_type:
+            events_to_delete = await self.list(EventModel.event_type == event_type, EventModel.expiry_time < datetime.now(tz=UTC))
+            total_events_deleted = len(events_to_delete)
+            await self.delete_many([event.id for event in events_to_delete])
+        else:
+            events_to_delete = await self.list(EventModel.expiry_time < datetime.now(tz=UTC))
+            total_events_deleted = len(events_to_delete)
+            await self.delete_many([event.id for event in events_to_delete])
+        await self.session.commit()
+
+        return total_events_deleted
 
     model_type = EventModel
 

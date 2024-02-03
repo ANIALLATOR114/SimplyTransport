@@ -1,4 +1,15 @@
 def generate_pagination_pages(current_page: int, total_pages: int) -> list[int]:
+    """
+    Generate a list of pagination page numbers based on the current page and total number of pages.
+
+    Args:
+        current_page (int): The current page number.
+        total_pages (int): The total number of pages.
+
+    Returns:
+        list[int]: A list of pagination page numbers.
+
+    """
     if total_pages <= 5:
         return list(range(1, total_pages + 1))
     else:
