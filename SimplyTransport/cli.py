@@ -456,14 +456,14 @@ class CLIPlugin(CLIPluginProtocol):
             start: float = time.perf_counter()
             console = Console()
             console.print("Cleaning up events...")
-            
+
             if event:
                 try:
                     event = EventType(event)
                 except ValueError:
                     console.print(f"[red]Error: Event type '{event}' does not exist.")
                     return
-                
+
             number_deleted = 0
             async with async_session_factory() as session:
                 event_repo = await provide_event_repo(session)
