@@ -29,7 +29,7 @@ def create_app() -> Litestar:
             "limit_offset": Provide(provide_limit_offset_pagination),
         },
         response_cache_config=cache_config,
-        exception_handlers={404: exception_handlers.handle_404}
+        exception_handlers={404: exception_handlers.handle_404},
     )
 
 

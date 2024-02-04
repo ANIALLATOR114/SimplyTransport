@@ -2,6 +2,8 @@ import pytest
 from litestar.testing import TestClient
 
 urls = ["/", "/events/", "/stops/", "/routes/", "/apidocs", "/about"]
+
+
 @pytest.mark.parametrize("url", urls)
 def test_url_200(client: TestClient, url: str) -> None:
     response = client.get(url)
@@ -10,6 +12,8 @@ def test_url_200(client: TestClient, url: str) -> None:
 
 
 exception_urls = ["/exception"]
+
+
 @pytest.mark.parametrize("url", exception_urls)
 def test_url_500(client: TestClient, url: str) -> None:
     response = client.get(url)

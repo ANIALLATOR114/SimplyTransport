@@ -11,17 +11,19 @@ def check_if_website(request: Request) -> bool:
 def handle_404(_: Request, exc: HTTPException) -> Response | Template:
     if check_if_website(_):
         return Template(
-                template_name="errors/404.html",
-                status_code=exc.status_code,
-                context={},
-            )
+            template_name="errors/404.html",
+            status_code=exc.status_code,
+            context={},
+        )
     else:
-        return Response(status_code=404, 
+        return Response(
+            status_code=404,
             content={
-            "path": _.url.path,
-            "detail": "Not Found",
-            "status_code": exc.status_code,
-        },)
+                "path": _.url.path,
+                "detail": "Not Found",
+                "status_code": exc.status_code,
+            },
+        )
 
 
 def website_exception_handler(_: Request, exc: HTTPException) -> Template:
