@@ -2,6 +2,9 @@ import pytest
 from litestar.testing import AsyncTestClient, TestClient
 from collections import abc
 from litestar import Litestar
+import click
+from click.testing import CliRunner
+from SimplyTransport.cli import CLIPlugin
 
 
 @pytest.fixture(scope="session")
@@ -37,3 +40,16 @@ def client(app: Litestar) -> abc.Iterator[TestClient]:
     """
     with TestClient(app=app) as c:
         yield c
+
+
+@pytest.fixture(scope="session")
+def cli_runner() -> CliRunner:
+    return CliRunner()
+
+
+@pytest.fixture(scope="session")
+def cli_group() -> click.Group:
+    cli = CLIPlugin()
+    group = click.Group()
+    cli.on_cli_init(group)
+    return group

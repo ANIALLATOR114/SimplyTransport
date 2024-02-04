@@ -423,7 +423,7 @@ class CLIPlugin(CLIPluginProtocol):
 
         @cli.command(name="recreate_indexes", help="Recreates the indexes on a given table")
         @click.option("-table", help="The table to recreate the indexes on")
-        def recreate_indexes(table: str):
+        def recreate_indexes(table: str = None):
             """Recreates the indexes on a given table"""
 
             console = Console()
@@ -432,6 +432,17 @@ class CLIPlugin(CLIPluginProtocol):
                 console.print("[yellow]No table specified to recreate indexes on from the -table argument")
                 response = click.prompt(
                     "\nYou are about to recreate indexes on all tables. Press 'y' to continue, anything else to abort: ",
+                    type=str,
+                    default="",
+                    show_default=False,
+                )
+                if response != "y":
+                    console.print("[red]Aborting recreate indexes...")
+                    return
+            else:
+                console.print(f"Recreating indexes on table {table}")
+                response = click.prompt(
+                    f"\nYou are about to recreate indexes on table {table}. Press 'y' to continue, anything else to abort: ",
                     type=str,
                     default="",
                     show_default=False,
