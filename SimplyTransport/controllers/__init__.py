@@ -1,4 +1,8 @@
 from litestar import Router
+from litestar.exceptions import HTTPException
+
+from SimplyTransport.lib import exception_handlers
+from SimplyTransport.lib import settings
 
 from . import root, search, realtime, events
 from .api import (
@@ -43,6 +47,13 @@ def create_views_router() -> Router:
         include_in_schema=False,
     )
 
+    handler = {}
+    # If in debug, wont catch code errors and will show the stack trace
+    if settings.app.DEBUG:
+        handler={HTTPException: exception_handlers.website_exception_handler}
+    else:
+        handler={500: exception_handlers.website_exception_handler}
+
     return Router(
         path="/",
         route_handlers=[
@@ -51,6 +62,7 @@ def create_views_router() -> Router:
             realtime_route_handler,
             events_route_handler,
         ],
+        exception_handlers = handler,
     )
 
 

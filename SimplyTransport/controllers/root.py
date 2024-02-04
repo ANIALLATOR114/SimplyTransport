@@ -1,6 +1,6 @@
 from asyncio import gather
 
-from litestar import Controller, get
+from litestar import Controller, Response, get
 from litestar.response import Template
 from litestar.di import Provide
 from advanced_alchemy.filters import LimitOffset
@@ -9,6 +9,7 @@ from advanced_alchemy import NotFoundError
 from ..domain.events.repo import EventRepository, provide_event_repo
 from ..domain.events.event_types import EventType
 from ..domain.events.model import EventModel
+from litestar.exceptions import HTTPException
 
 
 __all__ = [
@@ -51,7 +52,6 @@ class RootController(Controller):
             get_single_pretty_event_by_type(event_repo, EventType.REALTIME_VEHICLES_DATABASE_UPDATED),
             get_single_pretty_event_by_type(event_repo, EventType.STOP_FEATURES_DATABASE_UPDATED),
         )
-
         return Template(
             template_name="index.html",
             context={
@@ -73,6 +73,11 @@ class RootController(Controller):
     @get("/healthcheck")
     async def healthcheck(self) -> str:
         return "OK"
+    
+    @get("/exception")
+    async def exception(self) -> Response:
+        1/0
+        raise HTTPException(status_code=500, detail="Test exception")
 
     @get("/stops")
     async def stop(self) -> Template:

@@ -2,6 +2,8 @@ import uvicorn
 from litestar import Litestar
 from litestar.di import Provide
 
+from SimplyTransport.lib import exception_handlers
+
 from .controllers import create_api_router, create_views_router
 from .lib import settings
 from SimplyTransport.lib.db import services as db_services
@@ -27,6 +29,7 @@ def create_app() -> Litestar:
             "limit_offset": Provide(provide_limit_offset_pagination),
         },
         response_cache_config=cache_config,
+        exception_handlers={404: exception_handlers.handle_404}
     )
 
 

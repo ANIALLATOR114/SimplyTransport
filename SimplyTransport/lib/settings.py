@@ -5,8 +5,6 @@ from pydantic import field_validator, ValidationInfo
 class AppSettings(BaseSettings):
     """Settings class for environment variables."""
 
-    model_config = SettingsConfigDict(env_file=(".env"))
-
     DEBUG: bool = False
     ENVIRONMENT: str = "DEV"
     NAME: str = "SimplyTransport"
@@ -52,6 +50,8 @@ class AppSettings(BaseSettings):
     def set_log_level(cls, v: str, values: ValidationInfo):
         # Sets the log level to DEBUG if in DEV else INFO
         return "DEBUG" if values.data.get("ENVIRONMENT") == "DEV" else "INFO"
+    
+    model_config = SettingsConfigDict(env_file=(".env"))
 
 
 app = AppSettings()
