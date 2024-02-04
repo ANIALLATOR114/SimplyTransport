@@ -73,10 +73,10 @@ class RootController(Controller):
     @get("/healthcheck")
     async def healthcheck(self) -> str:
         return "OK"
-    
+
     @get("/exception")
     async def exception(self) -> Response:
-        1/0
+        1 / 0
         raise HTTPException(status_code=500, detail="Test exception")
 
     @get("/stops")

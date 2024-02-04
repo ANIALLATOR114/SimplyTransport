@@ -50,9 +50,9 @@ def create_views_router() -> Router:
     handler = {}
     # If in debug, wont catch code errors and will show the stack trace
     if settings.app.DEBUG:
-        handler={HTTPException: exception_handlers.website_exception_handler}
+        handler = {HTTPException: exception_handlers.website_exception_handler}
     else:
-        handler={500: exception_handlers.website_exception_handler}
+        handler = {500: exception_handlers.website_exception_handler}
 
     return Router(
         path="/",
@@ -62,7 +62,7 @@ def create_views_router() -> Router:
             realtime_route_handler,
             events_route_handler,
         ],
-        exception_handlers = handler,
+        exception_handlers=handler,
     )
 
 

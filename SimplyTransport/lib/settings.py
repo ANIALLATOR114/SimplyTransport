@@ -50,7 +50,7 @@ class AppSettings(BaseSettings):
     def set_log_level(cls, v: str, values: ValidationInfo):
         # Sets the log level to DEBUG if in DEV else INFO
         return "DEBUG" if values.data.get("ENVIRONMENT") == "DEV" else "INFO"
-    
+
     model_config = SettingsConfigDict(env_file=(".env"))
 
 
