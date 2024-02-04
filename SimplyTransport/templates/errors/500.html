@@ -4,7 +4,9 @@
     }} - 500 Error
 {% endblock title %}
 {% block content %}
-    <h1>500 Errors</h1>
-    <p class="dense-text">Something went wrong here, you may have found a bug!</p>
-    {% if message %}<p class="dense-text">{{ message }}</p>{% endif %}
+    <div class="narrow-container">
+        <h1>500 Error</h1>
+        <p class="dense-text">Something went wrong here, you may have found a bug!</p>
+        {% if message %}<p class="dense-text">{{ message }}</p>{% endif %}
+    </div>
 {% endblock content %}

@@ -4,10 +4,12 @@
     }} - 404 Not Found
 {% endblock title %}
 {% block content %}
-    <h1>404 Not Found</h1>
-    <p class="dense-text">
-        The requested URL was not found on the server.
-        If you entered the URL manually please check your spelling and try again.
-    </p>
-    {% if message %}<p class="dense-text">{{ message }}</p>{% endif %}
+    <div class="narrow-container">
+        <h1>404 Not Found</h1>
+        <p class="dense-text">
+            The requested URL was not found on the server.
+            If you entered the URL manually please check your spelling and try again.
+        </p>
+        {% if message %}<p class="dense-text">{{ message }}</p>{% endif %}
+    </div>
 {% endblock content %}
