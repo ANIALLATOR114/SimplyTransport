@@ -8,7 +8,6 @@ def test_api_404_handler(client: TestClient, url:str) -> None:
     assert response.status_code == 404
     response_json = response.json()
     assert response_json["path"] == url
-    assert response_json["detail"] == "Not Found"
     assert response.elapsed.total_seconds() < 1
 
 

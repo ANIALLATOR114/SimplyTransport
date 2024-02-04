@@ -19,7 +19,7 @@ def handle_404(_: Request, exc: HTTPException) -> Response | Template:
         return Response(status_code=404, 
             content={
             "path": _.url.path,
-            "detail": "Not Found",
+            "detail": exc.detail,
             "status_code": exc.status_code,
         },)
 
