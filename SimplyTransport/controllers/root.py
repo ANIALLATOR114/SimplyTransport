@@ -13,6 +13,7 @@ __all__ = [
     "RootController",
 ]
 
+
 class RootController(Controller):
     dependencies = {
         "event_repo": Provide(provide_event_repo),
@@ -23,11 +24,17 @@ class RootController(Controller):
         self,
         event_repo: EventRepository,
     ) -> Template:
-        
+
         gtfs_updated_event = await event_repo.get_single_pretty_event_by_type(EventType.GTFS_DATABASE_UPDATED)
-        realtime_updated_event = await event_repo.get_single_pretty_event_by_type(EventType.REALTIME_DATABASE_UPDATED)
-        vehicles_updated_event = await event_repo.get_single_pretty_event_by_type(EventType.REALTIME_VEHICLES_DATABASE_UPDATED)
-        stop_features_updated_event = await event_repo.get_single_pretty_event_by_type(EventType.STOP_FEATURES_DATABASE_UPDATED)
+        realtime_updated_event = await event_repo.get_single_pretty_event_by_type(
+            EventType.REALTIME_DATABASE_UPDATED
+        )
+        vehicles_updated_event = await event_repo.get_single_pretty_event_by_type(
+            EventType.REALTIME_VEHICLES_DATABASE_UPDATED
+        )
+        stop_features_updated_event = await event_repo.get_single_pretty_event_by_type(
+            EventType.STOP_FEATURES_DATABASE_UPDATED
+        )
 
         return Template(
             template_name="index.html",
