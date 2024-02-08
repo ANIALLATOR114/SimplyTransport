@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-engine = create_engine(settings.app.DB_URL_SYNC, echo=settings.app.DB_ECHO)
+engine = create_engine(settings.app.DB_URL_SYNC, echo=settings.app.DB_ECHO, pool_pre_ping=True)
 session = Session(engine)
 
 
@@ -19,6 +19,7 @@ session = Session(engine)
 async_engine = create_async_engine(
     settings.app.DB_URL,
     echo=settings.app.DB_ECHO,
+    pool_pre_ping=True,
 )
 
 session_config = AsyncSessionConfig(expire_on_commit=False)

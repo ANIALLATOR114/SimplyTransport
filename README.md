@@ -4,6 +4,7 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=SimplyTransport&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=SimplyTransport)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SimplyTransport&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=SimplyTransport)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=SimplyTransport&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=SimplyTransport)
+[![Better Stack Badge](https://uptime.betterstack.com/status-badges/v1/monitor/10yqf.svg)](https://uptime.betterstack.com/?utm_source=status_badge)
 
 # 🚌 SimplyTransport
 

@@ -47,6 +47,17 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
             raise NotFoundError()
 
         return results, total
+    
+    async def get_single_pretty_event_by_type(self, event_type: EventType) -> EventModel | None:
+        try:
+            events = await self.get_paginated_events_by_type(
+                event_type=event_type, limit_offset=LimitOffset(limit=1, offset=0)
+            )
+        except NotFoundError:
+            return None
+        else:
+            event = events[0][0]
+            return event.add_pretty_created_at()
 
     async def get_paginated_events(
         self, limit_offset: LimitOffset, order="desc"
