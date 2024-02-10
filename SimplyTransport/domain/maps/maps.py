@@ -2,6 +2,7 @@ import folium as fl
 import folium.plugins as flp
 from pathlib import Path
 
+
 class Map:
     def __init__(
         self,
