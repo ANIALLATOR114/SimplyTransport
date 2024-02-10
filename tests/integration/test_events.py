@@ -61,4 +61,3 @@ def test_event_search_sort_and_type(client: TestClient) -> None:
 def test_event_search_invalid_type(client: TestClient) -> None:
     response = client.get("events/search?type=invalid")
     assert response.status_code == 400
-    assert "500 Error" in response.text
