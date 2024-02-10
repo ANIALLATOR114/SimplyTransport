@@ -11,13 +11,16 @@ def test_events_200(client: TestClient) -> None:
     assert "Events are records of things that have happened in the system" in response.text
 
 
-@pytest.mark.parametrize("value", [
-    '<select class="dropdown" name="pageSize">',
-    '<option value="10">PageSize : 10</option>',
-    '<option value="20">20</option>',
-    '<option value="50">50</option>',
-    '<option value="100">100</option>'
-])
+@pytest.mark.parametrize(
+    "value",
+    [
+        '<select class="dropdown" name="pageSize">',
+        '<option value="10">PageSize : 10</option>',
+        '<option value="20">20</option>',
+        '<option value="50">50</option>',
+        '<option value="100">100</option>',
+    ],
+)
 def test_events_with_pagesizes(client: TestClient, value):
     response = client.get("events")
     assert response.status_code == 200
