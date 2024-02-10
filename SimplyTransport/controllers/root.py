@@ -65,7 +65,6 @@ class RootController(Controller):
 
     @get("/exception")
     async def exception(self) -> Response:
-        1 / 0
         raise HTTPException(status_code=500, detail="Test exception")
 
     @get("/stops")
