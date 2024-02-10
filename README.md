@@ -17,6 +17,7 @@
 - [About](#about)
 - [API Docs](#api-documentation)
 - [Web Interface](#web-interface)
+  - [Maps](#maps)
 - [CLI Interface](#cli-interface)
 - [Contributing](CONTRIBUTING.md)
 
@@ -94,6 +95,16 @@ The static schedules can be updated as often as desired but typically a nightly 
   - [x] Stops
   - [x] Routes
 - [ ] Maps
+
+### Maps
+
+Map are implemented using Folium and rendered on the server side. The maps are then served to the client as part of the web page.
+These are currently WIP but an example of a map can be seen on [simplytransport.ie/test/map](http://simplytransport.ie/test/map)
+
+- [ ] Maps on route pages
+- [ ] Maps on stop pages
+- [ ] Aggregation of stops
+- [ ] Aggregation of routes
 
 ## CLI Interface
 
