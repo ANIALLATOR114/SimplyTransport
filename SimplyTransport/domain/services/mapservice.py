@@ -2,8 +2,15 @@ import folium as fl
 import folium.plugins as flp
 from pathlib import Path
 
+
 class MapService:
-    def __init__(self, lat :float = 53.44928237017178, lon: float = -7.514413484752406, zoom :int = 8, max_zoom:int = 20) -> None:
+    def __init__(
+        self,
+        lat: float = 53.44928237017178,
+        lon: float = -7.514413484752406,
+        zoom: int = 8,
+        max_zoom: int = 20,
+    ) -> None:
         """
         Initializes a Map object with the specified latitude, longitude, and zoom level.
 
@@ -16,7 +23,6 @@ class MapService:
         self.map = fl.Map(location=location, zoom_start=zoom, prefer_canvas=True, max_zoom=max_zoom)
         self.max_zoom = max_zoom
 
-
     def add_fullscreen(self) -> None:
         """
         Adds a fullscreen button to the map.
@@ -24,7 +30,6 @@ class MapService:
         :return: None
         """
         flp.Fullscreen(force_separate_button=True).add_to(self.map)
-
 
     def add_mouse_position(self) -> None:
         """
@@ -36,8 +41,9 @@ class MapService:
         """
         flp.MousePosition().add_to(self.map)
 
-
-    def add_tilelayer(self, name: str = "Detailed", tiles: str = "OpenStreetMap", max_zoom: int = None) -> None:
+    def add_tilelayer(
+        self, name: str = "Detailed", tiles: str = "OpenStreetMap", max_zoom: int = None
+    ) -> None:
         """
         Adds a tile layer to the map.
 
@@ -53,7 +59,6 @@ class MapService:
             max_zoom = self.max_zoom
         fl.TileLayer(tiles, name=name, max_zoom=max_zoom).add_to(self.map)
 
-
     def setup_defaults(self) -> None:
         """
         Sets up the default settings for the map service.
@@ -65,7 +70,6 @@ class MapService:
         self.add_mouse_position()
         self.add_tilelayer()
 
-
     def render(self) -> str:
         """
         Renders the map and returns it as an HTML string.
@@ -75,8 +79,7 @@ class MapService:
         """
         return self.map._repr_html_()
 
-
-    def save(self, path:str, filename:str) -> None:
+    def save(self, path: str, filename: str) -> None:
         """
         Save the map as an HTML file.
 
@@ -89,5 +92,5 @@ class MapService:
         """
         check_if_file_exists = Path(path + filename + ".html")
         check_if_file_exists.touch(exist_ok=True)
-        
+
         self.map.save(path + filename + ".html")

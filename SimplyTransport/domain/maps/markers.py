@@ -116,17 +116,11 @@ class StopMarker:
         - None
         """
         if self.color is not None:
-            self.icon = fl.Icon(
-                color=self.color.value, icon="fa-chevron-circle-down", prefix="fa"
-            )
+            self.icon = fl.Icon(color=self.color.value, icon="fa-chevron-circle-down", prefix="fa")
         else:
-            self.icon = fl.Icon(
-                color="blue", icon="fa-chevron-circle-down", prefix="fa"
-            )
+            self.icon = fl.Icon(color="blue", icon="fa-chevron-circle-down", prefix="fa")
 
-    def add_to(
-        self, map: fl.Map, type_of_marker: str = "regular", radius: float = 9
-    ) -> None:
+    def add_to(self, map: fl.Map, type_of_marker: str = "regular", radius: float = 9) -> None:
         """
         Adds a marker to the given map.
 
@@ -252,6 +246,4 @@ class BusMarker:
         Returns:
         None
         """
-        fl.Marker(
-            [self.lat, self.lon], tooltip=self.tooltip, popup=self.popup, icon=self.icon
-        ).add_to(map)
+        fl.Marker([self.lat, self.lon], tooltip=self.tooltip, popup=self.popup, icon=self.icon).add_to(map)
