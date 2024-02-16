@@ -49,7 +49,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             .where(TripModel.route_id == route_id)
             .distinct(StopModel.id)
         )
-    
+
     async def get_stops_by_route_ids(self, route_ids: list[str], direction: int) -> list[StopModel]:
         """Get stops by route_ids."""
 
@@ -62,11 +62,10 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             .where(TripModel.route_id.in_(route_ids))
             .distinct(StopModel.id)
         )
-    
 
-    async def get_direction_of_stop(self, stop_id:str) -> int:
+    async def get_direction_of_stop(self, stop_id: str) -> int:
         """Get the direction of a stop."""
-        
+
         result = await self._execute(
             statement=select(TripModel.direction)
             .join(StopTimeModel, StopTimeModel.trip_id == TripModel.id)

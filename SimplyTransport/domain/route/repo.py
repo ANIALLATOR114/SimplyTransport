@@ -36,14 +36,13 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
         return await self.list(
             RouteModel.trips.any(TripModel.stop_times.any(StopTimeModel.stop_id == stop_id))
         )
-    
+
     async def get_routes_by_stop_id_with_agency(self, stop_id: str) -> List[RouteModel]:
         """Get routes by stop_id with agency."""
 
         return await self.list(
             RouteModel.trips.any(TripModel.stop_times.any(StopTimeModel.stop_id == stop_id)),
-            statement=select(RouteModel)
-            .options(joinedload(RouteModel.agency)),
+            statement=select(RouteModel).options(joinedload(RouteModel.agency)),
         )
 
     async def get_by_id_with_agency(self, id: str) -> RouteModel:

@@ -28,52 +28,52 @@ class MapService:
         self.trip_repository = trip_repository
 
     async def generate_stop_map(self, stop_id: str) -> Map:
-            """
-            Generates a map with a stop marker and route polylines for a given stop ID.
+        """
+        Generates a map with a stop marker and route polylines for a given stop ID.
 
-            Args:
-                stop_id (str): The ID of the stop.
+        Args:
+            stop_id (str): The ID of the stop.
 
-            Returns:
-                Map: The generated map object.
-            """
-            
-            stop = await self.stop_repository.get_by_id_with_stop_feature(stop_id)
-            direction = await self.stop_repository.get_direction_of_stop(stop_id)
-            routes = await self.route_repository.get_routes_by_stop_id_with_agency(stop_id)
+        Returns:
+            Map: The generated map object.
+        """
 
-            map = Map(stop.lat, stop.lon, 14)
-            map.setup_defaults()
+        stop = await self.stop_repository.get_by_id_with_stop_feature(stop_id)
+        direction = await self.stop_repository.get_direction_of_stop(stop_id)
+        routes = await self.route_repository.get_routes_by_stop_id_with_agency(stop_id)
 
-            route_ids = [route.id for route in routes]
-            trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids,direction)
-            other_stops_on_routes = await self.stop_repository.get_stops_by_route_ids(route_ids,direction)
+        map = Map(stop.lat, stop.lon, 14)
+        map.setup_defaults()
 
-            shape_ids = [trip.shape_id for trip in trips]
-            shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
+        route_ids = [route.id for route in routes]
+        trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids, direction)
+        other_stops_on_routes = await self.stop_repository.get_stops_by_route_ids(route_ids, direction)
 
-            stop_marker = StopMarker(stop=stop, create_link=False, routes=routes)
-            stop_marker.add_to(map.map)
+        shape_ids = [trip.shape_id for trip in trips]
+        shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
 
-            shapes_dict:Dict[str, List[ShapeModel]] = defaultdict(list)
-            for shape in shapes:
-                shapes_dict[shape.shape_id].append(shape)
+        stop_marker = StopMarker(stop=stop, create_link=False, routes=routes)
+        stop_marker.add_to(map.map)
 
-            route_colors = cycle(list(PolyLineColors))
+        shapes_dict: Dict[str, List[ShapeModel]] = defaultdict(list)
+        for shape in shapes:
+            shapes_dict[shape.shape_id].append(shape)
 
-            for route in routes:
-                trip = next(trip for trip in trips if trip.route_id == route.id)
-                trip_shapes = shapes_dict.get(trip.shape_id, [])
-                locations = [(shape.lat, shape.lon) for shape in trip_shapes]
-                route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
-                route_poly.add_with_layer_to(map.map)
+        route_colors = cycle(list(PolyLineColors))
 
-            for stop in other_stops_on_routes:
-                stop_marker = StopMarker(stop=stop)
-                stop_marker.add_to(map.map, type_of_marker="circle")
+        for route in routes:
+            trip = next(trip for trip in trips if trip.route_id == route.id)
+            trip_shapes = shapes_dict.get(trip.shape_id, [])
+            locations = [(shape.lat, shape.lon) for shape in trip_shapes]
+            route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
+            route_poly.add_with_layer_to(map.map)
 
-            map.add_layer_control()
-            return map
+        for stop in other_stops_on_routes:
+            stop_marker = StopMarker(stop=stop)
+            stop_marker.add_to(map.map, type_of_marker="circle")
+
+        map.add_layer_control()
+        return map
 
 
 async def provide_map_service(db_session: AsyncSession) -> MapService:
@@ -86,4 +86,9 @@ async def provide_map_service(db_session: AsyncSession) -> MapService:
     Returns:
         MapService: An instance of the MapService class.
     """
-    return MapService(StopRepository(session=db_session), RouteRepository(session=db_session), ShapeRepository(session=db_session), TripRepository(session=db_session))
+    return MapService(
+        StopRepository(session=db_session),
+        RouteRepository(session=db_session),
+        ShapeRepository(session=db_session),
+        TripRepository(session=db_session),
+    )

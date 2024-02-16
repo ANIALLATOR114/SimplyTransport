@@ -6,8 +6,8 @@ from .model import TripModel
 
 class TripRepository(SQLAlchemyAsyncRepository[TripModel]):
     """Trip repository."""
-    
-    async def get_first_trips_by_route_ids(self, route_ids: list[str], direction:int) -> list[TripModel]:
+
+    async def get_first_trips_by_route_ids(self, route_ids: list[str], direction: int) -> list[TripModel]:
         """Get first trips by route_ids."""
 
         result = await self.session.execute(

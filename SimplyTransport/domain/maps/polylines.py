@@ -29,41 +29,41 @@ class PolyLineColors(Enum):
 
 class RoutePolyLine:
     def __init__(
-            self,
-            route: RouteModel,
-            locations: list[tuple[float, float]],
-            route_color: PolyLineColors = PolyLineColors.BLUE,
-            create_popup: bool = True,
-            create_tooltip: bool = True,
-            create_links: bool = True,
-            weight: int = 9,
-            opacity: float = 1,
-        ) -> None:
-            """
-            Initializes a Polyline object.
+        self,
+        route: RouteModel,
+        locations: list[tuple[float, float]],
+        route_color: PolyLineColors = PolyLineColors.BLUE,
+        create_popup: bool = True,
+        create_tooltip: bool = True,
+        create_links: bool = True,
+        weight: int = 9,
+        opacity: float = 1,
+    ) -> None:
+        """
+        Initializes a Polyline object.
 
-            Args:
-                route (RouteModel): The route model associated with the polyline.
-                locations (list[tuple[float, float]]): The list of locations (latitude, longitude) that define the polyline.
-                route_color (PolyLineColors, optional): The color of the polyline. Defaults to PolyLineColors.BLUE.
-                create_popup (bool, optional): Whether to create a popup for the polyline. Defaults to True.
-                create_tooltip (bool, optional): Whether to create a tooltip for the polyline. Defaults to True.
-                create_links (bool, optional): Whether to create links for the polyline. Defaults to True.
-                weight (int, optional): The weight of the polyline. Defaults to 6.
-                opacity (float, optional): The opacity of the polyline. Defaults to 1.
-            """
-            
-            self.route = route
-            self.route_color = route_color
-            self.locations = locations
-            self.create_links = create_links
-            self.weight = weight
-            self.opacity = opacity
-            self.create_polyline()
-            if create_popup:
-                self.create_popup()
-            if create_tooltip:
-                self.create_tooltip()
+        Args:
+            route (RouteModel): The route model associated with the polyline.
+            locations (list[tuple[float, float]]): The list of locations (latitude, longitude) that define the polyline.
+            route_color (PolyLineColors, optional): The color of the polyline. Defaults to PolyLineColors.BLUE.
+            create_popup (bool, optional): Whether to create a popup for the polyline. Defaults to True.
+            create_tooltip (bool, optional): Whether to create a tooltip for the polyline. Defaults to True.
+            create_links (bool, optional): Whether to create links for the polyline. Defaults to True.
+            weight (int, optional): The weight of the polyline. Defaults to 6.
+            opacity (float, optional): The opacity of the polyline. Defaults to 1.
+        """
+
+        self.route = route
+        self.route_color = route_color
+        self.locations = locations
+        self.create_links = create_links
+        self.weight = weight
+        self.opacity = opacity
+        self.create_polyline()
+        if create_popup:
+            self.create_popup()
+        if create_tooltip:
+            self.create_tooltip()
 
     def create_polyline(self) -> None:
         """

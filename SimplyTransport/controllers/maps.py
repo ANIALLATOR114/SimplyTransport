@@ -3,12 +3,13 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.response import Template
 
-from ..domain.services.map_service import MapService,provide_map_service
+from ..domain.services.map_service import MapService, provide_map_service
 
 
 __all__ = [
     "MapsController",
 ]
+
 
 class MapsController(Controller):
     dependencies = {

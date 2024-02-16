@@ -20,7 +20,9 @@ class Map:
         - zoom (int): The zoom level of the map. Default is 8.
         """
         location = [lat, lon]
-        self.map = fl.Map(location=location, zoom_start=zoom, prefer_canvas=True, max_zoom=max_zoom,tiles=None)
+        self.map = fl.Map(
+            location=location, zoom_start=zoom, prefer_canvas=True, max_zoom=max_zoom, tiles=None
+        )
         self.max_zoom = max_zoom
 
     def add_fullscreen(self) -> None:
@@ -42,7 +44,11 @@ class Map:
         flp.MousePosition().add_to(self.map)
 
     def add_tilelayer(
-        self, name: str = "Detailed", tiles: str = "OpenStreetMap", attribution:str = None, max_zoom: int = None
+        self,
+        name: str = "Detailed",
+        tiles: str = "OpenStreetMap",
+        attribution: str = None,
+        max_zoom: int = None,
     ) -> None:
         """
         Adds a tile layer to the map.
@@ -78,9 +84,21 @@ class Map:
         self.add_fullscreen()
         self.add_mouse_position()
         self.add_tilelayer()
-        self.add_tilelayer(name="Dark", tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png", attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors')
-        self.add_tilelayer(name="Light", tiles="https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png", attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors')
-        self.add_tilelayer(name="Terrain", tiles="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png", attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors')
+        self.add_tilelayer(
+            name="Dark",
+            tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
+            attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+        )
+        self.add_tilelayer(
+            name="Light",
+            tiles="https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png",
+            attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+        )
+        self.add_tilelayer(
+            name="Terrain",
+            tiles="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
+            attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+        )
 
     def render(self) -> str:
         """

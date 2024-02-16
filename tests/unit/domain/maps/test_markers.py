@@ -10,8 +10,9 @@ from SimplyTransport.domain.stop.model import StopModel
 def stop():
     return StopModel(id="test_stop_id", name="Test Stop", lat=53.0, lon=-7.0)
 
+
 def test_stop_marker_init(stop: StopModel):
-    stop = StopMarker(stop,[])
+    stop = StopMarker(stop, [])
     assert stop.stop.id == "test_stop_id"
     assert stop.stop.name == "Test Stop"
     assert stop.stop.lat == 53.0
@@ -24,7 +25,7 @@ def test_stop_marker_init(stop: StopModel):
 
 
 @pytest.mark.parametrize("create_links", [(False), (True)])
-def test_stop_marker_links(create_links,stop: StopModel):
+def test_stop_marker_links(create_links, stop: StopModel):
     stop = StopMarker(stop, create_link=create_links)
     assert stop.create_link is create_links
 
@@ -54,7 +55,7 @@ def test_stop_marker_links(create_links,stop: StopModel):
         None,
     ],
 )
-def test_stop_marker_color(color: MarkerColors,stop: StopModel):
+def test_stop_marker_color(color: MarkerColors, stop: StopModel):
     stop = StopMarker(stop, color=color)
     assert stop.color == color
     assert type(stop.icon) is fl.Icon

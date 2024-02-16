@@ -5,6 +5,7 @@ from functools import wraps
 
 number_of_lines_to_print = 15
 
+
 def profile(func):
     @wraps(func)
     async def async_wrapper(*args, **kwargs):
@@ -19,6 +20,7 @@ def profile(func):
         ps.print_stats(number_of_lines_to_print)
         print(s.getvalue())
         return result
+
     return async_wrapper
 
 

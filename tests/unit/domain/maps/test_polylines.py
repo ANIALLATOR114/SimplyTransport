@@ -13,7 +13,7 @@ def route():
 
 
 def test_route_polyline_init(route: RouteModel):
-    route = RoutePolyLine(route,[(53.0, -7.0), (53.1, -7.1)])
+    route = RoutePolyLine(route, [(53.0, -7.0), (53.1, -7.1)])
     assert route.route.id == "123"
     assert route.route.short_name == "Test Route"
     assert route.route.agency.name == "test"
@@ -31,7 +31,7 @@ def test_route_polyline_init(route: RouteModel):
         (False, False),
     ],
 )
-def test_route_polyline_popup(create_popup, expected_in_html,route: RouteModel):
+def test_route_polyline_popup(create_popup, expected_in_html, route: RouteModel):
     polyline = RoutePolyLine(
         route,
         [(53.0, -7.0), (53.1, -7.1)],
@@ -50,7 +50,7 @@ def test_route_polyline_popup(create_popup, expected_in_html,route: RouteModel):
         (False, False),
     ],
 )
-def test_route_polyline_link(create_links, expected_in_html,route: RouteModel):
+def test_route_polyline_link(create_links, expected_in_html, route: RouteModel):
     polyline = RoutePolyLine(
         route,
         [(53.0, -7.0), (53.1, -7.1)],
@@ -108,9 +108,7 @@ def test_route_polyline_tooltip(create_tooltip, expected_in_html, route: RouteMo
     ],
 )
 def test_route_polyline_color(color: PolyLineColors, route: RouteModel):
-    polyline = RoutePolyLine(
-        route,[(1,1)], route_color=color
-    )
+    polyline = RoutePolyLine(route, [(1, 1)], route_color=color)
     figure = fl.Figure()
     polyline.add_to(figure)
     html = figure.render()

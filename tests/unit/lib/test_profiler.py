@@ -2,6 +2,7 @@ import cProfile
 import pytest
 from SimplyTransport.lib import profiling
 
+
 @pytest.mark.asyncio
 async def test_profile_decorator(capsys):
     @profiling.profile
@@ -19,7 +20,7 @@ async def test_profile_decorator(capsys):
 
 def test_profiler_context_manager(capsys):
     with profiling.Profiler() as p:
-        1+1
+        1 + 1
 
     assert isinstance(p.pr, cProfile.Profile)
 
