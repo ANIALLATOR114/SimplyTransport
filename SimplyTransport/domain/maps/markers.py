@@ -1,6 +1,9 @@
 import folium as fl
 
 from enum import Enum
+from SimplyTransport.domain.route.model import RouteModel
+
+from SimplyTransport.domain.stop.model import StopModel
 
 
 class MarkerColors(Enum):
@@ -28,32 +31,26 @@ class MarkerColors(Enum):
 class StopMarker:
     def __init__(
         self,
-        stop_name: str,
-        stop_id: str,
-        stop_code: str,
-        lat: float,
-        lon: float,
-        create_links: bool = True,
+        stop: StopModel,
+        routes: list[RouteModel] = None,
+        create_link: bool = True,
+        create_stop_features: bool = True,
         color: MarkerColors = None,
     ) -> None:
         """
-        Initialize a StopMarker object.
+        Initialize a Marker object.
 
         Args:
-            stop_name (str): The name of the stop.
-            stop_id (str): The ID of the stop.
-            stop_code (str): The code of the stop.
-            lat (float): The latitude of the stop.
-            lon (float): The longitude of the stop.
-            create_links (bool): Whether to create links in the popup. Default is True.
-            color (MarkerColors): The color of the marker. Default is None.
+            stop (StopModel): The stop associated with the marker.
+            routes (list[RouteModel], optional): The routes associated with the marker. Defaults to None.
+            create_links (bool, optional): Whether to create links for the marker. Defaults to True.
+            create_stop_features (bool, optional): Whether to create stop features for the marker. Defaults to True.
+            color (MarkerColors, optional): The color of the marker. Defaults to None.
         """
-        self.stop_name = stop_name
-        self.stop_id = stop_id
-        self.stop_code = stop_code
-        self.lat = lat
-        self.lon = lon
-        self.create_links = create_links
+        self.stop = stop
+        self.routes = routes
+        self.create_link = create_link
+        self.create_stop_features = create_stop_features
         self.color = color
         self.create_popup()
         self.create_tooltip()
@@ -66,32 +63,57 @@ class StopMarker:
         Returns:
         - None
         """
-        if self.create_links:
-            self.popup = fl.Popup(
-                f"""
+        stop_heading = ""
+        if self.create_link:
+            stop_heading = f"""
                 <h4 style='white-space: nowrap;'>
-                    <a target='_parent' href='/realtime/stop/{self.stop_id}'>
-                        {self.stop_code} - {self.stop_name}
+                    <a target='_parent' href='/realtime/stop/{self.stop.id}'>
+                        {self.stop.code} - {self.stop.name}
                     </a>
                 </h4>
-                <p>
-                    Lat: {self.lat}<br>
-                    Lon: {self.lon}
-                </p>
             """
-            )
         else:
-            self.popup = fl.Popup(
-                f"""
+            stop_heading = f"""
                 <h4 style='white-space: nowrap;'>
-                    {self.stop_code} - {self.stop_name}
+                    {self.stop.code} - {self.stop.name}
                 </h4>
-                <p>
-                    Lat: {self.lat}<br>
-                    Lon: {self.lon}
+            """
+
+        stop_lat_lon = f"""
+            <p>
+                <a target='_parent' href="https://www.google.com/maps?layer=c&amp;cbll={ self.stop.lat },{ self.stop.lon }&amp;cbp=0,0,,,">Street view</a><br>
+                Lat: {self.stop.lat}<br>
+                Lon: {self.stop.lon}
                 </p>
             """
-            )
+
+        stop_features = ""
+        if self.create_stop_features and self.stop.stop_feature is not None:
+            stop_features = f"""
+                <p>
+                    Wheelchair accessible: {self.stop.stop_feature.wheelchair_accessability}<br>
+                    Bus Shelter: {self.stop.stop_feature.shelter_active}<br>
+                    Realtime display: {self.stop.stop_feature.rtpi_active}<br>
+                </p>
+            """
+        else:
+            stop_features = f"""
+                <p>
+                    Lat: {self.stop.lat}<br>
+                    Lon: {self.stop.lon}
+                </p>
+            """
+
+        stop_routes = ""
+        if self.routes is not None:
+            stop_routes = f"""
+                <p>
+                    <h5>{len(self.routes)} Routes </h5>
+                    {'<br>'.join([f"<a target='_parent' href='/realtime/route/{route.id}/1'>{route.short_name}</a> - {route.long_name}" for route in self.routes])}
+                </p>
+            """
+
+        self.popup = fl.Popup(f"{stop_heading}{stop_lat_lon}{stop_features}{stop_routes}")
 
     def create_tooltip(self) -> None:
         """
@@ -103,7 +125,7 @@ class StopMarker:
         self.tooltip = fl.Tooltip(
             f"""
             <h5>
-                {self.stop_code} - {self.stop_name}
+                {self.stop.code} - {self.stop.name}
             </h5>
         """
         )
@@ -120,7 +142,7 @@ class StopMarker:
         else:
             self.icon = fl.Icon(color="blue", icon="fa-chevron-circle-down", prefix="fa")
 
-    def add_to(self, map: fl.Map, type_of_marker: str = "regular", radius: float = 9) -> None:
+    def add_to(self, map: fl.Map, type_of_marker: str = "regular", radius: float = 7) -> None:
         """
         Adds a marker to the given map.
 
@@ -133,7 +155,7 @@ class StopMarker:
         """
         if type_of_marker == "circle":
             fl.CircleMarker(
-                [self.lat, self.lon],
+                [self.stop.lat, self.stop.lon],
                 color="#000",
                 tooltip=self.tooltip,
                 popup=self.popup,
@@ -146,7 +168,7 @@ class StopMarker:
             ).add_to(map)
         else:
             fl.Marker(
-                [self.lat, self.lon],
+                [self.stop.lat, self.stop.lon],
                 tooltip=self.tooltip,
                 popup=self.popup,
                 icon=self.icon,

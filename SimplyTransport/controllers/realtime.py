@@ -44,7 +44,7 @@ class RealtimeController(Controller):
             stop = await stop_repo.get_by_id_with_stop_feature(stop_id)
         except NotFoundError:
             return Template(template_name="/errors/404.html", context={"message": "Stop not found"})
-        routes = await route_repo.get_by_stop_id(stop.id)
+        routes = await route_repo.get_routes_by_stop_id(stop.id)
         routes.sort(key=lambda x: x.short_name)
 
         current_time = datetime.now()

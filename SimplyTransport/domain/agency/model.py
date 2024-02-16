@@ -22,6 +22,16 @@ class AgencyModel(BigIntAuditBase):
         back_populates="agency", cascade="all, delete"
     )
 
+    def short_name(self):
+        delimiter_list = [" – ", " / ", " - "]
+        for delimiter in delimiter_list:
+            if delimiter in self.name:
+                try:
+                    return self.name.split(delimiter)[1]
+                except IndexError:
+                    pass
+        return self.name
+
 
 class Agency(BaseModel):
     id: str

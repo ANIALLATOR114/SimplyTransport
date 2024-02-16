@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..calendar_dates.repo import CalendarDateRepository
 from ..enums import DayOfWeek
-from ..schedule.model import StaticSchedule
 from ..schedule.model import StaticScheduleModel
 from ..schedule.repo import ScheduleRepository
 

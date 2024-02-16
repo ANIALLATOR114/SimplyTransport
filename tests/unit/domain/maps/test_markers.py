@@ -3,26 +3,31 @@ import folium as fl
 
 import pytest
 
+from SimplyTransport.domain.stop.model import StopModel
 
-def test_stop_marker_init():
-    stop = StopMarker("Test Stop", "test_stop_id", "test_stop_code", 53.0, -7.0)
-    assert stop.stop_name == "Test Stop"
-    assert stop.stop_id == "test_stop_id"
-    assert stop.stop_code == "test_stop_code"
-    assert stop.lat == 53.0
-    assert stop.lon == -7.0
-    assert stop.create_links is True
+
+@pytest.fixture
+def stop():
+    return StopModel(id="test_stop_id", name="Test Stop", lat=53.0, lon=-7.0)
+
+
+def test_stop_marker_init(stop: StopModel):
+    stop = StopMarker(stop, [])
+    assert stop.stop.id == "test_stop_id"
+    assert stop.stop.name == "Test Stop"
+    assert stop.stop.lat == 53.0
+    assert stop.stop.lon == -7.0
+    assert stop.create_link is True
     assert stop.color is None
     assert type(stop.popup) is fl.Popup
     assert type(stop.tooltip) is fl.Tooltip
     assert type(stop.icon) is fl.Icon
 
 
-@pytest.mark.parametrize("create_links,expected_in_html", [(False, False), (True, True)])
-def test_stop_marker_links(create_links, expected_in_html):
-    stop = StopMarker("Test Stop", "test_stop_id", "test_stop_code", 53.0, -7.0, create_links=create_links)
-    assert stop.create_links is create_links
-    assert ("href" in stop.popup.html.render()) is expected_in_html
+@pytest.mark.parametrize("create_links", [(False), (True)])
+def test_stop_marker_links(create_links, stop: StopModel):
+    stop = StopMarker(stop, create_link=create_links)
+    assert stop.create_link is create_links
 
 
 @pytest.mark.parametrize(
@@ -50,8 +55,8 @@ def test_stop_marker_links(create_links, expected_in_html):
         None,
     ],
 )
-def test_stop_marker_color(color):
-    stop = StopMarker("Test Stop", "test_stop_id", "test_stop_code", 53.0, -7.0, color=color)
+def test_stop_marker_color(color: MarkerColors, stop: StopModel):
+    stop = StopMarker(stop, color=color)
     assert stop.color == color
     assert type(stop.icon) is fl.Icon
 

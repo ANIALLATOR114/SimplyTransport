@@ -39,16 +39,40 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
         return results, total
 
     async def get_by_route_id(self, route_id: str, direction: int) -> list[StopModel]:
-        """Get a stop by route_id."""
+        """Get stops by route_id."""
 
         return await self.list(
             statement=select(StopModel)
             .join(StopTimeModel, StopTimeModel.stop_id == StopModel.id)
             .join(TripModel, TripModel.id == StopTimeModel.trip_id)
-            .join(RouteModel, RouteModel.id == TripModel.route_id)
-            .where(TripModel.direction == direction, RouteModel.id == route_id)
-            .group_by(StopModel.id)
+            .where(TripModel.direction == direction)
+            .where(TripModel.route_id == route_id)
+            .distinct(StopModel.id)
         )
+
+    async def get_stops_by_route_ids(self, route_ids: list[str], direction: int) -> list[StopModel]:
+        """Get stops by route_ids."""
+
+        return await self.list(
+            statement=select(StopModel)
+            .options(joinedload(StopModel.stop_feature))
+            .join(StopTimeModel, StopTimeModel.stop_id == StopModel.id)
+            .join(TripModel, TripModel.id == StopTimeModel.trip_id)
+            .where(TripModel.direction == direction)
+            .where(TripModel.route_id.in_(route_ids))
+            .distinct(StopModel.id)
+        )
+
+    async def get_direction_of_stop(self, stop_id: str) -> int:
+        """Get the direction of a stop."""
+
+        result = await self._execute(
+            statement=select(TripModel.direction)
+            .join(StopTimeModel, StopTimeModel.trip_id == TripModel.id)
+            .where(StopTimeModel.stop_id == stop_id)
+            .limit(1)
+        )
+        return result.scalar()
 
     async def get_by_route_id_with_sequence(self, route_id: str, direction: int) -> list[StopModel, int]:
         """Get a stop by route_id with a stop_sequence."""
