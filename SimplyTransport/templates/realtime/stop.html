@@ -65,6 +65,7 @@
                 <span class="popuptext" id="copyPopup" onclick="hidePopup()">Table copied to clipboard ✅</span>
             </div>
         </div>
+        <div class="inner-container">{% include "/maps/realtime/stop.html" %}</div>
         <div class="inner-container">{% include "/realtime/routes_partial.html" %}</div>
         <div class="inner-container">{% include "/realtime/stop_features_partial.html" %}</div>
         <div class="inner-container"
@@ -73,41 +74,47 @@
              hx-target="#schedule-table"
              hx-include="[name='day']"
              hx-swap="transition:true">
-            <h3 class="h3-table">Set Schedule:</h3>
-            <div class="load-with-dropdown">
-                <button hx-get="/realtime/stop/{{ stop.id }}/schedule"
-                        hx-trigger="click"
-                        hx-target="#schedule-table"
-                        hx-swap="transition:true"
-                        hx-include="[name='day']"
-                        class="pagination-button">Reload</button>
-                <select class="dropdown" name="day">
-                    <option value=0 {% if day_int == 0 %}selected{% endif %}>Monday</option>
-                    <option value=1 {% if day_int == 1 %}selected{% endif %}>Tuesday</option>
-                    <option value=2 {% if day_int == 2 %}selected{% endif %}>Wednesday</option>
-                    <option value=3 {% if day_int == 3 %}selected{% endif %}>Thursday</option>
-                    <option value=4 {% if day_int == 4 %}selected{% endif %}>Friday</option>
-                    <option value=5 {% if day_int == 5 %}selected{% endif %}>Saturday</option>
-                    <option value=6 {% if day_int == 6 %}selected{% endif %}>Sunday</option>
-                </select>
-            </div>
-            <div class="bottom-margin">
-                <input class="search-box" placeholder="Filter by route...">
-            </div>
-            <div id="schedule-table">
-                <h3 class="h3-table">Day: {{ day_string }}</h3>
-                <table class="table-search no-stripe table-sortable"
-                       aria-label="Trips at stop">
-                    <thead class="hoverable">
-                        <tr>
-                            <th class="dense-text">Route</th>
-                            <th class="dense-text">Scheduled Arrival</th>
-                        </tr>
-                    </thead>
-                </table>
+            <h3 class="h3-table">
+                Schedule
+                <button class="toggle-visibility-button pagination-button">▼</button>
+            </h3>
+            <div class="collapsible" style="max-height:0;">
+                <div class="load-with-dropdown">
+                    <button hx-get="/realtime/stop/{{ stop.id }}/schedule"
+                            hx-trigger="click"
+                            hx-target="#schedule-table"
+                            hx-swap="transition:true"
+                            hx-include="[name='day']"
+                            class="pagination-button">Reload</button>
+                    <select class="dropdown" name="day">
+                        <option value=0 {% if day_int == 0 %}selected{% endif %}>Monday</option>
+                        <option value=1 {% if day_int == 1 %}selected{% endif %}>Tuesday</option>
+                        <option value=2 {% if day_int == 2 %}selected{% endif %}>Wednesday</option>
+                        <option value=3 {% if day_int == 3 %}selected{% endif %}>Thursday</option>
+                        <option value=4 {% if day_int == 4 %}selected{% endif %}>Friday</option>
+                        <option value=5 {% if day_int == 5 %}selected{% endif %}>Saturday</option>
+                        <option value=6 {% if day_int == 6 %}selected{% endif %}>Sunday</option>
+                    </select>
+                </div>
+                <div class="bottom-margin">
+                    <input class="search-box" placeholder="Filter by route...">
+                </div>
+                <div id="schedule-table">
+                    <h3 class="h3-table">Day: {{ day_string }}</h3>
+                    <table class="table-search no-stripe table-sortable"
+                           aria-label="Trips at stop">
+                        <thead class="hoverable">
+                            <tr>
+                                <th class="dense-text">Route</th>
+                                <th class="dense-text">Scheduled Arrival</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
     {% include "widgets/copy_to_clipboard.html" %}
     {% include "widgets/filter_table.html" %}
+    {% include "widgets/toggle_visibility.html" %}
 {% endblock content %}

@@ -38,3 +38,21 @@ def test_map_add_tilelayer():
 
     html = map.render()
     assert "OpenStreetMap" in html
+
+
+def test_map_add_tilelayer_with_params():
+    map = Map()
+    map.add_tilelayer(name="Test", tiles="Test", attribution="Test")
+
+    html = map.render()
+    assert "Test" in html
+    assert "Test" in html
+    assert "Test" in html
+
+
+def test_add_layer_control():
+    map = Map()
+    map.add_layer_control()
+
+    html = map.render()
+    assert "layer_control" in html

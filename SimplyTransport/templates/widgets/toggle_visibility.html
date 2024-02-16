@@ -4,11 +4,19 @@ class="collapsible" style="max-height:0;" add to the div you want to hide
 -->
 <script>
 document.querySelectorAll('.toggle-visibility-button').forEach(function(button) {
+    // Check if the button already has the event listener
+    if (button.dataset.toggleVisibilityAdded) {
+        return;
+    }
+
     button.addEventListener('click', function() {
         var content = this.parentNode.nextElementSibling;
         var isCollapsed = content.style.maxHeight !== '0px';
         content.style.maxHeight = isCollapsed ? '0px' : content.scrollHeight + 'px';
         this.textContent = isCollapsed ? '▼' : '▲';
     });
+
+    // Mark the button as having the event listener
+    button.dataset.toggleVisibilityAdded = 'true';
 });
 </script>

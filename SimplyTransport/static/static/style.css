@@ -56,7 +56,7 @@ body {
 }
 
 .narrow-container {
-	max-width: 800px;
+	max-width: 900px;
 	margin-left: auto;
 	margin-right: auto;
 	padding-left: 1rem;
@@ -473,6 +473,14 @@ h3 {
 	cursor: text !important;
 }
 
+.map-loader {
+	display: none;
+	padding-bottom: 40%;
+}
+.htmx-request.map-loader {
+	display: inline;
+}
+
 @keyframes loader {
 	0% {
 		transform: rotate(0deg);
@@ -484,7 +492,7 @@ h3 {
 
 @media screen and (max-width: 900px) {
 	.container {
-		padding: 0.2rem;
+		padding: 0.5rem;
 	}
 
 	h1 {

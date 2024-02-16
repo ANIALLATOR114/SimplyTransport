@@ -99,10 +99,10 @@ The static schedules can be updated as often as desired but typically a nightly 
 ### Maps
 
 Map are implemented using Folium and rendered on the server side. The maps are then served to the client as part of the web page.
-These are currently WIP but an example of a map can be seen on [simplytransport.ie/test/map](http://simplytransport.ie/test/map)
+The primary map is on the page for a stop, it shows the location of the stop and other stops on the same routes, as well as lines for all the routes that serve the stop.
 
 - [ ] Maps on route pages
-- [ ] Maps on stop pages
+- [x] Maps on stop pages
 - [ ] Aggregation of stops
 - [ ] Aggregation of routes
 

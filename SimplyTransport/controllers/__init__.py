@@ -4,7 +4,7 @@ from litestar.exceptions import HTTPException
 from SimplyTransport.lib import exception_handlers
 from SimplyTransport.lib import settings
 
-from . import root, search, realtime, events
+from . import root, search, realtime, events, maps
 from .api import (
     agency,
     calendar,
@@ -47,6 +47,13 @@ def create_views_router() -> Router:
         include_in_schema=False,
     )
 
+    maps_route_handler = Router(
+        path="/maps",
+        route_handlers=[maps.MapsController],
+        security=[{}],
+        include_in_schema=False,
+    )
+
     handler = {}
     # If in debug, wont catch code errors and will show the stack trace
     if settings.app.DEBUG:
@@ -61,6 +68,7 @@ def create_views_router() -> Router:
             search_route_handler,
             realtime_route_handler,
             events_route_handler,
+            maps_route_handler,
         ],
         exception_handlers=handler,
     )

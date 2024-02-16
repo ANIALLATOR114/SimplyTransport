@@ -5,7 +5,7 @@ from SimplyTransport.domain.maps.maps import Map
 
 from SimplyTransport.domain.maps.polylines import PolyLineColors, RoutePolyLine
 
-from ..domain.services.mapservice import MapService
+from ..domain.services.map_service import MapService
 from ..domain.maps.markers import BusMarker, MarkerColors, StopMarker
 
 from ..domain.events.repo import EventRepository, provide_event_repo
@@ -82,28 +82,3 @@ class RootController(Controller):
     @get("/routes")
     async def route(self) -> Template:
         return Template("gtfs_search/route_search.html")
-
-    @get("/test/map")
-    async def map(self, map: Map) -> Template:
-        map = Map()
-        map.setup_defaults()
-        marker1 = StopMarker("Test Stop", "123", "TST", 53.0, -7.0, color=MarkerColors.RED)
-        marker1.add_to(map.map, type_of_marker="circle")
-
-        marker2 = StopMarker("Test Stop 2", "124", "TST2", 53.1, -7.1, create_links=False)
-        marker2.add_to(map.map, type_of_marker="regular")
-
-        route1 = RoutePolyLine(
-            "1", "Test Route", "Test Operator", [(53.0, -7.0), (53.1, -7.1)], route_color=PolyLineColors.BLUE
-        )
-        route1.add_to(map.map)
-
-        bus1 = BusMarker("Test Bus", "1", "Test Operator", 53.2, -7.2, color=MarkerColors.GREEN)
-        bus1.add_to(map.map)
-
-        return Template(
-            template_name="map.html",
-            context={
-                "map": map.render(),
-            },
-        )

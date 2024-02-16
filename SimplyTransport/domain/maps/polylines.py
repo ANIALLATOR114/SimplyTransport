@@ -2,6 +2,8 @@ import folium as fl
 
 from enum import Enum
 
+from SimplyTransport.domain.route.model import RouteModel
+
 
 class PolyLineColors(Enum):
     RED = "#FF0000"
@@ -27,46 +29,41 @@ class PolyLineColors(Enum):
 
 class RoutePolyLine:
     def __init__(
-        self,
-        route_id: str,
-        route_name: str,
-        route_operator: str,
-        locations: list[tuple[float, float]],
-        route_color: PolyLineColors = PolyLineColors.BLUE,
-        create_popup: bool = True,
-        create_tooltip: bool = True,
-        create_links: bool = True,
-        weight: int = 6,
-        opacity: float = 1,
-    ) -> None:
-        """
-        Initializes a PolyLine object.
+            self,
+            route: RouteModel,
+            locations: list[tuple[float, float]],
+            route_color: PolyLineColors = PolyLineColors.BLUE,
+            create_popup: bool = True,
+            create_tooltip: bool = True,
+            create_links: bool = True,
+            weight: int = 9,
+            opacity: float = 1,
+        ) -> None:
+            """
+            Initializes a Polyline object.
 
-        Args:
-            route_id (str): The ID of the route.
-            route_name (str): The name of the route.
-            route_operator (str): The operator of the route.
-            locations (list[tuple[float, float]]): The list of locations that define the polyline.
-            route_color (PolyLineColors, optional): The color of the polyline. Defaults to PolyLineColors.BLUE.
-            create_popup (bool, optional): Whether to create a popup for the polyline. Defaults to True.
-            create_tooltip (bool, optional): Whether to create a tooltip for the polyline. Defaults to True.
-            create_links (bool, optional): Whether to create links for the polyline. Defaults to True.
-            weight (int, optional): The weight of the polyline. Defaults to 6.
-            opacity (float, optional): The opacity of the polyline. Defaults to 1.
-        """
-        self.route_id = route_id
-        self.route_name = route_name
-        self.route_color = route_color
-        self.route_operator = route_operator
-        self.locations = locations
-        self.create_links = create_links
-        self.weight = weight
-        self.opacity = opacity
-        self.create_polyline()
-        if create_popup:
-            self.create_popup()
-        if create_tooltip:
-            self.create_tooltip()
+            Args:
+                route (RouteModel): The route model associated with the polyline.
+                locations (list[tuple[float, float]]): The list of locations (latitude, longitude) that define the polyline.
+                route_color (PolyLineColors, optional): The color of the polyline. Defaults to PolyLineColors.BLUE.
+                create_popup (bool, optional): Whether to create a popup for the polyline. Defaults to True.
+                create_tooltip (bool, optional): Whether to create a tooltip for the polyline. Defaults to True.
+                create_links (bool, optional): Whether to create links for the polyline. Defaults to True.
+                weight (int, optional): The weight of the polyline. Defaults to 6.
+                opacity (float, optional): The opacity of the polyline. Defaults to 1.
+            """
+            
+            self.route = route
+            self.route_color = route_color
+            self.locations = locations
+            self.create_links = create_links
+            self.weight = weight
+            self.opacity = opacity
+            self.create_polyline()
+            if create_popup:
+                self.create_popup()
+            if create_tooltip:
+                self.create_tooltip()
 
     def create_polyline(self) -> None:
         """
@@ -96,19 +93,19 @@ class RoutePolyLine:
         if self.create_links:
             self.popup = fl.Popup(
                 f"""
-                    <h4 style='white-space: nowrap;'>
-                        <a target='_parent' href='/realtime/route/{self.route_id}/1'>
-                            {self.route_name} - {self.route_operator}
+                    <h5 style='white-space: nowrap;'>
+                        <a target='_parent' href='/realtime/route/{self.route.id}/1'>
+                            {self.route.short_name} - {self.route.agency.short_name()}
                         </a>
-                    </h4>
+                    </h5>
                 """
             )
         else:
             self.popup = fl.Popup(
                 f"""
-                    <h4 style='white-space: nowrap;'>
-                        {self.route_name} - {self.route_operator}
-                    </h4>
+                    <h5 style='white-space: nowrap;'>
+                        {self.route.short_name} - {self.route.agency.short_name()}
+                    </h5>
                 """
             )
         self.polyline.add_child(self.popup)
@@ -125,7 +122,7 @@ class RoutePolyLine:
         self.tooltip = fl.Tooltip(
             f"""
             <h5>
-                {self.route_name} - {self.route_operator}
+                {self.route.short_name} - {self.route.agency.short_name()}
             </h5>
         """
         )
@@ -142,3 +139,17 @@ class RoutePolyLine:
             None
         """
         self.polyline.add_to(map)
+
+    def add_with_layer_to(self, map: fl.Map) -> None:
+        """
+        Adds the polyline to a given map with a feature layer.
+
+        Args:
+            map (fl.Map): The map to add the polyline to.
+
+        Returns:
+            None
+        """
+        layer = fl.FeatureGroup(name=self.route.short_name)
+        self.polyline.add_to(layer)
+        layer.add_to(map)
