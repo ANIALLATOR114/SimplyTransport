@@ -20,7 +20,7 @@ async def test_profile_decorator(capsys):
 
 def test_profiler_context_manager(capsys):
     with profiling.Profiler() as p:
-        1 + 1
+        pass
 
     assert isinstance(p.pr, cProfile.Profile)
 

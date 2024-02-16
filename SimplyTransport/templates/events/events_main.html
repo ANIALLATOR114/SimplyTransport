@@ -14,9 +14,9 @@
                     hx-trigger="load, click"
                     hx-target="#events-container"
                     hx-swap="transition:true"
-                    hx-include="[name='type'],[name='sort'],[name='pageSize']"
+                    hx-include="[name='search_type'],[name='sort'],[name='pageSize']"
                     class="pagination-button">Reload</button>
-            <select class="dropdown" name="type">
+            <select class="dropdown" name="search_type">
                 {% for event in event_types %}<option value="{{ event }}">{{ event }}</option>{% endfor %}
             </select>
             <select class="dropdown" name="sort">

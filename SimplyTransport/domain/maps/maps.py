@@ -22,7 +22,7 @@ class Map:
         - zoom (int): The zoom level of the map. Default is 8.
         """
         location = [lat, lon]
-        self.map = fl.Map(
+        self.map_base = fl.Map(
             location=location, zoom_start=zoom, prefer_canvas=True, max_zoom=max_zoom, tiles=None
         )
         self.max_zoom = max_zoom
@@ -33,7 +33,7 @@ class Map:
 
         :return: None
         """
-        flp.Fullscreen(force_separate_button=True).add_to(self.map)
+        flp.Fullscreen(force_separate_button=True).add_to(self.map_base)
 
     def add_mouse_position(self) -> None:
         """
@@ -43,7 +43,7 @@ class Map:
         Returns:
             None
         """
-        flp.MousePosition().add_to(self.map)
+        flp.MousePosition().add_to(self.map_base)
 
     def add_tilelayer(
         self,
@@ -65,7 +65,7 @@ class Map:
         """
         if max_zoom is None:
             max_zoom = self.max_zoom
-        fl.TileLayer(tiles, name=name, max_zoom=max_zoom, attr=attribution).add_to(self.map)
+        fl.TileLayer(tiles, name=name, max_zoom=max_zoom, attr=attribution).add_to(self.map_base)
 
     def add_layer_control(self) -> None:
         """
@@ -74,7 +74,7 @@ class Map:
         Returns:
             None
         """
-        fl.LayerControl(collapsed=False).add_to(self.map)
+        fl.LayerControl(collapsed=False).add_to(self.map_base)
 
     def setup_defaults(self) -> None:
         """
@@ -109,7 +109,7 @@ class Map:
         Returns:
             str: The HTML representation of the map.
         """
-        return self.map._repr_html_()
+        return self.map_base._repr_html_()
 
     def save(self, path: str, filename: str) -> None:
         """
@@ -125,4 +125,4 @@ class Map:
         check_if_file_exists = Path(path + filename + ".html")
         check_if_file_exists.touch(exist_ok=True)
 
-        self.map.save(path + filename + ".html")
+        self.map_base.save(path + filename + ".html")

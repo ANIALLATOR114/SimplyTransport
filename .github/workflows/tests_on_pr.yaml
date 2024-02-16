@@ -86,7 +86,3 @@ jobs:
           args: -Dsonar.projectKey=SimplyTransport
             -Dsonar.organization=simplytransport
             -Dsonar.python.version=${{ matrix.python-version }}
-            -Dsonar.pullrequest.github.repository=${{ github.repository }}
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
-            -Dsonar.pullrequest.base=${{ github.base_ref }}
-            -Dsonar.pullrequest.branch=${{ github.head_ref }}

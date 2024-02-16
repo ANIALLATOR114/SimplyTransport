@@ -51,7 +51,7 @@ def test_event_search_defaults(client: TestClient) -> None:
 
 
 def test_event_search_sort_and_type(client: TestClient) -> None:
-    response = client.get("events/search?sort=asc&type=gtfs.database.updated")
+    response = client.get("events/search?sort=asc&search_type=gtfs.database.updated")
     assert response.status_code == 200
     assert "Limit: 20" in response.text
     assert f'<span class="event-chip">{EventType.GTFS_DATABASE_UPDATED.value}</span>' in response.text
@@ -59,5 +59,5 @@ def test_event_search_sort_and_type(client: TestClient) -> None:
 
 
 def test_event_search_invalid_type(client: TestClient) -> None:
-    response = client.get("events/search?type=invalid")
+    response = client.get("events/search?search_type=invalid")
     assert response.status_code == 400

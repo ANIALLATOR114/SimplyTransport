@@ -37,7 +37,7 @@ class EventsController(Controller):
         self,
         event_repo: EventRepository,
         limit_offset: LimitOffset,
-        type: str | None = Parameter(query="type", required=False, description="Search events by type"),
+        search_type: str | None = Parameter(query="search_type", required=False, description="Search events by type"),
         sort: str | None = Parameter(
             query="sort", required=False, description="Sort events ascending or descending by creation time"
         ),
@@ -45,20 +45,20 @@ class EventsController(Controller):
         if sort is None:
             sort = "desc"
 
-        if type is None or type == ALL_EVENTS:
-            type = ALL_EVENTS
+        if search_type is None or search_type == ALL_EVENTS:
+            search_type = ALL_EVENTS
             try:
                 events, total = await event_repo.get_paginated_events(limit_offset=limit_offset, order=sort)
             except NotFoundError:
                 events = []
                 total = 0
         else:
-            if type not in [event_type.value for event_type in EventType.__members__.values()]:
+            if search_type not in [event_type.value for event_type in EventType.__members__.values()]:
                 raise ValidationException("Invalid event type")
 
             try:
                 events, total = await event_repo.get_paginated_events_by_type(
-                    event_type=type, limit_offset=limit_offset, order=sort
+                    event_type=search_type, limit_offset=limit_offset, order=sort
                 )
             except NotFoundError:
                 events = []
@@ -74,7 +74,7 @@ class EventsController(Controller):
             template_name="events/list_of_events.html",
             context={
                 "events": events,
-                "type": type,
+                "search_type": search_type,
                 "sort": sort,
                 "limit": limit_offset.limit,
                 "current_page": current_page,

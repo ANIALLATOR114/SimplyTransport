@@ -23,7 +23,7 @@
 {% if events %}
     <div class="single-event">
         <div class="event-chip-holder">
-            <span class="event-chip">{{ type }}</span> <span class="event-chip">{{ sort }}</span>
+            <span class="event-chip">{{ search_type }}</span> <span class="event-chip">{{ sort }}</span>
         </div>
         <div class="pagination-total">
             <div class="pagination-pages flex-start">
@@ -40,7 +40,7 @@
                                 hx-trigger="click"
                                 hx-target="#events-container"
                                 hx-swap="transition:true"
-                                hx-include="[name='type'],[name='sort'],[name='pageSize']"
+                                hx-include="[name='search_type'],[name='sort'],[name='pageSize']"
                                 class="pagination-button">{{ page }}</button>
                     {% endif %}
                 {% endfor %}
