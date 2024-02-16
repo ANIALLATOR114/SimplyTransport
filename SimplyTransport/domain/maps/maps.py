@@ -4,6 +4,7 @@ from pathlib import Path
 
 ATTRIBUTION = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
 
+
 class Map:
     def __init__(
         self,
