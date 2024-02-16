@@ -11,6 +11,8 @@ from litestar import Litestar
 from litestar.plugins import CLIPluginProtocol
 from rich.console import Console
 from rich.table import Table
+from .lib.cache import provide_redis_service
+from .lib.cache_keys import CacheKeys
 
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.db import services as db_services
@@ -194,11 +196,16 @@ class CLIPlugin(CLIPluginProtocol):
                 "totals": attributes_of_total_rows,
                 "total_time_taken(s)": round(total_time_taken, 2),
             }
+
             await create_event_with_session(
                 EventType.GTFS_DATABASE_UPDATED,
                 "GTFS static data updated with latest schedules",
                 attributes,
             )
+
+            redis_service = provide_redis_service()
+            await redis_service.delete_keys(CacheKeys.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
+
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
         @cli.command(name="importrealtime", help="Imports GTFS realtime data into the database")
@@ -488,3 +495,20 @@ class CLIPlugin(CLIPluginProtocol):
             finish: float = time.perf_counter()
             console.print(f"\n[blue]Deleted {number_deleted} events")
             console.print(f"\n[blue]Finished cleanup in {round(finish-start, 2)} second(s)")
+
+
+        @cli.command(name="flushredis", help="Flushes the Redis cache")
+        @make_sync
+        async def flushredis():
+            """Flushes the Redis cache"""
+
+            console = Console()
+            console.print("Flushing the Redis cache...")
+
+            redis_service = provide_redis_service()
+
+            total_keys = await redis_service.count_all_keys()
+            console.print(f"\nTotal keys in the Redis cache: {total_keys}")
+
+            await redis_service.delete_all_keys()
+            console.print("\n[blue]Finished flushing the Redis cache")

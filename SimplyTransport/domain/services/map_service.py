@@ -5,7 +5,6 @@ from SimplyTransport.domain.maps.polylines import PolyLineColors, RoutePolyLine
 from SimplyTransport.domain.shape.model import ShapeModel
 from SimplyTransport.domain.shape.repo import ShapeRepository
 from SimplyTransport.domain.trip.repo import TripRepository
-from SimplyTransport.lib.profiling import Profiler
 from ..route.repo import RouteRepository
 from ..maps.maps import Map
 from ..maps.markers import StopMarker
@@ -62,7 +61,9 @@ class MapService:
         route_colors = cycle(list(PolyLineColors))
 
         for route in routes:
-            trip = next(trip for trip in trips if trip.route_id == route.id)
+            trip = next((trip for trip in trips if trip.route_id == route.id), None)
+            if trip is None:
+                continue
             trip_shapes = shapes_dict.get(trip.shape_id, [])
             locations = [(shape.lat, shape.lon) for shape in trip_shapes]
             route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))

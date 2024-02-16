@@ -1,6 +1,7 @@
 import uvicorn
 from litestar import Litestar
 from litestar.di import Provide
+from litestar.stores.registry import StoreRegistry
 
 from SimplyTransport.lib import exception_handlers
 
@@ -11,7 +12,7 @@ from .lib.db.database import sqlalchemy_plugin
 from .lib.openapi.openapiconfig import custom_open_api_config
 from .lib.template_engine import custom_template_config
 from .lib.static_files import custom_static_files_config
-from .lib.cache import cache_config
+from .lib.cache import redis_service_cache_config_factory, redis_store_factory
 from .cli import CLIPlugin
 from .lib.parameters.limitoffset import provide_limit_offset_pagination
 
@@ -22,13 +23,14 @@ def create_app() -> Litestar:
         route_handlers=[create_views_router(), create_api_router()],
         on_startup=[db_services.create_database],
         plugins=[sqlalchemy_plugin, CLIPlugin()],
+        stores=StoreRegistry(default_factory=redis_store_factory),
         openapi_config=custom_open_api_config(),
         template_config=custom_template_config(),
         static_files_config=custom_static_files_config(),
         dependencies={
             "limit_offset": Provide(provide_limit_offset_pagination),
         },
-        response_cache_config=cache_config,
+        response_cache_config=redis_service_cache_config_factory(),
         exception_handlers={404: exception_handlers.handle_404},
     )
 
