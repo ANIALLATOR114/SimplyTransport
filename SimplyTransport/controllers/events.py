@@ -37,7 +37,9 @@ class EventsController(Controller):
         self,
         event_repo: EventRepository,
         limit_offset: LimitOffset,
-        search_type: str | None = Parameter(query="search_type", required=False, description="Search events by type"),
+        search_type: str | None = Parameter(
+            query="search_type", required=False, description="Search events by type"
+        ),
         sort: str | None = Parameter(
             query="sort", required=False, description="Sort events ascending or descending by creation time"
         ),
