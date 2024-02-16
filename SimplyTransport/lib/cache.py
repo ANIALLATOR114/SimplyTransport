@@ -42,40 +42,37 @@ class RedisService:
         self.default_expiration = default_expiration
 
     async def delete_keys(self, pattern: CacheKeys) -> None:
-            """
-            Delete keys from the cache based on the given pattern.
+        """
+        Delete keys from the cache based on the given pattern.
 
-            Args:
-                pattern (CacheKeys): The pattern to match the keys.
+        Args:
+            pattern (CacheKeys): The pattern to match the keys.
 
-            Returns:
-                None
-            """
-            keys = await self.redis.keys(pattern.value)
-            if keys:
-                await self.redis.delete(*keys)
+        Returns:
+            None
+        """
+        keys = await self.redis.keys(pattern.value)
+        if keys:
+            await self.redis.delete(*keys)
 
+    async def delete_key(self, template: CacheKeys, id: str) -> None:
+        """
+        Delete a key from the cache.
 
-    async def delete_key(self, template: CacheKeys, id:str) -> None:
-            """
-            Delete a key from the cache.
+        Args:
+            key (CacheKeys): The key to delete from the cache.
 
-            Args:
-                key (CacheKeys): The key to delete from the cache.
-
-            Returns:
-                None
-            """
-            key = template.value.format(**{id: id})
-            await self.redis.delete(key)
-
+        Returns:
+            None
+        """
+        key = template.value.format(**{id: id})
+        await self.redis.delete(key)
 
     async def delete_all_keys(self) -> None:
         """
         Deletes all keys from the cache.
         """
         await self.delete_keys(CacheKeys.ALL_KEYS)
-
 
     async def count_all_keys(self) -> int:
         """
@@ -86,19 +83,18 @@ class RedisService:
         """
         return len(await self.redis.keys(CacheKeys.ALL_KEYS.value))
 
+    async def set(self, template: CacheKeys, id: str, value: str, expiration: int = None) -> None:
+        """
+        Set a value in the cache.
 
-    async def set(self, template: CacheKeys, id:str, value: str, expiration: int = None) -> None:
-            """
-            Set a value in the cache.
-
-            Args:
-                template (CacheKeys): The cache key template.
-                id (str): The identifier used in the cache key template.
-                value (str): The value to be stored in the cache.
-                expiration (int, optional): The expiration time in seconds. Defaults to None.
-            """
-            key = template.value.format(**{id: id})
-            await self.redis.set(key, value, ex=expiration or self.default_expiration)
+        Args:
+            template (CacheKeys): The cache key template.
+            id (str): The identifier used in the cache key template.
+            value (str): The value to be stored in the cache.
+            expiration (int, optional): The expiration time in seconds. Defaults to None.
+        """
+        key = template.value.format(**{id: id})
+        await self.redis.set(key, value, ex=expiration or self.default_expiration)
 
 
 def provide_redis_service() -> RedisService:

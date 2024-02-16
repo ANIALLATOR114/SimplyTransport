@@ -496,7 +496,6 @@ class CLIPlugin(CLIPluginProtocol):
             console.print(f"\n[blue]Deleted {number_deleted} events")
             console.print(f"\n[blue]Finished cleanup in {round(finish-start, 2)} second(s)")
 
-
         @cli.command(name="flushredis", help="Flushes the Redis cache")
         @make_sync
         async def flushredis():
