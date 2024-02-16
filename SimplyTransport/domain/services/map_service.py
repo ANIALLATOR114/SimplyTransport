@@ -42,8 +42,8 @@ class MapService:
         direction = await self.stop_repository.get_direction_of_stop(stop_id)
         routes = await self.route_repository.get_routes_by_stop_id_with_agency(stop_id)
 
-        map = Map(stop.lat, stop.lon, 14)
-        map.setup_defaults()
+        stop_map = Map(stop.lat, stop.lon, 14)
+        stop_map.setup_defaults()
 
         route_ids = [route.id for route in routes]
         trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids, direction)
@@ -53,7 +53,7 @@ class MapService:
         shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
 
         stop_marker = StopMarker(stop=stop, create_link=False, routes=routes)
-        stop_marker.add_to(map.map)
+        stop_marker.add_to(stop_map.map)
 
         shapes_dict: Dict[str, List[ShapeModel]] = defaultdict(list)
         for shape in shapes:
@@ -66,14 +66,14 @@ class MapService:
             trip_shapes = shapes_dict.get(trip.shape_id, [])
             locations = [(shape.lat, shape.lon) for shape in trip_shapes]
             route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
-            route_poly.add_with_layer_to(map.map)
+            route_poly.add_with_layer_to(stop_map.map)
 
         for stop in other_stops_on_routes:
             stop_marker = StopMarker(stop=stop)
-            stop_marker.add_to(map.map, type_of_marker="circle")
+            stop_marker.add_to(stop_map.map, type_of_marker="circle")
 
-        map.add_layer_control()
-        return map
+        stop_map.add_layer_control()
+        return stop_map
 
 
 async def provide_map_service(db_session: AsyncSession) -> MapService:
