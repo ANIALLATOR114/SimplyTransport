@@ -24,10 +24,25 @@ function sortTableByColumn(table, column, asc = true) {
 		const bColText = b
 			.querySelector(`td:nth-child(${column + 1})`)
 			.textContent.trim();
-		const aColValue =
-			aColText === "" ? 0 : isNaN(aColText) ? aColText : parseFloat(aColText);
-		const bColValue =
-			bColText === "" ? 0 : isNaN(bColText) ? bColText : parseFloat(bColText);
+
+		let aColValue;
+		if (aColText === "") {
+			aColValue = 0;
+		} else if (isNaN(aColText)) {
+			aColValue = aColText;
+		} else {
+			aColValue = parseFloat(aColText);
+		}
+
+		let bColValue;
+		if (bColText === "") {
+			bColValue = 0;
+		} else if (isNaN(bColText)) {
+			bColValue = bColText;
+		} else {
+			bColValue = parseFloat(bColText);
+		}
+
 		switch (type) {
 			case "number":
 				return (parseFloat(aColValue) - parseFloat(bColValue)) * dirModifier;

@@ -5,7 +5,6 @@ from SimplyTransport.domain.maps.polylines import PolyLineColors, RoutePolyLine
 from SimplyTransport.domain.shape.model import ShapeModel
 from SimplyTransport.domain.shape.repo import ShapeRepository
 from SimplyTransport.domain.trip.repo import TripRepository
-from SimplyTransport.lib.profiling import Profiler
 from ..route.repo import RouteRepository
 from ..maps.maps import Map
 from ..maps.markers import StopMarker
@@ -53,7 +52,7 @@ class MapService:
         shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
 
         stop_marker = StopMarker(stop=stop, create_link=False, routes=routes)
-        stop_marker.add_to(stop_map.map)
+        stop_marker.add_to(stop_map.map_base)
 
         shapes_dict: Dict[str, List[ShapeModel]] = defaultdict(list)
         for shape in shapes:
@@ -62,15 +61,17 @@ class MapService:
         route_colors = cycle(list(PolyLineColors))
 
         for route in routes:
-            trip = next(trip for trip in trips if trip.route_id == route.id)
+            trip = next((trip for trip in trips if trip.route_id == route.id), None)
+            if trip is None:
+                continue
             trip_shapes = shapes_dict.get(trip.shape_id, [])
             locations = [(shape.lat, shape.lon) for shape in trip_shapes]
             route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
-            route_poly.add_with_layer_to(stop_map.map)
+            route_poly.add_with_layer_to(stop_map.map_base)
 
         for stop in other_stops_on_routes:
             stop_marker = StopMarker(stop=stop)
-            stop_marker.add_to(stop_map.map, type_of_marker="circle")
+            stop_marker.add_to(stop_map.map_base, type_of_marker="circle")
 
         stop_map.add_layer_control()
         return stop_map

@@ -1,3 +1,4 @@
+import math
 from SimplyTransport.domain.maps.markers import BusMarker, StopMarker, MarkerColors
 import folium as fl
 
@@ -12,22 +13,22 @@ def stop():
 
 
 def test_stop_marker_init(stop: StopModel):
-    stop = StopMarker(stop, [])
-    assert stop.stop.id == "test_stop_id"
-    assert stop.stop.name == "Test Stop"
-    assert stop.stop.lat == 53.0
-    assert stop.stop.lon == -7.0
-    assert stop.create_link is True
-    assert stop.color is None
-    assert type(stop.popup) is fl.Popup
-    assert type(stop.tooltip) is fl.Tooltip
-    assert type(stop.icon) is fl.Icon
+    marker = StopMarker(stop, [])
+    assert marker.stop.id == "test_stop_id"
+    assert marker.stop.name == "Test Stop"
+    assert math.isclose(marker.stop.lon, -7.0, abs_tol=1e-09)
+    assert math.isclose(marker.stop.lat, 53.0, abs_tol=1e-09)
+    assert marker.create_link is True
+    assert marker.color is None
+    assert type(marker.popup) is fl.Popup
+    assert type(marker.tooltip) is fl.Tooltip
+    assert type(marker.icon) is fl.Icon
 
 
 @pytest.mark.parametrize("create_links", [(False), (True)])
 def test_stop_marker_links(create_links, stop: StopModel):
-    stop = StopMarker(stop, create_link=create_links)
-    assert stop.create_link is create_links
+    marker = StopMarker(stop, create_link=create_links)
+    assert marker.create_link is create_links
 
 
 @pytest.mark.parametrize(
@@ -56,9 +57,9 @@ def test_stop_marker_links(create_links, stop: StopModel):
     ],
 )
 def test_stop_marker_color(color: MarkerColors, stop: StopModel):
-    stop = StopMarker(stop, color=color)
-    assert stop.color == color
-    assert type(stop.icon) is fl.Icon
+    marker = StopMarker(stop, color=color)
+    assert marker.color == color
+    assert type(marker.icon) is fl.Icon
 
 
 def test_bus_marker_init():
@@ -66,8 +67,8 @@ def test_bus_marker_init():
     assert bus.route_name == "Test Bus"
     assert bus.route_id == "test_bus_id"
     assert bus.operator_name == "test_operator"
-    assert bus.lat == 53.0
-    assert bus.lon == -7.0
+    assert math.isclose(bus.lon, -7.0, abs_tol=1e-09)
+    assert math.isclose(bus.lat, 53.0, abs_tol=1e-09)
     assert bus.color is None
     assert type(bus.icon) is fl.Icon
     assert type(bus.popup) is fl.Popup
