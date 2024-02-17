@@ -15,6 +15,7 @@ from .lib.static_files import custom_static_files_config
 from .lib.cache import redis_service_cache_config_factory, redis_store_factory
 from .cli import CLIPlugin
 from .lib.parameters.limitoffset import provide_limit_offset_pagination
+from .lib.compression import compression_config
 
 
 def create_app() -> Litestar:
@@ -27,6 +28,7 @@ def create_app() -> Litestar:
         openapi_config=custom_open_api_config(),
         template_config=custom_template_config(),
         static_files_config=custom_static_files_config(),
+        compression_config=compression_config,
         dependencies={
             "limit_offset": Provide(provide_limit_offset_pagination),
         },
