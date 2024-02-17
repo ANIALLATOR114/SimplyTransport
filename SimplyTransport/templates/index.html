@@ -9,13 +9,14 @@
             SimplyTransport is the one-stop solution for navigating Ireland's public transportation system.
         </p>
         <p class="dense-text">
-            Access vital transit information for Dublin Bus, Go-Ahead, Bus Éireann, Irish Rail, and Luas. SimplyTransport provides a simple, intuitive interface to quickly get the latest information on your journey.
+            Access vital transit information for Dublin Bus, Go-Ahead, Bus Éireann, Irish Rail, and Luas.
+            SimplyTransport provides a simple, intuitive interface to quickly get the latest information on transport services.
         </p>
         <p class="dense-text">
-            Read more about SimplyTransport <a href="/about">here</a>.
+            Read more about SimplyTransport <a class="link-style" href="/about">here</a>.
         </p>
         <p class="dense-text">
-            Have a look <a href="/realtime/stop/8220DB001359">at a stop</a> on dame street as an example!
+            Have a look <a class="link-style" href="/realtime/stop/8220DB001359">at a stop on dame street</a> as an example!
         </p>
         <div class="inner-container">
             <h2 class="no-top-margin">Datasets</h2>
@@ -60,9 +61,23 @@
                 </div>
                 <div class="dense-text">Nightly (if needed)</div>
                 <div class="dense-text">
-                    <a href="/events">Detailed</a>
+                    <a class="link-style" href="/events">Detailed</a>
                 </div>
             </div>
+        </div>
+        <div class="inner-container">
+            <h3 class="no-top-margin">Visualation of static schedule dataset over time</h3>
+            <img src="/static/graphs/gtfs_static.png"
+                 alt="GTFS Static Graph"
+                 width="100%"
+                 height="auto"
+                 loading="lazy">
+            <h3>Averages of Trips / StopTimes over 7 days</h3>
+            <img src="/static/graphs/rt_7_days.png"
+                 alt="Realtime Graph"
+                 width="100%"
+                 height="auto"
+                 loading="lazy">
         </div>
     </div>
     <div>
@@ -80,6 +95,7 @@
             -moz-animation: driveBus 22s linear infinite, rumble 1.5s linear infinite;
             -webkit-animation: driveBus 22s linear infinite, rumble 1.5s linear infinite;
             overflow-x: hidden;
+            z-index: 1000;
         }
 
         @-moz-keyframes driveBus {
