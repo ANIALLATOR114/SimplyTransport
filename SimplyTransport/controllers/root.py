@@ -3,10 +3,7 @@ from litestar.response import Template
 from litestar.di import Provide
 from SimplyTransport.domain.maps.maps import Map
 
-from SimplyTransport.domain.maps.polylines import PolyLineColors, RoutePolyLine
-
 from ..domain.services.map_service import MapService
-from ..domain.maps.markers import BusMarker, MarkerColors, StopMarker
 
 from ..domain.events.repo import EventRepository, provide_event_repo
 from ..domain.events.event_types import EventType
@@ -27,13 +24,15 @@ class RootController(Controller):
         "map": Provide(Map, sync_to_thread=False),
     }
 
-    @get("/")
+    @get("/", cache=60)
     async def root(
         self,
         event_repo: EventRepository,
     ) -> Template:
 
-        gtfs_updated_event = await event_repo.get_single_pretty_event_by_type(EventType.GTFS_DATABASE_UPDATED)
+        gtfs_updated_event = await event_repo.get_single_pretty_event_by_type(
+            EventType.GTFS_DATABASE_UPDATED
+        )
         realtime_updated_event = await event_repo.get_single_pretty_event_by_type(
             EventType.REALTIME_DATABASE_UPDATED
         )
