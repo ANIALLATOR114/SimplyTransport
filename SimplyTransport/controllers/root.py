@@ -30,9 +30,7 @@ class RootController(Controller):
         event_repo: EventRepository,
     ) -> Template:
 
-        gtfs_updated_event = await event_repo.get_single_pretty_event_by_type(
-            EventType.GTFS_DATABASE_UPDATED
-        )
+        gtfs_updated_event = await event_repo.get_single_pretty_event_by_type(EventType.GTFS_DATABASE_UPDATED)
         realtime_updated_event = await event_repo.get_single_pretty_event_by_type(
             EventType.REALTIME_DATABASE_UPDATED
         )
