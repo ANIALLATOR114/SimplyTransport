@@ -3,10 +3,7 @@ from litestar.response import Template
 from litestar.di import Provide
 from SimplyTransport.domain.maps.maps import Map
 
-from SimplyTransport.domain.maps.polylines import PolyLineColors, RoutePolyLine
-
 from ..domain.services.map_service import MapService
-from ..domain.maps.markers import BusMarker, MarkerColors, StopMarker
 
 from ..domain.events.repo import EventRepository, provide_event_repo
 from ..domain.events.event_types import EventType
@@ -27,7 +24,7 @@ class RootController(Controller):
         "map": Provide(Map, sync_to_thread=False),
     }
 
-    @get("/")
+    @get("/", cache=60)
     async def root(
         self,
         event_repo: EventRepository,
