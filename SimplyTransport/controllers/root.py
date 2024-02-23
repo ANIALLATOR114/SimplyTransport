@@ -79,38 +79,75 @@ class RootController(Controller):
     async def route(self) -> Template:
         return Template("gtfs_search/route_search.html")
 
-
-
-
-    #Static files on the root / path
+    # Static files on the root / path
     @get("/favicon.ico")
     async def favicon(self) -> File:
-        return File(path=f"{APP_DIR}/{STATIC_DIR}/favicon.ico", content_disposition_type="inline", media_type="image/vnd.microsoft.icon", filename="favicon.ico")
-    
+        return File(
+            path=f"{APP_DIR}/{STATIC_DIR}/favicon.ico",
+            content_disposition_type="inline",
+            media_type="image/vnd.microsoft.icon",
+            filename="favicon.ico",
+        )
+
     @get("/site.webmanifest")
     async def site_manifest(self) -> File:
-        return File(path=f"{APP_DIR}/{STATIC_DIR}/site.webmanifest", content_disposition_type="inline", media_type="application/manifest+json", filename="site.webmanifest")
-    
+        return File(
+            path=f"{APP_DIR}/{STATIC_DIR}/site.webmanifest",
+            content_disposition_type="inline",
+            media_type="application/manifest+json",
+            filename="site.webmanifest",
+        )
+
     @get("/robots.txt")
     async def robots(self) -> File:
-        return File(path=f"{APP_DIR}/{STATIC_DIR}/robots.txt", content_disposition_type="inline", media_type="text/plain", filename="robots.txt")
-    
+        return File(
+            path=f"{APP_DIR}/{STATIC_DIR}/robots.txt",
+            content_disposition_type="inline",
+            media_type="text/plain",
+            filename="robots.txt",
+        )
+
     @get("/favicon-16x16.png")
     async def favicon_16(self) -> File:
-        return File(path=f"{APP_DIR}/{STATIC_DIR}/favicon-16x16.png", content_disposition_type="inline", media_type="image/png", filename="favicon-16x16.png")
-    
+        return File(
+            path=f"{APP_DIR}/{STATIC_DIR}/favicon-16x16.png",
+            content_disposition_type="inline",
+            media_type="image/png",
+            filename="favicon-16x16.png",
+        )
+
     @get("/favicon-32x32.png")
     async def favicon_32(self) -> File:
-        return File(path=f"{APP_DIR}/{STATIC_DIR}/favicon-32x32.png", content_disposition_type="inline", media_type="image/png", filename="favicon-32x32.png")
-    
+        return File(
+            path=f"{APP_DIR}/{STATIC_DIR}/favicon-32x32.png",
+            content_disposition_type="inline",
+            media_type="image/png",
+            filename="favicon-32x32.png",
+        )
+
     @get("/apple-touch-icon.png")
     async def apple_touch(self) -> File:
-        return File(path=f"{APP_DIR}/{STATIC_DIR}/apple-touch-icon.png", content_disposition_type="inline", media_type="image/png", filename="apple-touch-icon.png")
-    
+        return File(
+            path=f"{APP_DIR}/{STATIC_DIR}/apple-touch-icon.png",
+            content_disposition_type="inline",
+            media_type="image/png",
+            filename="apple-touch-icon.png",
+        )
+
     @get("/android-chrome-192x192.png")
     async def android_192(self) -> File:
-        return File(path=f"{APP_DIR}/{STATIC_DIR}/android-chrome-192x192.png", content_disposition_type="inline", media_type="image/png", filename="android-chrome-192x192.png")
-    
+        return File(
+            path=f"{APP_DIR}/{STATIC_DIR}/android-chrome-192x192.png",
+            content_disposition_type="inline",
+            media_type="image/png",
+            filename="android-chrome-192x192.png",
+        )
+
     @get("/android-chrome-512x512.png")
     async def android_512(self) -> File:
-        return File(path=f"{APP_DIR}/{STATIC_DIR}/android-chrome-512x512.png", content_disposition_type="inline", media_type="image/png", filename="android-chrome-512x512.png")
+        return File(
+            path=f"{APP_DIR}/{STATIC_DIR}/android-chrome-512x512.png",
+            content_disposition_type="inline",
+            media_type="image/png",
+            filename="android-chrome-512x512.png",
+        )
