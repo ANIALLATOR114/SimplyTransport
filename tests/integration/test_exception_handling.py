@@ -1,7 +1,7 @@
 from litestar.testing import TestClient
 import pytest
 
-urls = ["fakeroute", "fakerouter/fake", "/api/fakeroute", "/api/fakeroute/fake"]
+urls = ["/fakeroute", "/fakerouter/fake", "/api/fakeroute", "/api/fakeroute/fake"]
 
 
 @pytest.mark.parametrize("url", urls)
@@ -11,9 +11,6 @@ def test_api_404_handler(client: TestClient, url: str) -> None:
     response_json = response.json()
     assert response_json["path"] == url
     assert response.elapsed.total_seconds() < 1
-
-
-urls = ["fakeroute", "fakerouter/fake", "/api/fakeroute", "/api/fakeroute/fake"]
 
 
 @pytest.mark.parametrize("url", urls)
