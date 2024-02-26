@@ -1,5 +1,6 @@
 import folium as fl
 
+
 class Layer:
     def __init__(self, name: str) -> None:
         """
@@ -13,7 +14,6 @@ class Layer:
         """
         self.name = name
         self.base_layer = fl.FeatureGroup(name=name)
-
 
     def add_to(self, map: fl.Map) -> None:
         """

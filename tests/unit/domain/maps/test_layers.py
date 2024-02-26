@@ -5,6 +5,7 @@ from SimplyTransport.domain.maps.maps import Map
 
 LAYER_NAME = "TestLayer"
 
+
 def test_layer_init():
     layer = Layer(name=LAYER_NAME)
     assert layer.name == LAYER_NAME

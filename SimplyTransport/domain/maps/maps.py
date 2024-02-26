@@ -7,36 +7,36 @@ ATTRIBUTION = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; 
 
 class Map:
     def __init__(
-            self,
-            height: int = None,
-            lat: float = 53.44928237017178,
-            lon: float = -7.514413484752406,
-            zoom: int = 8,
-            max_zoom: int = 20,
-        ) -> None:
-            """
-            Initializes a Maps object.
+        self,
+        height: int = None,
+        lat: float = 53.44928237017178,
+        lon: float = -7.514413484752406,
+        zoom: int = 8,
+        max_zoom: int = 20,
+    ) -> None:
+        """
+        Initializes a Maps object.
 
-            Args:
-                height (int, optional): The height of the map in pixels. Defaults to None. If not provided the map will maintain 16:9 aspect ratio.
-                lat (float, optional): The latitude of the map's center. Defaults to 53.44928237017178.
-                lon (float, optional): The longitude of the map's center. Defaults to -7.514413484752406.
-                zoom (int, optional): The initial zoom level of the map. Defaults to 8.
-                max_zoom (int, optional): The maximum allowed zoom level of the map. Defaults to 20.
-            """
-            location = [lat, lon]
+        Args:
+            height (int, optional): The height of the map in pixels. Defaults to None. If not provided the map will maintain 16:9 aspect ratio.
+            lat (float, optional): The latitude of the map's center. Defaults to 53.44928237017178.
+            lon (float, optional): The longitude of the map's center. Defaults to -7.514413484752406.
+            zoom (int, optional): The initial zoom level of the map. Defaults to 8.
+            max_zoom (int, optional): The maximum allowed zoom level of the map. Defaults to 20.
+        """
+        location = [lat, lon]
 
-            if height:
-                f = fl.Figure(height=height)
-                self.map_base = fl.Map(
-                    location=location, zoom_start=zoom, prefer_canvas=True, max_zoom=max_zoom, tiles=None
-                ).add_to(f)
-            else:
-                self.map_base = fl.Map(
-                    location=location, zoom_start=zoom, prefer_canvas=True, max_zoom=max_zoom, tiles=None
-                )
+        if height:
+            f = fl.Figure(height=height)
+            self.map_base = fl.Map(
+                location=location, zoom_start=zoom, prefer_canvas=True, max_zoom=max_zoom, tiles=None
+            ).add_to(f)
+        else:
+            self.map_base = fl.Map(
+                location=location, zoom_start=zoom, prefer_canvas=True, max_zoom=max_zoom, tiles=None
+            )
 
-            self.max_zoom = max_zoom
+        self.max_zoom = max_zoom
 
     def add_fullscreen(self) -> None:
         """
@@ -78,7 +78,6 @@ class Map:
             max_zoom = self.max_zoom
         fl.TileLayer(tiles, name=name, max_zoom=max_zoom, attr=attribution).add_to(self.map_base)
 
-
     def add_layer_control(self) -> None:
         """
         Adds a layer control to the map.
@@ -87,7 +86,6 @@ class Map:
             None
         """
         fl.LayerControl(collapsed=False).add_to(self.map_base)
-
 
     def setup_defaults(self) -> None:
         """
@@ -115,7 +113,6 @@ class Map:
             attribution=ATTRIBUTION,
         )
 
-
     def render(self) -> str:
         """
         Renders the map and returns it as an HTML string.
@@ -124,7 +121,6 @@ class Map:
             str: The HTML representation of the map.
         """
         return self.map_base._repr_html_()
-
 
     def save(self, path: str, filename: str) -> None:
         """

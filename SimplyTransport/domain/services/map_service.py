@@ -42,7 +42,7 @@ class MapService:
         direction = await self.stop_repository.get_direction_of_stop(stop_id)
         routes = await self.route_repository.get_routes_by_stop_id_with_agency(stop_id)
 
-        stop_map = Map(lat=stop.lat, lon=stop.lon, zoom=14,height=500)
+        stop_map = Map(lat=stop.lat, lon=stop.lon, zoom=14, height=500)
         stop_map.setup_defaults()
 
         route_ids = [route.id for route in routes]
@@ -69,7 +69,6 @@ class MapService:
             locations = [(shape.lat, shape.lon) for shape in trip_shapes]
             route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
             route_poly.add_with_layer_to(stop_map.map_base)
-
 
         other_stops_layer = Layer(name="Other Stops")
         for stop in other_stops_on_routes:
