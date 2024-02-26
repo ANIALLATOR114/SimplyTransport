@@ -1,10 +1,11 @@
 from collections import defaultdict
 from itertools import cycle
 from typing import Dict, List
-from SimplyTransport.domain.maps.polylines import PolyLineColors, RoutePolyLine
-from SimplyTransport.domain.shape.model import ShapeModel
-from SimplyTransport.domain.shape.repo import ShapeRepository
-from SimplyTransport.domain.trip.repo import TripRepository
+from ..maps.layers import Layer
+from ..maps.polylines import PolyLineColors, RoutePolyLine
+from ..shape.model import ShapeModel
+from ..shape.repo import ShapeRepository
+from ..trip.repo import TripRepository
 from ..route.repo import RouteRepository
 from ..maps.maps import Map
 from ..maps.markers import StopMarker
@@ -41,7 +42,7 @@ class MapService:
         direction = await self.stop_repository.get_direction_of_stop(stop_id)
         routes = await self.route_repository.get_routes_by_stop_id_with_agency(stop_id)
 
-        stop_map = Map(stop.lat, stop.lon, 14)
+        stop_map = Map(lat=stop.lat, lon=stop.lon, zoom=14, height=500)
         stop_map.setup_defaults()
 
         route_ids = [route.id for route in routes]
@@ -69,9 +70,11 @@ class MapService:
             route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
             route_poly.add_with_layer_to(stop_map.map_base)
 
+        other_stops_layer = Layer(name="Other Stops")
         for stop in other_stops_on_routes:
             stop_marker = StopMarker(stop=stop)
-            stop_marker.add_to(stop_map.map_base, type_of_marker="circle")
+            stop_marker.add_to(other_stops_layer.base_layer, type_of_marker="circle")
+        other_stops_layer.add_to(stop_map.map_base)
 
         stop_map.add_layer_control()
         return stop_map

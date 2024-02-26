@@ -477,6 +477,7 @@ h3 {
 	display: none;
 	padding-bottom: 40%;
 }
+
 .htmx-request.map-loader {
 	display: inline;
 }
@@ -546,5 +547,9 @@ h3 {
 
 	.h2-svg img {
 		width: 1.4rem;
+	}
+
+	.inner-container-expand {
+		padding: 0 !important;
 	}
 }
