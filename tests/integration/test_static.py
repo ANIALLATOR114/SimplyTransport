@@ -1,13 +1,41 @@
+from SimplyTransport.lib.constants import STATIC_DIR
+
 from litestar.testing import AsyncTestClient
 import pytest
 
 
 @pytest.mark.asyncio
-async def test_favicon(async_client: AsyncTestClient) -> None:
-    response = await async_client.get("/favicon.ico")
+@pytest.mark.parametrize(
+    "filename, content_type",
+    [
+        ("favicon.ico", "image/vnd.microsoft.icon"),
+        ("site.webmanifest", "application/manifest+json"),
+        ("robots.txt", "text/plain; charset=utf-8"),
+        ("favicon-16x16.png", "image/png"),
+        ("favicon-32x32.png", "image/png"),
+        ("apple-touch-icon.png", "image/png"),
+        ("android-chrome-192x192.png", "image/png"),
+        ("android-chrome-512x512.png", "image/png"),
+    ],
+)
+async def test_static_file_on_root(filename: str, content_type: str, async_client: AsyncTestClient) -> None:
+    response = await async_client.get(f"/{filename}")
     assert response.status_code == 200
-    content_types = [
-        "image/vnd.microsoft.icon",
-        "image/x-icon",
-    ]
-    assert response.headers["content-type"] in content_types
+    assert response.headers["content-type"] == content_type
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "filename, content_type",
+    [
+        ("event.css", "text/css; charset=utf-8"),
+        ("style.css", "text/css; charset=utf-8"),
+        # ("tablesort.js", "application/javascript; charset=utf-8"),
+        ("loader.svg", "image/svg+xml"),
+        ("simply_transport_logo.svg", "image/svg+xml"),
+    ],
+)
+async def test_static_file_in_static(filename: str, content_type: str, async_client: AsyncTestClient) -> None:
+    response = await async_client.get(f"/{STATIC_DIR}/{filename}")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == content_type
