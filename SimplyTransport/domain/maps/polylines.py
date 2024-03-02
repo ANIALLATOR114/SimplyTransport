@@ -1,6 +1,7 @@
 import folium as fl
 
 from enum import Enum
+from SimplyTransport.domain.maps.colors import Colors
 
 from SimplyTransport.domain.route.model import RouteModel
 
@@ -32,7 +33,7 @@ class RoutePolyLine:
         self,
         route: RouteModel,
         locations: list[tuple[float, float]],
-        route_color: PolyLineColors = PolyLineColors.BLUE,
+        route_color: Colors = Colors.BLUE,
         create_popup: bool = True,
         create_tooltip: bool = True,
         create_links: bool = True,
@@ -139,17 +140,3 @@ class RoutePolyLine:
             None
         """
         self.polyline.add_to(map)
-
-    def add_with_layer_to(self, map: fl.Map) -> None:
-        """
-        Adds the polyline to a given map with a feature layer.
-
-        Args:
-            map (fl.Map): The map to add the polyline to.
-
-        Returns:
-            None
-        """
-        layer = fl.FeatureGroup(name=self.route.short_name)
-        self.polyline.add_to(layer)
-        layer.add_to(map)

@@ -1,5 +1,5 @@
 from advanced_alchemy import NotFoundError
-from litestar import Controller, MediaType, get, template
+from litestar import Controller, MediaType, get
 from litestar.di import Provide
 from litestar.response import Template
 
@@ -19,8 +19,8 @@ class MapsController(Controller):
 
     @get(
         "/realtime/stop/{stop_id:str}",
-        cache=86400,
-        cache_key_builder=key_builder_from_path(CacheKeys.STOP_MAP_KEY_TEMPLATE, "stop_id"),
+        #cache=86400,
+        #cache_key_builder=key_builder_from_path(CacheKeys.STOP_MAP_KEY_TEMPLATE, "stop_id"),
     )
     async def map_for_stop(self, stop_id: str, map_service: MapService) -> Template:
         try:

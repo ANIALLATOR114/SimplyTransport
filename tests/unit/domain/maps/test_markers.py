@@ -1,15 +1,33 @@
+import datetime
 import math
-from SimplyTransport.domain.maps.markers import BusMarker, StopMarker, MarkerColors
+from SimplyTransport.domain.agency.model import AgencyModel
+from SimplyTransport.domain.maps.colors import Colors
+from SimplyTransport.domain.maps.markers import BusMarker, StopMarker
 import folium as fl
 
 import pytest
+from SimplyTransport.domain.realtime.vehicle.model import RTVehicleModel
+from SimplyTransport.domain.route.model import RouteModel
 
 from SimplyTransport.domain.stop.model import StopModel
+from SimplyTransport.domain.trip.model import TripModel
 
 
 @pytest.fixture
 def stop():
     return StopModel(id="test_stop_id", name="Test Stop", lat=53.0, lon=-7.0)
+
+@pytest.fixture
+def realtime_vehicle():
+    return RTVehicleModel(
+        vehicle_id ="test_vehicle_id",
+        time_of_update = datetime.datetime.strptime("2022-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"),
+        lat=53.0,
+        lon=-7.0,
+        trip=TripModel(
+            route=RouteModel(short_name="Test Route", agency=AgencyModel(name="Test Agency"))
+        )
+    )
 
 
 def test_stop_marker_init(stop: StopModel):
@@ -34,41 +52,29 @@ def test_stop_marker_links(create_links, stop: StopModel):
 @pytest.mark.parametrize(
     "color",
     [
-        MarkerColors.RED,
-        MarkerColors.BLUE,
-        MarkerColors.GREEN,
-        MarkerColors.PURPLE,
-        MarkerColors.ORANGE,
-        MarkerColors.DARKRED,
-        MarkerColors.LIGHTRED,
-        MarkerColors.DARKBLUE,
-        MarkerColors.LIGHTBLUE,
-        MarkerColors.DARKGREEN,
-        MarkerColors.LIGHTGREEN,
-        MarkerColors.DARKPURPLE,
-        MarkerColors.PINK,
-        MarkerColors.CADETBLUE,
-        MarkerColors.BEIGE,
-        MarkerColors.WHITE,
-        MarkerColors.GRAY,
-        MarkerColors.LIGHTGRAY,
-        MarkerColors.BLACK,
+        Colors.RED,
+        Colors.BLUE,
+        Colors.GREEN,
+        Colors.PURPLE,
+        Colors.ORANGE,
+        Colors.LIGHTBLUE,
+        Colors.PINK,
+        Colors.CADETBLUE,
         None,
     ],
 )
-def test_stop_marker_color(color: MarkerColors, stop: StopModel):
+def test_stop_marker_color(color: Colors, stop: StopModel):
     marker = StopMarker(stop, color=color)
     assert marker.color == color
     assert type(marker.icon) is fl.Icon
 
 
-def test_bus_marker_init():
-    bus = BusMarker("Test Bus", "test_bus_id", "test_operator", 53.0, -7.0)
-    assert bus.route_name == "Test Bus"
-    assert bus.route_id == "test_bus_id"
-    assert bus.operator_name == "test_operator"
-    assert math.isclose(bus.lon, -7.0, abs_tol=1e-09)
-    assert math.isclose(bus.lat, 53.0, abs_tol=1e-09)
+def test_bus_marker_init(realtime_vehicle: RTVehicleModel):
+    bus = BusMarker(realtime_vehicle)
+    assert bus.vehicle.vehicle_id == "test_vehicle_id"
+    assert bus.vehicle.time_of_update == datetime.datetime.strptime("2022-01-01 12:00:00", "%Y-%m-%d %H:%M:%S")
+    assert math.isclose(bus.vehicle.lon, -7.0, abs_tol=1e-09)
+    assert math.isclose(bus.vehicle.lat, 53.0, abs_tol=1e-09)
     assert bus.color is None
     assert type(bus.icon) is fl.Icon
     assert type(bus.popup) is fl.Popup
@@ -76,8 +82,8 @@ def test_bus_marker_init():
 
 
 @pytest.mark.parametrize("create_links,expected_in_html", [(False, False), (True, True)])
-def test_bus_marker_links(create_links, expected_in_html):
-    bus = BusMarker("Test Bus", "test_bus_id", "test_operator", 53.0, -7.0, create_links=create_links)
+def test_bus_marker_links(create_links:bool, expected_in_html:bool, realtime_vehicle: RTVehicleModel):
+    bus = BusMarker(vehicle=realtime_vehicle, create_links=create_links)
     assert bus.create_links is create_links
     assert ("href" in bus.popup.html.render()) is expected_in_html
 
@@ -85,29 +91,18 @@ def test_bus_marker_links(create_links, expected_in_html):
 @pytest.mark.parametrize(
     "color",
     [
-        MarkerColors.RED,
-        MarkerColors.BLUE,
-        MarkerColors.GREEN,
-        MarkerColors.PURPLE,
-        MarkerColors.ORANGE,
-        MarkerColors.DARKRED,
-        MarkerColors.LIGHTRED,
-        MarkerColors.DARKBLUE,
-        MarkerColors.LIGHTBLUE,
-        MarkerColors.DARKGREEN,
-        MarkerColors.LIGHTGREEN,
-        MarkerColors.DARKPURPLE,
-        MarkerColors.PINK,
-        MarkerColors.CADETBLUE,
-        MarkerColors.BEIGE,
-        MarkerColors.WHITE,
-        MarkerColors.GRAY,
-        MarkerColors.LIGHTGRAY,
-        MarkerColors.BLACK,
+        Colors.RED,
+        Colors.BLUE,
+        Colors.GREEN,
+        Colors.PURPLE,
+        Colors.ORANGE,
+        Colors.LIGHTBLUE,
+        Colors.PINK,
+        Colors.CADETBLUE,
         None,
     ],
 )
-def test_bus_marker_color(color):
-    stop = BusMarker("Test Bus", "test_bus_id", "test_operator", 53.0, -7.0, color=color)
+def test_bus_marker_color(color: Colors, realtime_vehicle: RTVehicleModel):
+    stop = BusMarker(vehicle=realtime_vehicle,color=color)
     assert stop.color == color
     assert type(stop.icon) is fl.Icon
