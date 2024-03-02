@@ -205,6 +205,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             redis_service = provide_redis_service()
             await redis_service.delete_keys(CacheKeys.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(CacheKeys.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
 
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
@@ -341,6 +342,9 @@ class CLIPlugin(CLIPluginProtocol):
                 "Realtime vehicles database updated with new realtime information",
                 attributes,
             )
+
+            redis_service = provide_redis_service()
+            await redis_service.delete_keys(CacheKeys.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
 
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 

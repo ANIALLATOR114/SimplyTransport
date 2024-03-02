@@ -2,8 +2,9 @@ from collections import defaultdict
 from itertools import cycle
 from typing import Dict, List
 
+from ..maps.layers import Layer
 from ..maps.colors import Colors
-from SimplyTransport.domain.realtime.vehicle.model import RTVehicleModel
+from ..realtime.vehicle.model import RTVehicleModel
 from ..maps.polylines import RoutePolyLine
 from ..realtime.vehicle.repo import RTVehicleRepository
 from ..shape.model import ShapeModel
@@ -34,7 +35,7 @@ class MapService:
 
     async def generate_stop_map(self, stop_id: str) -> Map:
         """
-        Generates a map with a stop marker and route polylines for a given stop ID.
+        Generates a map with markers and layers for a given stop ID.
 
         Args:
             stop_id (str): The ID of the stop.
@@ -52,22 +53,20 @@ class MapService:
 
         route_ids = [route.id for route in routes]
         trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids, direction)
-        other_stops_on_routes = await self.stop_repository.get_stops_by_route_ids(route_ids, direction)
+
         vehicles_on_routes = await self.rt_vehicle_repository.get_vehicles_on_routes(route_ids, direction)
+        vehicles_dict: Dict[str, List[RTVehicleModel]] = defaultdict(list)
+        for vehicle in vehicles_on_routes:
+            vehicles_dict[vehicle.trip.route_id].append(vehicle)
 
         shape_ids = [trip.shape_id for trip in trips]
         shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
-
-        stop_marker = StopMarker(stop=stop, create_link=False, routes=routes)
-        stop_marker.add_to(stop_map.map_base)
-
         shapes_dict: Dict[str, List[ShapeModel]] = defaultdict(list)
         for shape in shapes:
             shapes_dict[shape.shape_id].append(shape)
 
-        vehicles_dict: Dict[str, List[RTVehicleModel]] = defaultdict(list)
-        for vehicle in vehicles_on_routes:
-            vehicles_dict[vehicle.trip.route_id].append(vehicle)
+        stop_marker = StopMarker(stop=stop, create_link=False, routes=routes)
+        stop_marker.add_to(stop_map.map_base)
 
         route_colors = cycle(list(Colors))
 
@@ -91,6 +90,7 @@ class MapService:
 
             route_layer.add_to(stop_map.map_base)
 
+        other_stops_on_routes = await self.stop_repository.get_stops_by_route_ids(route_ids, direction)
         other_stops_layer = Layer("Stops")
         for stop in other_stops_on_routes:
             stop_marker = StopMarker(stop=stop)
