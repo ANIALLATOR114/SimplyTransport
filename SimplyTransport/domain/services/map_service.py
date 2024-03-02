@@ -82,7 +82,10 @@ class MapService:
             route_layer.add_child(route_poly.polyline)
 
             vehicles_on_route = vehicles_dict.get(route.id, [])
-            bus_markers = [BusMarker(vehicle=vehicle, create_links=True, color=route_poly.route_color).create_marker() for vehicle in vehicles_on_route]
+            bus_markers = [
+                BusMarker(vehicle=vehicle, create_links=True, color=route_poly.route_color).create_marker()
+                for vehicle in vehicles_on_route
+            ]
             for bus_marker in bus_markers:
                 route_layer.add_child(bus_marker)
 

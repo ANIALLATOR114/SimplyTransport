@@ -1,19 +1,19 @@
 import folium as fl
 
+
 class Layer:
-    def __init__(self, name:str):
-            """
-            Initialize a new Layer object.
+    def __init__(self, name: str):
+        """
+        Initialize a new Layer object.
 
-            Args:
-                name (str): The name of the layer.
+        Args:
+            name (str): The name of the layer.
 
-            Returns:
-                None
-            """
-            self.name = name
-            self.layer = fl.FeatureGroup(name=name)
-
+        Returns:
+            None
+        """
+        self.name = name
+        self.layer = fl.FeatureGroup(name=name)
 
     def add_to(self, map: fl.Map):
         """
@@ -23,7 +23,6 @@ class Layer:
             map: The map to add the layer to.
         """
         self.layer.add_to(map)
-
 
     def add_child(self, child):
         """
@@ -36,4 +35,3 @@ class Layer:
             None
         """
         self.layer.add_child(child)
-

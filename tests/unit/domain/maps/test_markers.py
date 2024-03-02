@@ -17,16 +17,15 @@ from SimplyTransport.domain.trip.model import TripModel
 def stop():
     return StopModel(id="test_stop_id", name="Test Stop", lat=53.0, lon=-7.0)
 
+
 @pytest.fixture
 def realtime_vehicle():
     return RTVehicleModel(
-        vehicle_id ="test_vehicle_id",
-        time_of_update = datetime.datetime.strptime("2022-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"),
+        vehicle_id="test_vehicle_id",
+        time_of_update=datetime.datetime.strptime("2022-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"),
         lat=53.0,
         lon=-7.0,
-        trip=TripModel(
-            route=RouteModel(short_name="Test Route", agency=AgencyModel(name="Test Agency"))
-        )
+        trip=TripModel(route=RouteModel(short_name="Test Route", agency=AgencyModel(name="Test Agency"))),
     )
 
 
@@ -72,7 +71,9 @@ def test_stop_marker_color(color: Colors, stop: StopModel):
 def test_bus_marker_init(realtime_vehicle: RTVehicleModel):
     bus = BusMarker(realtime_vehicle)
     assert bus.vehicle.vehicle_id == "test_vehicle_id"
-    assert bus.vehicle.time_of_update == datetime.datetime.strptime("2022-01-01 12:00:00", "%Y-%m-%d %H:%M:%S")
+    assert bus.vehicle.time_of_update == datetime.datetime.strptime(
+        "2022-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"
+    )
     assert math.isclose(bus.vehicle.lon, -7.0, abs_tol=1e-09)
     assert math.isclose(bus.vehicle.lat, 53.0, abs_tol=1e-09)
     assert bus.color is None
@@ -82,7 +83,7 @@ def test_bus_marker_init(realtime_vehicle: RTVehicleModel):
 
 
 @pytest.mark.parametrize("create_links,expected_in_html", [(False, False), (True, True)])
-def test_bus_marker_links(create_links:bool, expected_in_html:bool, realtime_vehicle: RTVehicleModel):
+def test_bus_marker_links(create_links: bool, expected_in_html: bool, realtime_vehicle: RTVehicleModel):
     bus = BusMarker(vehicle=realtime_vehicle, create_links=create_links)
     assert bus.create_links is create_links
     assert ("href" in bus.popup.html.render()) is expected_in_html
@@ -103,6 +104,6 @@ def test_bus_marker_links(create_links:bool, expected_in_html:bool, realtime_veh
     ],
 )
 def test_bus_marker_color(color: Colors, realtime_vehicle: RTVehicleModel):
-    stop = BusMarker(vehicle=realtime_vehicle,color=color)
+    stop = BusMarker(vehicle=realtime_vehicle, color=color)
     assert stop.color == color
     assert type(stop.icon) is fl.Icon

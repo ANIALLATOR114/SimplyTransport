@@ -263,7 +263,6 @@ class BusMarker:
         else:
             self.icon = fl.Icon(color="blue", icon="fa-bus", prefix="fa")
 
-
     def create_marker(self) -> fl.Marker:
         """
         Creates a marker for the bus.
