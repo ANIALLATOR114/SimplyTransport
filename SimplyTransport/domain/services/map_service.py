@@ -1,10 +1,9 @@
 from collections import defaultdict
 from itertools import cycle
 from typing import Dict, List
-from ..maps.colors import Colors
-from SimplyTransport.domain.maps.layers import Layer
-from SimplyTransport.domain.realtime.vehicle.model import RTVehicleModel
 
+from ..maps.colors import Colors
+from SimplyTransport.domain.realtime.vehicle.model import RTVehicleModel
 from ..maps.polylines import RoutePolyLine
 from ..realtime.vehicle.repo import RTVehicleRepository
 from ..shape.model import ShapeModel
@@ -48,7 +47,7 @@ class MapService:
         direction = await self.stop_repository.get_direction_of_stop(stop_id)
         routes = await self.route_repository.get_routes_by_stop_id_with_agency(stop_id)
 
-        stop_map = Map(stop.lat, stop.lon, 14)
+        stop_map = Map(lat=stop.lat, lon=stop.lon, zoom=14, height=500)
         stop_map.setup_defaults()
 
         route_ids = [route.id for route in routes]

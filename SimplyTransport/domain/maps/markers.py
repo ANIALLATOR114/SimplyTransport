@@ -121,12 +121,14 @@ class StopMarker:
         else:
             self.icon = fl.Icon(color="blue", icon="fa-chevron-circle-down", prefix="fa")
 
-    def add_to(self, map: fl.Map, type_of_marker: str = "regular", radius: float = 7) -> None:
+    def add_to(
+        self, canvas: fl.Map | fl.FeatureGroup, type_of_marker: str = "regular", radius: float = 7
+    ) -> None:
         """
-        Adds a marker to the given map.
+        Adds a marker to the given map or layer.
 
         Parameters:
-        - map: The map to add the marker to.
+        - canvas: The canvas to add the marker to.
         - type_of_marker: The type of marker to add. Defaults to "regular".
 
         Returns:
@@ -144,14 +146,14 @@ class StopMarker:
                 radius=radius,
                 weight=4,
                 opacity=1,
-            ).add_to(map)
+            ).add_to(canvas)
         else:
             fl.Marker(
                 [self.stop.lat, self.stop.lon],
                 tooltip=self.tooltip,
                 popup=self.popup,
                 icon=self.icon,
-            ).add_to(map)
+            ).add_to(canvas)
 
     def create_marker(self, type_of_marker: str = "regular", radius: float = 7) -> fl.Marker:
         """

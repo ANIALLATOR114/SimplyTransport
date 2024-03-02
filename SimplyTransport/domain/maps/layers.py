@@ -36,3 +36,4 @@ class Layer:
             None
         """
         self.layer.add_child(child)
+
