@@ -53,7 +53,9 @@ def key_builder_from_query(template: CacheKeys, *args):
     return _key_builder
 
 
-def key_builder_from_path_and_query(template: CacheKeys, path_args: list[str] = [], query_args: list[str] = []):
+def key_builder_from_path_and_query(
+    template: CacheKeys, path_args: list[str] = [], query_args: list[str] = []
+):
     """
     Builds a cache key based on the provided template and IDs.
 
@@ -85,7 +87,7 @@ def key_builder_from_header(template: CacheKeys, *args):
     Returns:
         callable: A function that takes a request object and returns the cache key.
     """
-    
+
     def _key_builder(request: Request):
         return template.value.format(**{arg: request.headers.get(arg) for arg in args})
 
