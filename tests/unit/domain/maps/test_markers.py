@@ -67,6 +67,7 @@ def test_stop_marker_color(color: Colors, stop: StopModel):
     assert marker.color == color
     assert type(marker.icon) is fl.Icon
 
+
 @pytest.mark.parametrize("marker_type,expected", [("regular", fl.Marker), ("circle", fl.CircleMarker)])
 def test_stop_marker_create_marker(stop: StopModel, marker_type: str, expected: fl.Marker | fl.CircleMarker):
     marker = StopMarker(stop, [])

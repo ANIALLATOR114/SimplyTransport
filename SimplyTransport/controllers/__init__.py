@@ -123,9 +123,7 @@ def create_api_router() -> Router:
         path="/schedule", tags=["Schedule"], security=[{}], route_handlers=[scheduleAPI.ScheduleController]
     )
 
-    maps_route_handler = Router(
-        path="/map", tags=["Map"], security=[{}], route_handlers=[map.MapController]
-    )
+    maps_route_handler = Router(path="/map", tags=["Map"], security=[{}], route_handlers=[map.MapController])
 
     return Router(
         path="/api/v1",
