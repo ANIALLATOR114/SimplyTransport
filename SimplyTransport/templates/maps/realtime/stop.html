@@ -5,6 +5,11 @@
      hx-indicator="#map-loader"
      hx-swap="transition:true">
     <div id="map-element"></div>
+    <button hx-get="/maps/realtime/stop/{{ stop.id }}"
+            hx-trigger="click"
+            hx-target="#map-element"
+            hx-swap="transition:true"
+            class="pagination-button">Refresh</button>
     <img class="map-loader"
          id="map-loader"
          src="/static/loader.svg"

@@ -16,6 +16,7 @@ from .api import (
     stoptime,
     realtime as realtimeAPI,
     schedule as scheduleAPI,
+    map,
 )
 
 __all__ = ["create_api_router", "create_views_router"]
@@ -122,6 +123,8 @@ def create_api_router() -> Router:
         path="/schedule", tags=["Schedule"], security=[{}], route_handlers=[scheduleAPI.ScheduleController]
     )
 
+    maps_route_handler = Router(path="/map", tags=["Map"], security=[{}], route_handlers=[map.MapController])
+
     return Router(
         path="/api/v1",
         route_handlers=[
@@ -135,5 +138,6 @@ def create_api_router() -> Router:
             stop_time_handler,
             realtime_route_handler,
             schedule_route_handler,
+            maps_route_handler,
         ],
     )

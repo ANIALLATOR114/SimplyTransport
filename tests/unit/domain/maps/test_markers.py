@@ -68,6 +68,12 @@ def test_stop_marker_color(color: Colors, stop: StopModel):
     assert type(marker.icon) is fl.Icon
 
 
+@pytest.mark.parametrize("marker_type,expected", [("regular", fl.Marker), ("circle", fl.CircleMarker)])
+def test_stop_marker_create_marker(stop: StopModel, marker_type: str, expected: fl.Marker | fl.CircleMarker):
+    marker = StopMarker(stop, [])
+    assert type(marker.create_marker(type_of_marker=marker_type)) is expected
+
+
 def test_bus_marker_init(realtime_vehicle: RTVehicleModel):
     bus = BusMarker(realtime_vehicle)
     assert bus.vehicle.vehicle_id == "test_vehicle_id"
@@ -107,3 +113,8 @@ def test_bus_marker_color(color: Colors, realtime_vehicle: RTVehicleModel):
     stop = BusMarker(vehicle=realtime_vehicle, color=color)
     assert stop.color == color
     assert type(stop.icon) is fl.Icon
+
+
+def test_bus_marker_create_marker(realtime_vehicle: RTVehicleModel):
+    bus = BusMarker(realtime_vehicle)
+    assert type(bus.create_marker()) is fl.Marker
