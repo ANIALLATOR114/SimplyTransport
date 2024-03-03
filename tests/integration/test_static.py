@@ -39,3 +39,10 @@ async def test_static_file_in_static(filename: str, content_type: str, async_cli
     response = await async_client.get(f"/{STATIC_DIR}/{filename}")
     assert response.status_code == 200
     assert response.headers["content-type"] == content_type
+
+
+@pytest.mark.asyncio
+async def test_static_files_have_max_age_header(async_client: AsyncTestClient) -> None:
+    response = await async_client.get(f"/{STATIC_DIR}/loader.svg")
+    assert response.status_code == 200
+    assert response.headers["Cache-Control"] == "max-age=7776000"

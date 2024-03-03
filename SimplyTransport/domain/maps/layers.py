@@ -13,7 +13,7 @@ class Layer:
             None
         """
         self.name = name
-        self.layer = fl.FeatureGroup(name=name)
+        self.base_layer = fl.FeatureGroup(name=name)
 
     def add_to(self, map: fl.Map):
         """
@@ -22,7 +22,7 @@ class Layer:
         Args:
             map: The map to add the layer to.
         """
-        self.layer.add_to(map)
+        self.base_layer.add_to(map)
 
     def add_child(self, child):
         """
@@ -34,4 +34,4 @@ class Layer:
         Returns:
             None
         """
-        self.layer.add_child(child)
+        self.base_layer.add_child(child)

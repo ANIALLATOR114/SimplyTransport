@@ -98,11 +98,6 @@ class Map:
         self.add_mouse_position()
         self.add_tilelayer()
         self.add_tilelayer(
-            name="Dark",
-            tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
-            attribution=ATTRIBUTION,
-        )
-        self.add_tilelayer(
             name="Light",
             tiles="https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png",
             attribution=ATTRIBUTION,
@@ -110,6 +105,11 @@ class Map:
         self.add_tilelayer(
             name="Terrain",
             tiles="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
+            attribution=ATTRIBUTION,
+        )
+        self.add_tilelayer(
+            name="Dark",
+            tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
             attribution=ATTRIBUTION,
         )
 

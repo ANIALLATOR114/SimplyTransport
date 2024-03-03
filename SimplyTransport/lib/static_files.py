@@ -18,4 +18,5 @@ def create_static_router() -> Router:
         directories=[f"./{APP_DIR}/{STATIC_DIR}/{STATIC_DIR}"],
         name=STATIC_DIR,
         cache_control=CacheControlHeader(max_age=86400 * 90),
+        include_in_schema=False,
     )
