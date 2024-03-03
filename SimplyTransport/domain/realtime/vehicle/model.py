@@ -24,6 +24,15 @@ class RTVehicleModel(BigIntAuditBase):
     lon: Mapped[float] = mapped_column(Float)
     dataset: Mapped[str] = mapped_column(String(length=80))
 
+    def mins_ago_updated(self) -> str:
+        """Returns the number of minutes ago the vehicle was updated."""
+        mins = (datetime.now() - self.time_of_update).seconds // 60
+        if mins == 0:
+            return "Less than a minute ago"
+        if mins == 1:
+            return "1 min ago"
+        return f"{mins} mins ago"
+
 
 class RTVehicle(BaseModel):
     vehicle_id: int

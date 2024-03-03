@@ -5,6 +5,8 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.response import Template
 
+from SimplyTransport.lib.cache_keys import CacheKeys, key_builder_from_path_and_query
+
 from ..domain.route.repo import RouteRepository, provide_route_repo
 from ..domain.enums import DayOfWeek
 from ..domain.services.schedule_service import (
@@ -81,7 +83,13 @@ class RealtimeController(Controller):
             },
         )
 
-    @get("/stop/{stop_id:str}/schedule")
+    @get(
+        "/stop/{stop_id:str}/schedule",
+        cache=86400,
+        cache_key_builder=key_builder_from_path_and_query(
+            CacheKeys.SCHEDULE_KEY_TEMPLATE, ["stop_id"], ["day"]
+        ),
+    )
     async def realtime_stop_schedule(
         self,
         stop_id: str,

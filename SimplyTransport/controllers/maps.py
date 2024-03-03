@@ -1,5 +1,5 @@
 from advanced_alchemy import NotFoundError
-from litestar import Controller, MediaType, get, template
+from litestar import Controller, MediaType, get
 from litestar.di import Provide
 from litestar.response import Template
 
@@ -27,4 +27,5 @@ class MapsController(Controller):
             stop_map = await map_service.generate_stop_map(stop_id)
         except NotFoundError:
             return "Stop not found"
+
         return Template(template_str=stop_map.render(), media_type=MediaType.HTML)

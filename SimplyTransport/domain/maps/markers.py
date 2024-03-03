@@ -1,31 +1,10 @@
 import folium as fl
 
-from enum import Enum
-from SimplyTransport.domain.route.model import RouteModel
+from .colors import Colors
+from ..realtime.vehicle.model import RTVehicleModel
+from ..route.model import RouteModel
 
-from SimplyTransport.domain.stop.model import StopModel
-
-
-class MarkerColors(Enum):
-    RED = "red"
-    DARKRED = "darkred"
-    LIGHTRED = "lightred"
-    ORANGE = "orange"
-    BEIGE = "beige"
-    GREEN = "green"
-    DARKGREEN = "darkgreen"
-    LIGHTGREEN = "lightgreen"
-    BLUE = "blue"
-    DARKBLUE = "darkblue"
-    CADETBLUE = "cadetblue"
-    LIGHTBLUE = "lightblue"
-    PURPLE = "purple"
-    DARKPURPLE = "darkpurple"
-    PINK = "pink"
-    WHITE = "white"
-    GRAY = "gray"
-    LIGHTGRAY = "lightgray"
-    BLACK = "black"
+from ..stop.model import StopModel
 
 
 class StopMarker:
@@ -35,7 +14,7 @@ class StopMarker:
         routes: list[RouteModel] = None,
         create_link: bool = True,
         create_stop_features: bool = True,
-        color: MarkerColors = None,
+        color: Colors = None,
     ) -> None:
         """
         Initialize a Marker object.
@@ -176,23 +155,47 @@ class StopMarker:
                 icon=self.icon,
             ).add_to(canvas)
 
+    def create_marker(self, type_of_marker: str = "regular", radius: float = 7) -> fl.Marker:
+        """
+        Creates a marker for the stop.
+
+        Args:
+        - type_of_marker (str): The type of marker to create. Default is "regular".
+        - radius (float): The radius of the marker if type_of_marker is "circle". Default is 7.
+
+        Returns:
+        - fl.Marker: The marker object.
+        """
+        if type_of_marker == "circle":
+            return fl.CircleMarker(
+                [self.stop.lat, self.stop.lon],
+                color="#000",
+                tooltip=self.tooltip,
+                popup=self.popup,
+                icon=self.icon,
+                fill_color="#ccc",
+                fill_opacity=1,
+                radius=radius,
+                weight=4,
+                opacity=1,
+            )
+        else:
+            return fl.Marker(
+                [self.stop.lat, self.stop.lon],
+                tooltip=self.tooltip,
+                popup=self.popup,
+                icon=self.icon,
+            )
+
 
 class BusMarker:
     def __init__(
         self,
-        route_name: str,
-        route_id: str,
-        operator_name: str,
-        lat: float,
-        lon: float,
+        vehicle: RTVehicleModel,
         create_links: bool = True,
-        color: MarkerColors = None,
+        color: Colors = None,
     ) -> None:
-        self.route_name = route_name
-        self.route_id = route_id
-        self.operator_name = operator_name
-        self.lat = lat
-        self.lon = lon
+        self.vehicle = vehicle
         self.create_links = create_links
         self.color = color
         self.create_popup()
@@ -210,13 +213,13 @@ class BusMarker:
             self.popup = fl.Popup(
                 f"""
                 <h4 style='white-space: nowrap;'>
-                    <a target='_parent' href='/realtime/route/{self.route_id}/1'>
-                        {self.route_name} - {self.operator_name}
+                    <a target='_parent' href='/realtime/route/{self.vehicle.trip.route.id}/1'>
+                        {self.vehicle.trip.route.short_name} - {self.vehicle.trip.route.agency.short_name()}
                     </a>
                 </h4>
                 <p>
-                    Lat: {self.lat}<br>
-                    Lon: {self.lon}
+                    Last updated: {self.vehicle.time_of_update}<br><br>
+                    {self.vehicle.mins_ago_updated()}
                 </p>
             """
             )
@@ -224,11 +227,11 @@ class BusMarker:
             self.popup = fl.Popup(
                 f"""
                 <h4 style='white-space: nowrap;'>
-                    {self.route_name} - {self.operator_name}
+                    {self.vehicle.trip.route.short_name}
                 </h4>
                 <p>
-                    Lat: {self.lat}<br>
-                    Lon: {self.lon}
+                    Last updated: {self.vehicle.time_of_update}<br><br>
+                    {self.vehicle.mins_ago_updated()}
                 </p>
             """
             )
@@ -243,7 +246,7 @@ class BusMarker:
         self.tooltip = fl.Tooltip(
             f"""
             <h5>
-                {self.route_name} - {self.operator_name}
+                {self.vehicle.trip.route.short_name} - {self.vehicle.trip.route.agency.short_name()}
             </h5>
         """
         )
@@ -260,14 +263,16 @@ class BusMarker:
         else:
             self.icon = fl.Icon(color="blue", icon="fa-bus", prefix="fa")
 
-    def add_to(self, map: fl.Map) -> None:
+    def create_marker(self) -> fl.Marker:
         """
-        Adds a marker to the given map.
-
-        Parameters:
-        - map: The map to add the marker to.
+        Creates a marker for the bus.
 
         Returns:
-        None
+        - fl.Marker: The marker object.
         """
-        fl.Marker([self.lat, self.lon], tooltip=self.tooltip, popup=self.popup, icon=self.icon).add_to(map)
+        return fl.Marker(
+            [self.vehicle.lat, self.vehicle.lon],
+            tooltip=self.tooltip,
+            popup=self.popup,
+            icon=self.icon,
+        )
