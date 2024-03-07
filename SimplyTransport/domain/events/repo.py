@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta, UTC
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -101,3 +102,11 @@ async def create_event_with_session(
     async with async_session_factory() as db_session:
         event_repo = await provide_event_repo(db_session=db_session)
         await event_repo.create_event(event_type, description, attributes, expiry_time)
+
+
+async def get_single_pretty_event_with_session(
+    event_type: EventType,
+):
+    async with async_session_factory() as db_session:
+        event_repo = await provide_event_repo(db_session=db_session)
+        return await event_repo.get_single_pretty_event_by_type(event_type)

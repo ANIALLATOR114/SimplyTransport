@@ -1,9 +1,10 @@
+import asyncio
 from litestar import Controller, Response, get
 from litestar.response import Template, File
 from litestar.di import Provide
 from ..domain.maps.maps import Map
 from ..domain.services.map_service import MapService
-from ..domain.events.repo import EventRepository, provide_event_repo
+from ..domain.events.repo import get_single_pretty_event_with_session
 from ..domain.events.event_types import EventType
 from litestar.exceptions import HTTPException
 from ..lib.db.services import test_database_connection
@@ -18,7 +19,6 @@ __all__ = [
 
 class RootController(Controller):
     dependencies = {
-        "event_repo": Provide(provide_event_repo),
         "map_service": Provide(MapService, sync_to_thread=False),
         "map": Provide(Map, sync_to_thread=False),
     }
@@ -26,18 +26,18 @@ class RootController(Controller):
     @get("/", cache=60)
     async def root(
         self,
-        event_repo: EventRepository,
     ) -> Template:
 
-        gtfs_updated_event = await event_repo.get_single_pretty_event_by_type(EventType.GTFS_DATABASE_UPDATED)
-        realtime_updated_event = await event_repo.get_single_pretty_event_by_type(
-            EventType.REALTIME_DATABASE_UPDATED
-        )
-        vehicles_updated_event = await event_repo.get_single_pretty_event_by_type(
-            EventType.REALTIME_VEHICLES_DATABASE_UPDATED
-        )
-        stop_features_updated_event = await event_repo.get_single_pretty_event_by_type(
-            EventType.STOP_FEATURES_DATABASE_UPDATED
+        # This creates independant sessions so the queries can be run concurrently
+        coroutines = [
+            get_single_pretty_event_with_session(EventType.GTFS_DATABASE_UPDATED),
+            get_single_pretty_event_with_session(EventType.REALTIME_DATABASE_UPDATED),
+            get_single_pretty_event_with_session(EventType.REALTIME_VEHICLES_DATABASE_UPDATED),
+            get_single_pretty_event_with_session(EventType.STOP_FEATURES_DATABASE_UPDATED),
+        ]
+
+        gtfs_updated_event, realtime_updated_event, vehicles_updated_event, stop_features_updated_event = (
+            await asyncio.gather(*coroutines)
         )
 
         return Template(
