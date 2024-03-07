@@ -30,7 +30,7 @@ class MapController(Controller):
             raise NotFoundException(detail=f"Stop not found with id {stop_id}")
 
         return Template(template_str=stop_map.render(), media_type=MediaType.HTML)
-    
+
     @get(
         "/route/{route_id:str}/{direction:int}",
         cache=86400,
@@ -39,7 +39,9 @@ class MapController(Controller):
         description="Will return an iframe with a map centered on the first stop on the route",
         raises=[NotFoundException],
     )
-    async def map_for_route(self, route_id: str, direction: int, map_service: MapService) -> Response | Template:
+    async def map_for_route(
+        self, route_id: str, direction: int, map_service: MapService
+    ) -> Response | Template:
         try:
             route_map = await map_service.generate_route_map(route_id, direction)
         except NotFoundError:

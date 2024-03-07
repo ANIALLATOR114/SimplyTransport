@@ -19,8 +19,8 @@ class TripRepository(SQLAlchemyAsyncRepository[TripModel]):
             .distinct(TripModel.route_id)
         )
         return result.scalars().all()
-    
-    async def get_first_trip_by_route_id(self, route_id: str, direction:int) -> TripModel:
+
+    async def get_first_trip_by_route_id(self, route_id: str, direction: int) -> TripModel:
         """Get first trip by route_id."""
 
         result = await self.session.execute(

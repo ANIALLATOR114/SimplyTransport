@@ -29,14 +29,15 @@ class MapsController(Controller):
             return Response(status_code=404, content="Stop map could not be generated.")
 
         return Template(template_str=stop_map.render(), media_type=MediaType.HTML)
-    
 
     @get(
         "/realtime/route/{route_id:str}/{direction:int}",
         cache=86400,
         cache_key_builder=key_builder_from_path(CacheKeys.STOP_MAP_KEY_TEMPLATE, "stop_id"),
     )
-    async def map_for_route(self, route_id: str, direction:int,  map_service: MapService) -> Template | Response:
+    async def map_for_route(
+        self, route_id: str, direction: int, map_service: MapService
+    ) -> Template | Response:
         try:
             route_map = await map_service.generate_route_map(route_id, direction)
         except NotFoundError:

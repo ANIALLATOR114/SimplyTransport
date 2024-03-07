@@ -26,6 +26,7 @@ from .lib.db.database import async_session_factory
 
 DEFAULT_GTFS_DIRECTORY = "./gtfs_data/TFI/"
 
+
 def gtfs_directory_validator(directory: str | None, console: Console):
     if directory:
         if os.path.exists(directory) and os.path.isdir(directory):
