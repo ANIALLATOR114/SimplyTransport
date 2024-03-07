@@ -45,6 +45,8 @@ class MapController(Controller):
         try:
             route_map = await map_service.generate_route_map(route_id, direction)
         except NotFoundError as e:
-            raise NotFoundException(detail=f"Route not found with id {route_id} and direction {direction}") from e
+            raise NotFoundException(
+                detail=f"Route not found with id {route_id} and direction {direction}"
+            ) from e
 
         return Template(template_str=route_map.render(), media_type=MediaType.HTML)
