@@ -36,7 +36,9 @@ class RootController(Controller):
             get_single_pretty_event_with_session(EventType.STOP_FEATURES_DATABASE_UPDATED),
         ]
 
-        gtfs_updated_event, realtime_updated_event, vehicles_updated_event, stop_features_updated_event = await asyncio.gather(*coroutines)
+        gtfs_updated_event, realtime_updated_event, vehicles_updated_event, stop_features_updated_event = (
+            await asyncio.gather(*coroutines)
+        )
 
         return Template(
             template_name="index.html",
