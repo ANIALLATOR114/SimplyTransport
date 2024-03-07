@@ -19,7 +19,7 @@ def test_stop_map_returns_404_if_stop_not_found(client: TestClient) -> None:
 
 
 def test_route_map_returns_iframe(client: TestClient) -> None:
-    response = client.get("api/v1/map/route/3899_61984/0")
+    response = client.get("api/v1/map/route/3623_54684/0")
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/html; charset=utf-8"
     assert response.text.startswith("<iframe srcdoc=")
