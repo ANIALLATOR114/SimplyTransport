@@ -33,7 +33,7 @@ class MapsController(Controller):
     @get(
         "/realtime/route/{route_id:str}/{direction:int}",
         cache=86400,
-        cache_key_builder=key_builder_from_path(CacheKeys.STOP_MAP_KEY_TEMPLATE, "stop_id"),
+        cache_key_builder=key_builder_from_path(CacheKeys.ROUTE_MAP_KEY_TEMPLATE, "route_id", "direction"),
     )
     async def map_for_route(
         self, route_id: str, direction: int, map_service: MapService
