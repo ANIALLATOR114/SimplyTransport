@@ -119,6 +119,8 @@ class MapService:
 
         route = await self.route_repository.get_by_id_with_agency(route_id)
         trip = await self.trip_repository.get_first_trip_by_route_id(route_id, direction)
+        if trip is None:
+            raise NotFoundError(f"No trip found for route {route_id} and direction {direction}")
         shapes = await self.shape_repository.get_shapes_by_shape_id(trip.shape_id)
         if len(shapes) == 0:
             raise NotFoundError(f"No shapes found for route {route_id} and direction {direction}")
@@ -128,7 +130,7 @@ class MapService:
         route_map = Map(lat=sorted_shapes[0].lat, lon=sorted_shapes[0].lon, zoom=12, height=500)
         route_map.setup_defaults()
 
-        route_poly = RoutePolyLine(route=route, locations=[(shape.lat, shape.lon) for shape in shapes])
+        route_poly = RoutePolyLine(route=route, locations=[(shape.lat, shape.lon) for shape in sorted_shapes])
         route_layer = Layer(f"{route.short_name}")
         route_layer.add_child(route_poly.polyline)
         route_layer.add_to(route_map.map_base)

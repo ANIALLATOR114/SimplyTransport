@@ -26,8 +26,8 @@ class MapController(Controller):
     async def map_for_stop(self, stop_id: str, map_service: MapService) -> Response | Template:
         try:
             stop_map = await map_service.generate_stop_map(stop_id)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Stop not found with id {stop_id}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Stop not found with id {stop_id}") from e
 
         return Template(template_str=stop_map.render(), media_type=MediaType.HTML)
 
@@ -44,7 +44,7 @@ class MapController(Controller):
     ) -> Response | Template:
         try:
             route_map = await map_service.generate_route_map(route_id, direction)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Route not found with id {route_id} and direction {direction}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Route not found with id {route_id} and direction {direction}") from e
 
         return Template(template_str=route_map.render(), media_type=MediaType.HTML)

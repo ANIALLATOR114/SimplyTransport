@@ -19,16 +19,16 @@ class StopController(Controller):
     async def get_stop_by_id(self, repo: StopRepository, id: str) -> Stop:
         try:
             result = await repo.get(id)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Stop not found with id {id}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Stop not found with id {id}") from e
         return Stop.model_validate(result)
 
     @get("/code/{code:str}", summary="Stop by code", raises=[NotFoundException])
     async def get_stop_by_code(self, repo: StopRepository, code: str) -> Stop:
         try:
             result = await repo.get_by_code(code)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Stop not found with code {code}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Stop not found with code {code}") from e
         return Stop.model_validate(result)
 
     @get(
@@ -47,8 +47,8 @@ class StopController(Controller):
     ) -> OffsetPagination[Stop]:
         try:
             results, total = await repo.list_by_name_or_code(search=search, limit_offset=limit_offset)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Stops not found with name/code beginning with {search}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Stops not found with name/code beginning with {search}") from e
         return OffsetPagination[Stop](
             total=total,
             items=[Stop.model_validate(obj) for obj in results],
