@@ -16,7 +16,7 @@ class MapController(Controller):
     }
 
     @get(
-        "/{stop_id:str}",
+        "/stop/{stop_id:str}",
         cache=86400,
         cache_key_builder=key_builder_from_path(CacheKeys.STOP_MAP_KEY_TEMPLATE, "stop_id"),
         summary="Get a map for a stop",
@@ -30,3 +30,19 @@ class MapController(Controller):
             raise NotFoundException(detail=f"Stop not found with id {stop_id}")
 
         return Template(template_str=stop_map.render(), media_type=MediaType.HTML)
+    
+    @get(
+        "/route/{route_id:str}/{direction:int}",
+        cache=86400,
+        cache_key_builder=key_builder_from_path(CacheKeys.ROUTE_MAP_KEY_TEMPLATE, "route_id", "direction"),
+        summary="Get a map for a route",
+        description="Will return an iframe with a map centered on the first stop on the route",
+        raises=[NotFoundException],
+    )
+    async def map_for_route(self, route_id: str, direction: int, map_service: MapService) -> Response | Template:
+        try:
+            route_map = await map_service.generate_route_map(route_id, direction)
+        except NotFoundError:
+            raise NotFoundException(detail=f"Route not found with id {route_id} and direction {direction}")
+
+        return Template(template_str=route_map.render(), media_type=MediaType.HTML)

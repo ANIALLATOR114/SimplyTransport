@@ -38,11 +38,12 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
 
         return results, total
 
-    async def get_by_route_id(self, route_id: str, direction: int) -> list[StopModel]:
+    async def get_stops_by_route_id(self, route_id: str, direction: int) -> list[StopModel]:
         """Get stops by route_id."""
 
         return await self.list(
             statement=select(StopModel)
+            .options(joinedload(StopModel.stop_feature))
             .join(StopTimeModel, StopTimeModel.stop_id == StopModel.id)
             .join(TripModel, TripModel.id == StopTimeModel.trip_id)
             .where(TripModel.direction == direction)

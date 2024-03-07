@@ -3,6 +3,7 @@ import os
 import time
 import asyncio
 import functools
+from unittest.mock import DEFAULT
 
 import geojson
 import click
@@ -23,15 +24,17 @@ from .domain.events.event_types import EventType
 from .lib.db.database import async_session_factory
 
 
-def gtfs_directory_validator(directory: str, console: Console):
+DEFAULT_GTFS_DIRECTORY = "./gtfs_data/TFI/"
+
+def gtfs_directory_validator(directory: str | None, console: Console):
     if directory:
         if os.path.exists(directory) and os.path.isdir(directory):
             print("Using directory: " + directory)
         else:
             console.print(f"[red]Error: Directory '{directory}' does not exist.")
-            return
+            raise click.Abort()
     else:
-        directory = "./gtfs_data/TFI/"
+        directory = DEFAULT_GTFS_DIRECTORY
         console.print(f"No directory specified, using default of {directory}")
 
     return directory
@@ -205,6 +208,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             redis_service = provide_redis_service()
             await redis_service.delete_keys(CacheKeys.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(CacheKeys.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys(CacheKeys.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
 
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")

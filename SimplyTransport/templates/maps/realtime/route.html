@@ -1,0 +1,14 @@
+<div class="map-container"
+     hx-get="/maps/realtime/route/{{ route.id }}/{{ direction.value }}"
+     hx-trigger="load"
+     hx-target="#map-element"
+     hx-indicator="#map-loader"
+     hx-swap="transition:true">
+    <div id="map-element"></div>
+    <img class="map-loader"
+         id="map-loader"
+         src="/static/loader.svg"
+         width="100%"
+         height="80px"
+         alt="Loading spinner">
+</div>
