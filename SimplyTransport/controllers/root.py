@@ -64,7 +64,7 @@ class RootController(Controller):
             test_database_connection()
         except Exception as e:
             logger.error("Database connection refused on healthcheck", exc_info=e)
-            raise HTTPException(status_code=500)
+            raise HTTPException(status_code=500) from e
         return "OK"
 
     @get("/exception")

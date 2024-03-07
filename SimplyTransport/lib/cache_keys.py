@@ -11,6 +11,11 @@ class CacheKeys(Enum):
     STOP_MAP_DELETE_ALL_KEY_TEMPLATE = "*stop_map:*"
     STOP_MAP_DELETE_KEY_TEMPLATE = "*stop_map:{stop_id}"
 
+    # Route Maps
+    ROUTE_MAP_KEY_TEMPLATE = "route_map:{route_id}:{direction}"
+    ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE = "*route_map:*"
+    ROUTE_MAP_DELETE_KEY_TEMPLATE = "*route_map:{route_id}:*"
+
     # Schedules
     SCHEDULE_KEY_TEMPLATE = "schedule:{stop_id}:{day}"
     SCHEDULE_DELETE_ALL_KEY_TEMPLATE = "*schedule:*"

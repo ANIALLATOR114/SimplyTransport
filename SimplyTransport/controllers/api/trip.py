@@ -16,8 +16,8 @@ class TripController(Controller):
     async def get_trip_by_id(self, repo: TripRepository, id: str) -> Trip:
         try:
             result = await repo.get(id)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Trip not found with id {id}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Trip not found with id {id}") from e
         return Trip.model_validate(result)
 
     @get(
@@ -28,8 +28,8 @@ class TripController(Controller):
     async def get_all_trips_by_route_id(self, repo: TripRepository, route_id: str) -> list[Trip]:
         try:
             result = await repo.list(route_id=route_id)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Trips not found with route id {route_id}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Trips not found with route id {route_id}") from e
         return [Trip.model_validate(obj) for obj in result]
 
     @get(
@@ -42,6 +42,6 @@ class TripController(Controller):
     ) -> TripsWithTotal:
         try:
             result, total = await repo.list_and_count(route_id=route_id)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Trips not found with route id {route_id}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Trips not found with route id {route_id}") from e
         return TripsWithTotal(total=total, trips=[Trip.model_validate(obj) for obj in result])

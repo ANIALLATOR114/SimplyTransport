@@ -61,6 +61,6 @@ class RouteController(Controller):
     async def get_route_by_id(self, repo: RouteRepository, id: str) -> Route:
         try:
             result = await repo.get(id)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Route not found with id {id}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Route not found with id {id}") from e
         return Route.model_validate(result)

@@ -26,6 +26,6 @@ class AgencyController(Controller):
     async def get_agency_by_id(self, repo: AgencyRepository, id: str) -> Agency:
         try:
             result = await repo.get(id)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Agency not found with id {id}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Agency not found with id {id}") from e
         return Agency.model_validate(result)

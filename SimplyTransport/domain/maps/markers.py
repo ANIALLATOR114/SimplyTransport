@@ -75,13 +75,6 @@ class StopMarker:
                     Realtime display: {self.stop.stop_feature.rtpi_active}<br>
                 </p>
             """
-        else:
-            stop_features = f"""
-                <p>
-                    Lat: {self.stop.lat}<br>
-                    Lon: {self.stop.lon}
-                </p>
-            """
 
         stop_routes = ""
         if self.routes is not None:

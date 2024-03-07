@@ -29,8 +29,8 @@ class CalendarController(Controller):
     async def get_calendar_by_id(self, repo: CalendarRepository, id: str) -> Calendar:
         try:
             result = await repo.get(id)
-        except NotFoundError:
-            raise NotFoundException(detail=f"Calendar not found with id {id}")
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Calendar not found with id {id}") from e
         return Calendar.model_validate(result)
 
     @get(
