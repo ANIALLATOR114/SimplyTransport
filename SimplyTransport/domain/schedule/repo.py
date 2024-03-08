@@ -1,3 +1,4 @@
+from collections import namedtuple
 from datetime import time
 
 from sqlalchemy import or_, select
@@ -10,6 +11,7 @@ from ..stop.model import StopModel
 from ..stop_times.model import StopTimeModel
 from ..trip.model import TripModel
 
+ScheduleTuple = namedtuple('ScheduleTuple', ['stop_time', 'route', 'calendar', 'stop', 'trip'])
 
 class ScheduleRepository:
     """ScheduleRepository repository."""
@@ -17,7 +19,7 @@ class ScheduleRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_schedule_on_stop_for_day(self, stop_id: str, day: DayOfWeek):
+    async def get_schedule_on_stop_for_day(self, stop_id: str, day: DayOfWeek) -> list[ScheduleTuple]:
         """Returns a list of schedules for the given stop and day"""
         conditions = []
         if day == DayOfWeek.MONDAY:
@@ -51,11 +53,13 @@ class ScheduleRepository:
             .order_by(StopTimeModel.arrival_time)
         )
 
-        return await self.session.execute(statement)
+        result = await self.session.execute(statement)
+        return [ScheduleTuple(*row) for row in result]
+    
 
     async def get_schedule_on_stop_for_day_between_times(
         self, stop_id: str, day: DayOfWeek, start_time: time, end_time: time
-    ):
+    ) -> list[ScheduleTuple]:
         """Returns a list of schedules for the given stop and day"""
         conditions = []
         if day == DayOfWeek.MONDAY:
@@ -99,9 +103,11 @@ class ScheduleRepository:
             )
             .order_by(StopTimeModel.arrival_time)
         )
-        return await self.session.execute(statement)
+        result = await self.session.execute(statement)
+        return [ScheduleTuple(*row) for row in result]
+    
 
-    async def get_by_trip_id(self, trip_id: str):
+    async def get_by_trip_id(self, trip_id: str) -> list[ScheduleTuple]:
         """Returns a list of schedules for the given trip"""
         statement = (
             select(StopTimeModel, RouteModel, CalendarModel, StopModel, TripModel)
@@ -109,12 +115,11 @@ class ScheduleRepository:
             .join(StopModel, StopModel.id == StopTimeModel.stop_id)
             .join(RouteModel, RouteModel.id == TripModel.route_id)
             .join(CalendarModel, CalendarModel.id == TripModel.service_id)
-            .where(
-                TripModel.id == trip_id,
-            )
+            .where(TripModel.id == trip_id)
             .order_by(StopTimeModel.arrival_time)
         )
-        return await self.session.execute(statement)
+        result = await self.session.execute(statement)
+        return [ScheduleTuple(*row) for row in result]
 
 
 async def provide_schedule_repo(db_session: AsyncSession) -> ScheduleRepository:

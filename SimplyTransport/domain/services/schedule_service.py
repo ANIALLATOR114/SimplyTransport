@@ -24,11 +24,11 @@ class ScheduleService:
         )
         static_schedules = [
             StaticScheduleModel(
-                route=schedule.RouteModel,
-                stop_time=schedule.StopTimeModel,
-                calendar=schedule.CalendarModel,
-                stop=schedule.StopModel,
-                trip=schedule.TripModel,
+                stop_time=schedule.stop_time,
+                route=schedule.route,
+                calendar=schedule.calendar,
+                stop=schedule.stop,
+                trip=schedule.trip,
             )
             for schedule in schedules_from_db
         ]
@@ -44,11 +44,11 @@ class ScheduleService:
         )
         static_schedules = [
             StaticScheduleModel(
-                route=schedule.RouteModel,
-                stop_time=schedule.StopTimeModel,
-                calendar=schedule.CalendarModel,
-                stop=schedule.StopModel,
-                trip=schedule.TripModel,
+                stop_time=schedule.stop_time,
+                route=schedule.route,
+                calendar=schedule.calendar,
+                stop=schedule.stop,
+                trip=schedule.trip,
             )
             for schedule in schedules_from_db
         ]
@@ -106,11 +106,11 @@ class ScheduleService:
         schedules_from_db = await self.schedule_repository.get_by_trip_id(trip_id=trip_id)
         static_schedules = [
             StaticScheduleModel(
-                route=schedule.RouteModel,
-                stop_time=schedule.StopTimeModel,
-                calendar=schedule.CalendarModel,
-                stop=schedule.StopModel,
-                trip=schedule.TripModel,
+                stop_time=schedule.stop_time,
+                route=schedule.route,
+                calendar=schedule.calendar,
+                stop=schedule.stop,
+                trip=schedule.trip,
             )
             for schedule in schedules_from_db
         ]

@@ -18,7 +18,6 @@ class BaseModel(_BaseModel):
 
 class StopTimeModel(BigIntAuditBase):
     __tablename__ = "stop_time"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     trip_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True
     )
