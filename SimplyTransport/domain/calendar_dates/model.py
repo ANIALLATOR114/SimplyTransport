@@ -1,5 +1,5 @@
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from sqlalchemy import String, Date, Integer, ForeignKey
+from sqlalchemy import String, Date, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel, Field
 from datetime import date
@@ -16,7 +16,6 @@ class BaseModel(_BaseModel):
 class CalendarDateModel(BigIntAuditBase):
     __tablename__ = "calendar_date"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     service_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("calendar.id", ondelete="CASCADE"), index=True
     )
