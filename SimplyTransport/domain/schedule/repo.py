@@ -11,7 +11,8 @@ from ..stop.model import StopModel
 from ..stop_times.model import StopTimeModel
 from ..trip.model import TripModel
 
-ScheduleTuple = namedtuple('ScheduleTuple', ['stop_time', 'route', 'calendar', 'stop', 'trip'])
+ScheduleTuple = namedtuple("ScheduleTuple", ["stop_time", "route", "calendar", "stop", "trip"])
+
 
 class ScheduleRepository:
     """ScheduleRepository repository."""
@@ -55,7 +56,6 @@ class ScheduleRepository:
 
         result = await self.session.execute(statement)
         return [ScheduleTuple(*row) for row in result]
-    
 
     async def get_schedule_on_stop_for_day_between_times(
         self, stop_id: str, day: DayOfWeek, start_time: time, end_time: time
@@ -105,7 +105,6 @@ class ScheduleRepository:
         )
         result = await self.session.execute(statement)
         return [ScheduleTuple(*row) for row in result]
-    
 
     async def get_by_trip_id(self, trip_id: str) -> list[ScheduleTuple]:
         """Returns a list of schedules for the given trip"""

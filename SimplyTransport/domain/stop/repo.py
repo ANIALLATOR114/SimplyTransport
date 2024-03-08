@@ -75,7 +75,9 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
         )
         return result.scalar()
 
-    async def get_by_route_id_with_sequence(self, route_id: str, direction: int) -> List[Tuple[StopModel, int]]:
+    async def get_by_route_id_with_sequence(
+        self, route_id: str, direction: int
+    ) -> List[Tuple[StopModel, int]]:
         """Get stops by route_id with a stop_sequence."""
 
         result = await self.session.execute(
