@@ -77,6 +77,10 @@ class LokiHandler:
 
 
 def get_loki_handler_path():
-    # expected
-    # "SimplyTransport.lib.logging.handlers.LokiHandler"
+    """
+    Returns the fully qualified path of the LokiHandler class.
+
+    Returns:
+        str: The fully qualified path of the LokiHandler class.
+    """
     return f"{__name__}.{LokiHandler.__name__}"
