@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import requests
 
-from .logging import logger
+from .logging.logging import provide_logger
 from .db.database import session
 from . import time_date_conversions as tdc
 
@@ -13,6 +13,8 @@ from ..domain.realtime.vehicle.model import RTVehicleModel
 from ..domain.stop.model import StopModel
 
 import rich.progress as rp
+
+logger = provide_logger(__name__)
 
 progress_columns = (
     rp.SpinnerColumn(finished_text="✅"),

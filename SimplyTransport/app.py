@@ -4,6 +4,7 @@ from litestar.di import Provide
 from litestar.stores.registry import StoreRegistry
 
 from SimplyTransport.lib import exception_handlers
+from .lib.logging.logging import logging_setup
 
 from .controllers import create_api_router, create_views_router
 from .lib import settings
@@ -16,13 +17,15 @@ from .lib.cache import redis_service_cache_config_factory, redis_store_factory
 from .cli import CLIPlugin
 from .lib.parameters.limitoffset import provide_limit_offset_pagination
 from .lib.compression import compression_config
+from .lib.logging.logging import logging_shutdown
 
 
 def create_app() -> Litestar:
     return Litestar(
         debug=settings.app.DEBUG,
         route_handlers=[create_views_router(), create_api_router(), create_static_router()],
-        on_startup=[db_services.create_database],
+        on_startup=[db_services.create_database, logging_setup],
+        on_shutdown=[logging_shutdown],
         plugins=[sqlalchemy_plugin, CLIPlugin()],
         stores=StoreRegistry(default_factory=redis_store_factory),
         openapi_config=custom_open_api_config(),
@@ -32,7 +35,10 @@ def create_app() -> Litestar:
             "limit_offset": Provide(provide_limit_offset_pagination),
         },
         response_cache_config=redis_service_cache_config_factory(),
-        exception_handlers={404: exception_handlers.handle_404},
+        exception_handlers={
+            404: exception_handlers.handle_404,
+            500: exception_handlers.exception_handler
+        },
     )
 
 
