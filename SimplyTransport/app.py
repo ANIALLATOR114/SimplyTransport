@@ -35,10 +35,7 @@ def create_app() -> Litestar:
             "limit_offset": Provide(provide_limit_offset_pagination),
         },
         response_cache_config=redis_service_cache_config_factory(),
-        exception_handlers={
-            404: exception_handlers.handle_404,
-            500: exception_handlers.exception_handler
-        },
+        exception_handlers={404: exception_handlers.handle_404, 500: exception_handlers.exception_handler},
     )
 
 

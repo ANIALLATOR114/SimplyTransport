@@ -47,10 +47,8 @@ def logging_setup():
                         structlog.dev.ConsoleRenderer(
                             colors=True,
                             exception_formatter=structlog.dev.RichTracebackFormatter(
-                                extra_lines=5,
-                                suppress=[litestar],
-                                max_frames=5
-                            )
+                                extra_lines=5, suppress=[litestar], max_frames=5
+                            ),
                         ),
                     ],
                     "foreign_pre_chain": pre_chain,
@@ -62,9 +60,8 @@ def logging_setup():
                         structlog.dev.ConsoleRenderer(
                             colors=True,
                             exception_formatter=structlog.dev.RichTracebackFormatter(
-                                suppress=[litestar],
-                                max_frames=1
-                            )
+                                suppress=[litestar], max_frames=1
+                            ),
                         ),
                     ],
                     "foreign_pre_chain": pre_chain,
@@ -98,7 +95,7 @@ def logging_setup():
     )
 
     if structlog.is_configured():
-       return
+        return
     structlog.configure(
         processors=[
             structlog.stdlib.add_log_level,
@@ -124,5 +121,11 @@ def logging_setup():
 
 def logging_shutdown():
     logger = provide_logger(__name__)
-    logger.info("Application shutting down", app_name=settings.app.NAME, app_version=settings.app.VERSION, app_env=settings.app.ENVIRONMENT, log_level=settings.app.LOG_LEVEL)
+    logger.info(
+        "Application shutting down",
+        app_name=settings.app.NAME,
+        app_version=settings.app.VERSION,
+        app_env=settings.app.ENVIRONMENT,
+        log_level=settings.app.LOG_LEVEL,
+    )
     logging.shutdown()

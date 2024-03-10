@@ -18,6 +18,7 @@ __all__ = [
 
 logger = provide_logger(__name__)
 
+
 class RootController(Controller):
     dependencies = {
         "event_repo": Provide(provide_event_repo),

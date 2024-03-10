@@ -6,6 +6,7 @@ from SimplyTransport.lib.logging.logging import provide_logger
 
 logger = provide_logger(__name__)
 
+
 def check_if_website(request: Request) -> bool:
     """
     Check if the request accepts HTML content.
