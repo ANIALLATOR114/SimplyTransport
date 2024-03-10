@@ -3,7 +3,6 @@ import os
 import time
 import asyncio
 import functools
-from unittest.mock import DEFAULT
 
 import geojson
 import click

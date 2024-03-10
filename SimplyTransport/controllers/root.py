@@ -1,19 +1,22 @@
 from litestar import Controller, Response, get
 from litestar.response import Template, File
 from litestar.di import Provide
+from litestar.exceptions import HTTPException
+
+from ..lib.logging.logging import provide_logger
 from ..domain.maps.maps import Map
 from ..domain.services.map_service import MapService
 from ..domain.events.repo import EventRepository, provide_event_repo
 from ..domain.events.event_types import EventType
-from litestar.exceptions import HTTPException
 from ..lib.db.services import test_database_connection
-from ..lib.logging import logger
 from ..lib.constants import STATIC_DIR, APP_DIR
 
 
 __all__ = [
     "RootController",
 ]
+
+logger = provide_logger(__name__)
 
 
 class RootController(Controller):
