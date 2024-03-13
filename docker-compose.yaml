@@ -26,7 +26,7 @@ services:
       - "4318:4318"
     command: "--config /etc/otelcol/config.yaml"
     volumes:
-      - ./deployment-linux/collector-config.yaml:/etc/otelcol/config.yaml
+      - ./deployment_linux/collector-config.yaml:/etc/otelcol/config.yaml
     environment:
       - TEMPO_USERNAME=${TEMPO_USERNAME}
       - TEMPO_PASSWORD=${TEMPO_PASSWORD}
