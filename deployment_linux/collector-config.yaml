@@ -1,0 +1,40 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+
+extensions:
+  basicauth/tempo:
+    client_auth:
+      username: ${TEMPO_USERNAME}
+      password: ${TEMPO_PASSWORD}
+  basicauth/prometheus:
+    client_auth:
+      username: ${PROMETHEUS_USERNAME}
+      password: ${PROMETHEUS_PASSWORD}
+
+exporters:
+  otlp/tempo:
+    endpoint: "${TEMPO_URL}"
+    auth:
+      authenticator: basicauth/tempo
+  otlphttp/prometheus:
+    endpoint: "${PROMETHEUS_URL}"
+    auth:
+      authenticator: basicauth/prometheus
+
+service:
+  extensions: [basicauth/prometheus, basicauth/tempo]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/prometheus]
