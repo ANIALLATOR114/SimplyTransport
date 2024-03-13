@@ -35,6 +35,11 @@
     - [Templates](#templates)
   - [Database](#database)
     - [Migrations](#migrations)
+   
+- [Telemetry and Logs](#telemetry-and-logs)
+  - [Telemetry](#telemetry)
+  - [Logs](#logs)
+
 - [Testing](#testing)
   - [Integration Tests](#integration-tests)
   - [Unit Tests](#unit-tests)
@@ -52,7 +57,8 @@
 [GTFS-R](https://developer.nationaltransport.ie/apis) The Irish governments Realtime data feeds. You cannot query this as you might expect, you must download the entire feed (rate limited to 1/min)
 
 SimplyTransport is designed to continually request the GTFS-R feed as often as possible.
-The static schedules can be updated as often as desired but typically a nightly update is sufficient.
+The static schedules are updated randomly by the data provider. SimplyTransport checks nightly to see if it needs to perform an update.
+Realtime data is updated every minute.
 
 ## API Documentation
 
@@ -78,8 +84,8 @@ The static schedules can be updated as often as desired but typically a nightly 
 - [x] Shapes
 - [x] Schedules
 - [x] Realtime
-- [ ] Realtime Vehicles
-- [ ] StopFeatures
+- [x] Realtime Vehicles
+- [x] StopFeatures
 
 ## Web Interface
 
@@ -94,14 +100,14 @@ The static schedules can be updated as often as desired but typically a nightly 
 - [x] Search Page
   - [x] Stops
   - [x] Routes
-- [ ] Maps
+- [x] Maps
 
 ### Maps
 
 Map are implemented using Folium and rendered on the server side. The maps are then served to the client as part of the web page.
 The primary map is on the page for a stop, it shows the location of the stop and other stops on the same routes, as well as lines for all the routes that serve the stop.
 
-- [ ] Maps on route pages
+- [x] Maps on route pages
 - [x] Maps on stop pages
 - [ ] Aggregation of stops
 - [ ] Aggregation of routes
@@ -308,6 +314,29 @@ To apply the migration to your database use the following command
 ```
 alembic upgrade head
 ```
+
+# Telemetry and Logs
+## Telemetry
+
+SimplyTransport contains configuration and instrumentation for OpenTelemetry Traces and Metrics.
+
+When the docker containers are created an `Opentelemetry Collector` is created and configured using `.env` variabels
+```
+docker-compose up -d
+```
+This provides metrics and traces for the following:
+- [x] The Litestarframework (requests)
+- [x] Custom spans
+- [x] Database queries (metrics and statements)
+- [ ] Redis metrics
+
+The collector sends the telemetry to Grafana Tempo and Prometheus.
+This can then by visualised in Grafana.
+![image](https://github.com/ANIALLATOR114/SimplyTransport/assets/116189545/3f42c44d-221d-40e8-9290-f25c2152c5d3)
+
+# Logs
+TODO
+
 
 # Testing
 
