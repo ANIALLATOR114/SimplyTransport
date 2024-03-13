@@ -18,6 +18,7 @@ from .cli import CLIPlugin
 from .lib.parameters.limitoffset import provide_limit_offset_pagination
 from .lib.compression import compression_config
 from .lib.logging.logging import logging_shutdown
+from .lib.opentelemetry import open_telemetry_config
 
 
 def create_app() -> Litestar:
@@ -31,6 +32,7 @@ def create_app() -> Litestar:
         openapi_config=custom_open_api_config(),
         template_config=custom_template_config(),
         compression_config=compression_config,
+        middleware=[open_telemetry_config.middleware],
         dependencies={
             "limit_offset": Provide(provide_limit_offset_pagination),
         },

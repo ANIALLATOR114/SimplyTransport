@@ -51,7 +51,7 @@ class AppSettings(BaseSettings):
         # Sets the log level to DEBUG if in DEV else INFO
         return "DEBUG" if values.data.get("ENVIRONMENT") == "DEV" else "INFO"
 
-    model_config = SettingsConfigDict(env_file=(".env"))
+    model_config = SettingsConfigDict(env_file=(".env"), extra="ignore")
 
 
 app = AppSettings()

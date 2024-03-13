@@ -12,8 +12,26 @@ services:
 
   redis:
     image: redis:alpine
-    restart: unless-stopped
+    container_name: redis
     ports:
       - "6379:6379"
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+    restart: unless-stopped
+
+  opentelemetry-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: ot-collector
+    ports:
+      - "4318:4318"
+    command: "--config /etc/otelcol/config.yaml"
+    volumes:
+      - ./deployment-linux/collector-config.yaml:/etc/otelcol/config.yaml
+    environment:
+      - TEMPO_USERNAME=${TEMPO_USERNAME}
+      - TEMPO_PASSWORD=${TEMPO_PASSWORD}
+      - TEMPO_URL=${TEMPO_URL}
+      - PROMETHEUS_USERNAME=${PROMETHEUS_USERNAME}
+      - PROMETHEUS_PASSWORD=${PROMETHEUS_PASSWORD}
+      - PROMETHEUS_URL=${PROMETHEUS_URL}
+    restart: unless-stopped

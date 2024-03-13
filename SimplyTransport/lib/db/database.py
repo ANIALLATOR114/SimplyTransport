@@ -7,11 +7,17 @@ from litestar.contrib.sqlalchemy.plugins import (
 )
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+
 # Sync version for importer
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 engine = create_engine(settings.app.DB_URL_SYNC, echo=settings.app.DB_ECHO, pool_pre_ping=True)
+SQLAlchemyInstrumentor().instrument(
+    engine=engine,
+    enable_commenter=True,
+)
 session = Session(engine)
 
 
@@ -20,6 +26,10 @@ async_engine = create_async_engine(
     settings.app.DB_URL,
     echo=settings.app.DB_ECHO,
     pool_pre_ping=True,
+)
+SQLAlchemyInstrumentor().instrument(
+    engine=async_engine.sync_engine,
+    enable_commenter=True,
 )
 
 session_config = AsyncSessionConfig(expire_on_commit=False)
