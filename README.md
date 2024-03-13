@@ -38,7 +38,9 @@
    
 - [Telemetry and Logs](#telemetry-and-logs)
   - [Telemetry](#telemetry)
-  - [Logs](#logs)
+  - [Logging](#logging)
+    - [Regular Logging](#regular-logging)
+    - [Exception Logging](#exception-logging)
 
 - [Testing](#testing)
   - [Integration Tests](#integration-tests)
@@ -325,7 +327,7 @@ When the docker containers are created an `Opentelemetry Collector` is created a
 docker-compose up -d
 ```
 This provides metrics and traces for the following:
-- [x] The Litestarframework (requests)
+- [x] The Litestar framework ( http requests and responses )
 - [x] Custom spans
 - [x] Database queries (metrics and statements)
 - [ ] Redis metrics
@@ -334,8 +336,22 @@ The collector sends the telemetry to Grafana Tempo and Prometheus.
 This can then by visualised in Grafana.
 ![image](https://github.com/ANIALLATOR114/SimplyTransport/assets/116189545/3f42c44d-221d-40e8-9290-f25c2152c5d3)
 
-# Logs
-TODO
+## Logging
+
+SimplyTransport uses structured logging from structlog and outputs logs to Grafana Loki for aggregation.
+
+The logs are processed using rich which comes with some very nice development and debugging advantages for exceptions.
+
+### Regular logging
+Logs are output to the console and in Loki as colourful structured logs.
+![image](https://github.com/ANIALLATOR114/SimplyTransport/assets/116189545/d54ad355-c065-49f5-98ef-a66de5be2b5a)
+
+### Exception Logging
+Exceptions to the local console handler are very verbose and include the code that threw the error ( and surrounding code ) but also all of the local variables in scope of the function!
+So you can see exactly what paramaters and object states were present when the error occured. 
+
+The only difference when outputting to Loki is that the stacktrace is made more compact with restricted frames, but all the fantastic debugging information is retained.
+![image](https://github.com/ANIALLATOR114/SimplyTransport/assets/116189545/6657e04c-e240-465f-abf6-d5f72a1ba3c5)
 
 
 # Testing
