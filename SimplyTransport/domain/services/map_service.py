@@ -168,7 +168,7 @@ class MapService:
             raise ValueError(f"No routes found for agency {agency_id}")
         route_ids = [route.id for route in routes]
 
-        trips = await self.trip_repository.get_first_trips_by_route_ids_no_direction(route_ids)
+        trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids)
 
         shape_ids = [trip.shape_id for trip in trips]
         shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)

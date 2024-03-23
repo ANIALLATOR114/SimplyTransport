@@ -13,12 +13,18 @@ jobs:
       matrix:
         python-version: ["3.11"]
 
+    env:
+      ENVIRONMENT: PR-TEST-CI
+      LOKI_URL: ${{ secrets.LOKI_URL }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
     services:
       postgres:
         image: postgres
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         options: >-
           --health-cmd pg_isready
           --health-interval 2s
@@ -56,8 +62,6 @@ jobs:
 
       - name: Create database
         run: psql -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }} -d postgres -a -f sql_scripts/create_db.sql
-        env:
-          PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
       - name: Create database tables
         run: LITESTAR_APP=SimplyTransport.app:create_app litestar create_tables
@@ -79,9 +83,6 @@ jobs:
 
       - name: Analyze with SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: -Dsonar.projectKey=SimplyTransport
             -Dsonar.organization=simplytransport
