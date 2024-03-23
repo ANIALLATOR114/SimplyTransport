@@ -46,6 +46,7 @@ opentelemetry-exporter-otlp-proto-common==1.23.0
 opentelemetry-exporter-otlp-proto-http==1.23.0
 opentelemetry-instrumentation==0.44b0
 opentelemetry-instrumentation-asgi==0.44b0
+opentelemetry-instrumentation-redis==0.44b0
 opentelemetry-instrumentation-sqlalchemy==0.44b0
 opentelemetry-proto==1.23.0
 opentelemetry-sdk==1.23.0
