@@ -13,6 +13,10 @@ jobs:
       matrix:
         python-version: ["3.11"]
 
+    env:
+      ENVIRONMENT: PR-TEST-CI
+      LOKI_URL: ${{ secrets.LOKI_URL }}
+
     services:
       postgres:
         image: postgres

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ request.app.openapi_config.title
+    }} - {{ agency.name }} Routes
+{% endblock title %}
+{% block content %}
+    <h1>{{ agency.name }}</h1>
+    {% if error %}
+        <h3>{{ error }}</h3>
+    {% else %}
+        <div hx-get="/maps/static/agency/route/{{ agency.id }}"
+             hx-trigger="load"
+             hx-swap="transition:true"
+             hx-indicator="#map-loader"
+             hx-swap="transition:true"></div>
+        <img class="map-loader"
+             id="map-loader"
+             src="/static/loader.svg"
+             width="100%"
+             height="80px"
+             alt="Loading spinner">
+    {% endif %}
+{% endblock content %}

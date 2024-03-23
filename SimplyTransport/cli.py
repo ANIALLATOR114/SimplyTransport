@@ -11,8 +11,12 @@ from litestar import Litestar
 from litestar.plugins import CLIPluginProtocol
 from rich.console import Console
 from rich.table import Table
+
+from .domain.agency.repo import provide_agency_repo
+from .lib.logging.logging import provide_logger
 from .lib.cache import provide_redis_service
 from .lib.cache_keys import CacheKeys
+from .lib.gtfs_static_maps import build_route_map
 
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.db import services as db_services
@@ -24,6 +28,8 @@ from .lib.db.database import async_session_factory
 
 
 DEFAULT_GTFS_DIRECTORY = "./gtfs_data/TFI/"
+
+logger = provide_logger(__name__)
 
 
 def gtfs_directory_validator(directory: str | None, console: Console):
@@ -110,7 +116,6 @@ class CLIPlugin(CLIPluginProtocol):
         async def importgtfs(dir: str):
             """Imports GTFS data into the database"""
 
-            start: float = time.perf_counter()
             console = Console()
             console.print("Importing GTFS data...")
 
@@ -185,8 +190,8 @@ class CLIPlugin(CLIPluginProtocol):
                 else:
                     importer.import_data()
 
-                finish = time.perf_counter()
-                time_taken = round(finish - file_start, 2)
+                file_finish = time.perf_counter()
+                time_taken = round(file_finish - file_start, 2)
                 total_time_taken += time_taken
 
                 attributes_of_total_rows[file.replace(".txt", "")] = {
@@ -210,7 +215,9 @@ class CLIPlugin(CLIPluginProtocol):
             await redis_service.delete_keys(CacheKeys.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys(CacheKeys.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys(CacheKeys.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(CacheKeys.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE)
 
+            finish = time.perf_counter()
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
         @cli.command(name="importrealtime", help="Imports GTFS realtime data into the database")
@@ -519,3 +526,30 @@ class CLIPlugin(CLIPluginProtocol):
 
             await redis_service.delete_all_keys()
             console.print("\n[blue]Finished flushing the Redis cache")
+
+        @cli.command(name="generatemaps", help="Generates the static maps for gtfs data")
+        @make_sync
+        async def generatemaps():
+            """Generates static maps for each agency in the database"""
+
+            console = Console()
+            console.print("Generating static maps...")
+            start = time.perf_counter()
+
+            console.print("Generating agency route maps")
+            async with async_session_factory() as session:
+                agency_repo = await provide_agency_repo(db_session=session)
+                agencies = await agency_repo.list()
+
+            agency_ids = [agency.id for agency in agencies]
+            agency_ids.append("All")
+
+            tasks = [build_route_map(agency) for agency in agency_ids]
+            await asyncio.gather(*tasks)
+
+            redis_service = provide_redis_service()
+            await redis_service.delete_keys(CacheKeys.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE)
+
+            finish = time.perf_counter()
+            logger.info(f"Finished generating static maps in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished generating static maps in {round(finish-start, 2)} second(s)")

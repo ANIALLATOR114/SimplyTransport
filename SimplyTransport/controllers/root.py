@@ -3,6 +3,9 @@ from litestar.response import Template, File
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 
+from ..domain.agency.model import AgencyModel
+from ..domain.agency.repo import AgencyRepository, provide_agency_repo
+
 from ..lib.logging.logging import provide_logger
 from ..domain.maps.maps import Map
 from ..domain.services.map_service import MapService
@@ -22,6 +25,7 @@ logger = provide_logger(__name__)
 class RootController(Controller):
     dependencies = {
         "event_repo": Provide(provide_event_repo),
+        "agency_repo": Provide(provide_agency_repo),
         "map_service": Provide(MapService, sync_to_thread=False),
         "map": Provide(Map, sync_to_thread=False),
     }
@@ -81,6 +85,13 @@ class RootController(Controller):
     @get("/routes")
     async def route(self) -> Template:
         return Template("gtfs_search/route_search.html")
+
+    @get("/maps")
+    async def maps(self, agency_repo: AgencyRepository) -> Template:
+        agencies = await agency_repo.list()
+        all_agency = AgencyModel(id="All", name="All Agencies Combined")
+        agencies.append(all_agency)
+        return Template("maps/index.html", context={"agencies": agencies})
 
     # Static files on the root / path
     @get("/favicon.ico")

@@ -24,10 +24,10 @@ class StopFeaturesImporter:
     def __init__(
         self,
         dataset: str,
-        stops: list[FeatureCollection],
-        poles: list[FeatureCollection],
-        shelters: list[FeatureCollection],
-        rtpis: list[FeatureCollection],
+        stops: FeatureCollection,
+        poles: FeatureCollection,
+        shelters: FeatureCollection,
+        rtpis: FeatureCollection,
     ):
         self.dataset = dataset
         self.stops = stops

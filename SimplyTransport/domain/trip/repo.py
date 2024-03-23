@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Optional, Sequence
 from advanced_alchemy import NotFoundError
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import select
@@ -9,15 +9,16 @@ from .model import TripModel
 class TripRepository(SQLAlchemyAsyncRepository[TripModel]):
     """Trip repository."""
 
-    async def get_first_trips_by_route_ids(self, route_ids: list[str], direction: int) -> Sequence[TripModel]:
+    async def get_first_trips_by_route_ids(
+        self, route_ids: list[str], direction: Optional[int] = None
+    ) -> Sequence[TripModel]:
         """Get first trips by route_ids."""
+        query = select(TripModel).where(TripModel.route_id.in_(route_ids)).distinct(TripModel.route_id)
 
-        result = await self.session.execute(
-            select(TripModel)
-            .where(TripModel.route_id.in_(route_ids))
-            .where(TripModel.direction == direction)
-            .distinct(TripModel.route_id)
-        )
+        if direction is not None:
+            query = query.where(TripModel.direction == direction)
+
+        result = await self.session.execute(query)
         return result.scalars().all()
 
     async def get_first_trip_by_route_id(self, route_id: str, direction: int) -> TripModel:
