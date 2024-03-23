@@ -21,6 +21,11 @@ class CacheKeys(Enum):
     SCHEDULE_DELETE_ALL_KEY_TEMPLATE = "*schedule:*"
     SCHEDULE_DELETE_KEY_TEMPLATE = "*schedule:{stop_id}:*"
 
+    # Static Maps
+    STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE = "static_map:agency:route:{agency_id}"
+    STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*static_map:agency:route:*"
+    STATIC_MAP_AGENCY_ROUTE_DELETE_KEY_TEMPLATE = "*static_map:agency:route:{agency_id}"
+
 
 def key_builder_from_path(template: CacheKeys, *args):
     """

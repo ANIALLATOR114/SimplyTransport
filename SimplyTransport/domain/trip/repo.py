@@ -19,6 +19,16 @@ class TripRepository(SQLAlchemyAsyncRepository[TripModel]):
             .distinct(TripModel.route_id)
         )
         return result.scalars().all()
+    
+    async def get_first_trips_by_route_ids_no_direction(self, route_ids: list[str]) -> Sequence[TripModel]:
+        """Get first trips by route_ids without direction."""
+
+        result = await self.session.execute(
+            select(TripModel)
+            .where(TripModel.route_id.in_(route_ids))
+            .distinct(TripModel.route_id)
+        )
+        return result.scalars().all()
 
     async def get_first_trip_by_route_id(self, route_id: str, direction: int) -> TripModel:
         """Get first trip by route_id."""

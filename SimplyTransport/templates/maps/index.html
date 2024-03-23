@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ request.app.openapi_config.title
+    }} - Maps
+{% endblock title %}
+{% block content %}
+    <div class="narrow-container">
+        <h1>Transport Maps 🗺️</h1>
+        <div class="inner-container">
+            <h2 class="no-top-margin">Agency Routes</h2>
+            <p class="dense-text">
+                A map of all the routes operated by the agency.
+                <br>
+                <strong>All Agencies Combined</strong> loads every route from every agency onto the same map.
+            </p>
+            <div class="flex-gap">
+                {% for agency in agencies %}
+                    <a style="text-decoration: none"
+                       href="/maps/agency/route/{{ agency.id }}">
+                        <button class="no-line-break route-link-button dense-text">{{ agency.short_name() }}</button>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="inner-container">
+            <h2 class="no-top-margin">Stops</h2>
+            <p class="dense-text">Coming soon...</p>
+        </div>
+    </div>
+{% endblock content %}

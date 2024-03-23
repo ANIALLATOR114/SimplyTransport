@@ -1,6 +1,6 @@
 from collections import defaultdict
 from itertools import cycle
-from typing import Dict, List
+from typing import Dict, List, Literal
 
 from advanced_alchemy import NotFoundError
 
@@ -144,6 +144,58 @@ class MapService:
 
         route_map.add_layer_control()
         return route_map
+    
+    async def generate_agency_route_map(self, agency_id: str | Literal["All"]) -> Map:
+        """
+        Generates a map showing the routes of a specific agency or all agencies.
+
+        Args:
+            agency_id (str | Literal["All"]): The ID of the agency to generate the map for. 
+                Use "All" to generate the map for all agencies.
+
+        Returns:
+            Map: The generated map object.
+
+        Raises:
+            ValueError: If no routes are found for the specified agency.
+        """
+
+        if agency_id == "All":
+            routes = await self.route_repository.get_with_agencies()
+        else:
+            routes = await self.route_repository.get_with_agencies_by_agency_id(agency_id)
+        if len(routes) == 0:
+            raise ValueError(f"No routes found for agency {agency_id}")
+        route_ids = [route.id for route in routes]
+
+        trips = await self.trip_repository.get_first_trips_by_route_ids_no_direction(route_ids)
+
+        shape_ids = [trip.shape_id for trip in trips]
+        shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
+        shapes_dict: Dict[str, List[ShapeModel]] = defaultdict(list)
+        for shape in shapes:
+            shapes_dict[shape.shape_id].append(shape)
+        
+        route_map = Map(zoom=7, height=600)
+        route_map.setup_defaults()
+
+        route_colors = cycle(list(Colors))
+
+        for route in routes:
+            trip = next((trip for trip in trips if trip.route_id == route.id), None)
+            if trip is None:
+                continue
+            trip_shapes = shapes_dict.get(trip.shape_id, [])
+            locations = [(shape.lat, shape.lon) for shape in trip_shapes]
+            route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
+            route_layer = Layer(f"{route.short_name}")
+            route_layer.add_child(route_poly.polyline)
+            route_layer.add_to(route_map.map_base)
+
+        route_map.add_layer_control()
+        return route_map
+
+
 
 
 async def provide_map_service(db_session: AsyncSession) -> MapService:

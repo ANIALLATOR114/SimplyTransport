@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -49,6 +49,18 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
         """Get a route by id with agency."""
 
         return await self.get(id, statement=select(RouteModel).options(joinedload(RouteModel.agency)))
+    
+    async def get_with_agencies(self) -> List[RouteModel]:
+        """Get all routes with agencies"""
+
+        return await self.list(statement=select(RouteModel).options(joinedload(RouteModel.agency)))
+    
+    async def get_with_agencies_by_agency_id(self, agency_id: str) -> List[RouteModel]:
+        """Get all routes with agencies by agency_id"""
+
+        return await self.list(
+            RouteModel.agency_id == agency_id, statement=select(RouteModel).options(joinedload(RouteModel.agency))
+        )
 
     model_type = RouteModel
 
