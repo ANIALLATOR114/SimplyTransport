@@ -2,8 +2,12 @@ from litestar.config.response_cache import ResponseCacheConfig
 from litestar.stores.redis import RedisStore
 from redis.asyncio import Redis
 
-from SimplyTransport.lib.cache_keys import CacheKeys
+from .cache_keys import CacheKeys
 from . import settings
+
+from opentelemetry.instrumentation.redis import RedisInstrumentor
+
+RedisInstrumentor().instrument()
 
 
 def redis_factory() -> Redis:
