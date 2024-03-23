@@ -7,6 +7,7 @@ from ..lib.db.database import async_session_factory
 
 logger = provide_logger(__name__)
 
+
 async def build_route_map(map_name: str | Literal["All"]) -> None:
     """
     Builds a route map for the specified agency.

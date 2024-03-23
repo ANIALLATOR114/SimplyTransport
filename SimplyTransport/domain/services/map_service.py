@@ -144,13 +144,13 @@ class MapService:
 
         route_map.add_layer_control()
         return route_map
-    
+
     async def generate_agency_route_map(self, agency_id: str | Literal["All"]) -> Map:
         """
         Generates a map showing the routes of a specific agency or all agencies.
 
         Args:
-            agency_id (str | Literal["All"]): The ID of the agency to generate the map for. 
+            agency_id (str | Literal["All"]): The ID of the agency to generate the map for.
                 Use "All" to generate the map for all agencies.
 
         Returns:
@@ -175,7 +175,7 @@ class MapService:
         shapes_dict: Dict[str, List[ShapeModel]] = defaultdict(list)
         for shape in shapes:
             shapes_dict[shape.shape_id].append(shape)
-        
+
         route_map = Map(zoom=7, height=600)
         route_map.setup_defaults()
 
@@ -194,8 +194,6 @@ class MapService:
 
         route_map.add_layer_control()
         return route_map
-
-
 
 
 async def provide_map_service(db_session: AsyncSession) -> MapService:

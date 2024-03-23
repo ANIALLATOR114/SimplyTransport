@@ -85,7 +85,7 @@ class RootController(Controller):
     @get("/routes")
     async def route(self) -> Template:
         return Template("gtfs_search/route_search.html")
-    
+
     @get("/maps")
     async def maps(self, agency_repo: AgencyRepository) -> Template:
         agencies = await agency_repo.list()

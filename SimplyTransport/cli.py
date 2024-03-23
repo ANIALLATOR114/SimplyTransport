@@ -527,7 +527,6 @@ class CLIPlugin(CLIPluginProtocol):
             await redis_service.delete_all_keys()
             console.print("\n[blue]Finished flushing the Redis cache")
 
-
         @cli.command(name="generatemaps", help="Generates the static maps for gtfs data")
         @make_sync
         async def generatemaps():
