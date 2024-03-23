@@ -6,6 +6,7 @@ from .cache_keys import CacheKeys
 from . import settings
 
 from opentelemetry.instrumentation.redis import RedisInstrumentor
+
 RedisInstrumentor().instrument()
 
 
