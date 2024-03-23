@@ -35,8 +35,8 @@
     - [Templates](#templates)
   - [Database](#database)
     - [Migrations](#migrations)
-   
 - [Telemetry and Logs](#telemetry-and-logs)
+
   - [Telemetry](#telemetry)
   - [Logging](#logging)
     - [Regular Logging](#regular-logging)
@@ -112,7 +112,7 @@ The primary map is on the page for a stop, it shows the location of the stop and
 - [x] Maps on route pages
 - [x] Maps on stop pages
 - [ ] Aggregation of stops
-- [ ] Aggregation of routes
+- [x] Aggregation of routes
 
 ## CLI Interface
 
@@ -130,6 +130,7 @@ This extends the standard litestar cli. You can view all the commands by just ru
 - [x] Recreate all database indexes `recreate_indexes`
 - [x] Cleanup expired events from the database `cleanupevents`
 - [x] Flush the redis cache `flushcache`
+- [x] Generate static maps `generatemaps`
 
 # Installation
 
@@ -318,15 +319,19 @@ alembic upgrade head
 ```
 
 # Telemetry and Logs
+
 ## Telemetry
 
 SimplyTransport contains configuration and instrumentation for OpenTelemetry Traces and Metrics.
 
 When the docker containers are created an `Opentelemetry Collector` is created and configured using `.env` variabels
+
 ```
 docker-compose up -d
 ```
+
 This provides metrics and traces for the following:
+
 - [x] The Litestar framework ( http requests and responses )
 - [x] Custom spans
 - [x] Database queries (metrics and statements)
@@ -343,16 +348,17 @@ SimplyTransport uses structured logging from structlog and outputs logs to Grafa
 The logs are processed using rich which comes with some very nice development and debugging advantages for exceptions.
 
 ### Regular logging
+
 Logs are output to the console and in Loki as colourful structured logs.
 ![image](https://github.com/ANIALLATOR114/SimplyTransport/assets/116189545/d54ad355-c065-49f5-98ef-a66de5be2b5a)
 
 ### Exception Logging
+
 Exceptions to the local console handler are very verbose and include the code that threw the error ( and surrounding code ) but also all of the local variables in scope of the function!
-So you can see exactly what paramaters and object states were present when the error occured. 
+So you can see exactly what paramaters and object states were present when the error occured.
 
 The only difference when outputting to Loki is that the stacktrace is made more compact with restricted frames, but all the fantastic debugging information is retained.
 ![image](https://github.com/ANIALLATOR114/SimplyTransport/assets/116189545/6657e04c-e240-465f-abf6-d5f72a1ba3c5)
-
 
 # Testing
 
