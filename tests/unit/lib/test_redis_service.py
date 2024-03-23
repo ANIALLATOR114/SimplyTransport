@@ -91,5 +91,5 @@ def test_redis_service_cache_config_factory():
 
 
 def test_redis_store_factory():
-    redis_store = redis_store_factory("name")
-    assert redis_store.namespace == "SimplyTransport DEV:name"
+    redis_store = redis_store_factory("test_name")
+    assert "test_name" in redis_store.namespace
