@@ -9,7 +9,9 @@ from .model import TripModel
 class TripRepository(SQLAlchemyAsyncRepository[TripModel]):
     """Trip repository."""
 
-    async def get_first_trips_by_route_ids(self, route_ids: list[str], direction: Optional[int] = None) -> Sequence[TripModel]:
+    async def get_first_trips_by_route_ids(
+        self, route_ids: list[str], direction: Optional[int] = None
+    ) -> Sequence[TripModel]:
         """Get first trips by route_ids."""
         query = select(TripModel).where(TripModel.route_id.in_(route_ids)).distinct(TripModel.route_id)
 
