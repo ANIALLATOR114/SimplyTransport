@@ -71,7 +71,7 @@ python-logging-loki==0.3.1
 PyYAML==6.0.1
 redis==5.0.1
 regex==2023.10.3
-requests==2.31.0
+requests==2.32.0
 rfc3339==6.2
 rich==13.6.0
 rich-click==1.7.0
