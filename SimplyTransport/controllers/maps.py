@@ -67,7 +67,7 @@ class MapsController(Controller):
             agency = await agency_repo.get(agency_id)
         else:
             agency = AgencyModel(id="All", name="All Agencies Combined")
-        
+
         try:
             # See if the file exists
             with open(template_path):
