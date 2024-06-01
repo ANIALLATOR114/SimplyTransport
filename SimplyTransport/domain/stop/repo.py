@@ -2,6 +2,8 @@ from typing import List, Tuple
 
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..stop_features.model import StopFeatureModel
 from .model import StopModel
 from ..trip.model import TripModel
 from ..route.model import RouteModel
@@ -73,7 +75,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             .where(StopTimeModel.stop_id == stop_id)
             .limit(1)
         )
-        return result.scalar()
+        return result.scalar() or 0
 
     async def get_by_route_id_with_sequence(
         self, route_id: str, direction: int
@@ -97,6 +99,41 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
         """Get a stop by id with stop feature."""
 
         return await self.get(id, statement=select(StopModel).options(joinedload(StopModel.stop_feature)))
+
+    async def get_all_with_stop_feature(self) -> list[StopModel]:
+        """Get all stops with stop features."""
+
+        return await self.list(statement=select(StopModel).options(joinedload(StopModel.stop_feature)))
+
+    async def get_stops_with_realtime_displays(self) -> list[StopModel]:
+        """Get stops by realtime displays."""
+
+        return await self.list(
+            statement=select(StopModel)
+            .options(joinedload(StopModel.stop_feature))
+            .join(StopFeatureModel, StopFeatureModel.stop_id == StopModel.id)
+            .where(StopFeatureModel.rtpi_active == True)  # noqa: E712
+        )
+
+    async def get_stops_with_shelters(self) -> list[StopModel]:
+        """Get stops by realtime displays."""
+
+        return await self.list(
+            statement=select(StopModel)
+            .options(joinedload(StopModel.stop_feature))
+            .join(StopFeatureModel, StopFeatureModel.stop_id == StopModel.id)
+            .where(StopFeatureModel.shelter_active == True)  # noqa: E712
+        )
+
+    async def get_stops_that_are_unsurveyed(self) -> list[StopModel]:
+        """Get stops by realtime displays."""
+
+        return await self.list(
+            statement=select(StopModel)
+            .options(joinedload(StopModel.stop_feature))
+            .join(StopFeatureModel, StopFeatureModel.stop_id == StopModel.id)
+            .where(StopFeatureModel.surveyed == False)  # noqa: E712
+        )
 
 
 async def provide_stop_repo(db_session: AsyncSession) -> StopRepository:

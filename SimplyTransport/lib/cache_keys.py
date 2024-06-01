@@ -25,6 +25,9 @@ class CacheKeys(Enum):
     STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE = "static_map:agency:route:{agency_id}"
     STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*static_map:agency:route:*"
     STATIC_MAP_AGENCY_ROUTE_DELETE_KEY_TEMPLATE = "*static_map:agency:route:{agency_id}"
+    STATIC_MAP_STOP_KEY_TEMPLATE = "static_map:stop:{map_type}"
+    STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE = "*static_map:stop:*"
+    STATIC_MAP_STOP_DELETE_KEY_TEMPLATE = "*static_map:stop:{map_type}"
 
 
 def key_builder_from_path(template: CacheKeys, *args):

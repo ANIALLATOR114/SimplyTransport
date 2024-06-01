@@ -33,6 +33,7 @@ def redis_store_factory(name: str) -> RedisStore:
 def redis_service_cache_config_factory() -> ResponseCacheConfig:
     """
     Factory function that returns a ResponseCacheConfig object for Redis service cache.
+    If a store exists in the registry, it will be used to create the cache configuration which should only be redis.
 
     Returns:
         ResponseCacheConfig: The cache configuration object.

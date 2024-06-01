@@ -4,12 +4,17 @@ from typing import Dict, List, Literal
 
 from advanced_alchemy import NotFoundError
 
+from ..maps.clusters import Cluster
+from ..maps.enums import StaticStopMapTypes
+from ...lib.logging.logging import provide_logger
+
 from ..maps.layers import Layer
 from ..maps.colors import Colors
 from ..realtime.vehicle.model import RTVehicleModel
 from ..maps.polylines import RoutePolyLine
 from ..realtime.vehicle.repo import RTVehicleRepository
 from ..shape.model import ShapeModel
+from ..stop.model import StopModel
 from ..shape.repo import ShapeRepository
 from ..trip.repo import TripRepository
 from ..route.repo import RouteRepository
@@ -18,6 +23,8 @@ from ..maps.markers import BusMarker, StopMarker
 from ..stop.repo import StopRepository
 
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = provide_logger(__name__)
 
 
 class MapService:
@@ -194,6 +201,35 @@ class MapService:
 
         route_map.add_layer_control()
         return route_map
+
+    async def generate_static_stop_map(self, map_type: StaticStopMapTypes) -> Map:
+        stop_map = Map(zoom=7, height=600)
+        stop_map.setup_defaults()
+        cluster = Cluster(name="Stops")
+
+        stops = await self.get_stops_based_on_type(map_type)
+
+        for stop in stops:
+            stop_marker = StopMarker(stop=stop)
+            cluster.add_marker(stop_marker.create_marker())
+
+        cluster.add_to(stop_map.map_base)
+        stop_map.add_layer_control()
+        return stop_map
+
+    async def get_stops_based_on_type(self, map_type: StaticStopMapTypes) -> List[StopModel]:
+        match map_type:
+            case StaticStopMapTypes.ALL_STOPS:
+                return await self.stop_repository.get_all_with_stop_feature()
+            case StaticStopMapTypes.REALTIME_DISPLAYS:
+                return await self.stop_repository.get_stops_with_realtime_displays()
+            case StaticStopMapTypes.SHELTERED_STOPS:
+                return await self.stop_repository.get_stops_with_shelters()
+            case StaticStopMapTypes.UNSURVEYED:
+                return await self.stop_repository.get_stops_that_are_unsurveyed()
+            case _:
+                logger.error(f"Invalid map type {map_type}")
+                return []
 
 
 async def provide_map_service(db_session: AsyncSession) -> MapService:

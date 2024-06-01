@@ -2,9 +2,14 @@ from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from sqlalchemy import String, Integer, ForeignKey, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel as _BaseModel, Field
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from ..enums import LocationType
+
+if TYPE_CHECKING:
+    from ..stop_times.model import StopTimeModel
+    from ..realtime.stop_time.model import RTStopTimeModel
+    from ..stop_features.model import StopFeatureModel
 
 
 class BaseModel(_BaseModel):
@@ -26,13 +31,13 @@ class StopModel(BigIntAuditBase):
     url: Mapped[Optional[str]] = mapped_column(String(length=1000))
     location_type: Mapped[Optional[LocationType]] = mapped_column(Integer)
     parent_station: Mapped[Optional[str]] = mapped_column(String(length=1000), ForeignKey("stop.id"))
-    stop_times: Mapped[list["StopTimeModel"]] = relationship(  # noqa: F821
+    stop_times: Mapped[list["StopTimeModel"]] = relationship(
         back_populates="stop",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="stop")  # noqa: F821
-    stop_feature: Mapped["StopFeatureModel"] = relationship(back_populates="stop")  # noqa: F821
+    rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="stop")
+    stop_feature: Mapped["StopFeatureModel"] = relationship(back_populates="stop")
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 

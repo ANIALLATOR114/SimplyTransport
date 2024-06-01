@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block title %}
-    {{ request.app.openapi_config.title }} - {{ agency.name }} Routes
+    {{ request.app.openapi_config.title }} - {{ map_type }}
 {% endblock title %}
 {% block content %}
-    <h1>{{ agency.name }}</h1>
+    <h1>{{ map_type }}</h1>
     {% if error %}
         <h3>{{ error }}</h3>
     {% else %}
-        <div hx-get="/maps/static/agency/route/{{ agency.id }}"
+        <div hx-get="/maps/static/stop/{{ map_type }}"
              hx-trigger="load"
              hx-swap="transition:true"
              hx-indicator="#map-loader"

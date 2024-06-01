@@ -6,6 +6,11 @@ from typing import Optional
 from datetime import datetime as dateTime
 from datetime import datetime
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..stop.model import StopModel
+
 from ..enums import Bearing, StopType
 
 
