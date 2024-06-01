@@ -12,11 +12,13 @@ from litestar.plugins import CLIPluginProtocol
 from rich.console import Console
 from rich.table import Table
 
+from .domain.maps.enums import StaticStopMapTypes
+
 from .domain.agency.repo import provide_agency_repo
 from .lib.logging.logging import provide_logger
 from .lib.cache import provide_redis_service
 from .lib.cache_keys import CacheKeys
-from .lib.gtfs_static_maps import build_route_map
+from .lib.gtfs_static_maps import build_route_map, build_stop_map
 
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.db import services as db_services
@@ -530,7 +532,9 @@ class CLIPlugin(CLIPluginProtocol):
         @cli.command(name="generatemaps", help="Generates the static maps for gtfs data")
         @make_sync
         async def generatemaps():
-            """Generates static maps for each agency in the database"""
+            """Generates static maps for each agency in the database as well as stop maps."""
+
+            redis_service = provide_redis_service()
 
             console = Console()
             console.print("Generating static maps...")
@@ -546,9 +550,12 @@ class CLIPlugin(CLIPluginProtocol):
 
             tasks = [build_route_map(agency) for agency in agency_ids]
             await asyncio.gather(*tasks)
-
-            redis_service = provide_redis_service()
             await redis_service.delete_keys(CacheKeys.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE)
+
+            console.print("Generating stop maps")
+            tasks = [build_stop_map(map_type) for map_type in StaticStopMapTypes]
+            await asyncio.gather(*tasks)
+            await redis_service.delete_keys(CacheKeys.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
 
             finish = time.perf_counter()
             logger.info(f"Finished generating static maps in {round(finish-start, 2)} second(s)")

@@ -1,6 +1,7 @@
 :root {
 	--bg-color: rgb(16 22 37) !important;
 	--bg-color-bump: rgb(21, 30, 49) !important;
+	--bg-color-bump-border: rgb(49, 59, 70) !important;
 	--bg-color-bump-even: rgb(26, 36, 59) !important;
 	--bg-color-highlight: rgb(35, 49, 80) !important;
 	--bg-color-light: rgb(56, 80, 132) !important;
@@ -169,6 +170,7 @@ h3 {
 	padding: 0.9rem;
 	background-color: var(--bg-color-bump);
 	min-width: fit-content;
+	border: 1px solid var(--bg-color-bump-border);
 }
 
 .table-search {

@@ -9,7 +9,7 @@
         <div class="inner-container">
             <h2 class="no-top-margin">Agency Routes</h2>
             <p class="dense-text">
-                A map of all the routes operated by the agency.
+                Maps of all the routes operated by each agency.
                 <br>
                 <strong>All Agencies Combined</strong> loads every route from every agency onto the same map.
             </p>
@@ -24,7 +24,14 @@
         </div>
         <div class="inner-container">
             <h2 class="no-top-margin">Stops</h2>
-            <p class="dense-text">Coming soon...</p>
+            <p class="dense-text">Maps of collections of stops.</p>
+            <div class="flex-gap">
+                {% for map in map_types %}
+                    <a style="text-decoration: none" href="/maps/stop/{{ map.value }}">
+                        <button class="no-line-break route-link-button dense-text">{{ map.value }}</button>
+                    </a>
+                {% endfor %}
+            </div>
         </div>
     </div>
 {% endblock content %}

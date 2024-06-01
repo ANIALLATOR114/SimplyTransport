@@ -6,7 +6,7 @@ from litestar.response import Template
 
 from ..domain.agency.model import AgencyModel
 from ..domain.agency.repo import AgencyRepository, provide_agency_repo
-from ..lib.constants import MAPS_STATIC_DIR, MAPS_TEMPLATES_DIR
+from ..lib.constants import MAPS_STATIC_ROUTES_DIR, MAPS_STATIC_STOPS_DIR, MAPS_TEMPLATES_ROUTES_DIR, MAPS_TEMPLATES_STOPS_DIR
 from ..lib.logging.logging import provide_logger
 
 from ..domain.services.map_service import MapService, provide_map_service
@@ -55,7 +55,7 @@ class MapsController(Controller):
         return Template(template_str=route_map.render(), media_type=MediaType.HTML)
 
     @get("/agency/route/{agency_id:str}")
-    async def maps(self, agency_repo: AgencyRepository, agency_id: str) -> Template:
+    async def agency_maps(self, agency_repo: AgencyRepository, agency_id: str) -> Template:
         if agency_id != "All":
             agency = await agency_repo.get(agency_id)
         else:
@@ -63,12 +63,13 @@ class MapsController(Controller):
 
         try:
             # See if the file exists
-            with open(Path(MAPS_STATIC_DIR) / f"{agency_id}.html"):
+            with open(Path(MAPS_STATIC_ROUTES_DIR) / f"{agency_id}.html"):
                 pass
         except FileNotFoundError:
-            logger.bind(agency_id=agency_id, path=f"{MAPS_TEMPLATES_DIR}/{agency_id}.html").error(
-                f"Route map for agency {agency_id} not found"
-            )
+            logger.bind(
+                agency_id=agency_id,
+                path=Path(MAPS_STATIC_ROUTES_DIR) / f"{agency_id}.html",
+            ).error(f"Route map for agency {agency_id} not found")
             return Template(
                 "maps/agency_route.html",
                 context={"agency": agency, "error": "Sorry, this map is not available"},
@@ -82,4 +83,31 @@ class MapsController(Controller):
         cache_key_builder=key_builder_from_path(CacheKeys.STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE, "agency_id"),
     )
     async def static_agency_route_map(self, agency_id: str) -> Template:
-        return Template(f"{MAPS_TEMPLATES_DIR}/{agency_id}.html")
+        return Template(f"{MAPS_TEMPLATES_ROUTES_DIR}/{agency_id}.html")
+    
+    @get("/stop/{map_type:str}")
+    async def stop_maps(self, map_type: str) -> Template:
+        try:
+            # See if the file exists
+            with open(Path(MAPS_STATIC_STOPS_DIR) / f"{map_type}.html"):
+                pass
+        except FileNotFoundError:
+            logger.bind(
+                path=Path(MAPS_STATIC_STOPS_DIR) / f"{map_type}.html",
+            ).error(f"Stop map for type {map_type} not found")
+            return Template(
+                "maps/stop.html",
+                context={"error": "Sorry, this map is not available", "map_type": map_type},
+            )
+
+        return Template("maps/stop.html", context={"map_type": map_type})
+
+    @get(
+        "/static/stop/{map_type:str}",
+        cache=86400 * 7,
+        cache_key_builder=key_builder_from_path(
+            CacheKeys.STATIC_MAP_STOP_KEY_TEMPLATE, "map_type"
+        ),
+    )
+    async def static_stop_map(self, map_type: str) -> Template:
+        return Template(f"{MAPS_TEMPLATES_STOPS_DIR}/{map_type}.html")

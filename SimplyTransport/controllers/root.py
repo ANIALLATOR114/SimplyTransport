@@ -8,6 +8,7 @@ from ..domain.agency.repo import AgencyRepository, provide_agency_repo
 
 from ..lib.logging.logging import provide_logger
 from ..domain.maps.maps import Map
+from ..domain.maps.enums import StaticStopMapTypes
 from ..domain.services.map_service import MapService
 from ..domain.events.repo import EventRepository, provide_event_repo
 from ..domain.events.event_types import EventType
@@ -91,7 +92,10 @@ class RootController(Controller):
         agencies = await agency_repo.list()
         all_agency = AgencyModel(id="All", name="All Agencies Combined")
         agencies.append(all_agency)
-        return Template("maps/index.html", context={"agencies": agencies})
+        return Template(
+            "maps/index.html",
+            context={"agencies": agencies, "map_types": StaticStopMapTypes},
+        )
 
     # Static files on the root / path
     @get("/favicon.ico")
