@@ -2,6 +2,7 @@ import folium as fl
 
 from folium.plugins import MarkerCluster
 
+
 class Cluster:
     def __init__(self, name: str = "Cluster") -> None:
         """
@@ -23,7 +24,6 @@ class Cluster:
         """
         self.cluster = MarkerCluster(name=self.name)
 
-    
     def add_to(self, map: fl.Map) -> None:
         """
         Adds the cluster to the map.
@@ -36,7 +36,6 @@ class Cluster:
         """
         self.cluster.add_to(map)
 
-    
     def add_marker(self, marker: fl.Marker) -> None:
         """
         Adds a marker to the cluster.

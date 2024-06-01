@@ -1,5 +1,5 @@
-
 from enum import Enum
+
 
 class StaticStopMapTypes(str, Enum):
     ALL_STOPS = "All Stops"

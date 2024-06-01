@@ -201,7 +201,7 @@ class MapService:
 
         route_map.add_layer_control()
         return route_map
-    
+
     async def generate_static_stop_map(self, map_type: StaticStopMapTypes) -> Map:
         stop_map = Map(zoom=7, height=600)
         stop_map.setup_defaults()
@@ -216,10 +216,8 @@ class MapService:
         cluster.add_to(stop_map.map_base)
         stop_map.add_layer_control()
         return stop_map
-    
-    async def get_stops_based_on_type(
-        self, map_type: StaticStopMapTypes
-    ) -> List[StopModel]:
+
+    async def get_stops_based_on_type(self, map_type: StaticStopMapTypes) -> List[StopModel]:
         match map_type:
             case StaticStopMapTypes.ALL_STOPS:
                 return await self.stop_repository.get_all_with_stop_feature()
@@ -232,8 +230,6 @@ class MapService:
             case _:
                 logger.error(f"Invalid map type {map_type}")
                 return []
-            
-            
 
 
 async def provide_map_service(db_session: AsyncSession) -> MapService:

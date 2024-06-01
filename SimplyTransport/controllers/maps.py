@@ -6,7 +6,12 @@ from litestar.response import Template
 
 from ..domain.agency.model import AgencyModel
 from ..domain.agency.repo import AgencyRepository, provide_agency_repo
-from ..lib.constants import MAPS_STATIC_ROUTES_DIR, MAPS_STATIC_STOPS_DIR, MAPS_TEMPLATES_ROUTES_DIR, MAPS_TEMPLATES_STOPS_DIR
+from ..lib.constants import (
+    MAPS_STATIC_ROUTES_DIR,
+    MAPS_STATIC_STOPS_DIR,
+    MAPS_TEMPLATES_ROUTES_DIR,
+    MAPS_TEMPLATES_STOPS_DIR,
+)
 from ..lib.logging.logging import provide_logger
 
 from ..domain.services.map_service import MapService, provide_map_service
@@ -84,7 +89,7 @@ class MapsController(Controller):
     )
     async def static_agency_route_map(self, agency_id: str) -> Template:
         return Template(f"{MAPS_TEMPLATES_ROUTES_DIR}/{agency_id}.html")
-    
+
     @get("/stop/{map_type:str}")
     async def stop_maps(self, map_type: str) -> Template:
         try:
@@ -105,9 +110,7 @@ class MapsController(Controller):
     @get(
         "/static/stop/{map_type:str}",
         cache=86400 * 7,
-        cache_key_builder=key_builder_from_path(
-            CacheKeys.STATIC_MAP_STOP_KEY_TEMPLATE, "map_type"
-        ),
+        cache_key_builder=key_builder_from_path(CacheKeys.STATIC_MAP_STOP_KEY_TEMPLATE, "map_type"),
     )
     async def static_stop_map(self, map_type: str) -> Template:
         return Template(f"{MAPS_TEMPLATES_STOPS_DIR}/{map_type}.html")

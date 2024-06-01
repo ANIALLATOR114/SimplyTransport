@@ -47,9 +47,7 @@ async def build_stop_map(map_name: StaticStopMapTypes) -> None:
         map_service = await provide_map_service(session)
         built_map = await map_service.generate_static_stop_map(map_type=map_name)
 
-    with open(
-        f"{MAPS_STATIC_STOPS_DIR}/{map_name.value}.html", "w", encoding="utf-8"
-    ) as file:
+    with open(f"{MAPS_STATIC_STOPS_DIR}/{map_name.value}.html", "w", encoding="utf-8") as file:
         file.write(built_map.render())
 
     logger.info(f"Stop map for {map_name} built")

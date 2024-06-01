@@ -99,16 +99,13 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
         """Get a stop by id with stop feature."""
 
         return await self.get(id, statement=select(StopModel).options(joinedload(StopModel.stop_feature)))
-    
+
     async def get_all_with_stop_feature(self) -> list[StopModel]:
         """Get all stops with stop features."""
 
-        return await self.list(
-            statement=select(StopModel).options(joinedload(StopModel.stop_feature))
-        )
+        return await self.list(statement=select(StopModel).options(joinedload(StopModel.stop_feature)))
 
-    async def get_stops_with_realtime_displays(
-        self) -> list[StopModel]:
+    async def get_stops_with_realtime_displays(self) -> list[StopModel]:
         """Get stops by realtime displays."""
 
         return await self.list(
@@ -117,7 +114,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             .join(StopFeatureModel, StopFeatureModel.stop_id == StopModel.id)
             .where(StopFeatureModel.rtpi_active == True)  # noqa: E712
         )
-    
+
     async def get_stops_with_shelters(self) -> list[StopModel]:
         """Get stops by realtime displays."""
 
@@ -127,7 +124,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             .join(StopFeatureModel, StopFeatureModel.stop_id == StopModel.id)
             .where(StopFeatureModel.shelter_active == True)  # noqa: E712
         )
-    
+
     async def get_stops_that_are_unsurveyed(self) -> list[StopModel]:
         """Get stops by realtime displays."""
 
