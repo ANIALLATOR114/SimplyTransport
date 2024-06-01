@@ -61,19 +61,21 @@ class MapsController(Controller):
 
     @get("/agency/route/{agency_id:str}")
     async def agency_maps(self, agency_repo: AgencyRepository, agency_id: str) -> Template:
+        template_path = Path(MAPS_STATIC_ROUTES_DIR) / f"{agency_id}.html"
+
         if agency_id != "All":
             agency = await agency_repo.get(agency_id)
         else:
             agency = AgencyModel(id="All", name="All Agencies Combined")
-
+        
         try:
             # See if the file exists
-            with open(Path(MAPS_STATIC_ROUTES_DIR) / f"{agency_id}.html"):
+            with open(template_path):
                 pass
         except FileNotFoundError:
             logger.bind(
                 agency_id=agency_id,
-                path=Path(MAPS_STATIC_ROUTES_DIR) / f"{agency_id}.html",
+                path=template_path,
             ).error(f"Route map for agency {agency_id} not found")
             return Template(
                 "maps/agency_route.html",
@@ -92,13 +94,15 @@ class MapsController(Controller):
 
     @get("/stop/{map_type:str}")
     async def stop_maps(self, map_type: str) -> Template:
+        template_path = Path(MAPS_STATIC_STOPS_DIR) / f"{map_type}.html"
+
         try:
             # See if the file exists
-            with open(Path(MAPS_STATIC_STOPS_DIR) / f"{map_type}.html"):
+            with open(template_path):
                 pass
         except FileNotFoundError:
             logger.bind(
-                path=Path(MAPS_STATIC_STOPS_DIR) / f"{map_type}.html",
+                path=template_path,
             ).error(f"Stop map for type {map_type} not found")
             return Template(
                 "maps/stop.html",

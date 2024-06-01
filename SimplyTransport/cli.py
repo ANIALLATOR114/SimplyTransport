@@ -549,12 +549,18 @@ class CLIPlugin(CLIPluginProtocol):
             agency_ids.append("All")
 
             tasks = [build_route_map(agency) for agency in agency_ids]
-            await asyncio.gather(*tasks)
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            for result in results:
+                if isinstance(result, Exception):
+                    logger.error(f"Error generating route map: {result}")
             await redis_service.delete_keys(CacheKeys.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE)
 
             console.print("Generating stop maps")
             tasks = [build_stop_map(map_type) for map_type in StaticStopMapTypes]
-            await asyncio.gather(*tasks)
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            for result in results:
+                if isinstance(result, Exception):
+                    logger.error(f"Error generating stop map: {result}")
             await redis_service.delete_keys(CacheKeys.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
 
             finish = time.perf_counter()
