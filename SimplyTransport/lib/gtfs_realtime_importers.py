@@ -88,16 +88,12 @@ class RealTimeImporter:
             objects_to_commit = []
             # Foreign key exceptions
             result_trips = await session.execute(
-                select(TripModel.id)
-                .filter(TripModel.dataset == self.dataset)
-                .distinct()
+                select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
             )
             trips_in_db = result_trips.scalars().all()
 
             result_stops = await session.execute(
-                select(StopModel.id)
-                .filter(StopModel.dataset == self.dataset)
-                .distinct()
+                select(StopModel.id).filter(StopModel.dataset == self.dataset).distinct()
             )
             stops_in_db = result_stops.scalars().all()
 
@@ -162,9 +158,13 @@ class RealTimeImporter:
         async with async_session_factory() as session:
             objects_to_commit = []
             # Foreign key exceptions
-            result_routes = await session.execute(select(RouteModel.id).filter(RouteModel.dataset == self.dataset).distinct())
+            result_routes = await session.execute(
+                select(RouteModel.id).filter(RouteModel.dataset == self.dataset).distinct()
+            )
             routes_in_db = result_routes.scalars().all()
-            result_trips = await session.execute(select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct())
+            result_trips = await session.execute(
+                select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
+            )
             trips_in_db = result_trips.scalars().all()
 
             for item in data.get("entity", []):

@@ -32,6 +32,7 @@ progress_columns = (
     rp.TimeRemainingColumn(),
 )
 
+
 class AsyncImporter(ABC):
     def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
@@ -74,9 +75,7 @@ def create_queue_and_tasks(producer):
     """Creates a queue and tasks for producers and consumers"""
     q = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
     producer_task = asyncio.create_task(producer(q, NUMBER_OF_CONSUMERS))
-    consumer_tasks = [
-        asyncio.create_task(consumer(q)) for _ in range(NUMBER_OF_CONSUMERS)
-    ]
+    consumer_tasks = [asyncio.create_task(consumer(q)) for _ in range(NUMBER_OF_CONSUMERS)]
     tasks = consumer_tasks + [producer_task]
     return tasks
 
@@ -141,7 +140,7 @@ class AgencyImporter(AsyncImporter):
 
     def __str__(self) -> str:
         return "AgencyImporter"
-    
+
     async def import_data(self):
         tasks = create_queue_and_tasks(self.producer)
         await asyncio.gather(*tasks)
@@ -151,9 +150,7 @@ class AgencyImporter(AsyncImporter):
         objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(
-                "[green]Importing Agencies...", total=self.row_count
-            )
+            task = progress.add_task("[green]Importing Agencies...", total=self.row_count)
 
             for row in self.reader:
                 new_agency = AgencyModel(
@@ -212,9 +209,7 @@ class CalendarImporter(AsyncImporter):
         objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(
-                "[green]Importing Calendars...", total=self.row_count
-            )
+            task = progress.add_task("[green]Importing Calendars...", total=self.row_count)
 
             for row in self.reader:
                 new_calendar = CalendarModel(
@@ -274,9 +269,7 @@ class CalendarDateImporter(AsyncImporter):
         objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task(
-                "[green]Importing Calendar Dates...", total=self.row_count
-            )
+            task = progress.add_task("[green]Importing Calendar Dates...", total=self.row_count)
 
             for row in self.reader:
                 if row["exception_type"] == "1":
@@ -285,7 +278,7 @@ class CalendarDateImporter(AsyncImporter):
                     exception_type = "removed"
                 else:
                     raise ValueError(f"Invalid exception_type '{row['exception_type']}'")
-                
+
                 new_calendar_date = CalendarDateModel(
                     service_id=row["service_id"],
                     date=tdc.convert_joined_date_to_date(row["date"]),
@@ -370,7 +363,6 @@ class RouteImporter(AsyncImporter):
             for _ in range(number_of_consumers):
                 await q.put(None)
 
-
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
 
@@ -446,7 +438,7 @@ class StopImporter(AsyncImporter):
 
     def __str__(self) -> str:
         return "StopImporter"
-    
+
     async def import_data(self):
         tasks = create_queue_and_tasks(self.producer)
         await asyncio.gather(*tasks)

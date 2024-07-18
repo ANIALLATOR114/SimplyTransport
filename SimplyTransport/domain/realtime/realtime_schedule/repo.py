@@ -24,7 +24,7 @@ class RealtimeScheduleRepository:
         Returns the most recent update for each trip
         """
         stop_time_max_statement = (
-            select(RTStopTimeModel.trip_id,func.max(RTStopTimeModel.created_at))
+            select(RTStopTimeModel.trip_id, func.max(RTStopTimeModel.created_at))
             .where(RTStopTimeModel.trip_id.in_(trips))
             .group_by(RTStopTimeModel.trip_id)
         )
@@ -42,10 +42,16 @@ class RealtimeScheduleRepository:
             .where(RTTripModel.trip_id.in_(trips))
         )
 
-        result_max_stop_times: Result[Tuple[str, datetime.datetime]] = await self.session.execute(stop_time_max_statement)
-        result_max_trips: Result[Tuple[str, datetime.datetime]] = await self.session.execute(trip_max_statement)
-        stop_times_and_trips: Result[Tuple[RTStopTimeModel, RTTripModel]] = await self.session.execute(stops_and_trips_statement)
-        
+        result_max_stop_times: Result[Tuple[str, datetime.datetime]] = await self.session.execute(
+            stop_time_max_statement
+        )
+        result_max_trips: Result[Tuple[str, datetime.datetime]] = await self.session.execute(
+            trip_max_statement
+        )
+        stop_times_and_trips: Result[Tuple[RTStopTimeModel, RTTripModel]] = await self.session.execute(
+            stops_and_trips_statement
+        )
+
         max_stop_times = defaultdict()
         for stop_time in result_max_stop_times:
             max_stop_times[stop_time[0]] = stop_time[1]
@@ -56,9 +62,12 @@ class RealtimeScheduleRepository:
 
         most_recent_updates = []
         for stop_time, trip in stop_times_and_trips:
-            if stop_time.created_at == max_stop_times[stop_time.trip_id] and trip.created_at == max_trips[trip.trip_id]:
+            if (
+                stop_time.created_at == max_stop_times[stop_time.trip_id]
+                and trip.created_at == max_trips[trip.trip_id]
+            ):
                 most_recent_updates.append((stop_time, trip))
-        
+
         return most_recent_updates
 
 

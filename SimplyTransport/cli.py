@@ -269,8 +269,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             with rp.Progress(*progress_columns) as progress:
                 total_stop_times, total_trips = await asyncio.gather(
-                    importer.import_stop_times(data, progress),
-                    importer.import_trips(data, progress)
+                    importer.import_stop_times(data, progress), importer.import_trips(data, progress)
                 )
 
             finish: float = time.perf_counter()
