@@ -73,7 +73,7 @@ async def consumer(q: asyncio.Queue) -> None:
 
 def create_queue_and_tasks(producer) -> List[asyncio.Task]:
     """Creates a queue and tasks for producers and consumers"""
-    
+
     q = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
     producer_task = asyncio.create_task(producer(q, NUMBER_OF_CONSUMERS))
     consumer_tasks = [asyncio.create_task(consumer(q)) for _ in range(NUMBER_OF_CONSUMERS)]

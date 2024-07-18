@@ -61,7 +61,7 @@ class RealtimeScheduleRepository:
                 and trip.created_at == max_trips[trip.trip_id]
             ):
                 most_recent_updates.append((stop_time, trip))
-                
+
         return most_recent_updates
 
 
