@@ -14,8 +14,8 @@ from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExp
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 
-# Don't enable OpenTelemetry in tests
-if settings.app.ENVIRONMENT in ["DEV", "PROD"]:
+# Don't enable OpenTelemetry in tests or development
+if settings.app.ENVIRONMENT in ["PROD"]:
     resource = Resource(
         attributes={
             SERVICE_NAME: settings.app.NAME,

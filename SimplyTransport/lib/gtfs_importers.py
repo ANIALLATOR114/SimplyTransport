@@ -1,5 +1,7 @@
 import csv
 import asyncio
+from abc import ABC, abstractmethod
+from typing import Any, Dict, Iterator
 
 import rich.progress as rp
 
@@ -15,6 +17,9 @@ from ..domain.stop_times.model import StopTimeModel
 from .db.database import session, async_session_factory
 from . import time_date_conversions as tdc
 
+NUMBER_OF_CONSUMERS = 2
+QUEUE_MAXSIZE = 2
+
 progress_columns = (
     rp.SpinnerColumn(finished_text="✅"),
     "[progress.description]{task.description}",
@@ -27,8 +32,58 @@ progress_columns = (
     rp.TimeRemainingColumn(),
 )
 
+class AsyncImporter(ABC):
+    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
+        self.reader = reader
+        self.row_count = row_count
+        self.dataset = dataset
 
-def get_importer_for_file(file: str, reader: csv.DictReader, row_count: int, dataset: str):
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+    @abstractmethod
+    async def import_data(self):
+        pass
+
+    @abstractmethod
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
+        pass
+
+    @abstractmethod
+    def clear_table(self):
+        pass
+
+
+async def consumer(q: asyncio.Queue):
+    async with async_session_factory() as session:
+        while True:
+            objects_to_commit = await q.get()
+
+            # If the producer is done, break the loop
+            if objects_to_commit is None:
+                break
+
+            session.add_all(objects_to_commit)
+            await session.commit()
+
+            q.task_done()
+
+
+def create_queue_and_tasks(producer):
+    """Creates a queue and tasks for producers and consumers"""
+    q = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
+    producer_task = asyncio.create_task(producer(q, NUMBER_OF_CONSUMERS))
+    consumer_tasks = [
+        asyncio.create_task(consumer(q)) for _ in range(NUMBER_OF_CONSUMERS)
+    ]
+    tasks = consumer_tasks + [producer_task]
+    return tasks
+
+
+def get_importer_for_file(
+    file: str, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str
+) -> AsyncImporter:
     """Maps a file name to the appropriate importer class"""
 
     map_file_to_importer = {
@@ -54,8 +109,8 @@ class GTFSImporter:
         self.path = path
         self.filename = filename
 
-    def get_reader(self):
-        """Returns a csv.DictReader object"""
+    def get_reader(self) -> Iterator[Dict[str, Any]]:
+        """Returns a DictReader object for the file"""
 
         with open(self.path + self.filename, "r", encoding="utf8") as f:
             reader = csv.DictReader(f)
@@ -77,32 +132,53 @@ class GTFSImporter:
             return sum(1 for _ in reader)
 
 
-class AgencyImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str):
+class AgencyImporter(AsyncImporter):
+    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
+        self.batchsize = 10000
 
     def __str__(self) -> str:
         return "AgencyImporter"
+    
+    async def import_data(self):
+        tasks = create_queue_and_tasks(self.producer)
+        await asyncio.gather(*tasks)
 
-    def import_data(self):
-        """Imports the data from the csv.DictReader object into the database"""
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
+        batch_count = 0
+        objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task("[green]Importing Agencies...", total=self.row_count)
-            with session:
-                for row in self.reader:
-                    new_agency = AgencyModel(
-                        id=row["agency_id"],
-                        name=row["agency_name"],
-                        url=row["agency_url"],
-                        timezone=row["agency_timezone"],
-                        dataset=self.dataset,
-                    )
-                    session.add(new_agency)
-                    progress.update(task, advance=1)
-                session.commit()
+            task = progress.add_task(
+                "[green]Importing Agencies...", total=self.row_count
+            )
+
+            for row in self.reader:
+                new_agency = AgencyModel(
+                    id=row["agency_id"],
+                    name=row["agency_name"],
+                    url=row["agency_url"],
+                    timezone=row["agency_timezone"],
+                    dataset=self.dataset,
+                )
+
+                objects_to_commit.append(new_agency)
+                batch_count += 1
+                progress.update(task, advance=1)
+
+                if batch_count >= self.batchsize:
+                    await q.put(objects_to_commit)
+                    objects_to_commit = []
+                    batch_count = 0
+
+            if objects_to_commit:
+                await q.put(objects_to_commit)
+
+            # Signal the consumer that the producer is done
+            for _ in range(number_of_consumers):
+                await q.put(None)
 
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
@@ -112,38 +188,64 @@ class AgencyImporter(GTFSImporter):
             session.commit()
 
 
-class CalendarImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str):
+class CalendarImporter(AsyncImporter):
+    def __init__(
+        self,
+        reader: Iterator[Dict[str, Any]],
+        row_count: int,
+        dataset: str,
+    ):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
+        self.batchsize = 10000
 
     def __str__(self) -> str:
         return "CalendarImporter"
 
-    def import_data(self):
-        """Imports the data from the csv.DictReader object into the database"""
+    async def import_data(self):
+        tasks = create_queue_and_tasks(self.producer)
+        await asyncio.gather(*tasks)
+
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
+        batch_count = 0
+        objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task("[green]Importing Calendars...", total=self.row_count)
-            with session:
-                for row in self.reader:
-                    new_calendar = CalendarModel(
-                        id=row["service_id"],
-                        monday=row["monday"],
-                        tuesday=row["tuesday"],
-                        wednesday=row["wednesday"],
-                        thursday=row["thursday"],
-                        friday=row["friday"],
-                        saturday=row["saturday"],
-                        sunday=row["sunday"],
-                        start_date=tdc.convert_joined_date_to_date(row["start_date"]),
-                        end_date=tdc.convert_joined_date_to_date(row["end_date"]),
-                        dataset=self.dataset,
-                    )
-                    session.add(new_calendar)
-                    progress.update(task, advance=1)
-                session.commit()
+            task = progress.add_task(
+                "[green]Importing Calendars...", total=self.row_count
+            )
+
+            for row in self.reader:
+                new_calendar = CalendarModel(
+                    id=row["service_id"],
+                    monday=int(row["monday"]),
+                    tuesday=int(row["tuesday"]),
+                    wednesday=int(row["wednesday"]),
+                    thursday=int(row["thursday"]),
+                    friday=int(row["friday"]),
+                    saturday=int(row["saturday"]),
+                    sunday=int(row["sunday"]),
+                    start_date=tdc.convert_joined_date_to_date(row["start_date"]),
+                    end_date=tdc.convert_joined_date_to_date(row["end_date"]),
+                    dataset=self.dataset,
+                )
+
+                objects_to_commit.append(new_calendar)
+                batch_count += 1
+                progress.update(task, advance=1)
+
+                if batch_count >= self.batchsize:
+                    await q.put(objects_to_commit)
+                    objects_to_commit = []
+                    batch_count = 0
+
+            if objects_to_commit:
+                await q.put(objects_to_commit)
+
+            # Signal the consumer that the producer is done
+            for _ in range(number_of_consumers):
+                await q.put(None)
 
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
@@ -153,37 +255,59 @@ class CalendarImporter(GTFSImporter):
             session.commit()
 
 
-class CalendarDateImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str):
+class CalendarDateImporter(AsyncImporter):
+    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
+        self.batchsize = 10000
 
     def __str__(self) -> str:
         return "CalendarDateImporter"
 
-    def import_data(self):
-        """Imports the data from the csv.DictReader object into the database"""
+    async def import_data(self):
+        tasks = create_queue_and_tasks(self.producer)
+        await asyncio.gather(*tasks)
+
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
+        batch_count = 0
+        objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
-            task = progress.add_task("[green]Importing Calendar Dates...", total=self.row_count)
-            with session:
-                for row in self.reader:
-                    if row["exception_type"] == "1":
-                        exception_type = "added"
-                    elif row["exception_type"] == "2":
-                        exception_type = "removed"
-                    else:
-                        raise ValueError(f"Invalid exception_type '{row['exception_type']}'")
-                    new_calendar_date = CalendarDateModel(
-                        service_id=row["service_id"],
-                        date=tdc.convert_joined_date_to_date(row["date"]),
-                        exception_type=exception_type,
-                        dataset=self.dataset,
-                    )
-                    session.add(new_calendar_date)
-                    progress.update(task, advance=1)
-                session.commit()
+            task = progress.add_task(
+                "[green]Importing Calendar Dates...", total=self.row_count
+            )
+
+            for row in self.reader:
+                if row["exception_type"] == "1":
+                    exception_type = "added"
+                elif row["exception_type"] == "2":
+                    exception_type = "removed"
+                else:
+                    raise ValueError(f"Invalid exception_type '{row['exception_type']}'")
+                
+                new_calendar_date = CalendarDateModel(
+                    service_id=row["service_id"],
+                    date=tdc.convert_joined_date_to_date(row["date"]),
+                    exception_type=exception_type,
+                    dataset=self.dataset,
+                )
+
+                objects_to_commit.append(new_calendar_date)
+                batch_count += 1
+                progress.update(task, advance=1)
+
+                if batch_count >= self.batchsize:
+                    await q.put(objects_to_commit)
+                    objects_to_commit = []
+                    batch_count = 0
+
+            if objects_to_commit:
+                await q.put(objects_to_commit)
+
+            # Signal the consumer that the producer is done
+            for _ in range(number_of_consumers):
+                await q.put(None)
 
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
@@ -193,39 +317,59 @@ class CalendarDateImporter(GTFSImporter):
             session.commit()
 
 
-class RouteImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str):
+class RouteImporter(AsyncImporter):
+    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
+        self.batchsize = 10000
 
     def __str__(self) -> str:
         return "RouteImporter"
 
-    def import_data(self):
-        """Imports the data from the csv.DictReader object into the database"""
+    async def import_data(self):
+        tasks = create_queue_and_tasks(self.producer)
+        await asyncio.gather(*tasks)
+
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
+        batch_count = 0
+        objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing Routes...", total=self.row_count)
-            with session:
-                for row in self.reader:
-                    route_type = RouteType(int(row["route_type"]))
 
-                    new_route = RouteModel(
-                        id=row["route_id"],
-                        agency_id=row["agency_id"],
-                        short_name=row["route_short_name"],
-                        long_name=row["route_long_name"],
-                        description=row["route_desc"],
-                        route_type=route_type,
-                        url=row["route_url"],
-                        color=row["route_color"],
-                        text_color=row["route_text_color"],
-                        dataset=self.dataset,
-                    )
-                    session.add(new_route)
-                    progress.update(task, advance=1)
-                session.commit()
+            for row in self.reader:
+                route_type = RouteType(int(row["route_type"]))
+
+                new_route = RouteModel(
+                    id=row["route_id"],
+                    agency_id=row["agency_id"],
+                    short_name=row["route_short_name"],
+                    long_name=row["route_long_name"],
+                    description=row["route_desc"],
+                    route_type=route_type,
+                    url=row["route_url"],
+                    color=row["route_color"],
+                    text_color=row["route_text_color"],
+                    dataset=self.dataset,
+                )
+
+                objects_to_commit.append(new_route)
+                batch_count += 1
+                progress.update(task, advance=1)
+
+                if batch_count >= self.batchsize:
+                    await q.put(objects_to_commit)
+                    objects_to_commit = []
+                    batch_count = 0
+
+            if objects_to_commit:
+                await q.put(objects_to_commit)
+
+            # Signal the consumer that the producer is done
+            for _ in range(number_of_consumers):
+                await q.put(None)
+
 
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
@@ -235,25 +379,18 @@ class RouteImporter(GTFSImporter):
             session.commit()
 
 
-class TripImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 50000):
+class TripImporter(AsyncImporter):
+    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
-        self.batchsize = batchsize
+        self.batchsize = 20000
 
     def __str__(self) -> str:
         return "TripImporter"
 
     async def import_data(self):
-        """Imports the data from the csv.DictReader object into the database"""
-
-        q = asyncio.Queue(maxsize=3)
-        number_of_consumers = 2
-        producer = asyncio.create_task(self.producer(q, number_of_consumers))
-        tasks = [asyncio.create_task(self.consumer(q)) for _ in range(number_of_consumers)]
-        tasks.append(producer)
-
+        tasks = create_queue_and_tasks(self.producer)
         await asyncio.gather(*tasks)
 
     async def producer(self, q: asyncio.Queue, number_of_consumers: int):
@@ -292,20 +429,6 @@ class TripImporter(GTFSImporter):
             for _ in range(number_of_consumers):
                 await q.put(None)
 
-    async def consumer(self, q: asyncio.Queue):
-        async with async_session_factory() as session:
-            while True:
-                objects_to_commit = await q.get()
-
-                # If the producer is done, break the loop
-                if objects_to_commit is None:
-                    break
-
-                session.add_all(objects_to_commit)
-                await session.commit()
-
-                q.task_done()
-
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
 
@@ -314,62 +437,67 @@ class TripImporter(GTFSImporter):
             session.commit()
 
 
-class StopImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 10000):
+class StopImporter(AsyncImporter):
+    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
-        self.batchsize = batchsize
+        self.batchsize = 10000
 
     def __str__(self) -> str:
         return "StopImporter"
+    
+    async def import_data(self):
+        tasks = create_queue_and_tasks(self.producer)
+        await asyncio.gather(*tasks)
 
-    def import_data(self):
-        """Imports the data from the csv.DictReader object into the database"""
+    async def producer(self, q: asyncio.Queue, number_of_consumers: int):
+        batch_count = 0
+        objects_to_commit = []
 
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing Stops...", total=self.row_count)
-            batch_count = 0
-            objects_to_commit = []
 
-            with session:
-                for row in self.reader:
-                    if row["location_type"] == "":
-                        location_type = None
-                    else:
-                        location_type = int(row["location_type"])
+            for row in self.reader:
+                if row["location_type"] == "":
+                    location_type = None
+                else:
+                    location_type = int(row["location_type"])
 
-                    if row["parent_station"] == "":
-                        parent_station = None
-                    else:
-                        parent_station = row["parent_station"]
+                if row["parent_station"] == "":
+                    parent_station = None
+                else:
+                    parent_station = row["parent_station"]
 
-                    new_stop = StopModel(
-                        id=row["stop_id"],
-                        code=row["stop_code"],
-                        name=row["stop_name"],
-                        description=row["stop_desc"],
-                        lat=float(row["stop_lat"]),
-                        lon=float(row["stop_lon"]),
-                        zone_id=row["zone_id"],
-                        url=row["stop_url"],
-                        location_type=location_type,
-                        parent_station=parent_station,
-                        dataset=self.dataset,
-                    )
+                new_stop = StopModel(
+                    id=row["stop_id"],
+                    code=row["stop_code"],
+                    name=row["stop_name"],
+                    description=row["stop_desc"],
+                    lat=float(row["stop_lat"]),
+                    lon=float(row["stop_lon"]),
+                    zone_id=row["zone_id"],
+                    url=row["stop_url"],
+                    location_type=location_type,
+                    parent_station=parent_station,
+                    dataset=self.dataset,
+                )
 
-                    objects_to_commit.append(new_stop)
-                    batch_count += 1
-                    progress.update(task, advance=1)
+                objects_to_commit.append(new_stop)
+                batch_count += 1
+                progress.update(task, advance=1)
 
-                    if batch_count >= self.batchsize:
-                        session.bulk_save_objects(objects_to_commit)
-                        objects_to_commit = []
-                        batch_count = 0
+                if batch_count >= self.batchsize:
+                    await q.put(objects_to_commit)
+                    objects_to_commit = []
+                    batch_count = 0
 
-                if objects_to_commit:
-                    session.bulk_save_objects(objects_to_commit)
-                session.commit()
+            if objects_to_commit:
+                await q.put(objects_to_commit)
+
+            # Signal the consumer that the producer is done
+            for _ in range(number_of_consumers):
+                await q.put(None)
 
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
@@ -379,25 +507,18 @@ class StopImporter(GTFSImporter):
             session.commit()
 
 
-class ShapeImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 50000):
+class ShapeImporter(AsyncImporter):
+    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
-        self.batchsize = batchsize
+        self.batchsize = 20000
 
     def __str__(self) -> str:
         return "ShapeImporter"
 
     async def import_data(self):
-        """Imports the data from the csv.DictReader object into the database"""
-
-        q = asyncio.Queue(maxsize=3)
-        number_of_consumers = 2
-        producer = asyncio.create_task(self.producer(q, number_of_consumers))
-        tasks = [asyncio.create_task(self.consumer(q)) for _ in range(number_of_consumers)]
-        tasks.append(producer)
-
+        tasks = create_queue_and_tasks(self.producer)
         await asyncio.gather(*tasks)
 
     async def producer(self, q: asyncio.Queue, number_of_consumers: int):
@@ -433,20 +554,6 @@ class ShapeImporter(GTFSImporter):
             for _ in range(number_of_consumers):
                 await q.put(None)
 
-    async def consumer(self, q: asyncio.Queue):
-        async with async_session_factory() as session:
-            while True:
-                objects_to_commit = await q.get()
-
-                # If the producer is done, break the loop
-                if objects_to_commit is None:
-                    break
-
-                session.add_all(objects_to_commit)
-                await session.commit()
-
-                q.task_done()
-
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
 
@@ -455,25 +562,18 @@ class ShapeImporter(GTFSImporter):
             session.commit()
 
 
-class StopTimeImporter(GTFSImporter):
-    def __init__(self, reader: csv.DictReader, row_count: int, dataset: str, batchsize: int = 50000):
+class StopTimeImporter(AsyncImporter):
+    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
-        self.batchsize = batchsize
+        self.batchsize = 20000
 
     def __str__(self) -> str:
         return "StopTimeImporter"
 
     async def import_data(self):
-        """Imports the data from the csv.DictReader object into the database"""
-
-        q = asyncio.Queue(maxsize=3)
-        number_of_consumers = 2
-        producer = asyncio.create_task(self.producer(q, number_of_consumers))
-        tasks = [asyncio.create_task(self.consumer(q)) for _ in range(number_of_consumers)]
-        tasks.append(producer)
-
+        tasks = create_queue_and_tasks(self.producer)
         await asyncio.gather(*tasks)
 
     async def producer(self, q: asyncio.Queue, number_of_consumers: int):
@@ -530,20 +630,6 @@ class StopTimeImporter(GTFSImporter):
             # Signal the consumer that the producer is done
             for _ in range(number_of_consumers):
                 await q.put(None)
-
-    async def consumer(self, q: asyncio.Queue):
-        async with async_session_factory() as session:
-            while True:
-                objects_to_commit = await q.get()
-
-                # If the producer is done, break the loop
-                if objects_to_commit is None:
-                    break
-
-                session.add_all(objects_to_commit)
-                await session.commit()
-
-                q.task_done()
 
     def clear_table(self):
         """Clears the table in the database that corresponds to the file"""
