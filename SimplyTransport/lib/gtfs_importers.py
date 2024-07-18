@@ -1,7 +1,7 @@
 import csv
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator
+from typing import Any, Dict, Iterator, List
 
 import rich.progress as rp
 
@@ -56,7 +56,7 @@ class AsyncImporter(ABC):
         pass
 
 
-async def consumer(q: asyncio.Queue):
+async def consumer(q: asyncio.Queue) -> None:
     async with async_session_factory() as session:
         while True:
             objects_to_commit = await q.get()
@@ -71,13 +71,14 @@ async def consumer(q: asyncio.Queue):
             q.task_done()
 
 
-def create_queue_and_tasks(producer):
+def create_queue_and_tasks(producer) -> List[asyncio.Task]:
     """Creates a queue and tasks for producers and consumers"""
+    
     q = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
     producer_task = asyncio.create_task(producer(q, NUMBER_OF_CONSUMERS))
     consumer_tasks = [asyncio.create_task(consumer(q)) for _ in range(NUMBER_OF_CONSUMERS)]
-    tasks = consumer_tasks + [producer_task]
-    return tasks
+
+    return consumer_tasks + [producer_task]
 
 
 def get_importer_for_file(

@@ -1,4 +1,3 @@
-from collections import defaultdict
 import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -52,13 +51,8 @@ class RealtimeScheduleRepository:
             stops_and_trips_statement
         )
 
-        max_stop_times = defaultdict()
-        for stop_time in result_max_stop_times:
-            max_stop_times[stop_time[0]] = stop_time[1]
-
-        max_trips = defaultdict()
-        for trip in result_max_trips:
-            max_trips[trip[0]] = trip[1]
+        max_stop_times = {stop_time[0]: stop_time[1] for stop_time in result_max_stop_times}
+        max_trips = {trip[0]: trip[1] for trip in result_max_trips}
 
         most_recent_updates = []
         for stop_time, trip in stop_times_and_trips:
@@ -67,7 +61,7 @@ class RealtimeScheduleRepository:
                 and trip.created_at == max_trips[trip.trip_id]
             ):
                 most_recent_updates.append((stop_time, trip))
-
+                
         return most_recent_updates
 
 
