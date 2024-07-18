@@ -57,7 +57,7 @@ class RealtimeController(Controller):
 
         schedules = await schedule_service.get_schedule_on_stop_for_day_between_times(
             stop_id=stop_id,
-            day=datetime.now().weekday(),
+            day=DayOfWeek(datetime.now().weekday()),
             start_time=start_time,
             end_time=end_time,
         )

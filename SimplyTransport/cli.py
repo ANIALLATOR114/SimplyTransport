@@ -22,7 +22,7 @@ from .lib.gtfs_static_maps import build_route_map, build_stop_map
 
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.db import services as db_services
-from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter
+from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter, progress_columns
 from .lib.stop_features_importer import StopFeaturesImporter
 from .domain.events.repo import create_event_with_session, provide_event_repo
 from .domain.events.event_types import EventType
@@ -187,10 +187,7 @@ class CLIPlugin(CLIPluginProtocol):
                     importer.clear_table()
                     progress.update(task, advance=1)
 
-                if file in ["stop_times.txt", "shapes.txt", "trips.txt"]:
-                    await importer.import_data()
-                else:
-                    importer.import_data()
+                await importer.import_data()
 
                 file_finish = time.perf_counter()
                 time_taken = round(file_finish - file_start, 2)
@@ -268,12 +265,12 @@ class CLIPlugin(CLIPluginProtocol):
 
             console.print(f"\n{len(data['entity'])} entities returned from API")
 
-            importer.clear_table_stop_trip()
-            console.print("\nImporting Stop Times")
-            total_stop_times = importer.import_stop_times(data)
+            await importer.clear_table_stop_trip()
 
-            console.print("\nImporting Trips")
-            total_trips = importer.import_trips(data)
+            with rp.Progress(*progress_columns) as progress:
+                total_stop_times, total_trips = await asyncio.gather(
+                    importer.import_stop_times(data, progress), importer.import_trips(data, progress)
+                )
 
             finish: float = time.perf_counter()
             attributes = {

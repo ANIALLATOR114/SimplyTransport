@@ -26,7 +26,7 @@ class RealTimeService:
         self.realtime_schedule_repository = realtime_schedule_repository
 
     def parse_most_recent_realtime_update(
-        self, realtime_updates: Result[Tuple[RTStopTimeModel, RTTripModel]]
+        self, realtime_updates: List[Tuple[RTStopTimeModel, RTTripModel]]
     ) -> List[Tuple[RTStopTimeModel, RTTripModel]]:
         """Returns a list of RealTimeSchedule objects that are the most recent update for each trip according to the stop_sequence"""
 
