@@ -90,12 +90,12 @@ class RealTimeImporter:
             result_trips = await session.execute(
                 select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
             )
-            trips_in_db = result_trips.scalars().all()
+            trips_in_db = set(result_trips.scalars())
 
             result_stops = await session.execute(
                 select(StopModel.id).filter(StopModel.dataset == self.dataset).distinct()
             )
-            stops_in_db = result_stops.scalars().all()
+            stops_in_db = set(result_stops.scalars())
 
             try:
                 for item in data.get("entity", []):
@@ -161,11 +161,11 @@ class RealTimeImporter:
             result_routes = await session.execute(
                 select(RouteModel.id).filter(RouteModel.dataset == self.dataset).distinct()
             )
-            routes_in_db = result_routes.scalars().all()
+            routes_in_db = set(result_routes.scalars())
             result_trips = await session.execute(
                 select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
             )
-            trips_in_db = result_trips.scalars().all()
+            trips_in_db = set(result_trips.scalars())
 
             for item in data.get("entity", []):
                 trip_update = item.get("trip_update", {})
