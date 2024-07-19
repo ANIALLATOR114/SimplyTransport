@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ request.app.openapi_config.title
+    }} - Stats
+{% endblock title %}
+{% block content %}
+    <div class="narrow-container">
+        <h1>Statistics 📈</h1>
+        <div class="inner-container">
+            <h2 class="no-top-margin">GTFS Static Data</h2>
+            <p class="dense-text">Overall statistics about the size of the GTFS static data.</p>
+            {% include "stats/static_data.html" %}
+        </div>
+        <div class="inner-container">
+            <h2 class="no-top-margin">Operators</h2>
+            <p class="dense-text">Statistics about the operators.</p>
+            {% include "stats/operator_data.html" %}
+        </div>
+        <div class="inner-container">
+            <h2 class="no-top-margin">Stop Features</h2>
+            <p class="dense-text">Statistics about the stop features.</p>
+            {% include "stats/stop_features_data.html" %}
+        </div>
+    </div>
+{% endblock content %}

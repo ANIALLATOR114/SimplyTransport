@@ -10,6 +10,7 @@ from . import (
     realtime,
     events,
     stop_features,
+    database_statistics,
 )
 
 __all__ = [
@@ -24,4 +25,5 @@ __all__ = [
     "realtime",
     "events",
     "stop_features",
+    "database_statistics",
 ]
