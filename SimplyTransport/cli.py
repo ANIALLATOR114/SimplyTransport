@@ -12,6 +12,8 @@ from litestar.plugins import CLIPluginProtocol
 from rich.console import Console
 from rich.table import Table
 
+from SimplyTransport.domain.services.statistics_service import provide_statistics_service
+
 from .domain.maps.enums import StaticStopMapTypes
 
 from .domain.agency.repo import provide_agency_repo
@@ -507,6 +509,16 @@ class CLIPlugin(CLIPluginProtocol):
                     number_deleted = await event_repo.cleanup_events()
 
             finish: float = time.perf_counter()
+
+            attributes = {
+                "number_deleted": number_deleted,
+                "time_taken(s)": round(finish - start, 2),
+            }
+            await create_event_with_session(
+                EventType.CLEANUP_EVENTS_DELETED,
+                "Expired events cleaned up from the database",
+                attributes,
+            )
             console.print(f"\n[blue]Deleted {number_deleted} events")
             console.print(f"\n[blue]Finished cleanup in {round(finish-start, 2)} second(s)")
 
@@ -563,3 +575,32 @@ class CLIPlugin(CLIPluginProtocol):
             finish = time.perf_counter()
             logger.info(f"Finished generating static maps in {round(finish-start, 2)} second(s)")
             console.print(f"\n[blue]Finished generating static maps in {round(finish-start, 2)} second(s)")
+
+
+        @cli.command(name="generatestatistics", help="Generates the statistics for the database")
+        @make_sync
+        async def generatestatistics():
+            console = Console()
+            console.print("Generating statistics...")
+            start = time.perf_counter()
+
+            async with async_session_factory() as session:
+                statistics_service = await provide_statistics_service(db_session=session)
+                await statistics_service.update_all_statistics()
+
+            finish = time.perf_counter()
+
+            attributes = {
+                "time_taken(s)": round(finish - start, 2),
+            }
+            await create_event_with_session(
+                EventType.DATABASE_STATISTICS_UPDATED,
+                "Statistics generated for the database",
+                attributes,
+            )
+            logger.info(
+                f"Finished generating statistics in {round(finish-start, 2)} second(s)"
+            )
+            console.print(
+                f"\n[blue]Finished generating statistics in {round(finish-start, 2)} second(s)"
+            )

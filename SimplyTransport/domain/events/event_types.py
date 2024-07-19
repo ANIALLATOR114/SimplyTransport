@@ -15,3 +15,9 @@ class EventType(str, Enum):
 
     # Stop Features
     STOP_FEATURES_DATABASE_UPDATED = "stop_features.database.updated"
+
+    # Database Statistics
+    DATABASE_STATISTICS_UPDATED = "database_statistics.updated"
+
+    # Cleanup
+    CLEANUP_EVENTS_DELETED = "cleanup.events.deleted"

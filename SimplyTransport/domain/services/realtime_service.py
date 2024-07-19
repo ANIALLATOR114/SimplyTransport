@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Tuple, List
-from sqlalchemy import Result
 
 from ..realtime.stop_time.repo import RTStopTimeRepository
 from ..realtime.trip.repo import RTTripRepository

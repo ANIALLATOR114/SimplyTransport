@@ -96,6 +96,13 @@ class RootController(Controller):
             "maps/index.html",
             context={"agencies": agencies, "map_types": StaticStopMapTypes},
         )
+    
+    @get("/stats")
+    async def stats(self) -> Template:
+        return Template(
+            "stats/index.html",
+            context={},
+        )
 
     # Static files on the root / path
     @get("/favicon.ico")
