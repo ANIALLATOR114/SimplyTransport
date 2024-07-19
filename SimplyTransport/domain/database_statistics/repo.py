@@ -17,6 +17,7 @@ from SimplyTransport.domain.trip.model import TripModel
 
 from .model import DatabaseStatisticModel
 
+
 class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticModel]):
     """Database Statistic repository."""
 
@@ -24,47 +25,26 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
         """Returns a dictionary of the counts of each GTFS record type."""
 
         record_counts = {
-            "Operators": (
-                await self.session.execute(
-                    select(func.count()).select_from(AgencyModel)
-                )
-            ).scalar(),
-            "Routes": (
-                await self.session.execute(select(func.count()).select_from(RouteModel))
-            ).scalar(),
-            "Trips": (
-                await self.session.execute(select(func.count()).select_from(TripModel))
-            ).scalar(),
-            "Stops": (
-                await self.session.execute(select(func.count()).select_from(StopModel))
-            ).scalar(),
+            "Operators": (await self.session.execute(select(func.count()).select_from(AgencyModel))).scalar(),
+            "Routes": (await self.session.execute(select(func.count()).select_from(RouteModel))).scalar(),
+            "Trips": (await self.session.execute(select(func.count()).select_from(TripModel))).scalar(),
+            "Stops": (await self.session.execute(select(func.count()).select_from(StopModel))).scalar(),
             "Stop Features": (
-                await self.session.execute(
-                    select(func.count()).select_from(StopFeatureModel)
-                )
+                await self.session.execute(select(func.count()).select_from(StopFeatureModel))
             ).scalar(),
             "Calendars": (
-                await self.session.execute(
-                    select(func.count()).select_from(CalendarModel)
-                )
+                await self.session.execute(select(func.count()).select_from(CalendarModel))
             ).scalar(),
             "Calendar Dates": (
-                await self.session.execute(
-                    select(func.count()).select_from(CalendarDateModel)
-                )
+                await self.session.execute(select(func.count()).select_from(CalendarDateModel))
             ).scalar(),
             "Stop Times": (
-                await self.session.execute(
-                    select(func.count()).select_from(StopTimeModel)
-                )
+                await self.session.execute(select(func.count()).select_from(StopTimeModel))
             ).scalar(),
-            "Shapes": (
-                await self.session.execute(select(func.count()).select_from(ShapeModel))
-            ).scalar(),
+            "Shapes": (await self.session.execute(select(func.count()).select_from(ShapeModel))).scalar(),
         }
 
         return record_counts
-    
 
     async def get_operator_route_counts(self) -> dict[str, int | None]:
         """Returns a dictionary of the counts of each operator's routes."""
@@ -78,7 +58,6 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
         ).all()
 
         return {name: count for name, count in route_counts}
-    
 
     async def get_operator_trip_counts(self) -> dict[str, int | None]:
         """Returns a dictionary of the counts of each operator's trips."""
@@ -93,16 +72,14 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
         ).all()
 
         return {name: count for name, count in trip_counts}
-    
+
     async def get_stop_feature_counts(self) -> dict[str, int | None]:
         """Returns a dictionary of the counts of each stop feature type."""
 
         record_counts = {
             "Surveyed Stops": (
                 await self.session.execute(
-                    select(func.count())
-                    .select_from(StopFeatureModel)
-                    .where(StopFeatureModel.surveyed)
+                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.surveyed)
                 )
             ).scalar(),
             "Wheelchair Accessible": (
@@ -114,23 +91,17 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
             ).scalar(),
             "RealTime Display": (
                 await self.session.execute(
-                    select(func.count())
-                    .select_from(StopFeatureModel)
-                    .where(StopFeatureModel.rtpi_active)
+                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.rtpi_active)
                 )
             ).scalar(),
             "Shelter Available": (
                 await self.session.execute(
-                    select(func.count())
-                    .select_from(StopFeatureModel)
-                    .where(StopFeatureModel.shelter_active)
+                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.shelter_active)
                 )
             ).scalar(),
             "Light Available(Shelter)": (
                 await self.session.execute(
-                    select(func.count())
-                    .select_from(StopFeatureModel)
-                    .where(StopFeatureModel.light)
+                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.light)
                 )
             ).scalar(),
             "Bench Available": (
@@ -147,9 +118,7 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
 
         return record_counts
 
-    async def add_row_counts(
-        self, row_counts: dict[str, int | None], statistic_type: StatisticType
-    ) -> None:
+    async def add_row_counts(self, row_counts: dict[str, int | None], statistic_type: StatisticType) -> None:
         """Adds a row count entry to the database."""
 
         for key, value in row_counts.items():

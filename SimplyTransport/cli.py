@@ -576,7 +576,6 @@ class CLIPlugin(CLIPluginProtocol):
             logger.info(f"Finished generating static maps in {round(finish-start, 2)} second(s)")
             console.print(f"\n[blue]Finished generating static maps in {round(finish-start, 2)} second(s)")
 
-
         @cli.command(name="generatestatistics", help="Generates the statistics for the database")
         @make_sync
         async def generatestatistics():
@@ -598,9 +597,5 @@ class CLIPlugin(CLIPluginProtocol):
                 "Statistics generated for the database",
                 attributes,
             )
-            logger.info(
-                f"Finished generating statistics in {round(finish-start, 2)} second(s)"
-            )
-            console.print(
-                f"\n[blue]Finished generating statistics in {round(finish-start, 2)} second(s)"
-            )
+            logger.info(f"Finished generating statistics in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished generating statistics in {round(finish-start, 2)} second(s)")

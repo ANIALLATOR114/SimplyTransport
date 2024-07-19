@@ -18,8 +18,8 @@ class DatabaseStatisticModel(BigIntAuditBase):
     __table_args__ = (Index("ix_statistic_created_at", "created_at"),)
 
     statistic_type: Mapped[StatisticType] = mapped_column(String(length=255), index=True)
-    key : Mapped[str] = mapped_column(String(length=255), index=True)
-    value : Mapped[int] = mapped_column(Integer())
+    key: Mapped[str] = mapped_column(String(length=255), index=True)
+    value: Mapped[int] = mapped_column(Integer())
 
 
 class DatabaseStatistic(BaseModel):

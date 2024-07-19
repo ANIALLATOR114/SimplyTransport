@@ -13,5 +13,3 @@ class StatisticType(str, Enum):
 
     # Stop Features
     STOP_FEATURE_COUNTS = "stop_features.feature.counts"
-
-
