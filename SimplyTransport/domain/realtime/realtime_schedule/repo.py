@@ -54,8 +54,7 @@ class RealtimeScheduleRepository:
             .join(RTTripModel, RTTripModel.trip_id == RTStopTimeModel.trip_id)
             .where(RTTripModel.trip_id.in_(trips))
             .where(
-                RTTripModel.created_at
-                >= datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=2)
+                RTTripModel.created_at >= datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=2)
             )
             .where(
                 RTStopTimeModel.created_at
@@ -63,11 +62,8 @@ class RealtimeScheduleRepository:
             )
         )
 
-        stops_and_trips_statement = random.choice(
-            [stops_and_trips_statement1, stops_and_trips_statement2]
-        )
+        stops_and_trips_statement = random.choice([stops_and_trips_statement1, stops_and_trips_statement2])
         logger.info(f"Using stops_and_trips_statement: {stops_and_trips_statement}")
-
 
         result_max_stop_times_start_time = time.perf_counter()
         result_max_stop_times: Result[Tuple[str, datetime.datetime]] = await self.session.execute(
