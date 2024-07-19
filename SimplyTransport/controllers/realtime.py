@@ -94,7 +94,7 @@ class RealtimeController(Controller):
         self,
         stop_id: str,
         schedule_service: ScheduleService,
-        day: DayOfWeek = datetime.now().weekday(),
+        day: DayOfWeek = DayOfWeek(datetime.now().weekday()),
     ) -> Template:
         schedules = await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
         schedules = await schedule_service.remove_exceptions_and_inactive_calendars(schedules)

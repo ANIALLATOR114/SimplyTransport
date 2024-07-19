@@ -22,18 +22,18 @@ class RealtimeScheduleRepository:
 
         Returns the most recent update for each trip
         """
-        two_hours_ago = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=2)
+        twenty_mins_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=20)
 
         stop_time_max_statement = (
             select(RTStopTimeModel.trip_id, func.max(RTStopTimeModel.created_at))
             .where(RTStopTimeModel.trip_id.in_(trips))
-            .where(RTStopTimeModel.created_at >= two_hours_ago)
+            .where(RTStopTimeModel.created_at >= twenty_mins_ago)
             .group_by(RTStopTimeModel.trip_id)
         )
         trip_max_statement = (
             select(RTTripModel.trip_id, func.max(RTTripModel.created_at))
             .where(RTTripModel.trip_id.in_(trips))
-            .where(RTTripModel.created_at >= two_hours_ago)
+            .where(RTTripModel.created_at >= twenty_mins_ago)
             .group_by(RTTripModel.trip_id)
         )
         stops_and_trips_statement = (
@@ -43,8 +43,8 @@ class RealtimeScheduleRepository:
             )
             .join(RTTripModel, RTTripModel.trip_id == RTStopTimeModel.trip_id)
             .where(RTTripModel.trip_id.in_(trips))
-            .where(RTTripModel.created_at >= two_hours_ago)
-            .where(RTStopTimeModel.created_at >= two_hours_ago)
+            .where(RTTripModel.created_at >= twenty_mins_ago)
+            .where(RTStopTimeModel.created_at >= twenty_mins_ago)
         )
 
         result_max_stop_times: Result[Tuple[str, datetime.datetime]] = await self.session.execute(
