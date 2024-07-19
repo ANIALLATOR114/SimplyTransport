@@ -2,7 +2,7 @@ from typing import Optional
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..enums import ScheduleRealtionship
@@ -16,6 +16,7 @@ class BaseModel(_BaseModel):
 
 class RTStopTimeModel(BigIntAuditBase):
     __tablename__ = "rt_stop_time"
+    __table_args__ = (Index("ix_rt_stop_time_created_at", "created_at"),)
 
     stop: Mapped["StopModel"] = relationship(back_populates="rt_stop_times")  # noqa: F821
     stop_id: Mapped[str] = mapped_column(
