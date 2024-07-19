@@ -3,7 +3,7 @@ from datetime import date, time
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
 from pydantic import Field
-from sqlalchemy import Date, ForeignKey, Integer, String, Time
+from sqlalchemy import Date, ForeignKey, Index, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..enums import ScheduleRealtionship
@@ -18,6 +18,7 @@ class BaseModel(_BaseModel):
 
 class RTTripModel(BigIntAuditBase):
     __tablename__ = "rt_trip"
+    __table_args__ = (Index("ix_rt_trip_created_at", "created_at"),)
 
     trip: Mapped["TripModel"] = relationship(back_populates="rt_trips")  # noqa: F821
     trip_id: Mapped[str] = mapped_column(
