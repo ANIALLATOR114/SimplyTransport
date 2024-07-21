@@ -19,7 +19,7 @@ class StatisticsController(Controller):
         summary="Get the most recent statistics for a given type",
         raises=[NotFoundException],
     )
-    async def get_gtfs_most_recent(
+    async def get_statistics_most_recent(
         self, repo: DatabaseStatisticRepository, key: StatisticType
     ) -> list[DatabaseStatistic]:
         result = await repo.get_statistics_most_recent_by_type(key)
@@ -35,7 +35,7 @@ class StatisticsController(Controller):
         description="Date format = YYYY-MM-DD",
         raises=[NotFoundException],
     )
-    async def get_gtfs_by_day(
+    async def get_statistics_by_day(
         self, repo: DatabaseStatisticRepository, key: StatisticType, date: datetime.date
     ) -> list[DatabaseStatistic]:
         result = await repo.get_statistics_by_type_and_date(key, date)

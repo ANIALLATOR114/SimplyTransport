@@ -9,7 +9,7 @@ def test_statistics_most_recent_gtfs(client: TestClient) -> None:
     response_json = response.json()
     assert len(response_json) == 9
 
-    for i in range(1, 9):
+    for i in range(0, len(response_json)):
         assert response_json[i]["statistic_type"] == "gtfs.record.counts"
 
 
@@ -19,7 +19,7 @@ def test_statistics_most_recent_operators(client: TestClient) -> None:
     response_json = response.json()
     assert len(response_json) == 1 # 1 is the number of operators in the test database
 
-    for i in range(1, 1):
+    for i in range(0, len(response_json)):
         assert response_json[i]["statistic_type"] == "operator.route.counts"
 
 
@@ -30,7 +30,7 @@ def test_statistics_on_day(client: TestClient) -> None:
     response_json = response.json()
     assert len(response_json) == 9
 
-    for i in range(1, 9):
+    for i in range(0, len(response_json)):
         assert response_json[i]["statistic_type"] == "gtfs.record.counts"
 
 

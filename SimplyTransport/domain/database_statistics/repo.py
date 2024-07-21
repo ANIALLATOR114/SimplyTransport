@@ -43,8 +43,7 @@ def max_created_subquery(
     if date is not None:
         query = query.where(func.date(DatabaseStatisticModel.created_at) == date)
 
-    subquery_on_date = query.alias("subquery")
-    return subquery_on_date
+    return query.alias("subquery")
 
 
 class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticModel]):
