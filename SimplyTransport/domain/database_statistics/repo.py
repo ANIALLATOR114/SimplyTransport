@@ -20,9 +20,7 @@ from SimplyTransport.domain.trip.model import TripModel
 from .model import DatabaseStatisticModel
 
 
-def max_created_subquery(
-    statistic_type: StatisticType | None = None, date: date | None = None
-) -> Subquery:
+def max_created_subquery(statistic_type: StatisticType | None = None, date: date | None = None) -> Subquery:
     """
     Returns a subquery that selects the maximum created_at value for each key in the DatabaseStatisticModel table.
 
