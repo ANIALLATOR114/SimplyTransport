@@ -20,12 +20,14 @@ from SimplyTransport.domain.trip.model import TripModel
 from .model import DatabaseStatisticModel
 
 
-def max_created_subquery(key: str | None = None, date: date | None = None) -> Subquery:
+def max_created_subquery(
+    statistic_type: StatisticType | None = None, date: date | None = None
+) -> Subquery:
     """
     Returns a subquery that selects the maximum created_at value for each key in the DatabaseStatisticModel table.
 
     Args:
-        key (str | None): The statistic type key. Defaults to None.
+        statistic_type (StatisticType | None): The statistic type to filter by. Defaults to None.
         date (date | None): The date to filter by. Defaults to None.
 
     Returns:
@@ -36,8 +38,8 @@ def max_created_subquery(key: str | None = None, date: date | None = None) -> Su
         func.max(DatabaseStatisticModel.created_at).label("max_created_at"),
     ).group_by(DatabaseStatisticModel.key)
 
-    if key is not None:
-        query = query.where(DatabaseStatisticModel.statistic_type == key)
+    if statistic_type is not None:
+        query = query.where(DatabaseStatisticModel.statistic_type == statistic_type)
     if date is not None:
         query = query.where(func.date(DatabaseStatisticModel.created_at) == date)
 
@@ -159,10 +161,10 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
 
         await self.session.commit()
 
-    async def get_statistics_most_recent_by_key(self, key: StatisticType) -> List[DatabaseStatisticModel]:
-        """Returns the most recent statistics for a given key."""
+    async def get_statistics_most_recent_by_type(self, type: StatisticType) -> List[DatabaseStatisticModel]:
+        """Returns the most recent statistics for a given type."""
 
-        subquery = max_created_subquery(key=key)
+        subquery = max_created_subquery(type)
 
         stats = (
             (
@@ -184,12 +186,12 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
 
         return list(stats)
 
-    async def get_statistics_by_key_and_date(
-        self, key: StatisticType, date: date
+    async def get_statistics_by_type_and_date(
+        self, type: StatisticType, date: date
     ) -> List[DatabaseStatisticModel]:
-        """Returns the statistics for a given key on a given date."""
+        """Returns the statistics for a given type on a given date."""
 
-        subquery = max_created_subquery(key, date)
+        subquery = max_created_subquery(type, date)
 
         stats = (
             (
