@@ -26,9 +26,9 @@ class StatisticsController(Controller):
 
         if not result:
             raise NotFoundException(detail=f"Statistics not found for {key.value}")
-        
+
         return [DatabaseStatistic.model_validate(obj) for obj in result]
-    
+
     @get(
         "/{key:str}/{date:date}",
         summary="Get the statistics for a given type on a given day",
@@ -42,5 +42,5 @@ class StatisticsController(Controller):
 
         if not result:
             raise NotFoundException(detail=f"Statistics not found for {key.value} on {date}")
-        
+
         return [DatabaseStatistic.model_validate(obj) for obj in result]

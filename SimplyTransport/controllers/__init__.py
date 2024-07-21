@@ -114,7 +114,12 @@ def create_api_router() -> Router:
 
     maps_route_handler = Router(path="/map", tags=["Map"], security=[{}], route_handlers=[map.MapController])
 
-    statistics_route_handler = Router(path="/statistics", tags=["Statistics"], security=[{}], route_handlers=[statistics.StatisticsController])
+    statistics_route_handler = Router(
+        path="/statistics",
+        tags=["Statistics"],
+        security=[{}],
+        route_handlers=[statistics.StatisticsController],
+    )
 
     return Router(
         path="/api/v1",
@@ -130,6 +135,6 @@ def create_api_router() -> Router:
             realtime_route_handler,
             schedule_route_handler,
             maps_route_handler,
-            statistics_route_handler
+            statistics_route_handler,
         ],
     )

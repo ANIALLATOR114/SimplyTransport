@@ -172,8 +172,7 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
                         subquery,
                         and_(
                             DatabaseStatisticModel.key == subquery.c.key,
-                            DatabaseStatisticModel.created_at
-                            == subquery.c.max_created_at,
+                            DatabaseStatisticModel.created_at == subquery.c.max_created_at,
                         ),
                     )
                     .order_by(DatabaseStatisticModel.key)
@@ -184,9 +183,10 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
         )
 
         return list(stats)
-    
-    
-    async def get_statistics_by_key_and_date(self, key: StatisticType, date: date) -> List[DatabaseStatisticModel]:
+
+    async def get_statistics_by_key_and_date(
+        self, key: StatisticType, date: date
+    ) -> List[DatabaseStatisticModel]:
         """Returns the statistics for a given key on a given date."""
 
         subquery = max_created_subquery(key, date)
@@ -199,8 +199,7 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
                         subquery,
                         and_(
                             DatabaseStatisticModel.key == subquery.c.key,
-                            DatabaseStatisticModel.created_at
-                            == subquery.c.max_created_at,
+                            DatabaseStatisticModel.created_at == subquery.c.max_created_at,
                         ),
                     )
                     .where(func.date(DatabaseStatisticModel.created_at) == date)
@@ -212,7 +211,6 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
         )
 
         return list(stats)
-
 
     model_type = DatabaseStatisticModel
 
