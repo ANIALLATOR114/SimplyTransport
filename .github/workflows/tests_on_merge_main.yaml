@@ -68,6 +68,9 @@ jobs:
       - name: Populate GTFS test data
         run: echo "y" | LITESTAR_APP=SimplyTransport.app:create_app litestar importgtfs -dir ./tests/gtfs_test_data/TFI/
 
+      - name: Populate Statistics
+        run: LITESTAR_APP=SimplyTransport.app:create_app litestar generatestatistics
+
       - name: Run tests with coverage
         run: coverage run --branch -m pytest
 

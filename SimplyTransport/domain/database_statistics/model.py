@@ -23,7 +23,6 @@ class DatabaseStatisticModel(BigIntAuditBase):
 
 
 class DatabaseStatistic(BaseModel):
-    id: int
     statistic_type: StatisticType
     key: str
     value: int
