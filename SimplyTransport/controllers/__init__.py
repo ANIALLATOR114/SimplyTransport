@@ -1,8 +1,4 @@
 from litestar import Router
-from litestar.exceptions import HTTPException
-
-from SimplyTransport.lib import exception_handlers
-from SimplyTransport.lib import settings
 
 from . import root, search, realtime, events, maps
 from .api import (
@@ -17,6 +13,7 @@ from .api import (
     realtime as realtimeAPI,
     schedule as scheduleAPI,
     map,
+    statistics,
 )
 
 __all__ = ["create_api_router", "create_views_router"]
@@ -117,6 +114,13 @@ def create_api_router() -> Router:
 
     maps_route_handler = Router(path="/map", tags=["Map"], security=[{}], route_handlers=[map.MapController])
 
+    statistics_route_handler = Router(
+        path="/statistics",
+        tags=["Statistics"],
+        security=[{}],
+        route_handlers=[statistics.StatisticsController],
+    )
+
     return Router(
         path="/api/v1",
         route_handlers=[
@@ -131,5 +135,6 @@ def create_api_router() -> Router:
             realtime_route_handler,
             schedule_route_handler,
             maps_route_handler,
+            statistics_route_handler,
         ],
     )
