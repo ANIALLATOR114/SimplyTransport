@@ -1,6 +1,6 @@
 from litestar import Router
 
-from . import root, search, realtime, events, maps
+from . import root, search, realtime, events, maps, stats
 from .api import (
     agency,
     calendar,
@@ -20,35 +20,35 @@ __all__ = ["create_api_router", "create_views_router"]
 
 
 def create_views_router() -> Router:
-    root_route_handler = Router(
-        path="/", route_handlers=[root.RootController], security=[{}], include_in_schema=False
-    )
+    root_route_handler = Router(path="/", route_handlers=[root.RootController], include_in_schema=False)
 
     search_route_handler = Router(
         path="/search",
         route_handlers=[search.SearchController],
-        security=[{}],
         include_in_schema=False,
     )
 
     realtime_route_handler = Router(
         path="/realtime",
         route_handlers=[realtime.RealtimeController],
-        security=[{}],
         include_in_schema=False,
     )
 
     events_route_handler = Router(
         path="/events",
         route_handlers=[events.EventsController],
-        security=[{}],
         include_in_schema=False,
     )
 
     maps_route_handler = Router(
         path="/maps",
         route_handlers=[maps.MapsController],
-        security=[{}],
+        include_in_schema=False,
+    )
+
+    static_route_handler = Router(
+        path="/stats",
+        route_handlers=[stats.StatsController],
         include_in_schema=False,
     )
 
@@ -60,64 +60,51 @@ def create_views_router() -> Router:
             realtime_route_handler,
             events_route_handler,
             maps_route_handler,
+            static_route_handler,
         ],
     )
 
 
 def create_api_router() -> Router:
-    agency_route_handler = Router(
-        path="/agency", tags=["Agency"], security=[{}], route_handlers=[agency.AgencyController]
-    )
+    agency_route_handler = Router(path="/agency", tags=["Agency"], route_handlers=[agency.AgencyController])
     calendar_route_handler = Router(
         path="/calendar",
         tags=["Calendar"],
-        security=[{}],
         route_handlers=[calendar.CalendarController],
     )
     calendar_date_route_handler = Router(
         path="/calendardate",
         tags=["CalendarDate"],
-        security=[{}],
         route_handlers=[calendar_date.CalendarDateController],
     )
 
-    route_route_handler = Router(
-        path="/route", tags=["Route"], security=[{}], route_handlers=[route.RouteController]
-    )
+    route_route_handler = Router(path="/route", tags=["Route"], route_handlers=[route.RouteController])
 
-    trip_route_handler = Router(
-        path="/trip", tags=["Trip"], security=[{}], route_handlers=[trip.TripController]
-    )
+    trip_route_handler = Router(path="/trip", tags=["Trip"], route_handlers=[trip.TripController])
 
-    stop_route_handler = Router(
-        path="/stop", tags=["Stop"], security=[{}], route_handlers=[stop.StopController]
-    )
+    stop_route_handler = Router(path="/stop", tags=["Stop"], route_handlers=[stop.StopController])
 
-    shape_route_handler = Router(
-        path="/shape", tags=["Shape"], security=[{}], route_handlers=[shape.ShapeController]
-    )
+    shape_route_handler = Router(path="/shape", tags=["Shape"], route_handlers=[shape.ShapeController])
 
     stop_time_handler = Router(
         path="/stoptime",
         tags=["StopTime"],
-        security=[{}],
         route_handlers=[stoptime.StopTimeController],
     )
 
     realtime_route_handler = Router(
-        path="/realtime", tags=["Realtime"], security=[{}], route_handlers=[realtimeAPI.RealtimeController]
+        path="/realtime", tags=["Realtime"], route_handlers=[realtimeAPI.RealtimeController]
     )
 
     schedule_route_handler = Router(
-        path="/schedule", tags=["Schedule"], security=[{}], route_handlers=[scheduleAPI.ScheduleController]
+        path="/schedule", tags=["Schedule"], route_handlers=[scheduleAPI.ScheduleController]
     )
 
-    maps_route_handler = Router(path="/map", tags=["Map"], security=[{}], route_handlers=[map.MapController])
+    maps_route_handler = Router(path="/map", tags=["Map"], route_handlers=[map.MapController])
 
     statistics_route_handler = Router(
         path="/statistics",
         tags=["Statistics"],
-        security=[{}],
         route_handlers=[statistics.StatisticsController],
     )
 

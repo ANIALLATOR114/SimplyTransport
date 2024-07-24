@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import NamedTuple
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from sqlalchemy import Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -27,3 +28,9 @@ class DatabaseStatistic(BaseModel):
     key: str
     value: int
     created_at: datetime
+
+
+class DatabaseStatisticWithPercentage(NamedTuple):
+    key: str
+    value: int
+    percentage: float

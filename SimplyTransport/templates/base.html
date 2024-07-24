@@ -26,6 +26,8 @@
         <script src="https://unpkg.com/htmx.org@1.9.7"
                 integrity="sha512-nMVjlN8C4mklXxqlpwXnalBjytjBxT2jj6yWl3aNEmT4hufNnr+dmVAN/bmdhbfjvxm0JzmMzsYDo7V34yRsIQ=="
                 crossorigin="anonymous"></script> <!-- HTMX must be init in the head -->
+        <script src="/static/4.1.7.lightweight-charts-standalone-production.js"></script>
+        <script src="/static/tablesort.js?{{ request.app.openapi_config.version }}"></script>
     </head>
     <body>
         {% include "navbar.html" %}
@@ -40,5 +42,4 @@
             {% include "footer.html" %}
         </div>
     </body>
-    <script src="/static/tablesort.js?{{ request.app.openapi_config.version }}"></script>
 </html>
