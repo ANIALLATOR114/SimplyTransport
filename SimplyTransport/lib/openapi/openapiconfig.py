@@ -38,5 +38,5 @@ def custom_open_api_config() -> OpenAPIConfig:
                 name="Shape",
                 description="Shapes define the path that a vehicle travels along a route",
             ),
-        ]
+        ],
     )

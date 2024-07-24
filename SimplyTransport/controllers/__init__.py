@@ -20,9 +20,7 @@ __all__ = ["create_api_router", "create_views_router"]
 
 
 def create_views_router() -> Router:
-    root_route_handler = Router(
-        path="/", route_handlers=[root.RootController], include_in_schema=False
-    )
+    root_route_handler = Router(path="/", route_handlers=[root.RootController], include_in_schema=False)
 
     search_route_handler = Router(
         path="/search",
@@ -68,9 +66,7 @@ def create_views_router() -> Router:
 
 
 def create_api_router() -> Router:
-    agency_route_handler = Router(
-        path="/agency", tags=["Agency"], route_handlers=[agency.AgencyController]
-    )
+    agency_route_handler = Router(path="/agency", tags=["Agency"], route_handlers=[agency.AgencyController])
     calendar_route_handler = Router(
         path="/calendar",
         tags=["Calendar"],
@@ -82,21 +78,13 @@ def create_api_router() -> Router:
         route_handlers=[calendar_date.CalendarDateController],
     )
 
-    route_route_handler = Router(
-        path="/route", tags=["Route"], route_handlers=[route.RouteController]
-    )
+    route_route_handler = Router(path="/route", tags=["Route"], route_handlers=[route.RouteController])
 
-    trip_route_handler = Router(
-        path="/trip", tags=["Trip"], route_handlers=[trip.TripController]
-    )
+    trip_route_handler = Router(path="/trip", tags=["Trip"], route_handlers=[trip.TripController])
 
-    stop_route_handler = Router(
-        path="/stop", tags=["Stop"], route_handlers=[stop.StopController]
-    )
+    stop_route_handler = Router(path="/stop", tags=["Stop"], route_handlers=[stop.StopController])
 
-    shape_route_handler = Router(
-        path="/shape", tags=["Shape"], route_handlers=[shape.ShapeController]
-    )
+    shape_route_handler = Router(path="/shape", tags=["Shape"], route_handlers=[shape.ShapeController])
 
     stop_time_handler = Router(
         path="/stoptime",

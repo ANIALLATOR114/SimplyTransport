@@ -1,5 +1,8 @@
 from typing import List
-from SimplyTransport.domain.database_statistics.model import DatabaseStatisticModel, DatabaseStatisticWithPercentage
+from SimplyTransport.domain.database_statistics.model import (
+    DatabaseStatisticModel,
+    DatabaseStatisticWithPercentage,
+)
 from SimplyTransport.domain.database_statistics.statistic_type import StatisticType
 from ..database_statistics.repo import DatabaseStatisticRepository
 
@@ -48,12 +51,16 @@ class StatisticsService:
         )
 
     def convert_stats_to_stats_with_percentage_totals(
-        self, stats: List[DatabaseStatisticModel], decimals_places_to_round: int = 2, add_totals_row: bool = True, total_row_key: str = "Total Rows"
+        self,
+        stats: List[DatabaseStatisticModel],
+        decimals_places_to_round: int = 2,
+        add_totals_row: bool = True,
+        total_row_key: str = "Total Rows",
     ) -> List[DatabaseStatisticWithPercentage]:
         total_rows = sum(stat.value for stat in stats)
         stats_with_percentages: List[DatabaseStatisticWithPercentage] = []
 
-        if(add_totals_row):
+        if add_totals_row:
             stat_for_totals = DatabaseStatisticWithPercentage(
                 key=total_row_key,
                 value=total_rows,
@@ -62,9 +69,7 @@ class StatisticsService:
             stats_with_percentages.append((stat_for_totals))
 
         for stat in stats:
-            percentage = round(
-                (stat.value / total_rows) * 100, decimals_places_to_round
-            )
+            percentage = round((stat.value / total_rows) * 100, decimals_places_to_round)
             percentage_stat = DatabaseStatisticWithPercentage(
                 key=stat.key,
                 value=stat.value,
