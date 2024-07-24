@@ -1,5 +1,5 @@
 from litestar.openapi import OpenAPIConfig, OpenAPIController
-from litestar.openapi.spec import Components, SecurityScheme, Tag
+from litestar.openapi.spec import Tag
 from .. import settings
 
 
@@ -38,14 +38,5 @@ def custom_open_api_config() -> OpenAPIConfig:
                 name="Shape",
                 description="Shapes define the path that a vehicle travels along a route",
             ),
-        ],
-        security=[{"BearerToken": []}],
-        components=Components(
-            security_schemes={
-                "BearerToken": SecurityScheme(
-                    type="http",
-                    scheme="bearer",
-                )
-            },
-        ),
+        ]
     )

@@ -10,7 +10,8 @@ document.querySelectorAll('.toggle-visibility-button').forEach(function(button) 
     }
 
     button.addEventListener('click', function() {
-        var content = this.parentNode.nextElementSibling;
+        var container = this.closest('.inner-container');
+        var content = container.querySelector('.collapsible');
         var isCollapsed = content.style.maxHeight !== '0px';
         content.style.maxHeight = isCollapsed ? '0px' : content.scrollHeight + 'px';
         this.textContent = isCollapsed ? '▼' : '▲';

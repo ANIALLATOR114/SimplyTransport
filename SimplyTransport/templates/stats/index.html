@@ -6,20 +6,44 @@
 {% block content %}
     <div class="narrow-container">
         <h1>Statistics 📈</h1>
+        <p class="dense-text">
+            You can retrieve the statistics for a given day via the <a class="link-style"
+    href="/docs/elements#/operations/ApiV1StatisticsKeyDateGetStatisticsByDay">API.</a>
+        </p>
         <div class="inner-container">
-            <h2 class="no-top-margin">GTFS Static Data</h2>
+            <h2 class="no-top-margin">
+                GTFS Static Data
+                <button class="toggle-visibility-button pagination-button">▼</button>
+            </h2>
             <p class="dense-text">Overall statistics about the size of the GTFS static data.</p>
-            {% include "stats/static_data.html" %}
+            <div class="collapsible"
+                 style="max-height:0"
+                 hx-get="{{ url_for("stats.static_stats") }}"
+                 hx-swap="transition:true"
+                 hx-trigger="revealed"></div>
         </div>
         <div class="inner-container">
-            <h2 class="no-top-margin">Operators</h2>
+            <h2 class="no-top-margin">
+                Operators
+                <button class="toggle-visibility-button pagination-button">▼</button>
+            </h2>
             <p class="dense-text">Statistics about the operators.</p>
-            {% include "stats/operator_data.html" %}
+            <div class="collapsible"
+                 style="max-height:0"
+                 hx-get="{{ url_for("stats.operator_stats") }}"
+                 hx-trigger="revealed"></div>
         </div>
         <div class="inner-container">
-            <h2 class="no-top-margin">Stop Features</h2>
+            <h2 class="no-top-margin">
+                Stop Features
+                <button class="toggle-visibility-button pagination-button">▼</button>
+            </h2>
             <p class="dense-text">Statistics about the stop features.</p>
-            {% include "stats/stop_features_data.html" %}
+            <div class="collapsible"
+                 style="max-height:0"
+                 hx-get="{{ url_for("stats.stop_features") }}"
+                 hx-trigger="revealed"></div>
         </div>
     </div>
+    {% include "widgets/toggle_visibility.html" %}
 {% endblock content %}
