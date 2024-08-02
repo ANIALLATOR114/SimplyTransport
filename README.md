@@ -205,29 +205,11 @@ The custom commands I've added to the app can be run using the litestar command 
 
 ```
 litestar settings
-```
-
-```
 litestar docs
-```
-
-```
 litestar importgtfs
-```
-
-```
 litestar importrealtime
-```
-
-```
 litestar importstopfeatures
-```
-
-```
 litestar generatemaps
-```
-
-```
 litestar generatestatistics
 ```
 

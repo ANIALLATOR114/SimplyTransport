@@ -58,6 +58,23 @@ class StatisticsService:
         total_row_key: str = "Total Rows",
         total_override: int | None = None,
     ) -> List[DatabaseStatisticWithPercentage]:
+        """
+        Converts a list of DatabaseStatisticModel objects to a list of DatabaseStatisticWithPercentage objects,
+        with the addition of a totals row if specified.
+
+        Args:
+            stats (List[DatabaseStatisticModel]): The list of DatabaseStatisticModel objects to convert.
+            decimals_places_to_round (int, optional): The number of decimal places to round the percentages to.
+                Defaults to 2.
+            add_totals_row (bool, optional): Whether to add a totals row to the resulting list. Defaults to True.
+            total_row_key (str, optional): The key for the totals row. Defaults to "Total Rows".
+            total_override (int | None, optional): An optional override for the total number of rows. If provided,
+                this value will be used instead of calculating the sum of the values in the stats list. Defaults to None.
+
+        Returns:
+            List[DatabaseStatisticWithPercentage]: The list of DatabaseStatisticWithPercentage objects, including
+            the totals row if specified.
+        """
         if total_override is None:
             total_rows = sum(stat.value for stat in stats)
         else:
@@ -83,9 +100,20 @@ class StatisticsService:
         return stats_with_percentages
 
     def sort_stats_by_percentage(
-        self, stats: List[DatabaseStatisticWithPercentage]
+        self, stats: List[DatabaseStatisticWithPercentage], descending: bool = True
     ) -> List[DatabaseStatisticWithPercentage]:
-        return sorted(stats, key=lambda x: x.percentage, reverse=True)
+        """
+        Sorts a list of DatabaseStatisticWithPercentage objects based on their percentage value.
+
+        Args:
+            stats (List[DatabaseStatisticWithPercentage]): The list of statistics to be sorted.
+            descending (bool, optional): Specifies whether the sorting should be in descending order. 
+                Defaults to True.
+
+        Returns:
+            List[DatabaseStatisticWithPercentage]: The sorted list of statistics.
+        """
+        return sorted(stats, key=lambda x: x.percentage, reverse=descending)
 
 
 async def provide_statistics_service(db_session: AsyncSession) -> StatisticsService:
