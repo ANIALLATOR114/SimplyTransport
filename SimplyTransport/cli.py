@@ -103,7 +103,7 @@ class CLIPlugin(CLIPluginProtocol):
             if app.openapi_config is None:
                 console.print("[red]Error: OpenAPI controller not found.")
                 return
-            
+
             docs_path = app.openapi_config.openapi_controller.path
             redoc_path = list(app.openapi_config.openapi_controller.redoc.paths)[0]
             swagger_path = list(app.openapi_config.openapi_controller.swagger_ui.paths)[0]

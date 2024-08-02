@@ -64,14 +64,16 @@ class StatsController(Controller):
 
     @get("/stop-features/most-recent", cache=60, name="stats.stop_features")
     async def stop_features(
-        self, stats_repo: DatabaseStatisticRepository, stats_service: StatisticsService, stop_repo: StopRepository
+        self,
+        stats_repo: DatabaseStatisticRepository,
+        stats_service: StatisticsService,
+        stop_repo: StopRepository,
     ) -> Template:
         stats = await stats_repo.get_statistics_most_recent_by_type(StatisticType.STOP_FEATURE_COUNTS)
         total_stop_count = await stop_repo.count()
 
         stats_with_percentages = stats_service.convert_stats_to_stats_with_percentage_totals(
-            stats, total_row_key="Total Stops",
-            total_override=total_stop_count
+            stats, total_row_key="Total Stops", total_override=total_stop_count
         )
         stats_with_percentages = stats_service.sort_stats_by_percentage(stats_with_percentages)
 

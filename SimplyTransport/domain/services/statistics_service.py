@@ -81,8 +81,10 @@ class StatisticsService:
             )
             stats_with_percentages.append((percentage_stat))
         return stats_with_percentages
-    
-    def sort_stats_by_percentage(self, stats: List[DatabaseStatisticWithPercentage]) -> List[DatabaseStatisticWithPercentage]:
+
+    def sort_stats_by_percentage(
+        self, stats: List[DatabaseStatisticWithPercentage]
+    ) -> List[DatabaseStatisticWithPercentage]:
         return sorted(stats, key=lambda x: x.percentage, reverse=True)
 
 
