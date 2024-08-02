@@ -107,7 +107,7 @@ class StatisticsService:
 
         Args:
             stats (List[DatabaseStatisticWithPercentage]): The list of statistics to be sorted.
-            descending (bool, optional): Specifies whether the sorting should be in descending order. 
+            descending (bool, optional): Specifies whether the sorting should be in descending order.
                 Defaults to True.
 
         Returns:
