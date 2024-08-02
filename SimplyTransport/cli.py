@@ -96,15 +96,19 @@ class CLIPlugin(CLIPluginProtocol):
 
             console = Console()
             base_url = "http://localhost:8000"  # TODO: Make this automatically get the base url
+            table = Table()
+            table.add_column("Doc Type", style="cyan")
+            table.add_column("URL")
+
+            if app.openapi_config is None:
+                console.print("[red]Error: OpenAPI controller not found.")
+                return
+            
             docs_path = app.openapi_config.openapi_controller.path
             redoc_path = list(app.openapi_config.openapi_controller.redoc.paths)[0]
             swagger_path = list(app.openapi_config.openapi_controller.swagger_ui.paths)[0]
             elements_path = list(app.openapi_config.openapi_controller.stoplight_elements.paths)[0]
             rapidoc_path = list(app.openapi_config.openapi_controller.rapidoc.paths)[0]
-
-            table = Table()
-            table.add_column("Doc Type", style="cyan")
-            table.add_column("URL")
 
             table.add_row("Default", f"{base_url}{docs_path}")
             table.add_row("Redoc", f"{base_url}{docs_path}{redoc_path}")
@@ -446,7 +450,7 @@ class CLIPlugin(CLIPluginProtocol):
 
         @cli.command(name="recreate_indexes", help="Recreates the indexes on a given table")
         @click.option("-table", help="The table to recreate the indexes on")
-        def recreate_indexes(table: str = None):
+        def recreate_indexes(table: str | None = None):
             """Recreates the indexes on a given table"""
 
             console = Console()
@@ -484,7 +488,7 @@ class CLIPlugin(CLIPluginProtocol):
         @cli.command(name="cleanupevents", help="Cleans up expired events from the database")
         @click.option("-event", help="Cleanup just a specific event type")
         @make_sync
-        async def cleanupevents(event: str = None):
+        async def cleanupevents(event: str | None = None):
             """Cleans up expired events from the database"""
 
             start: float = time.perf_counter()

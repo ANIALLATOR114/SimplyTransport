@@ -56,8 +56,12 @@ class StatisticsService:
         decimals_places_to_round: int = 2,
         add_totals_row: bool = True,
         total_row_key: str = "Total Rows",
+        total_override: int | None = None,
     ) -> List[DatabaseStatisticWithPercentage]:
-        total_rows = sum(stat.value for stat in stats)
+        if total_override is None:
+            total_rows = sum(stat.value for stat in stats)
+        else:
+            total_rows = total_override
         stats_with_percentages: List[DatabaseStatisticWithPercentage] = []
 
         if add_totals_row:
@@ -77,6 +81,9 @@ class StatisticsService:
             )
             stats_with_percentages.append((percentage_stat))
         return stats_with_percentages
+    
+    def sort_stats_by_percentage(self, stats: List[DatabaseStatisticWithPercentage]) -> List[DatabaseStatisticWithPercentage]:
+        return sorted(stats, key=lambda x: x.percentage, reverse=True)
 
 
 async def provide_statistics_service(db_session: AsyncSession) -> StatisticsService:

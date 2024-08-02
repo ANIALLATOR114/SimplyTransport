@@ -219,6 +219,18 @@ litestar importgtfs
 litestar importrealtime
 ```
 
+```
+litestar importstopfeatures
+```
+
+```
+litestar generatemaps
+```
+
+```
+litestar generatestatistics
+```
+
 ## Running in Production
 
 You should use uvicorn directly to run the app in production and not litestar, this will allow you to configure the number of workers, ports etc
