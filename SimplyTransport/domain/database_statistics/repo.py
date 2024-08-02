@@ -108,6 +108,21 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
                     select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.surveyed)
                 )
             ).scalar(),
+            "Unsurveyed Stops": (
+                await self.session.execute(
+                    select(func.count())
+                    .select_from(StopFeatureModel)
+                    .where(StopFeatureModel.surveyed == False)  # noqa: E712
+                )
+            ).scalar(),
+            "Stops with no features": (
+                await self.session.execute(
+                    select(func.count())
+                    .select_from(StopModel)
+                    .join(StopFeatureModel, StopModel.id == StopFeatureModel.stop_id, isouter=True)
+                    .where(StopFeatureModel.id == None)  # noqa: E711
+                )
+            ).scalar(),
             "Wheelchair Accessible": (
                 await self.session.execute(
                     select(func.count())
