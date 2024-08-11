@@ -49,5 +49,11 @@ class Event(BaseModel):
     id: int
     event_type: EventType
     description: str
-    expiry_time: date
+    expiry_time: datetime
     attributes: dict
+    created_at: datetime
+
+
+class EventsWithTotal(BaseModel):
+    total: int
+    events: list[Event]
