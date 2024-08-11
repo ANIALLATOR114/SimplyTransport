@@ -99,11 +99,11 @@ class StatisticsService:
             stats_with_percentages.append((percentage_stat))
         return stats_with_percentages
 
-    def sort_stats_by_percentage(
+    def sort_stats_by_value(
         self, stats: List[DatabaseStatisticWithPercentage], descending: bool = True
     ) -> List[DatabaseStatisticWithPercentage]:
         """
-        Sorts a list of DatabaseStatisticWithPercentage objects based on their percentage value.
+        Sorts a list of DatabaseStatisticWithPercentage objects based on their value.
 
         Args:
             stats (List[DatabaseStatisticWithPercentage]): The list of statistics to be sorted.
@@ -113,7 +113,7 @@ class StatisticsService:
         Returns:
             List[DatabaseStatisticWithPercentage]: The sorted list of statistics.
         """
-        return sorted(stats, key=lambda x: x.percentage, reverse=descending)
+        return sorted(stats, key=lambda x: x.value, reverse=descending)
 
 
 async def provide_statistics_service(db_session: AsyncSession) -> StatisticsService:
