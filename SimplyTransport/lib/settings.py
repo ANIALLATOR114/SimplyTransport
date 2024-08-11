@@ -18,10 +18,15 @@ class AppSettings(BaseSettings):
     DB_URL: str = "postgresql+asyncpg://user:password@localhost:5432/st_database"
     DB_URL_SYNC: str = "postgresql+psycopg2://user:password@localhost:5432/st_database"
     DB_ECHO: bool = False
+    TIMESCALE_URL: str ="postgresql+asyncpg://example:example@localhost:5433/st_ts_database"
 
     POSTGRES_DB: str = "example"
     POSTGRES_USER: str = "example"
     POSTGRES_PASSWORD: str = "example"
+
+    TIMESCALE_DB: str="example"
+    TIMESCALE_USER: str = "example"
+    TIMESCALE_PASSWORD: str = "example"
 
     # Redis
     REDIS_HOST: str = "127.0.0.1"

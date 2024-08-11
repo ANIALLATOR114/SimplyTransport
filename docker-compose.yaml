@@ -19,6 +19,18 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     restart: unless-stopped
 
+  timescale:
+    image: timescale/timescaledb:latest-pg16
+    container_name: timescale
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=${TIMESCALE_USER}
+      - POSTGRES_PASSWORD=${TIMESCALE_PASSWORD}
+      - POSTGRES_DB=${TIMESCALE_DB}
+      - TIMESCALEDB_TELEMETRY=off
+    restart: unless-stopped
+
   opentelemetry-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: ot-collector

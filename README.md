@@ -169,18 +169,24 @@ cp .env.example .env
 
 Open the `.env` file and change the example variables for the following fields. You can set these to whatever you like as they will be unique to your local deployment.
 
-Notice how the `POSTGRES_` variables map into the URL you're going to try and connect to. Docker-compose will create a DB using these variables for you.
+Notice how the `POSTGRES_` variables and the `TIMESCALE_` map into the URL you're going to try and connect to. Docker-compose will create 2 DBs using these variables for you.
 
 ```
 # Database
 DB_URL=postgresql+asyncpg://example2:example3@localhost:5432/example1
 DB_URL_SYNC=postgresql+psycopg2://example2:example3@localhost:5432/example1
 DB_ECHO=false
+TIMESCALE_URL=postgresql+asyncpg://example:example@localhost:5433/example
 
 # Postgres Docker
 POSTGRES_DB=example1
 POSTGRES_USER=example2
 POSTGRES_PASSWORD=example3
+
+# Timescale Docker
+TIMESCALE_DB=example
+TIMESCALE_USER=example
+TIMESCALE_PASSWORD=example
 ```
 
 Once you have the variables above set please run the command in [Database](#database)
@@ -289,9 +295,9 @@ Partial templates are smaller templates that are returned with the intention to 
 
 ## Database
 
-This application expects a Postgres database to be available at the url specificed in the .env file.
+This application expects a 2 Postgres databases to be available at the urls specificed in the .env file.
 
-There is a `docker-compose.yaml` available in the root directory of the project which will create the postgres database for you as well as a redis instance for caching.
+There is a `docker-compose.yaml` available in the root directory of the project which will create the postgres databases for you as well as a redis instance for caching.
 
 ```
 docker-compose up -d

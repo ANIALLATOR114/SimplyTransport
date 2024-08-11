@@ -12,7 +12,7 @@ from ..domain.maps.enums import StaticStopMapTypes
 from ..domain.services.map_service import MapService
 from ..domain.events.repo import EventRepository, provide_event_repo
 from ..domain.events.event_types import EventType
-from ..lib.db.services import test_database_connection
+from ..lib.db.services import test_database_connections
 from ..lib.constants import STATIC_DIR, APP_DIR
 
 
@@ -69,7 +69,7 @@ class RootController(Controller):
     @get("/healthcheck")
     async def healthcheck(self) -> str:
         try:
-            test_database_connection()
+            await test_database_connections()
         except Exception as e:
             logger.error("Database connection refused on healthcheck", exc_info=e)
             raise HTTPException(status_code=500) from e
