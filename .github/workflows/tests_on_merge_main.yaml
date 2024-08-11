@@ -57,8 +57,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Create database
-        run: psql -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }} -d postgres -a -f sql_scripts/create_db.sql
+      - name: Running sql scripts
+        run: |
+          for file in sql_scripts/*.sql; do
+          psql -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }} -d postgres -a -f "$file"
+          done
         env:
           PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
