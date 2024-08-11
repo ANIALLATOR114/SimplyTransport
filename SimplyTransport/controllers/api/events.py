@@ -12,6 +12,7 @@ from ...domain.events.repo import EventRepository, provide_event_repo
 
 __all__ = ["EventsController"]
 
+
 class EventsController(Controller):
     dependencies = {"repo": Provide(provide_event_repo)}
 
@@ -34,7 +35,7 @@ class EventsController(Controller):
             raise NotFoundException(detail="Events not found")
 
         return EventsWithTotal(total=total, events=[Event.model_validate(obj) for obj in result])
-    
+
     @get(
         "/{type:str}",
         summary="Get paginated events by type",
@@ -56,7 +57,7 @@ class EventsController(Controller):
             raise NotFoundException(detail=f"Events not found for {type.value}")
 
         return EventsWithTotal(total=total, events=[Event.model_validate(obj) for obj in result])
-    
+
     @get(
         "/{type:str}/most-recent",
         summary="Get most recent event by type",
@@ -71,5 +72,5 @@ class EventsController(Controller):
 
         if result is None:
             raise NotFoundException(detail=f"Events not found for {type.value}")
-        
+
         return Event.model_validate(result)

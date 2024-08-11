@@ -1,5 +1,6 @@
 from litestar.openapi.spec import Tag
 
+
 class Tags:
     AGENCY = Tag(
         name="Agency",

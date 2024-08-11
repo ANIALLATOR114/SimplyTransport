@@ -51,7 +51,7 @@ class Event(BaseModel):
     description: str
     expiry_time: datetime
     attributes: dict
-    created_at : datetime
+    created_at: datetime
 
 
 class EventsWithTotal(BaseModel):

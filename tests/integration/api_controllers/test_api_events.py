@@ -1,5 +1,6 @@
 from litestar.testing import TestClient
 
+
 def test_events_paginated_resturns_results(client: TestClient) -> None:
     response = client.get("api/v1/events/")
     assert response.status_code == 200

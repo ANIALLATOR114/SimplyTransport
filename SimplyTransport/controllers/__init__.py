@@ -84,15 +84,13 @@ def create_api_router() -> Router:
         route_handlers=[calendar_date.CalendarDateController],
     )
 
-    route_route_handler = Router(path="/route", tags=[tags.ROUTE.name], route_handlers=[route.RouteController])
-
-    trip_route_handler = Router(
-        path="/trip", tags=[tags.TRIP.name], route_handlers=[trip.TripController]
+    route_route_handler = Router(
+        path="/route", tags=[tags.ROUTE.name], route_handlers=[route.RouteController]
     )
 
-    stop_route_handler = Router(
-        path="/stop", tags=[tags.STOP.name], route_handlers=[stop.StopController]
-    )
+    trip_route_handler = Router(path="/trip", tags=[tags.TRIP.name], route_handlers=[trip.TripController])
+
+    stop_route_handler = Router(path="/stop", tags=[tags.STOP.name], route_handlers=[stop.StopController])
 
     shape_route_handler = Router(
         path="/shape", tags=[tags.SHAPE.name], route_handlers=[shape.ShapeController]
@@ -116,9 +114,7 @@ def create_api_router() -> Router:
         route_handlers=[scheduleAPI.ScheduleController],
     )
 
-    maps_route_handler = Router(
-        path="/map", tags=[tags.MAP.name], route_handlers=[map.MapController]
-    )
+    maps_route_handler = Router(path="/map", tags=[tags.MAP.name], route_handlers=[map.MapController])
 
     statistics_route_handler = Router(
         path="/statistics",

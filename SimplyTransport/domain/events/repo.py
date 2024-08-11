@@ -56,7 +56,7 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
         else:
             event = events[0][0]
             return event.add_pretty_created_at()
-        
+
     async def get_most_recent_event_by_type(self, event_type: EventType) -> EventModel | None:
         try:
             events = await self.get_paginated_events_by_type_with_total(
@@ -76,17 +76,13 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
 
         if total == 0:
             raise NotFoundError()
-        
+
         return results, total
-    
-    async def get_paginated_events(
-        self, limit_offset: LimitOffset, order="desc"
-    ) -> List[EventModel]:
+
+    async def get_paginated_events(self, limit_offset: LimitOffset, order="desc") -> List[EventModel]:
         """Get paginated events."""
 
-        results = await self.list(
-            OrderBy(EventModel.created_at, order), limit_offset
-        )
+        results = await self.list(OrderBy(EventModel.created_at, order), limit_offset)
 
         return results
 

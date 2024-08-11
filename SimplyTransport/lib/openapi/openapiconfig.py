@@ -9,6 +9,7 @@ This API provides access to transport data for agencies, routes, stops, trips, s
 These endpoints are extensions of the GTFS standard with some additional endpoints for additional features such as maps and statistics.
 """
 
+
 class MyOpenAPIController(OpenAPIController):
     path = "/docs"
 

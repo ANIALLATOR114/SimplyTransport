@@ -41,14 +41,19 @@ class EventsController(Controller):
         search_type: str | None = Parameter(
             query="search_type", required=False, description="Search events by type"
         ),
-        sort: Literal["asc","desc"] = Parameter(
-            query="sort", required=False, description="Sort events ascending or descending by creation time", default="desc"
+        sort: Literal["asc", "desc"] = Parameter(
+            query="sort",
+            required=False,
+            description="Sort events ascending or descending by creation time",
+            default="desc",
         ),
     ) -> Template:
         if search_type is None or search_type == ALL_EVENTS:
             search_type = ALL_EVENTS
             try:
-                events, total = await event_repo.get_paginated_events_with_total(limit_offset=limit_offset, order=sort)
+                events, total = await event_repo.get_paginated_events_with_total(
+                    limit_offset=limit_offset, order=sort
+                )
             except NotFoundError:
                 events = []
                 total = 0
