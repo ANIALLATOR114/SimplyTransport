@@ -30,7 +30,7 @@ class StatsController(Controller):
 
         stats = await stats_repo.get_statistics_most_recent_by_type(StatisticType.GTFS_RECORD_COUNTS)
         stats_with_percentages = stats_service.convert_stats_to_stats_with_percentage_totals(stats)
-        stats_with_percentages = stats_service.sort_stats_by_percentage(stats_with_percentages)
+        stats_with_percentages = stats_service.sort_stats_by_value(stats_with_percentages)
 
         return Template(
             template_name="stats/static_data.html",
@@ -46,13 +46,13 @@ class StatsController(Controller):
         routes_with_percentages = stats_service.convert_stats_to_stats_with_percentage_totals(
             routes, total_row_key="Total Routes"
         )
-        routes_with_percentages = stats_service.sort_stats_by_percentage(routes_with_percentages)
+        routes_with_percentages = stats_service.sort_stats_by_value(routes_with_percentages)
 
         trips = await stats_repo.get_statistics_most_recent_by_type(StatisticType.OPERATOR_TRIP_COUNTS)
         trips_with_percentages = stats_service.convert_stats_to_stats_with_percentage_totals(
             trips, total_row_key="Total Trips"
         )
-        trips_with_percentages = stats_service.sort_stats_by_percentage(trips_with_percentages)
+        trips_with_percentages = stats_service.sort_stats_by_value(trips_with_percentages)
 
         return Template(
             template_name="stats/operator_data.html",
@@ -75,7 +75,7 @@ class StatsController(Controller):
         stats_with_percentages = stats_service.convert_stats_to_stats_with_percentage_totals(
             stats, total_row_key="Total Stops", total_override=total_stop_count
         )
-        stats_with_percentages = stats_service.sort_stats_by_percentage(stats_with_percentages)
+        stats_with_percentages = stats_service.sort_stats_by_value(stats_with_percentages)
 
         return Template(
             template_name="stats/stop_features_data.html",
