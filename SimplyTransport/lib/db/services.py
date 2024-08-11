@@ -89,7 +89,7 @@ async def test_database_connections():
             f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {async_engine.url}\n"
         )
         raise e
-    
+
     try:
         async with async_timescale_engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
