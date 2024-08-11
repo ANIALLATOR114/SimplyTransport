@@ -295,7 +295,7 @@ Partial templates are smaller templates that are returned with the intention to 
 
 ## Database
 
-This application expects a 2 Postgres databases to be available at the urls specificed in the .env file.
+This application expects 2 Postgres databases to be available at the urls specified in the .env file.
 
 There is a `docker-compose.yaml` available in the root directory of the project which will create the postgres databases for you as well as a redis instance for caching.
 
