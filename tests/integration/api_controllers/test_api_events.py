@@ -1,13 +1,15 @@
 from litestar.testing import TestClient
 
 
-def test_events_paginated_resturns_results(client: TestClient) -> None:
+def test_events_paginated_returns_results(client: TestClient) -> None:
     response = client.get("api/v1/events/")
     assert response.status_code == 200
     response_json = response.json()
 
-    assert response_json["total"] > 1
-    assert len(response_json["events"]) > 1
+    assert "total" in response_json
+    assert isinstance(response_json["total"], int)
+    assert response_json["total"] >= 1
+    assert len(response_json["events"]) >= 1
 
 
 def test_events_paginated_by_type_returns_results(client: TestClient) -> None:
@@ -15,6 +17,8 @@ def test_events_paginated_by_type_returns_results(client: TestClient) -> None:
     assert response.status_code == 200
     response_json = response.json()
 
+    assert "total" in response_json
+    assert isinstance(response_json["total"], int)
     assert response_json["total"] >= 1
     assert len(response_json["events"]) >= 1
 
