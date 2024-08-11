@@ -14,7 +14,9 @@ from .api import (
     schedule as scheduleAPI,
     map,
     statistics,
+    events as eventsAPI,
 )
+from ..lib.openapi.tags import Tags
 
 __all__ = ["create_api_router", "create_views_router"]
 
@@ -66,46 +68,68 @@ def create_views_router() -> Router:
 
 
 def create_api_router() -> Router:
-    agency_route_handler = Router(path="/agency", tags=["Agency"], route_handlers=[agency.AgencyController])
+    tags = Tags()
+
+    agency_route_handler = Router(
+        path="/agency", tags=[tags.AGENCY.name], route_handlers=[agency.AgencyController]
+    )
     calendar_route_handler = Router(
         path="/calendar",
-        tags=["Calendar"],
+        tags=[tags.CALENDAR.name],
         route_handlers=[calendar.CalendarController],
     )
     calendar_date_route_handler = Router(
         path="/calendardate",
-        tags=["CalendarDate"],
+        tags=[tags.CALENDAR_DATE.name],
         route_handlers=[calendar_date.CalendarDateController],
     )
 
-    route_route_handler = Router(path="/route", tags=["Route"], route_handlers=[route.RouteController])
+    route_route_handler = Router(path="/route", tags=[tags.ROUTE.name], route_handlers=[route.RouteController])
 
-    trip_route_handler = Router(path="/trip", tags=["Trip"], route_handlers=[trip.TripController])
+    trip_route_handler = Router(
+        path="/trip", tags=[tags.TRIP.name], route_handlers=[trip.TripController]
+    )
 
-    stop_route_handler = Router(path="/stop", tags=["Stop"], route_handlers=[stop.StopController])
+    stop_route_handler = Router(
+        path="/stop", tags=[tags.STOP.name], route_handlers=[stop.StopController]
+    )
 
-    shape_route_handler = Router(path="/shape", tags=["Shape"], route_handlers=[shape.ShapeController])
+    shape_route_handler = Router(
+        path="/shape", tags=[tags.SHAPE.name], route_handlers=[shape.ShapeController]
+    )
 
     stop_time_handler = Router(
         path="/stoptime",
-        tags=["StopTime"],
+        tags=[tags.STOP_TIME.name],
         route_handlers=[stoptime.StopTimeController],
     )
 
     realtime_route_handler = Router(
-        path="/realtime", tags=["Realtime"], route_handlers=[realtimeAPI.RealtimeController]
+        path="/realtime",
+        tags=[tags.REALTIME.name],
+        route_handlers=[realtimeAPI.RealtimeController],
     )
 
     schedule_route_handler = Router(
-        path="/schedule", tags=["Schedule"], route_handlers=[scheduleAPI.ScheduleController]
+        path="/schedule",
+        tags=[tags.SCHEDULE.name],
+        route_handlers=[scheduleAPI.ScheduleController],
     )
 
-    maps_route_handler = Router(path="/map", tags=["Map"], route_handlers=[map.MapController])
+    maps_route_handler = Router(
+        path="/map", tags=[tags.MAP.name], route_handlers=[map.MapController]
+    )
 
     statistics_route_handler = Router(
         path="/statistics",
-        tags=["Statistics"],
+        tags=[tags.STATISTICS.name],
         route_handlers=[statistics.StatisticsController],
+    )
+
+    events_route_handler = Router(
+        path="/events",
+        tags=[tags.EVENTS.name],
+        route_handlers=[eventsAPI.EventsController],
     )
 
     return Router(
@@ -123,5 +147,6 @@ def create_api_router() -> Router:
             schedule_route_handler,
             maps_route_handler,
             statistics_route_handler,
+            events_route_handler,
         ],
     )

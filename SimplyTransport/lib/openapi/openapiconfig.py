@@ -1,7 +1,13 @@
 from litestar.openapi import OpenAPIConfig, OpenAPIController
-from litestar.openapi.spec import Tag
 from .. import settings
+from .tags import Tags
 
+DESCRIPTION = """SimplyTransport - An API for retrieving transport information.
+
+This API provides access to transport data for agencies, routes, stops, trips, stop times, calendars, calendar dates, shapes, realtime information, schedules, maps, and statistics.
+
+These endpoints are extensions of the GTFS standard with some additional endpoints for additional features such as maps and statistics.
+"""
 
 class MyOpenAPIController(OpenAPIController):
     path = "/docs"
@@ -13,30 +19,6 @@ def custom_open_api_config() -> OpenAPIConfig:
         version=settings.app.VERSION,
         openapi_controller=MyOpenAPIController,
         create_examples=True,
-        description="SimplyTransport API - An API for retrieving transport information",
-        tags=[
-            Tag(name="Agency", description="Agencies are the operators of transport services"),
-            Tag(
-                name="Route",
-                description="Routes are a group of trips that display to riders as a single service",
-            ),
-            Tag(
-                name="Stop",
-                description="Stops are the places where transport services pick up and dropoff riders",
-            ),
-            Tag(
-                name="Trip",
-                description="Trips are a sequence of two or more stops that occur at specific times",
-            ),
-            Tag(
-                name="StopTime",
-                description="StopTimes are when a vehicle arrives at and departs from stops for each trip.",
-            ),
-            Tag(name="Calendar", description="Calendars are the weekly schedules of a route"),
-            Tag(name="CalendarDate", description="CalendarDates are the exceptions to a calendar"),
-            Tag(
-                name="Shape",
-                description="Shapes define the path that a vehicle travels along a route",
-            ),
-        ],
+        description=DESCRIPTION,
+        tags=Tags().list_all_tags(),
     )

@@ -1,4 +1,5 @@
 import math
+from typing import Literal
 
 from litestar import Controller, get
 from litestar.response import Template
@@ -40,17 +41,14 @@ class EventsController(Controller):
         search_type: str | None = Parameter(
             query="search_type", required=False, description="Search events by type"
         ),
-        sort: str | None = Parameter(
-            query="sort", required=False, description="Sort events ascending or descending by creation time"
+        sort: Literal["asc","desc"] = Parameter(
+            query="sort", required=False, description="Sort events ascending or descending by creation time", default="desc"
         ),
     ) -> Template:
-        if sort is None:
-            sort = "desc"
-
         if search_type is None or search_type == ALL_EVENTS:
             search_type = ALL_EVENTS
             try:
-                events, total = await event_repo.get_paginated_events(limit_offset=limit_offset, order=sort)
+                events, total = await event_repo.get_paginated_events_with_total(limit_offset=limit_offset, order=sort)
             except NotFoundError:
                 events = []
                 total = 0
@@ -59,7 +57,7 @@ class EventsController(Controller):
                 raise ValidationException("Invalid event type")
 
             try:
-                events, total = await event_repo.get_paginated_events_by_type(
+                events, total = await event_repo.get_paginated_events_by_type_with_total(
                     event_type=search_type, limit_offset=limit_offset, order=sort
                 )
             except NotFoundError:

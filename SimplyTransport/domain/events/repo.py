@@ -3,7 +3,7 @@ from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from advanced_alchemy.filters import OrderBy, LimitOffset
 from advanced_alchemy import NotFoundError
-from typing import List, Tuple
+from typing import List, Literal, Tuple
 
 from .model import EventModel
 from .event_types import EventType
@@ -14,7 +14,7 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
     """Event repository."""
 
     async def create_event(
-        self, event_type: EventType, description: str, attributes: dict, expiry_time: datetime = None
+        self, event_type: EventType, description: str, attributes: dict, expiry_time: datetime | None = None
     ) -> EventModel:
         """Create event."""
 
@@ -29,15 +29,13 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
         await self.session.commit()
         return new_event
 
-    async def get_events_by_type(self, event_type: EventType, order="desc") -> list[EventModel]:
-        """Get events by type."""
-
-        return await self.list(EventModel.event_type == event_type, OrderBy(EventModel.created_at, order))
-
-    async def get_paginated_events_by_type(
-        self, event_type: EventType, limit_offset: LimitOffset, order="desc"
+    async def get_paginated_events_by_type_with_total(
+        self,
+        event_type: EventType,
+        limit_offset: LimitOffset,
+        order: Literal["asc", "desc"] = "desc",
     ) -> Tuple[List[EventModel], int]:
-        """Get paginated events by type."""
+        """Get paginated events by type with total."""
 
         results, total = await self.list_and_count(
             EventModel.event_type == event_type, OrderBy(EventModel.created_at, order), limit_offset
@@ -50,24 +48,47 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
 
     async def get_single_pretty_event_by_type(self, event_type: EventType) -> EventModel | None:
         try:
-            events = await self.get_paginated_events_by_type(
-                event_type=event_type, limit_offset=LimitOffset(limit=1, offset=0)
+            events = await self.get_paginated_events_by_type_with_total(
+                event_type=event_type, limit_offset=LimitOffset(limit=1, offset=0), order="desc"
             )
         except NotFoundError:
             return None
         else:
             event = events[0][0]
             return event.add_pretty_created_at()
+        
+    async def get_most_recent_event_by_type(self, event_type: EventType) -> EventModel | None:
+        try:
+            events = await self.get_paginated_events_by_type_with_total(
+                event_type=event_type, limit_offset=LimitOffset(limit=1, offset=0), order="desc"
+            )
+        except NotFoundError:
+            return None
+        else:
+            return events[0][0]
 
-    async def get_paginated_events(
+    async def get_paginated_events_with_total(
         self, limit_offset: LimitOffset, order="desc"
     ) -> Tuple[List[EventModel], int]:
-        """Get paginated events."""
+        """Get paginated events with total."""
 
         results, total = await self.list_and_count(OrderBy(EventModel.created_at, order), limit_offset)
+
         if total == 0:
             raise NotFoundError()
+        
         return results, total
+    
+    async def get_paginated_events(
+        self, limit_offset: LimitOffset, order="desc"
+    ) -> List[EventModel]:
+        """Get paginated events."""
+
+        results = await self.list(
+            OrderBy(EventModel.created_at, order), limit_offset
+        )
+
+        return results
 
     async def cleanup_events(self, event_type: EventType = None) -> int:
         """Cleanup events that have expired. If event_type is provided, only cleanup events of that type."""
