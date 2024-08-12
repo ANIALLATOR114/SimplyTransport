@@ -44,8 +44,8 @@ jobs:
       timescale:
         image: timescale/timescaledb:latest-pg16
         env:
-          POSTGRES_USER: ${{ secrets.TIMESCALE_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.TIMESCALE_PASSWORD }}
+          TIMESCALE_USER: ${{ secrets.TIMESCALE_USER }}
+          TIMESCALE_PASSWORD: ${{ secrets.TIMESCALE_PASSWORD }}
         options: >-
           --health-cmd pg_isready
           --health-interval 1s
