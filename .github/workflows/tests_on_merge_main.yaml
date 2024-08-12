@@ -34,11 +34,24 @@ jobs:
         image: redis
         options: >-
           --health-cmd "redis-cli ping" 
-          --health-interval 2s 
-          --health-timeout 5s 
+          --health-interval 1s 
+          --health-timeout 2s 
           --health-retries 20
         ports:
           - 6379:6379
+
+      timescale:
+        image: timescale/timescaledb:latest-pg16
+        env:
+          POSTGRES_USER: ${{ secrets.TIMESCALE_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.TIMESCALE_PASSWORD }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 1s
+          --health-timeout 2s
+          --health-retries 20
+        ports:
+          - 5433:5432
 
     steps:
       - name: Checkout code
@@ -67,6 +80,17 @@ jobs:
           done
         env:
           PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
+      - name: Running sql scripts TIMESCALE
+        run: |
+          for file in sql_scripts/timescale/*.sql; do
+            if ! psql -h localhost -p 5433 -U ${{ secrets.TIMESCALE_USER }} -d postgres -a -f "$file"; then
+                echo "Failed to run $file"
+                exit 1
+            fi
+          done
+        env:
+          PGPASSWORD: ${{ secrets.TIMESCALE_PASSWORD }}
 
       - name: Create database tables
         run: LITESTAR_APP=SimplyTransport.app:create_app litestar create_tables

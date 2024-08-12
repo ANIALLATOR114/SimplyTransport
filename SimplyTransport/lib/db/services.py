@@ -1,7 +1,9 @@
-import SimplyTransport.lib.db.database as _db
+import asyncio
 from litestar.contrib.sqlalchemy.base import UUIDBase
-from sqlalchemy import MetaData
-from .database import engine
+from sqlalchemy import MetaData, text
+from sqlalchemy.ext.asyncio import AsyncEngine
+from .database import engine, session, async_engine
+from .timescale_database import async_timescale_engine
 
 
 async def create_database() -> None:
@@ -15,12 +17,12 @@ async def create_database() -> None:
         ConnectionRefusedError: If the database connection is refused.
     """
     try:
-        async with _db.sqlalchemy_config.get_engine().begin() as conn:
+        async with async_engine.begin() as conn:
             await conn.run_sync(UUIDBase.metadata.create_all)
     except ConnectionRefusedError as e:
         print(e)
         print(
-            f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {_db.sqlalchemy_config.get_engine().url}\n"
+            f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {async_engine.url}\n"
         )
         raise e
 
@@ -36,11 +38,11 @@ def create_database_sync() -> None:
         ConnectionRefusedError: If the database connection is refused.
     """
     try:
-        UUIDBase.metadata.create_all(bind=_db.session.bind)
+        UUIDBase.metadata.create_all(bind=session.bind)
     except ConnectionRefusedError as e:
         print(e)
         print(
-            f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {_db.sqlalchemy_config.get_engine().url}\n"
+            f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {engine.url}\n"
         )
         raise e
 
@@ -73,18 +75,30 @@ def recreate_indexes(table_name: str | None = None):
             index.create(bind=engine)
 
 
-def test_database_connection():
+async def test_database_connections():
     """
-    Test the connection to the database.
+    Test the connection to the databases.
 
     Raises:
         Exception: If the database connection is refused.
     """
-    try:
-        engine.connect()
-    except Exception as e:
-        print(e)
-        print(
-            f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {_db.sqlalchemy_config.get_engine().url}\n"
-        )
-        raise e
+
+    async def check_connection(engine: AsyncEngine, db_name: str) -> None:
+        try:
+            async with engine.connect() as conn:
+                await conn.execute(text("SELECT 1"))
+        except Exception as e:
+            print(e)
+            print(
+                f"\n{db_name} Database connection refused. Please ensure the database is running and accessible.\nURL: {engine.url}\n"
+            )
+            raise e
+
+    async def main():
+        tasks = [
+            asyncio.create_task(check_connection(async_engine, "Main")),
+            asyncio.create_task(check_connection(async_timescale_engine, "Timescale")),
+        ]
+        await asyncio.gather(*tasks)
+
+    await main()
