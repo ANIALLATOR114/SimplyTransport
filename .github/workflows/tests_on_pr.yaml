@@ -44,8 +44,8 @@ jobs:
       timescale:
         image: timescale/timescaledb:latest-pg16
         env:
-          TIMESCALE_USER: ${{ secrets.TIMESCALE_USER }}
-          TIMESCALE_PASSWORD: ${{ secrets.TIMESCALE_PASSWORD }}
+          POSTGRES_USER: ${{ secrets.TIMESCALE_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.TIMESCALE_PASSWORD }}
         options: >-
           --health-cmd pg_isready
           --health-interval 1s
@@ -71,9 +71,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Running sql scripts
+      - name: Running sql scripts MAIN
         run: |
-          for file in sql_scripts/*.sql; do
+          for file in sql_scripts/main/*.sql; do
             if ! psql -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }} -d postgres -a -f "$file"; then
                 echo "Failed to run $file"
                 exit 1
@@ -81,6 +81,17 @@ jobs:
           done
         env:
           PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
+      - name: Running sql scripts TIMESCALE
+        run: |
+          for file in sql_scripts/timescale/*.sql; do
+            if ! psql -h localhost -p 5433 -U ${{ secrets.TIMESCALE_USER }} -d postgres -a -f "$file"; then
+                echo "Failed to run $file"
+                exit 1
+            fi
+          done
+        env:
+          PGPASSWORD: ${{ secrets.TIMESCALE_PASSWORD }}
 
       - name: Create database tables
         run: LITESTAR_APP=SimplyTransport.app:create_app litestar create_tables
