@@ -1,5 +1,7 @@
+import anyio
 from litestar.contrib.sqlalchemy.base import UUIDBase
 from sqlalchemy import MetaData, text
+from sqlalchemy.ext.asyncio import AsyncEngine
 from .database import engine, session, async_engine
 from .timescale_database import async_timescale_engine
 
@@ -80,22 +82,18 @@ async def test_database_connections():
     Raises:
         Exception: If the database connection is refused.
     """
-    try:
-        async with async_engine.connect() as conn:
-            await conn.execute(text("SELECT 1"))
-    except Exception as e:
-        print(e)
-        print(
-            f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {async_engine.url}\n"
-        )
-        raise e
 
-    try:
-        async with async_timescale_engine.connect() as conn:
-            await conn.execute(text("SELECT 1"))
-    except Exception as e:
-        print(e)
-        print(
-            f"\nTimescale Database connection refused. Please ensure the database is running and accessible.\nURL: {async_timescale_engine.url}\n"
-        )
-        raise e
+    async def check_connection(engine: AsyncEngine, db_name: str) -> None:
+        try:
+            async with engine.connect() as conn:
+                await conn.execute(text("SELECT 1"))
+        except Exception as e:
+            print(e)
+            print(
+                f"\n{db_name} Database connection refused. Please ensure the database is running and accessible.\nURL: {engine.url}\n"
+            )
+            raise e
+
+    async with anyio.create_task_group() as tg:
+        tg.start_soon(check_connection, async_engine, "Main")
+        tg.start_soon(check_connection, async_timescale_engine, "Timescale")
