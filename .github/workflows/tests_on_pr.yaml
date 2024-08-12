@@ -16,10 +16,6 @@ jobs:
     env:
       ENVIRONMENT: PR-TEST-CI
       LOKI_URL: ${{ secrets.LOKI_URL }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      TIMESCALE_USER: ${{ secrets.TIMESCALE_USER }}
-      TIMESCALE_PASSWORD: ${{ secrets.TIMESCALE_PASSWORD }}
 
     services:
       postgres:
