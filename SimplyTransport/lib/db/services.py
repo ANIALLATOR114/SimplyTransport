@@ -1,4 +1,4 @@
-import anyio
+import asyncio
 from litestar.contrib.sqlalchemy.base import UUIDBase
 from sqlalchemy import MetaData, text
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -94,6 +94,11 @@ async def test_database_connections():
             )
             raise e
 
-    async with anyio.create_task_group() as tg:
-        tg.start_soon(check_connection, async_engine, "Main")
-        tg.start_soon(check_connection, async_timescale_engine, "Timescale")
+    async def main():
+        tasks = [
+            asyncio.create_task(check_connection(async_engine, "Main")),
+            asyncio.create_task(check_connection(async_timescale_engine, "Timescale")),
+        ]
+        await asyncio.gather(*tasks)
+
+    await main()
