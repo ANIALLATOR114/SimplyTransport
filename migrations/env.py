@@ -8,11 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-
-
 from SimplyTransport.lib import settings
-# ensure domain is in scope for migrations
-from SimplyTransport import domain  # noqa: F401
 
 
 # this is the Alembic Config object, which provides
@@ -35,6 +31,31 @@ target_metadata = UUIDBase.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+# Retreives the DB name from the cmd args
+cmd_kwargs = context.get_x_argument(as_dictionary=True)
+if 'db' not in cmd_kwargs:
+    raise Exception('We couldn\'t find `db` in the CLI arguments. '
+                    'Please verify `alembic` was run with `-x db=<db_name>` '
+                    '(e.g. `alembic -x db=main upgrade head`)')
+db_name = cmd_kwargs['db']
+
+# Ensure correct domain is in scope for the migration
+if db_name == "main":
+    from SimplyTransport import domain  # noqa: F401
+    target_metadata = UUIDBase.metadata
+elif db_name == "timescale":
+    from SimplyTransport import timescale  # noqa: F401
+
+
+def get_database_url() -> str:
+    """Retrieve the appropriate database URL based on the Alembic configuration."""
+    if db_name == "main":
+        return settings.app.DB_URL
+    elif db_name == "timescale":
+        return settings.app.TIMESCALE_URL
+    else:
+        raise ValueError(f"Unknown database name: {db_name}")
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -48,8 +69,9 @@ def run_migrations_offline() -> None:
     script output.
 
     """
+    url = get_database_url()
     context.configure(
-        url=settings.app.DB_URL,
+        url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -72,7 +94,7 @@ async def run_migrations_online() -> None:
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = settings.app.DB_URL
+    configuration["sqlalchemy.url"] = get_database_url()
     connectable = async_engine_from_config(
         configuration,
         prefix="sqlalchemy.",
