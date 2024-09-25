@@ -306,16 +306,26 @@ docker-compose up -d
 ### Migrations
 
 This application uses Alembic for migrations, you can create a new migration using the following command
-You should be in the root directory
+You should be in the root directory.
+Since there are 2 databases you will need to specify which one you want to operate on.
+When generating migrations you need to scope the migration to the correct database using the `-x` flag and the `db` variable as well as the --name.
 
 ```
-alembic revision --autogenerate -m "The name of my migration"
+alembic -x db=main --name main revision --autogenerate -m "The name of my migration"
+```
+
+```
+alembic -x db=timescale --name timescale revision --autogenerate -m "The name of my migration"
 ```
 
 To apply the migration to your database use the following command
 
 ```
-alembic upgrade head
+alembic -x db=main --name main upgrade head
+```
+
+```
+alembic -x db=timescale --name timescale upgrade head
 ```
 
 # Telemetry and Logs
