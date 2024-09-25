@@ -26,9 +26,7 @@ async def test_get_schedule_on_stop_for_day_should_call_repository():
     await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
 
     # Assert
-    schedule_repository.get_static_schedules.assert_called_once_with(
-        stop_id=stop_id, day=day
-    )
+    schedule_repository.get_static_schedules.assert_called_once_with(stop_id=stop_id, day=day)
 
 
 @pytest.mark.asyncio
@@ -50,9 +48,7 @@ async def test_get_schedule_on_stop_for_day_should_have_equal_static_schedules()
     result = await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
 
     # Assert
-    schedule_repository.get_static_schedules.assert_called_once_with(
-        stop_id=stop_id, day=day
-    )
+    schedule_repository.get_static_schedules.assert_called_once_with(stop_id=stop_id, day=day)
     assert len(result) == len(mock_schedule_data)
 
 
