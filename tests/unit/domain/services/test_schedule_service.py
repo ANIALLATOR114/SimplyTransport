@@ -26,7 +26,9 @@ async def test_get_schedule_on_stop_for_day_should_call_repository():
     await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
 
     # Assert
-    schedule_repository.get_schedule_on_stop_for_day.assert_called_once_with(stop_id=stop_id, day=day)
+    schedule_repository.get_static_schedules.assert_called_once_with(
+        stop_id=stop_id, day=day
+    )
 
 
 @pytest.mark.asyncio
@@ -34,7 +36,7 @@ async def test_get_schedule_on_stop_for_day_should_have_equal_static_schedules()
     # Arrange
     mock_schedule_data = [AsyncMock(), AsyncMock()]
     schedule_repository = AsyncMock()
-    schedule_repository.get_schedule_on_stop_for_day.return_value = mock_schedule_data
+    schedule_repository.get_static_schedules.return_value = mock_schedule_data
     calendar_date_repository = AsyncMock()
     schedule_service = ScheduleService(
         schedule_repository=schedule_repository,
@@ -48,7 +50,9 @@ async def test_get_schedule_on_stop_for_day_should_have_equal_static_schedules()
     result = await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
 
     # Assert
-    schedule_repository.get_schedule_on_stop_for_day.assert_called_once_with(stop_id=stop_id, day=day)
+    schedule_repository.get_static_schedules.assert_called_once_with(
+        stop_id=stop_id, day=day
+    )
     assert len(result) == len(mock_schedule_data)
 
 
@@ -73,7 +77,7 @@ async def test_get_schedule_on_stop_for_day_between_times_should_call_repository
     )
 
     # Assert
-    schedule_repository.get_schedule_on_stop_for_day_between_times.assert_called_once_with(
+    schedule_repository.get_static_schedules.assert_called_once_with(
         stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
     )
 
@@ -83,7 +87,7 @@ async def test_get_schedule_on_stop_for_day_between_times_should_have_equal_stat
     # Arrange
     mock_schedule_data = [AsyncMock(), AsyncMock()]
     schedule_repository = AsyncMock()
-    schedule_repository.get_schedule_on_stop_for_day_between_times.return_value = mock_schedule_data
+    schedule_repository.get_static_schedules.return_value = mock_schedule_data
     calendar_date_repository = AsyncMock()
     schedule_service = ScheduleService(
         schedule_repository=schedule_repository,
@@ -101,7 +105,7 @@ async def test_get_schedule_on_stop_for_day_between_times_should_have_equal_stat
     )
 
     # Assert
-    schedule_repository.get_schedule_on_stop_for_day_between_times.assert_called_once_with(
+    schedule_repository.get_static_schedules.assert_called_once_with(
         stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
     )
     assert len(result) == len(mock_schedule_data)
