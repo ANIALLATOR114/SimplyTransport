@@ -94,26 +94,22 @@ class RealTimeService:
         sorted_schedules = sorted(realtime_schedules, key=custom_sort_key)
 
         return sorted_schedules
-    
+
     def filter_to_only_due_schedules(
         self, realtime_schedules: list[RealTimeScheduleModel]
     ) -> list[RealTimeScheduleModel]:
         """Filters the realtime schedules to only those that are due"""
 
-        due_schedules = [
-            schedule
-            for schedule in realtime_schedules
-            if schedule.is_due
-        ]
+        due_schedules = [schedule for schedule in realtime_schedules if schedule.is_due]
         return due_schedules
-    
+
     def filter_to_only_schedules_with_updates(
         self, realtime_schedules: list[RealTimeScheduleModel]
     ) -> list[RealTimeScheduleModel]:
         """Filters the realtime schedules to only those that have realtime updates"""
 
         realtime_schedules = [
-            schedule 
+            schedule
             for schedule in realtime_schedules
             if schedule.rt_stop_time is not None and schedule.rt_trip is not None
         ]

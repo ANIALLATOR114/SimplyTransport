@@ -634,9 +634,5 @@ class CLIPlugin(CLIPluginProtocol):
                 "Delays recorded for every active schedule",
                 attributes,
             )
-            logger.info(
-                f"Finished recording delays in {round(finish-start, 2)} second(s)"
-            )
-            console.print(
-                f"\n[blue]Finished recording delays in {round(finish-start, 2)} second(s)"
-            )
+            logger.info(f"Finished recording delays in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished recording delays in {round(finish-start, 2)} second(s)")

@@ -62,10 +62,12 @@ class StopFeaturesImporter:
                     select(StopModel.id).filter(StopModel.dataset == self.dataset).distinct()
                 )
                 existing_stops = set(result_stops.scalars())
-                
+
                 # Create dictionaries for faster lookup
                 rtpi_dict = {rtpi["properties"]["AtcoCode"]: rtpi for rtpi in self.rtpis["features"]}
-                shelter_dict = {shelter["properties"]["AtcoCode"]: shelter for shelter in self.shelters["features"]}
+                shelter_dict = {
+                    shelter["properties"]["AtcoCode"]: shelter for shelter in self.shelters["features"]
+                }
                 pole_dict = {pole["properties"]["AtcoCode"]: pole for pole in self.poles["features"]}
 
                 for stop in self.stops["features"]:
@@ -85,15 +87,17 @@ class StopFeaturesImporter:
                         stop_type=stop["properties"]["StopType"],
                         bearing=stop["properties"]["Bearing"],
                         nptg_locality_ref=stop["properties"]["NptgLocalityRef"],
-                        bays=int(stop["properties"]["PtBayCount"]) if stop["properties"]["PtBayCount"] else None,
+                        bays=(
+                            int(stop["properties"]["PtBayCount"])
+                            if stop["properties"]["PtBayCount"]
+                            else None
+                        ),
                         standing_area=stop["properties"]["StandingArea"],
                         bike_stand=stop["properties"]["BikeStand"],
                         bench=stop["properties"]["Bench"],
                         bin=stop["properties"]["Bin"],
                         stop_accessability=stop["properties"]["StopAccessibility"],
-                        wheelchair_accessability=stop["properties"][
-                            "WheelchairAccessibility"
-                        ],
+                        wheelchair_accessability=stop["properties"]["WheelchairAccessibility"],
                         castle_kerbing=stop["properties"]["CastleKerbing"],
                         footpath_to_stop=stop["properties"]["FootpathToStop"],
                         step_at_stop=stop["properties"]["StepAtStop"],
@@ -121,7 +125,11 @@ class StopFeaturesImporter:
                     if shelter:
                         stop_feature.shelter_active = True
                         stop_feature.shelter_description = shelter["properties"]["Description"]
-                        stop_feature.shelter_type = int(shelter["properties"]["ShelterTypeId"]) if shelter["properties"]["ShelterTypeId"] else None
+                        stop_feature.shelter_type = (
+                            int(shelter["properties"]["ShelterTypeId"])
+                            if shelter["properties"]["ShelterTypeId"]
+                            else None
+                        )
                         stop_feature.power = shelter["properties"]["Power"]
                         stop_feature.light = shelter["properties"]["Light"]
                         stop_feature.last_updated_shelter = datetime.strptime(

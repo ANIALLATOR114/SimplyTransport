@@ -261,7 +261,7 @@ class RealTimeVehiclesImporter:
                 objects_to_commit = []
                 # Foreign key exceptions
                 result_trips = await session.execute(
-                select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
+                    select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
                 )
                 trips_in_db = set(result_trips.scalars())
 

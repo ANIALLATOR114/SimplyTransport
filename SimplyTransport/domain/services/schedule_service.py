@@ -19,9 +19,7 @@ class ScheduleService:
 
     async def get_schedule_on_stop_for_day(self, stop_id: str, day: DayOfWeek) -> list[StaticScheduleModel]:
         """Returns a list of schedules for the given stop and day"""
-        schedules_from_db = await self.schedule_repository.get_static_schedules(
-            stop_id=stop_id, day=day
-        )
+        schedules_from_db = await self.schedule_repository.get_static_schedules(stop_id=stop_id, day=day)
         static_schedules = [
             StaticScheduleModel(
                 stop_time=schedule.stop_time,
@@ -34,15 +32,13 @@ class ScheduleService:
         ]
 
         return static_schedules
-    
+
     async def get_all_schedule_for_day_between_times(
         self, day: DayOfWeek, start_time: time, end_time: time
     ) -> list[StaticScheduleModel]:
         """Returns all schedules that are currently active"""
-        schedules_from_db = (
-            await self.schedule_repository.get_static_schedules(
-                day=day, start_time=start_time, end_time=end_time
-            )
+        schedules_from_db = await self.schedule_repository.get_static_schedules(
+            day=day, start_time=start_time, end_time=end_time
         )
         static_schedules = [
             StaticScheduleModel(

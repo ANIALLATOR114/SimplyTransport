@@ -107,7 +107,7 @@ async def test_database_connections():
 
 async def provide_timescale_db_session() -> AsyncGenerator[AsyncSession, None]:
     """This provides the Timescale database session."""
-    
+
     session = AsyncSession(async_timescale_engine)
     try:
         async with session.begin():

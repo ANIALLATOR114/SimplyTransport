@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = provide_logger(__name__)
 
+
 class DelaysService:
     def __init__(
         self,
@@ -23,7 +24,6 @@ class DelaysService:
         self.schedule_service = schedule_service
         self.realtime_service = realtime_service
 
-    
     async def record_all_delays(self) -> int:
         """
         Records all delays for the current day within a specific time range.
@@ -41,17 +41,19 @@ class DelaysService:
         schedules = await self.schedule_service.get_all_schedule_for_day_between_times(
             day=current_day, start_time=start_time.time(), end_time=end_time.time()
         )
-        
+
         schedules = await self.schedule_service.remove_exceptions_and_inactive_calendars(schedules)
         schedules = await self.schedule_service.add_in_added_exceptions(schedules)  # TODO
 
         realtime_schedules: list[RealTimeScheduleModel] = []
         for schedule_batch in chunk_list(schedules, 200):
-            batch_realtime_schedules = await self.realtime_service.get_realtime_schedules_for_static_schedules(schedule_batch)
+            batch_realtime_schedules = (
+                await self.realtime_service.get_realtime_schedules_for_static_schedules(schedule_batch)
+            )
             realtime_schedules.extend(batch_realtime_schedules)
 
         realtime_schedules = self.realtime_service.filter_to_only_due_schedules(realtime_schedules)
-        realtime_schedules = (self.realtime_service.filter_to_only_schedules_with_updates(realtime_schedules))
+        realtime_schedules = self.realtime_service.filter_to_only_schedules_with_updates(realtime_schedules)
 
         objects_to_commit = []
         for schedule in realtime_schedules:
@@ -69,8 +71,9 @@ class DelaysService:
         return len(realtime_schedules)
 
 
-
-async def provide_delays_service(timescale_db_session: AsyncSession, db_session: AsyncSession) -> DelaysService:
+async def provide_delays_service(
+    timescale_db_session: AsyncSession, db_session: AsyncSession
+) -> DelaysService:
     """
     Provides a delays service instance.
 

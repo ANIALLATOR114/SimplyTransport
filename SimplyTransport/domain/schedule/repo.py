@@ -20,7 +20,13 @@ class ScheduleRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_static_schedules(self, day: DayOfWeek, stop_id: str | None = None, start_time: time | None = None, end_time: time | None = None) -> list[ScheduleTuple]:
+    async def get_static_schedules(
+        self,
+        day: DayOfWeek,
+        stop_id: str | None = None,
+        start_time: time | None = None,
+        end_time: time | None = None,
+    ) -> list[ScheduleTuple]:
         """
         Retrieve static schedules based on the given parameters.
         Parameters:
@@ -33,7 +39,7 @@ class ScheduleRepository:
         Raises:
         - ValueError: If an invalid day of the week is provided.
         """
-        
+
         conditions = []
         if day == DayOfWeek.MONDAY:
             conditions.append(CalendarModel.monday == 1)
@@ -54,7 +60,7 @@ class ScheduleRepository:
 
         if stop_id:
             conditions.append(StopModel.id == stop_id)
-        
+
         if start_time and end_time:
             if start_time > end_time:
                 conditions.append(
