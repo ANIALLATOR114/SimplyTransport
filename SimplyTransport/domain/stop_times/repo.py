@@ -4,7 +4,7 @@ from .model import StopTimeModel
 
 
 class StopTimeRepository(SQLAlchemyAsyncRepository[StopTimeModel]):
-    """Stop repository."""
+    """StopTime repository."""
 
     model_type = StopTimeModel
 
