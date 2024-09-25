@@ -70,9 +70,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Running sql scripts
+      - name: Running sql scripts MAIN
         run: |
-          for file in sql_scripts/*.sql; do
+          for file in sql_scripts/main/*.sql; do
             if ! psql -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }} -d postgres -a -f "$file"; then
                 echo "Failed to run $file"
                 exit 1

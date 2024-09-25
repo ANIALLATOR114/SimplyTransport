@@ -76,7 +76,6 @@ class RealtimeController(Controller):
                 "routes": routes,
                 "day_string": DayOfWeek(current_time.weekday()).name.capitalize(),
                 "day_int": current_time.weekday(),
-                "schedules": schedules,
                 "realtime_schedules": realtime_schedules,
                 "start_time_difference": start_time_difference,
                 "end_time_difference": end_time_difference,

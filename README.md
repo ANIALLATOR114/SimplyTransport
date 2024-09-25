@@ -217,6 +217,7 @@ litestar importrealtime
 litestar importstopfeatures
 litestar generatemaps
 litestar generatestatistics
+litestar recorddelays
 ```
 
 ## Running in Production

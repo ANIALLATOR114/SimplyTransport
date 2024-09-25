@@ -95,6 +95,26 @@ class RealTimeService:
 
         return sorted_schedules
 
+    def filter_to_only_due_schedules(
+        self, realtime_schedules: list[RealTimeScheduleModel]
+    ) -> list[RealTimeScheduleModel]:
+        """Filters the realtime schedules to only those that are due"""
+
+        due_schedules = [schedule for schedule in realtime_schedules if schedule.is_due]
+        return due_schedules
+
+    def filter_to_only_schedules_with_updates(
+        self, realtime_schedules: list[RealTimeScheduleModel]
+    ) -> list[RealTimeScheduleModel]:
+        """Filters the realtime schedules to only those that have realtime updates"""
+
+        realtime_schedules = [
+            schedule
+            for schedule in realtime_schedules
+            if schedule.rt_stop_time is not None and schedule.rt_trip is not None
+        ]
+        return realtime_schedules
+
 
 async def provide_realtime_service(db_session: AsyncSession) -> RealTimeService:
     """Constructs repository and service objects for the realtime service."""

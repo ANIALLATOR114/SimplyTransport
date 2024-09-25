@@ -30,6 +30,7 @@ class RealTimeScheduleModel:
         self.delay_in_seconds = None
         self.real_arrival_time = None
         self.real_eta_text = None
+        self.is_due = False
         self.on_time_status = None
 
         if rt_stop_time is None and rt_trip is None:
@@ -37,12 +38,12 @@ class RealTimeScheduleModel:
             self.delay = "-"
             self.delay_in_seconds = 0
             self.real_arrival_time = static_schedule.stop_time.arrival_time
-            self.set_real_eta_text()
+            self.set_real_eta_text_and_due()
             self.on_time_status = OnTimeStatus.UNKNOWN
         else:
             self.set_delay()
             self.set_real_arrival_time()
-            self.set_real_eta_text()
+            self.set_real_eta_text_and_due()
             self.set_on_time_status()
 
     def set_delay(self):
@@ -58,7 +59,7 @@ class RealTimeScheduleModel:
 
         self.real_arrival_time = combined_time.time()
 
-    def set_real_eta_text(self):
+    def set_real_eta_text_and_due(self):
         now = datetime.now()
         arrival_time = self.real_arrival_time
         dt_arrival_time = datetime.combine(datetime.now().date(), arrival_time)
@@ -78,6 +79,9 @@ class RealTimeScheduleModel:
             self.real_eta_text = "<1 min"
         else:
             self.real_eta_text = f"{int(time_difference)} min"
+
+        if self.real_eta_text == "Due":
+            self.is_due = True
 
     def set_on_time_status(self):
         dt_arrival_time = datetime.combine(datetime.now().date(), self.real_arrival_time)

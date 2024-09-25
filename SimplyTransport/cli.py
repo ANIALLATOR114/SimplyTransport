@@ -12,7 +12,8 @@ from litestar.plugins import CLIPluginProtocol
 from rich.console import Console
 from rich.table import Table
 
-from SimplyTransport.domain.services.statistics_service import provide_statistics_service
+from .domain.services.statistics_service import provide_statistics_service
+from .timescale.services.delays_service import provide_delays_service
 
 from .domain.maps.enums import StaticStopMapTypes
 
@@ -29,6 +30,7 @@ from .lib.stop_features_importer import StopFeaturesImporter
 from .domain.events.repo import create_event_with_session, provide_event_repo
 from .domain.events.event_types import EventType
 from .lib.db.database import async_session_factory
+from .lib.db.timescale_database import async_timescale_session_factory
 
 
 DEFAULT_GTFS_DIRECTORY = "./gtfs_data/TFI/"
@@ -261,7 +263,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             console.print(f"\nImporting using dataset: {realtime_dataset} from {realtime_url}")
 
-            data = importer.get_data()
+            data = await importer.get_data()
 
             if data is None:
                 console.print(
@@ -333,7 +335,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             console.print(f"\nImporting using dataset: {realtime_dataset} from {realtime_url}")
 
-            data = importer.get_data()
+            data = await importer.get_data()
 
             if data is None:
                 console.print(
@@ -343,9 +345,9 @@ class CLIPlugin(CLIPluginProtocol):
 
             console.print(f"\n{len(data['entity'])} entities returned from API")
 
-            importer.clear_table_vehicles()
+            await importer.clear_table_vehicles()
             console.print("\nImporting Vehicles")
-            total_vehicles = importer.import_vehicles(data)
+            total_vehicles = await importer.import_vehicles(data)
 
             finish: float = time.perf_counter()
             attributes = {
@@ -428,9 +430,9 @@ class CLIPlugin(CLIPluginProtocol):
                 dataset=dataset, stops=stops, poles=poles, shelters=shelters, rtpis=rtpis
             )
 
-            importer.clear_database()
+            await importer.clear_database()
 
-            stop_feature_attributes = importer.import_stop_features()
+            stop_feature_attributes = await importer.import_stop_features()
 
             finish: float = time.perf_counter()
 
@@ -603,3 +605,34 @@ class CLIPlugin(CLIPluginProtocol):
             )
             logger.info(f"Finished generating statistics in {round(finish-start, 2)} second(s)")
             console.print(f"\n[blue]Finished generating statistics in {round(finish-start, 2)} second(s)")
+
+        @cli.command(
+            name="recorddelays", help="Records the stop time delays for every schedule in the database"
+        )
+        @make_sync
+        async def recorddelays():
+            console = Console()
+            console.print("Recording delays...")
+            start = time.perf_counter()
+
+            async with async_timescale_session_factory() as timescale_session:
+                async with async_session_factory() as session:
+                    delays_service = await provide_delays_service(
+                        timescale_db_session=timescale_session,
+                        db_session=session,
+                    )
+                    delays_recorded = await delays_service.record_all_delays()
+
+            finish = time.perf_counter()
+
+            attributes = {
+                "total_delays": delays_recorded,
+                "time_taken(s)": round(finish - start, 2),
+            }
+            await create_event_with_session(
+                EventType.RECORD_TS_STOP_TIMES,
+                "Delays recorded for every active schedule",
+                attributes,
+            )
+            logger.info(f"Finished recording delays in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished recording delays in {round(finish-start, 2)} second(s)")

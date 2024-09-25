@@ -1,9 +1,10 @@
+from json import JSONDecodeError
+import httpx
 from datetime import datetime, timedelta, timezone
-import requests
 from sqlalchemy import delete, select
 
 from .logging.logging import provide_logger
-from .db.database import session, async_session_factory
+from .db.database import async_session_factory
 from . import time_date_conversions as tdc
 
 from ..domain.realtime.stop_time.model import RTStopTimeModel
@@ -36,26 +37,27 @@ class RealTimeImporter:
         self.api_key = api_key
         self.dataset = dataset
 
-    def get_data(self) -> dict | None:
+    async def get_data(self) -> dict | None:
         # import json
         # with open("./tests/gtfs_test_data/TFI/realtime_sample_response.json") as f:
         #     return json.loads(f.read())
 
-        header = {
+        headers = {
             "Cache-Control": "no-cache",
             "x-api-key": self.api_key,
         }
 
-        response = requests.get(self.url, headers=header)
-        if response.status_code != 200:
-            logger.warning(f"RealTime: {self.url} returned {response.status_code}")
-            return None
+        async with httpx.AsyncClient() as client:
+            response = await client.get(self.url, headers=headers)
+            if response.status_code != 200:
+                logger.warning(f"RealTime: {self.url} returned {response.status_code}")
+                return None
 
-        try:
-            return response.json()
-        except requests.exceptions.JSONDecodeError as e:
-            logger.error(f"RealTime: {self.url} returned invalid JSON: {e}")
-            return None
+            try:
+                return response.json()
+            except JSONDecodeError as e:
+                logger.error(f"RealTime: {self.url} returned invalid JSON: {e}")
+                return None
 
     async def clear_table_stop_trip(self):
         """Clears the table in the database that corresponds to the dataset for rows older than 60 mins"""
@@ -211,38 +213,40 @@ class RealTimeVehiclesImporter:
         self.api_key = api_key
         self.dataset = dataset
 
-    def get_data(self) -> dict | None:
+    async def get_data(self) -> dict | None:
         # import json
         # with open("./tests/gtfs_test_data/TFI/realtime_vehicles_sample_response.json") as f:
         #     return json.loads(f.read())
 
-        header = {
+        headers = {
             "Cache-Control": "no-cache",
             "x-api-key": self.api_key,
         }
 
-        response = requests.get(self.url, headers=header)
-        if response.status_code != 200:
-            logger.warning(f"RealTime Vehicles: {self.url} returned {response.status_code}")
-            return None
+        async with httpx.AsyncClient() as client:
+            response = await client.get(self.url, headers=headers)
+            if response.status_code != 200:
+                logger.warning(f"RealTime Vehicles: {self.url} returned {response.status_code}")
+                return None
 
-        try:
-            return response.json()
-        except requests.exceptions.JSONDecodeError as e:
-            logger.error(f"RealTime Vehicles: {self.url} returned invalid JSON: {e}")
-            return None
+            try:
+                return response.json()
+            except JSONDecodeError as e:
+                logger.error(f"RealTime Vehicles: {self.url} returned invalid JSON: {e}")
+                return None
 
-    def clear_table_vehicles(self):
+    async def clear_table_vehicles(self):
         """Clears the table in the database that corresponds to the dataset for rows older than 60 mins"""
 
         sixty_mins_ago = datetime.now(timezone.utc) - timedelta(minutes=60)
-        with session:
-            session.query(RTVehicleModel).filter(
+        async with async_session_factory() as session:
+            delete_vehicles = delete(RTVehicleModel).where(
                 RTVehicleModel.created_at < sixty_mins_ago, RTVehicleModel.dataset == self.dataset
-            ).delete()
-            session.commit()
+            )
+            await session.execute(delete_vehicles)
+            await session.commit()
 
-    def import_vehicles(self, data: dict) -> int:
+    async def import_vehicles(self, data: dict) -> int:
         """Imports the vehicles from the dataset into the database"""
 
         vehicle_count = sum(
@@ -253,11 +257,13 @@ class RealTimeVehiclesImporter:
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing RT Vehicles...", total=vehicle_count)
 
-            with session:
+            async with async_session_factory() as session:
                 objects_to_commit = []
                 # Foreign key exceptions
-                trips_in_db = session.query(TripModel.id).filter(TripModel.dataset == self.dataset).all()
-                trips_in_db = {trip[0] for trip in trips_in_db}
+                result_trips = await session.execute(
+                    select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
+                )
+                trips_in_db = set(result_trips.scalars())
 
                 try:
                     for item in data.get("entity", []):
@@ -285,8 +291,8 @@ class RealTimeVehiclesImporter:
                         progress.update(task, advance=1)
 
                     try:
-                        session.bulk_save_objects(objects_to_commit)
-                        session.commit()
+                        session.add_all(objects_to_commit)
+                        await session.commit()
                     except Exception as e:
                         logger.error(f"RealTime: {self.url} failed to commit vehicles: {e}")
                 except Exception as e:

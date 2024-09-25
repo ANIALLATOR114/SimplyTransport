@@ -1,7 +1,8 @@
 import asyncio
+from typing import AsyncGenerator
 from litestar.contrib.sqlalchemy.base import UUIDBase
 from sqlalchemy import MetaData, text
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from .database import engine, session, async_engine
 from .timescale_database import async_timescale_engine
 
@@ -102,3 +103,14 @@ async def test_database_connections():
         await asyncio.gather(*tasks)
 
     await main()
+
+
+async def provide_timescale_db_session() -> AsyncGenerator[AsyncSession, None]:
+    """This provides the Timescale database session."""
+
+    session = AsyncSession(async_timescale_engine)
+    try:
+        async with session.begin():
+            yield session
+    finally:
+        await session.close()

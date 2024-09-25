@@ -35,6 +35,7 @@ def create_app() -> Litestar:
         middleware=[open_telemetry_config.middleware],
         dependencies={
             "limit_offset": Provide(provide_limit_offset_pagination),
+            "timescale_db_session": Provide(db_services.provide_timescale_db_session),
         },
         response_cache_config=redis_service_cache_config_factory(),
         exception_handlers={404: exception_handlers.handle_404, 500: exception_handlers.exception_handler},
