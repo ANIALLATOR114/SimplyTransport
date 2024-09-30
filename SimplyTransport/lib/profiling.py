@@ -23,6 +23,23 @@ def profile(func):
 
     return async_wrapper
 
+def profile_sync(func):
+    @wraps(func)
+    def sync_wrapper(*args, **kwargs):
+        pr = cProfile.Profile()
+        print("Profiling function:", func.__name__)
+        pr.enable()
+        result = func(*args, **kwargs)
+        pr.disable()
+        s = io.StringIO()
+        sortby = "cumulative"
+        ps = pstats.Stats(pr, stream=s).strip_dirs().sort_stats(sortby)
+        ps.print_stats(number_of_lines_to_print)
+        print(s.getvalue())
+        return result
+
+    return sync_wrapper
+
 
 class Profiler:
     def __init__(self):

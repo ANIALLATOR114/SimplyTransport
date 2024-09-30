@@ -303,7 +303,7 @@ class CLIPlugin(CLIPluginProtocol):
         @click.option("-dataset", help="Override the default dataset that the data will be saved against")
         @make_sync
         async def importrealtimevehicles(url: str, apikey: str, dataset: str):
-            """Imports GTFS realtime data into the database"""
+            """Imports GTFS realtime vehicle data into the database"""
 
             start: float = time.perf_counter()
             console = Console()
