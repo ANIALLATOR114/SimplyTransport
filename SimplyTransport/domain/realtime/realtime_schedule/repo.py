@@ -54,15 +54,9 @@ class RealtimeScheduleRepository:
         ).subquery()
 
         # Main query to filter only the top-ranked rows
-        stop_time_max_statement = (
-            select(ranked_stop_times)
-            .where(ranked_stop_times.c.rank == 1)
-        )
+        stop_time_max_statement = select(ranked_stop_times).where(ranked_stop_times.c.rank == 1)
 
-        trip_max_statement = (
-            select(ranked_trips)
-            .where(ranked_trips.c.rank == 1)
-        )
+        trip_max_statement = select(ranked_trips).where(ranked_trips.c.rank == 1)
 
         stops_and_trips_statement = (
             select(
@@ -79,7 +73,7 @@ class RealtimeScheduleRepository:
         result_max_stop_times, result_max_trips, stop_times_and_trips = await asyncio.gather(
             self.session.execute(stop_time_max_statement),
             self.session.execute(trip_max_statement),
-            self.session.execute(stops_and_trips_statement)
+            self.session.execute(stops_and_trips_statement),
         )
 
         max_stop_times = {stop_time[0]: stop_time[1] for stop_time in result_max_stop_times}
