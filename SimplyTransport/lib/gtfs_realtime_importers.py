@@ -38,6 +38,21 @@ class RealTimeImporter:
         self.api_key = api_key
         self.dataset = dataset
 
+    def bulk_upsert_stop_times_statement(self, objects_to_commit):
+        stmt = insert(RTStopTimeModel).values(objects_to_commit)
+        update_dict = {
+            "schedule_relationship": stmt.excluded.schedule_relationship,
+            "arrival_delay": stmt.excluded.arrival_delay,
+            "departure_delay": stmt.excluded.departure_delay,
+            "entity_id": stmt.excluded.entity_id,
+            "dataset": stmt.excluded.dataset,
+        }
+        stmt = stmt.on_conflict_do_update(
+            index_elements=["stop_id", "trip_id", "stop_sequence", "dataset"],
+            set_=update_dict,
+        )
+        return stmt
+
     async def get_data(self) -> dict | None:
         # import json
         # with open("./tests/gtfs_test_data/TFI/realtime_sample_response.json") as f:
@@ -138,19 +153,8 @@ class RealTimeImporter:
                         progress.update(task, advance=1)
 
                 if objects_to_commit:
-                    stmt = insert(RTStopTimeModel).values(objects_to_commit)
-                    update_dict = {
-                        "schedule_relationship": stmt.excluded.schedule_relationship,
-                        "arrival_delay": stmt.excluded.arrival_delay,
-                        "departure_delay": stmt.excluded.departure_delay,
-                        "entity_id": stmt.excluded.entity_id,
-                        "dataset": stmt.excluded.dataset,
-                    }
-                    stmt = stmt.on_conflict_do_update(
-                        index_elements=["stop_id", "trip_id", "stop_sequence", "dataset"], set_=update_dict
-                    )
-
                     try:
+                        stmt = self.bulk_upsert_stop_times_statement(objects_to_commit)
                         await session.execute(stmt)
                         await session.commit()
                     except Exception as e:
