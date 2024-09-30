@@ -2,6 +2,7 @@ from json import JSONDecodeError
 import httpx
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import delete, select
+from sqlalchemy.dialects.postgresql import insert
 
 from .logging.logging import provide_logger
 from .db.database import async_session_factory
@@ -36,6 +37,21 @@ class RealTimeImporter:
         self.url = url
         self.api_key = api_key
         self.dataset = dataset
+
+    def bulk_upsert_stop_times_statement(self, objects_to_commit):
+        stmt = insert(RTStopTimeModel).values(objects_to_commit)
+        update_dict = {
+            "schedule_relationship": stmt.excluded.schedule_relationship,
+            "arrival_delay": stmt.excluded.arrival_delay,
+            "departure_delay": stmt.excluded.departure_delay,
+            "entity_id": stmt.excluded.entity_id,
+            "dataset": stmt.excluded.dataset,
+        }
+        stmt = stmt.on_conflict_do_update(
+            index_elements=["stop_id", "trip_id", "stop_sequence", "dataset"],
+            set_=update_dict,
+        )
+        return stmt
 
     async def get_data(self) -> dict | None:
         # import json
@@ -122,25 +138,27 @@ class RealTimeImporter:
                         arrival = stop_time.get("arrival", {})
                         departure = stop_time.get("departure", {})
 
-                        new_rt_stop_time = RTStopTimeModel(
-                            stop_id=stop_time.get("stop_id"),
-                            trip_id=trip.get("trip_id"),
-                            stop_sequence=stop_time.get("stop_sequence"),
-                            schedule_relationship=stop_time.get("schedule_relationship"),
-                            arrival_delay=arrival.get("delay"),
-                            departure_delay=departure.get("delay"),
-                            entity_id=item.get("id"),
-                            dataset=self.dataset,
-                        )
+                        new_rt_stop_time = {
+                            "stop_id": stop_time.get("stop_id"),
+                            "trip_id": trip.get("trip_id"),
+                            "stop_sequence": stop_time.get("stop_sequence"),
+                            "schedule_relationship": stop_time.get("schedule_relationship"),
+                            "arrival_delay": arrival.get("delay"),
+                            "departure_delay": departure.get("delay"),
+                            "entity_id": item.get("id"),
+                            "dataset": self.dataset,
+                        }
 
                         objects_to_commit.append(new_rt_stop_time)
                         progress.update(task, advance=1)
 
-                try:
-                    session.add_all(objects_to_commit)
-                    await session.commit()
-                except Exception as e:
-                    logger.error(f"RealTime: {self.url} failed to commit stop times: {e}")
+                if objects_to_commit:
+                    try:
+                        stmt = self.bulk_upsert_stop_times_statement(objects_to_commit)
+                        await session.execute(stmt)
+                        await session.commit()
+                    except Exception as e:
+                        logger.error(f"RealTime: {self.url} failed to commit stop times: {e}")
             except Exception as e:
                 logger.warning(f"RealTime: {self.url} returned invalid JSON in entities: {e}")
                 return 0
