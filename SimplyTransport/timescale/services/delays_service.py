@@ -33,16 +33,20 @@ class DelaysService:
 
         def chunk_list(lst, chunk_size):
             for i in range(0, len(lst), chunk_size):
+                logger.info(f"Returning chunk number {i // chunk_size} out of {len(lst) // chunk_size}.")
                 yield lst[i : i + chunk_size]
 
         current_day = DayOfWeek(datetime.now().weekday())
         start_time = datetime.now() - timedelta(minutes=30)
         end_time = datetime.now() + timedelta(minutes=30)
+        logger.info(f"Fetching schedules for Day:{current_day} between {start_time} and {end_time}.")
         schedules = await self.schedule_service.get_all_schedule_for_day_between_times(
             day=current_day, start_time=start_time.time(), end_time=end_time.time()
         )
+        logger.info(f"Found {len(schedules)} schedules.")
 
         schedules = await self.schedule_service.remove_exceptions_and_inactive_calendars(schedules)
+        logger.info(f"Removed exceptions and inactive calendars. {len(schedules)} schedules remaining.")
         schedules = await self.schedule_service.add_in_added_exceptions(schedules)  # TODO
 
         realtime_schedules: list[RealTimeScheduleModel] = []
@@ -50,10 +54,13 @@ class DelaysService:
             batch_realtime_schedules = (
                 await self.realtime_service.get_realtime_schedules_for_static_schedules(schedule_batch)
             )
+            logger.info(f"Got {len(batch_realtime_schedules)} realtime schedules.")
             realtime_schedules.extend(batch_realtime_schedules)
 
+        logger.info(f"Got {len(realtime_schedules)} realtime schedules to be filtered.")
         realtime_schedules = self.realtime_service.filter_to_only_due_schedules(realtime_schedules)
         realtime_schedules = self.realtime_service.filter_to_only_schedules_with_updates(realtime_schedules)
+        logger.info(f"Filtered to finally {len(realtime_schedules)} realtime schedules.")
 
         objects_to_commit = []
         for schedule in realtime_schedules:
