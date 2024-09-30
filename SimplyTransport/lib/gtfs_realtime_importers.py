@@ -147,8 +147,7 @@ class RealTimeImporter:
                         "dataset": stmt.excluded.dataset,
                     }
                     stmt = stmt.on_conflict_do_update(
-                        index_elements=["stop_id", "trip_id", "stop_sequence", "dataset"],
-                        set_=update_dict
+                        index_elements=["stop_id", "trip_id", "stop_sequence", "dataset"], set_=update_dict
                     )
 
                     try:

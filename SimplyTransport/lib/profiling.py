@@ -23,6 +23,7 @@ def profile(func):
 
     return async_wrapper
 
+
 def profile_sync(func):
     @wraps(func)
     def sync_wrapper(*args, **kwargs):

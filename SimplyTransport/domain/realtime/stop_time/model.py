@@ -18,7 +18,9 @@ class RTStopTimeModel(BigIntAuditBase):
     __tablename__ = "rt_stop_time"
     __table_args__ = (
         Index("ix_rt_stop_time_created_at", "created_at"),
-        UniqueConstraint("stop_id", "trip_id", "stop_sequence", "dataset") # Only store the most recent update per stop_sequence for each trip
+        UniqueConstraint(
+            "stop_id", "trip_id", "stop_sequence", "dataset"
+        ),  # Only store the most recent update per stop_sequence for each trip
     )
 
     stop: Mapped["StopModel"] = relationship(back_populates="rt_stop_times")  # noqa: F821
