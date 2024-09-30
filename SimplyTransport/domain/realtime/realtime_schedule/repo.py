@@ -1,8 +1,8 @@
+import asyncio
 import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, desc
 from typing import List, Tuple
-from sqlalchemy import Result
 
 from ..stop_time.model import RTStopTimeModel
 from ..trip.model import RTTripModel
@@ -24,18 +24,40 @@ class RealtimeScheduleRepository:
         """
         twenty_mins_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=20)
 
-        stop_time_max_statement = (
-            select(RTStopTimeModel.trip_id, func.max(RTStopTimeModel.created_at))
+        # Subquery to rank rows by created_at within each trip_id
+        ranked_stop_times = (
+            select(
+                RTStopTimeModel.trip_id,
+                func.rank()
+                .over(
+                    partition_by=RTStopTimeModel.trip_id,
+                    order_by=desc(RTStopTimeModel.created_at),
+                )
+                .label("rank"),
+            )
             .where(RTStopTimeModel.trip_id.in_(trips))
             .where(RTStopTimeModel.created_at >= twenty_mins_ago)
-            .group_by(RTStopTimeModel.trip_id)
-        )
-        trip_max_statement = (
-            select(RTTripModel.trip_id, func.max(RTTripModel.created_at))
+        ).subquery()
+
+        ranked_trips = (
+            select(
+                RTTripModel.trip_id,
+                func.rank()
+                .over(
+                    partition_by=RTTripModel.trip_id,
+                    order_by=desc(RTTripModel.created_at),
+                )
+                .label("rank"),
+            )
             .where(RTTripModel.trip_id.in_(trips))
             .where(RTTripModel.created_at >= twenty_mins_ago)
-            .group_by(RTTripModel.trip_id)
-        )
+        ).subquery()
+
+        # Main query to filter only the top-ranked rows
+        stop_time_max_statement = select(ranked_stop_times).where(ranked_stop_times.c.rank == 1)
+
+        trip_max_statement = select(ranked_trips).where(ranked_trips.c.rank == 1)
+
         stops_and_trips_statement = (
             select(
                 RTStopTimeModel,
@@ -47,14 +69,11 @@ class RealtimeScheduleRepository:
             .where(RTStopTimeModel.created_at >= twenty_mins_ago)
         )
 
-        result_max_stop_times: Result[Tuple[str, datetime.datetime]] = await self.session.execute(
-            stop_time_max_statement
-        )
-        result_max_trips: Result[Tuple[str, datetime.datetime]] = await self.session.execute(
-            trip_max_statement
-        )
-        stop_times_and_trips: Result[Tuple[RTStopTimeModel, RTTripModel]] = await self.session.execute(
-            stops_and_trips_statement
+        # Execute the queries concurrently
+        result_max_stop_times, result_max_trips, stop_times_and_trips = await asyncio.gather(
+            self.session.execute(stop_time_max_statement),
+            self.session.execute(trip_max_statement),
+            self.session.execute(stops_and_trips_statement),
         )
 
         max_stop_times = {stop_time[0]: stop_time[1] for stop_time in result_max_stop_times}

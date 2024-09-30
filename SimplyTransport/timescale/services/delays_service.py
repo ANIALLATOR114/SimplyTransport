@@ -50,7 +50,7 @@ class DelaysService:
         schedules = await self.schedule_service.add_in_added_exceptions(schedules)  # TODO
 
         realtime_schedules: list[RealTimeScheduleModel] = []
-        for schedule_batch in chunk_list(schedules, 200):
+        for schedule_batch in chunk_list(schedules, 400):
             batch_realtime_schedules = (
                 await self.realtime_service.get_realtime_schedules_for_static_schedules(schedule_batch)
             )
