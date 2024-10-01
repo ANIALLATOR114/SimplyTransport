@@ -61,8 +61,14 @@
                 </tbody>
             </table>
             <div class="pagination-total" style="position: relative;">
-                <button class="pagination-button" onclick="copyTableToClipboard()">Copy Table</button>
+                <div class="pagination-pages">
+                    <button class="pagination-button" onclick="copyTableToClipboard(true)">Copy Table</button>
+                    <button class="pagination-button" onclick="copyTableToClipboard(false)">Copy Raw</button>
+                </div>
                 <span class="popuptext" id="copyPopup" onclick="hidePopup()">Table copied to clipboard ✅</span>
+                <div class="colors-legend dense-text">
+                    <span class="color-early">&nbsp;Early</span><span class="color-on-time">&nbsp;On Time</span><span class="color-late">&nbsp;Late</span><span class="color-unknown">&nbsp;Unknown</span>
+                </div>
             </div>
         </div>
         <div class="inner-container inner-container-expand">{% include "/maps/realtime/stop.html" %}</div>

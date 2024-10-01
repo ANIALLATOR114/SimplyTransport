@@ -23,11 +23,13 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap"
               rel="stylesheet">
-        <script src="https://unpkg.com/htmx.org@1.9.7"
+        <script defer
+                src="https://unpkg.com/htmx.org@1.9.7"
                 integrity="sha512-nMVjlN8C4mklXxqlpwXnalBjytjBxT2jj6yWl3aNEmT4hufNnr+dmVAN/bmdhbfjvxm0JzmMzsYDo7V34yRsIQ=="
                 crossorigin="anonymous"></script> <!-- HTMX must be init in the head -->
-        <script src="/static/4.1.7.lightweight-charts-standalone-production.js"></script>
-        <script src="/static/tablesort.js?{{ request.app.openapi_config.version }}"></script>
+        <script defer src="/static/4.1.7.lightweight-charts-standalone-production.js"></script>
+        <script defer
+                src="/static/tablesort.js?{{ request.app.openapi_config.version }}"></script>
     </head>
     <body>
         {% include "navbar.html" %}
