@@ -1,6 +1,6 @@
 from . import settings
 
-from litestar.contrib.opentelemetry import OpenTelemetryConfig
+from litestar.contrib.opentelemetry import OpenTelemetryConfig, OpenTelemetryPlugin
 
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource, SERVICE_VERSION, DEPLOYMENT_ENVIRONMENT
 
@@ -36,3 +36,4 @@ if settings.app.ENVIRONMENT in ["PROD"]:
     metrics.set_meter_provider(meterProvider)
 
 open_telemetry_config = OpenTelemetryConfig()
+open_telemetry_plugin = OpenTelemetryPlugin(config=open_telemetry_config)
