@@ -1,5 +1,13 @@
 from litestar.openapi import OpenAPIConfig
-from litestar.openapi.plugins import StoplightRenderPlugin, YamlRenderPlugin, JsonRenderPlugin, RapidocRenderPlugin, RedocRenderPlugin, ScalarRenderPlugin, SwaggerRenderPlugin
+from litestar.openapi.plugins import (
+    StoplightRenderPlugin,
+    YamlRenderPlugin,
+    JsonRenderPlugin,
+    RapidocRenderPlugin,
+    RedocRenderPlugin,
+    ScalarRenderPlugin,
+    SwaggerRenderPlugin,
+)
 from .. import settings
 from .tags import Tags
 
@@ -20,6 +28,7 @@ render_plugins = [
     ScalarRenderPlugin(favicon=favicon),
     SwaggerRenderPlugin(favicon=favicon),
 ]
+
 
 def custom_open_api_config() -> OpenAPIConfig:
     return OpenAPIConfig(
