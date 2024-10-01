@@ -147,7 +147,7 @@
                              width="100%"
                              height="100%">
                     </div>
-                    <div>{{ request.app.openapi_config.title }}</div>
+                    <span>{{ request.app.openapi_config.title }}</span>
                     <span class="version-tag">{{ request.app.openapi_config.version }}</span>
                 </div>
             </a>
@@ -172,29 +172,39 @@
                 </a>
             </div>
             <div class="navbar-item">
-                <div class="nav-link">
-                    <a class="nav-link-text" href="/maps">Maps</a>
-                </div>
+                <a href="/maps">
+                    <button class="nav-link">
+                        <span class="nav-link-text">Maps</span>
+                    </button>
+                </a>
             </div>
             <div class="navbar-item">
-                <div class="nav-link">
-                    <a class="nav-link-text" href="/stats">Stats</a>
-                </div>
+                <a href="/stats">
+                    <button class="nav-link">
+                        <span class="nav-link-text">Stats</span>
+                    </button>
+                </a>
             </div>
             <div class="navbar-item">
-                <div class="nav-link">
-                    <a class="nav-link-text" href="/apidocs">API Docs</a>
-                </div>
+                <a href="/apidocs">
+                    <button class="nav-link">
+                        <span class="nav-link-text">Api Docs</span>
+                    </button>
+                </a>
             </div>
             <div class="navbar-item">
-                <div class="nav-link">
-                    <a class="nav-link-text" href="/events">Events</a>
-                </div>
+                <a href="/events">
+                    <button class="nav-link">
+                        <span class="nav-link-text">Events</span>
+                    </button>
+                </a>
             </div>
             <div class="navbar-item">
-                <div class="nav-link">
-                    <a class="nav-link-text" href="/about">About</a>
-                </div>
+                <a href="/about">
+                    <button class="nav-link">
+                        <span class="nav-link-text">About</span>
+                    </button>
+                </a>
             </div>
         </div>
     </div>

@@ -291,6 +291,11 @@ h3 {
 	flex-wrap: wrap;
 }
 
+.colors-legend {
+	display: flex;
+	gap: 0.9rem;
+}
+
 .flex-start {
 	justify-content: flex-start;
 }

@@ -37,6 +37,7 @@ class RTStopTimeModel(BigIntAuditBase):
     departure_delay: Mapped[Optional[int]] = mapped_column(Integer)
     entity_id: Mapped[str] = mapped_column(String(length=1000), index=True)
     dataset: Mapped[str] = mapped_column(String(length=80))
+    # If you add a new field, remember to update the batch insert query in the realtime importer
 
 
 class RTStopTime(BaseModel):

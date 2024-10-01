@@ -3,6 +3,7 @@ import httpx
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .logging.logging import provide_logger
 from .db.database import async_session_factory
@@ -52,6 +53,17 @@ class RealTimeImporter:
             set_=update_dict,
         )
         return stmt
+
+    async def bulk_upsert_stop_times(self, objects_to_commit, session: AsyncSession):
+        # Postgres max params is 32767
+        # Each entity has 10 fields so 32767 / 10 = 3276
+        batch_size = 3200
+
+        for i in range(0, len(objects_to_commit), batch_size):
+            batch = objects_to_commit[i : i + batch_size]
+            stmt = self.bulk_upsert_stop_times_statement(batch)
+            await session.execute(stmt)
+        await session.commit()
 
     async def get_data(self) -> dict | None:
         # import json
@@ -154,9 +166,7 @@ class RealTimeImporter:
 
                 if objects_to_commit:
                     try:
-                        stmt = self.bulk_upsert_stop_times_statement(objects_to_commit)
-                        await session.execute(stmt)
-                        await session.commit()
+                        await self.bulk_upsert_stop_times(objects_to_commit, session)
                     except Exception as e:
                         logger.error(f"RealTime: {self.url} failed to commit stop times: {e}")
             except Exception as e:
