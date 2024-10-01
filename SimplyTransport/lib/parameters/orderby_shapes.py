@@ -1,12 +1,14 @@
 from litestar.params import Parameter
 from litestar.repository.filters import OrderBy
 
+from . import examples
 
 async def provide_order_by_shapes(
+    
     field_name: str = Parameter(
-        query="orderBy", default="sequence", required=False, examples=["sequence", "distance"]
+        query="orderBy", default="sequence", required=False, examples=[examples.e_sequence, examples.e_distance]
     ),
-    sort_order: str = Parameter(query="sortOrder", default="asc", required=False, examples=["asc", "desc"]),
+    sort_order: str = Parameter(query="sortOrder", default="asc", required=False, examples=[examples.e_asc, examples.e_desc]),
 ) -> OrderBy:
     """Add order by for shapes.
 

@@ -1,4 +1,5 @@
-from litestar.openapi import OpenAPIConfig, OpenAPIController
+from litestar.openapi import OpenAPIConfig
+from litestar.openapi.plugins import StoplightRenderPlugin, YamlRenderPlugin, JsonRenderPlugin, RapidocRenderPlugin, RedocRenderPlugin, ScalarRenderPlugin, SwaggerRenderPlugin
 from .. import settings
 from .tags import Tags
 
@@ -9,17 +10,24 @@ This API provides access to transport data for agencies, routes, stops, trips, s
 These endpoints are extensions of the GTFS standard with some additional endpoints for additional features such as maps and statistics.
 """
 
-
-class MyOpenAPIController(OpenAPIController):
-    path = "/docs"
-
+favicon = "<link rel='icon' type='image/png' href='/favicon.ico'>"
+render_plugins = [
+    StoplightRenderPlugin(favicon=favicon),
+    YamlRenderPlugin(favicon=favicon),
+    JsonRenderPlugin(favicon=favicon),
+    RapidocRenderPlugin(favicon=favicon),
+    RedocRenderPlugin(favicon=favicon),
+    ScalarRenderPlugin(favicon=favicon),
+    SwaggerRenderPlugin(favicon=favicon),
+]
 
 def custom_open_api_config() -> OpenAPIConfig:
     return OpenAPIConfig(
         title=settings.app.NAME,
         version=settings.app.VERSION,
-        openapi_controller=MyOpenAPIController,
-        create_examples=True,
+        path="/docs",
+        render_plugins=render_plugins,
+        create_examples=False,
         description=DESCRIPTION,
         tags=Tags().list_all_tags(),
     )
