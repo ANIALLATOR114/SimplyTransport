@@ -53,14 +53,14 @@ class RealTimeImporter:
             set_=update_dict,
         )
         return stmt
-    
+
     async def bulk_upsert_stop_times(self, objects_to_commit, session: AsyncSession):
         # Postgres max params is 32767
         # Each entity has 10 fields so 32767 / 10 = 3276
         batch_size = 3200
 
         for i in range(0, len(objects_to_commit), batch_size):
-            batch = objects_to_commit[i:i + batch_size]
+            batch = objects_to_commit[i : i + batch_size]
             stmt = self.bulk_upsert_stop_times_statement(batch)
             await session.execute(stmt)
         await session.commit()
