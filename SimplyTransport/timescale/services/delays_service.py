@@ -64,16 +64,20 @@ class DelaysService:
         logger.info(f"Removed exceptions and inactive calendars. {len(schedules)} schedules remaining.")
         schedules = await self.schedule_service.add_in_added_exceptions(schedules)  # TODO
 
-        async def gather_realtime_schedules(schedules: list[StaticScheduleModel]) -> list[RealTimeScheduleModel]:
+        async def gather_realtime_schedules(
+            schedules: list[StaticScheduleModel],
+        ) -> list[RealTimeScheduleModel]:
             semaphore = asyncio.Semaphore(4)
-            
+
             async def limited_task(task):
                 async with semaphore:
                     result = await task
                     return result
 
             tasks = [
-                limited_task(self.realtime_service.get_realtime_schedules_for_static_schedules(schedule_batch))
+                limited_task(
+                    self.realtime_service.get_realtime_schedules_for_static_schedules(schedule_batch)
+                )
                 for schedule_batch in chunk_list(schedules, 2000)
             ]
 
@@ -86,7 +90,7 @@ class DelaysService:
                     result = await task
                     results.extend(result)
                     progress.update(progress_task, advance=len(result))
-            
+
             return results
 
         realtime_schedules = await gather_realtime_schedules(schedules)
