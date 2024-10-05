@@ -19,9 +19,8 @@ class RealtimeScheduleRepository:
         """
         Returns all realtime schedules for the given trips.
         """
-        sixty_mins_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=60)
+        thirty_mins_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=30)
 
-        # Main query to filter only the top-ranked rows
         stops_and_trips_statement = (
             select(
                 RTStopTimeModel,
@@ -29,8 +28,8 @@ class RealtimeScheduleRepository:
             )
             .join(RTTripModel, RTTripModel.trip_id == RTStopTimeModel.trip_id)
             .where(RTTripModel.trip_id.in_(trips))
-            .where(RTTripModel.created_at >= sixty_mins_ago)
-            .where(RTStopTimeModel.created_at >= sixty_mins_ago)
+            .where(RTTripModel.created_at >= thirty_mins_ago)
+            .where(RTStopTimeModel.created_at >= thirty_mins_ago)
         )
 
         result = await self.session.execute(stops_and_trips_statement)
