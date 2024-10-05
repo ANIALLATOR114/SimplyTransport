@@ -1,6 +1,9 @@
+import asyncio
 from datetime import datetime, timedelta
+import rich.progress as rp
 
 from SimplyTransport.domain.realtime.realtime_schedule.model import RealTimeScheduleModel
+from SimplyTransport.domain.schedule.model import StaticScheduleModel
 from SimplyTransport.domain.services.realtime_service import RealTimeService, provide_realtime_service
 from SimplyTransport.lib.logging.logging import provide_logger
 from SimplyTransport.timescale.ts_stop_times.model import TS_StopTimeModel
@@ -11,6 +14,18 @@ from ...domain.enums import DayOfWeek
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = provide_logger(__name__)
+
+progress_columns = (
+    rp.SpinnerColumn(finished_text="✅"),
+    "[progress.description]{task.description}",
+    rp.BarColumn(),
+    rp.MofNCompleteColumn(),
+    rp.TaskProgressColumn(),
+    "|| Taken:",
+    rp.TimeElapsedColumn(),
+    "|| Left:",
+    rp.TimeRemainingColumn(),
+)
 
 
 class DelaysService:
@@ -33,13 +48,13 @@ class DelaysService:
 
         def chunk_list(lst, chunk_size):
             for i in range(0, len(lst), chunk_size):
-                logger.info(f"Returning chunk number {i // chunk_size} out of {len(lst) // chunk_size}.")
                 yield lst[i : i + chunk_size]
 
         current_day = DayOfWeek(datetime.now().weekday())
-        start_time = datetime.now() - timedelta(minutes=30)
-        end_time = datetime.now() + timedelta(minutes=30)
-        logger.info(f"Fetching schedules for Day:{current_day} between {start_time} and {end_time}.")
+        start_time = datetime.now() - timedelta(minutes=20)
+        end_time = datetime.now() + timedelta(minutes=20)
+        logger.info(f"Fetching schedules for {current_day} between {start_time} and {end_time}.")
+
         schedules = await self.schedule_service.get_all_schedule_for_day_between_times(
             day=current_day, start_time=start_time.time(), end_time=end_time.time()
         )
@@ -49,18 +64,35 @@ class DelaysService:
         logger.info(f"Removed exceptions and inactive calendars. {len(schedules)} schedules remaining.")
         schedules = await self.schedule_service.add_in_added_exceptions(schedules)  # TODO
 
-        realtime_schedules: list[RealTimeScheduleModel] = []
-        for schedule_batch in chunk_list(schedules, 400):
-            batch_realtime_schedules = (
-                await self.realtime_service.get_realtime_schedules_for_static_schedules(schedule_batch)
-            )
-            logger.info(f"Got {len(batch_realtime_schedules)} realtime schedules.")
-            realtime_schedules.extend(batch_realtime_schedules)
+        async def gather_realtime_schedules(schedules: list[StaticScheduleModel]) -> list[RealTimeScheduleModel]:
+            semaphore = asyncio.Semaphore(4)
+            
+            async def limited_task(task):
+                async with semaphore:
+                    result = await task
+                    return result
 
-        logger.info(f"Got {len(realtime_schedules)} realtime schedules to be filtered.")
+            tasks = [
+                limited_task(self.realtime_service.get_realtime_schedules_for_static_schedules(schedule_batch))
+                for schedule_batch in chunk_list(schedules, 2000)
+            ]
+
+            with rp.Progress(*progress_columns) as progress:
+                progress_task = progress.add_task(
+                    "[green]Populating realtime schedules...", total=len(schedules)
+                )
+                results: list[RealTimeScheduleModel] = []
+                for task in asyncio.as_completed(tasks):
+                    result = await task
+                    results.extend(result)
+                    progress.update(progress_task, advance=len(result))
+            
+            return results
+
+        realtime_schedules = await gather_realtime_schedules(schedules)
+
         realtime_schedules = self.realtime_service.filter_to_only_due_schedules(realtime_schedules)
         realtime_schedules = self.realtime_service.filter_to_only_schedules_with_updates(realtime_schedules)
-        logger.info(f"Filtered to finally {len(realtime_schedules)} realtime schedules.")
 
         objects_to_commit = []
         for schedule in realtime_schedules:
