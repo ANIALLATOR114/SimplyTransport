@@ -1,4 +1,5 @@
 from json import JSONDecodeError
+from typing import List
 import httpx
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import delete, select
@@ -40,55 +41,19 @@ class RealTimeImporter:
         self.api_key = api_key
         self.dataset = dataset
 
-    def bulk_upsert_stop_times_statement(self, objects_to_commit):
-        stmt = insert(RTStopTimeModel).values(objects_to_commit)
-        update_dict = {
-            "schedule_relationship": stmt.excluded.schedule_relationship,
-            "arrival_delay": stmt.excluded.arrival_delay,
-            "departure_delay": stmt.excluded.departure_delay,
-            "entity_id": stmt.excluded.entity_id,
-            "dataset": stmt.excluded.dataset,
-        }
+    def bulk_upsert_statement(self, model, objects_to_commit, index_elements: List[str], update_dict: dict):
+        stmt = insert(model).values(objects_to_commit)
         stmt = stmt.on_conflict_do_update(
-            index_elements=["stop_id", "trip_id", "stop_sequence", "dataset"],
-            set_=update_dict,
-        )
-        return stmt
-    
-    def bulk_upsert_trips_statement(self, objects_to_commit):
-        stmt = insert(RTTripModel).values(objects_to_commit)
-        update_dict = {
-            "start_time": stmt.excluded.start_time,
-            "start_date": stmt.excluded.start_date,
-            "schedule_relationship": stmt.excluded.schedule_relationship,
-            "entity_id": stmt.excluded.entity_id,
-            "dataset": stmt.excluded.dataset
-        }
-        stmt = stmt.on_conflict_do_update(
-            index_elements=["trip_id", "route_id", "dataset"],
-            set_=update_dict,
+            index_elements=index_elements,
+            set_={key: getattr(stmt.excluded, key) for key in update_dict},
         )
         return stmt
 
-    async def bulk_upsert_stop_times(self, objects_to_commit, session: AsyncSession):
-        # Postgres max params is 32767
-        # Each entity has 10 fields so 32767 / 10 = 3276
-        batch_size = 3200
-
+    async def bulk_upsert(self, model, objects_to_commit, index_elements: List[str], update_dict: dict, session: AsyncSession):
+        batch_size = 3000
         for i in range(0, len(objects_to_commit), batch_size):
             batch = objects_to_commit[i : i + batch_size]
-            stmt = self.bulk_upsert_stop_times_statement(batch)
-            await session.execute(stmt)
-        await session.commit()
-
-    async def bulk_upsert_trips(self, objects_to_commit, session: AsyncSession):
-        # Postgres max params is 32767
-        # Each entity has 10 fields so 32767 / 10 = 3276
-        batch_size = 3200
-
-        for i in range(0, len(objects_to_commit), batch_size):
-            batch = objects_to_commit[i : i + batch_size]
-            stmt = self.bulk_upsert_trips_statement(batch)
+            stmt = self.bulk_upsert_statement(model, batch, index_elements, update_dict)
             await session.execute(stmt)
         await session.commit()
 
@@ -194,7 +159,18 @@ class RealTimeImporter:
 
                 if objects_to_commit:
                     try:
-                        await self.bulk_upsert_stop_times(objects_to_commit, session)
+                        await self.bulk_upsert(
+                            RTStopTimeModel,
+                            objects_to_commit,
+                            ["stop_id", "trip_id", "stop_sequence", "dataset"],
+                            {
+                                "arrival_delay": "arrival_delay",
+                                "departure_delay": "departure_delay",
+                                "entity_id": "entity_id",
+                                "dataset": "dataset",
+                            },
+                            session,
+                        )
                     except Exception as e:
                         logger.error(f"RealTime: {self.url} failed to commit stop times: {e}")
             except Exception as e:
@@ -256,7 +232,19 @@ class RealTimeImporter:
 
             if objects_to_commit:
                 try:
-                    await self.bulk_upsert_trips(objects_to_commit, session)
+                    await self.bulk_upsert(
+                        RTTripModel,
+                        objects_to_commit,
+                        ["trip_id", "route_id", "dataset"],
+                        {
+                            "start_time": "start_time",
+                            "start_date": "start_date",
+                            "schedule_relationship": "schedule_relationship",
+                            "entity_id": "entity_id",
+                            "dataset": "dataset",
+                        },
+                        session,
+                    )
                 except Exception as e:
                     logger.error(f"RealTime: {self.url} failed to commit trips: {e}")
 
