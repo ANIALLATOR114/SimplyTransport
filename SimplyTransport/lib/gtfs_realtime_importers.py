@@ -34,6 +34,7 @@ progress_columns = (
 
 RETENTION_PERIOD = datetime.now(timezone.utc) - timedelta(minutes=30)
 
+
 class RealTimeImporter:
     def __init__(self, url: str, api_key: str, dataset: str) -> None:
         self.url = url
@@ -54,7 +55,7 @@ class RealTimeImporter:
             set_=update_dict,
         )
         return stmt
-    
+
     def bulk_upsert_trips_statement(self, objects_to_commit):
         stmt = insert(RTTripModel).values(objects_to_commit)
         update_dict = {
@@ -62,7 +63,7 @@ class RealTimeImporter:
             "start_date": stmt.excluded.start_date,
             "schedule_relationship": stmt.excluded.schedule_relationship,
             "entity_id": stmt.excluded.entity_id,
-            "dataset": stmt.excluded.dataset
+            "dataset": stmt.excluded.dataset,
         }
         stmt = stmt.on_conflict_do_update(
             index_elements=["trip_id", "route_id", "dataset"],
