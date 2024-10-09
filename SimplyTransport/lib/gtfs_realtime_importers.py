@@ -35,6 +35,7 @@ progress_columns = (
 
 RETENTION_PERIOD = datetime.now(timezone.utc) - timedelta(minutes=30)
 
+
 class RealTimeImporter:
     def __init__(self, url: str, api_key: str, dataset: str) -> None:
         self.url = url
