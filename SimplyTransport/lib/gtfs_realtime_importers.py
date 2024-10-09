@@ -50,7 +50,9 @@ class RealTimeImporter:
         )
         return stmt
 
-    async def bulk_upsert(self, model, objects_to_commit, index_elements: List[str], update_dict: dict, session: AsyncSession):
+    async def bulk_upsert(
+        self, model, objects_to_commit, index_elements: List[str], update_dict: dict, session: AsyncSession
+    ):
         batch_size = 3000
         for i in range(0, len(objects_to_commit), batch_size):
             batch = objects_to_commit[i : i + batch_size]
