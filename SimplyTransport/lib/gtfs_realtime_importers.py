@@ -1,4 +1,5 @@
 from json import JSONDecodeError
+from typing import List
 import httpx
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import delete, select
@@ -32,6 +33,8 @@ progress_columns = (
     rp.TimeRemainingColumn(),
 )
 
+RETENTION_PERIOD = datetime.now(timezone.utc) - timedelta(minutes=30)
+
 
 class RealTimeImporter:
     def __init__(self, url: str, api_key: str, dataset: str) -> None:
@@ -39,29 +42,21 @@ class RealTimeImporter:
         self.api_key = api_key
         self.dataset = dataset
 
-    def bulk_upsert_stop_times_statement(self, objects_to_commit):
-        stmt = insert(RTStopTimeModel).values(objects_to_commit)
-        update_dict = {
-            "schedule_relationship": stmt.excluded.schedule_relationship,
-            "arrival_delay": stmt.excluded.arrival_delay,
-            "departure_delay": stmt.excluded.departure_delay,
-            "entity_id": stmt.excluded.entity_id,
-            "dataset": stmt.excluded.dataset,
-        }
+    def bulk_upsert_statement(self, model, objects_to_commit, index_elements: List[str], update_dict: dict):
+        stmt = insert(model).values(objects_to_commit)
         stmt = stmt.on_conflict_do_update(
-            index_elements=["stop_id", "trip_id", "stop_sequence", "dataset"],
-            set_=update_dict,
+            index_elements=index_elements,
+            set_={key: getattr(stmt.excluded, key) for key in update_dict},
         )
         return stmt
 
-    async def bulk_upsert_stop_times(self, objects_to_commit, session: AsyncSession):
-        # Postgres max params is 32767
-        # Each entity has 10 fields so 32767 / 10 = 3276
-        batch_size = 3200
-
+    async def bulk_upsert(
+        self, model, objects_to_commit, index_elements: List[str], update_dict: dict, session: AsyncSession
+    ):
+        batch_size = 3000
         for i in range(0, len(objects_to_commit), batch_size):
             batch = objects_to_commit[i : i + batch_size]
-            stmt = self.bulk_upsert_stop_times_statement(batch)
+            stmt = self.bulk_upsert_statement(model, batch, index_elements, update_dict)
             await session.execute(stmt)
         await session.commit()
 
@@ -90,15 +85,16 @@ class RealTimeImporter:
     async def clear_table_stop_trip(self):
         """Clears the table in the database that corresponds to the dataset for rows older than 60 mins"""
 
-        sixty_mins_ago = datetime.now(timezone.utc) - timedelta(minutes=60)
         async with async_session_factory() as session:
             delete_stoptime = delete(RTStopTimeModel).where(
-                RTStopTimeModel.created_at < sixty_mins_ago, RTStopTimeModel.dataset == self.dataset
+                RTStopTimeModel.created_at < RETENTION_PERIOD,
+                RTStopTimeModel.dataset == self.dataset,
             )
             await session.execute(delete_stoptime)
 
             delete_trip = delete(RTTripModel).where(
-                RTTripModel.created_at < sixty_mins_ago, RTTripModel.dataset == self.dataset
+                RTTripModel.created_at < RETENTION_PERIOD,
+                RTTripModel.dataset == self.dataset,
             )
             await session.execute(delete_trip)
 
@@ -166,7 +162,18 @@ class RealTimeImporter:
 
                 if objects_to_commit:
                     try:
-                        await self.bulk_upsert_stop_times(objects_to_commit, session)
+                        await self.bulk_upsert(
+                            RTStopTimeModel,
+                            objects_to_commit,
+                            ["stop_id", "trip_id", "stop_sequence", "dataset"],
+                            {
+                                "arrival_delay": "arrival_delay",
+                                "departure_delay": "departure_delay",
+                                "entity_id": "entity_id",
+                                "dataset": "dataset",
+                            },
+                            session,
+                        )
                     except Exception as e:
                         logger.error(f"RealTime: {self.url} failed to commit stop times: {e}")
             except Exception as e:
@@ -212,25 +219,37 @@ class RealTimeImporter:
                 if trip.get("trip_id") not in trips_in_db:
                     continue
 
-                new_rt_trip = RTTripModel(
-                    trip_id=trip.get("trip_id"),
-                    route_id=trip.get("route_id"),
-                    start_time=tdc.convert_29_hours_to_24_hours(trip.get("start_time")),
-                    start_date=tdc.convert_joined_date_to_date(trip.get("start_date")),
-                    schedule_relationship=schedule_relationship,
-                    direction=trip.get("direction_id"),
-                    entity_id=item.get("id"),
-                    dataset=self.dataset,
-                )
+                new_rt_trip = {
+                    "trip_id": trip.get("trip_id"),
+                    "route_id": trip.get("route_id"),
+                    "start_time": tdc.convert_29_hours_to_24_hours(trip.get("start_time")),
+                    "start_date": tdc.convert_joined_date_to_date(trip.get("start_date")),
+                    "schedule_relationship": schedule_relationship,
+                    "direction": trip.get("direction_id"),
+                    "entity_id": item.get("id"),
+                    "dataset": self.dataset,
+                }
 
                 objects_to_commit.append(new_rt_trip)
                 progress.update(task, advance=1)
 
-            try:
-                session.add_all(objects_to_commit)
-                await session.commit()
-            except Exception as e:
-                logger.error(f"RealTime: {self.url} failed to commit trips: {e}")
+            if objects_to_commit:
+                try:
+                    await self.bulk_upsert(
+                        RTTripModel,
+                        objects_to_commit,
+                        ["trip_id", "route_id", "dataset"],
+                        {
+                            "start_time": "start_time",
+                            "start_date": "start_date",
+                            "schedule_relationship": "schedule_relationship",
+                            "entity_id": "entity_id",
+                            "dataset": "dataset",
+                        },
+                        session,
+                    )
+                except Exception as e:
+                    logger.error(f"RealTime: {self.url} failed to commit trips: {e}")
 
         return trip_update_count
 
@@ -266,10 +285,10 @@ class RealTimeVehiclesImporter:
     async def clear_table_vehicles(self):
         """Clears the table in the database that corresponds to the dataset for rows older than 60 mins"""
 
-        sixty_mins_ago = datetime.now(timezone.utc) - timedelta(minutes=60)
         async with async_session_factory() as session:
             delete_vehicles = delete(RTVehicleModel).where(
-                RTVehicleModel.created_at < sixty_mins_ago, RTVehicleModel.dataset == self.dataset
+                RTVehicleModel.created_at < RETENTION_PERIOD,
+                RTVehicleModel.dataset == self.dataset,
             )
             await session.execute(delete_vehicles)
             await session.commit()
