@@ -115,6 +115,11 @@ class RealTimeService:
             if schedule.rt_stop_time is not None and schedule.rt_trip is not None
         ]
         return realtime_schedules
+    
+    async def get_distinct_realtime_trips(self) -> List[str]:
+        """Returns all distinct trips."""
+        
+        return await self.realtime_schedule_repository.get_distinct_realtime_trips()
 
 
 async def provide_realtime_service(db_session: AsyncSession) -> RealTimeService:

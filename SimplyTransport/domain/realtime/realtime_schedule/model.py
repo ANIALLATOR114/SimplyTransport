@@ -19,16 +19,16 @@ class RealTimeScheduleModel:
     def __init__(
         self,
         static_schedule: StaticScheduleModel,
-        rt_stop_time: RTStopTimeModel = None,
-        rt_trip: RTTripModel = None,
+        rt_stop_time: RTStopTimeModel | None = None,
+        rt_trip: RTTripModel | None = None,
     ):
         self.static_schedule = static_schedule
         self.rt_stop_time = rt_stop_time
         self.rt_trip = rt_trip
 
         self.delay = None
-        self.delay_in_seconds = None
-        self.real_arrival_time = None
+        self.delay_in_seconds = 0
+        self.real_arrival_time = time()
         self.real_eta_text = None
         self.is_due = False
         self.on_time_status = None
@@ -47,7 +47,7 @@ class RealTimeScheduleModel:
             self.set_on_time_status()
 
     def set_delay(self):
-        delay = max(self.rt_stop_time.arrival_delay or 0, self.rt_stop_time.departure_delay or 0)
+        delay = max(self.rt_stop_time.arrival_delay or 0, self.rt_stop_time.departure_delay or 0) # type: ignore
         self.delay_in_seconds = delay
         self.delay = f"{delay // 60} min"
 
@@ -61,8 +61,9 @@ class RealTimeScheduleModel:
 
     def set_real_eta_text_and_due(self):
         now = datetime.now()
-        arrival_time = self.real_arrival_time
-        dt_arrival_time = datetime.combine(datetime.now().date(), arrival_time)
+        dt_arrival_time = datetime.combine(
+            datetime.now().date(), self.real_arrival_time
+        )
 
         if dt_arrival_time.hour == 23 and now.hour == 0:
             time_difference = (dt_arrival_time - now).total_seconds() / 60 - 1440

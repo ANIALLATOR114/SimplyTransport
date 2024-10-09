@@ -34,11 +34,11 @@ class ScheduleService:
         return static_schedules
 
     async def get_all_schedule_for_day_between_times(
-        self, day: DayOfWeek, start_time: time, end_time: time
+        self, day: DayOfWeek, start_time: time, end_time: time, trips: list[str]
     ) -> list[StaticScheduleModel]:
         """Returns all schedules that are currently active"""
         schedules_from_db = await self.schedule_repository.get_static_schedules(
-            day=day, start_time=start_time, end_time=end_time
+            day=day, start_time=start_time, end_time=end_time, trips=trips
         )
         static_schedules = [
             StaticScheduleModel(
