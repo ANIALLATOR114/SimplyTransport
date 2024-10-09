@@ -37,7 +37,7 @@ class RealtimeScheduleRepository:
 
         most_recent_updates = [(stop_time, trip) for stop_time, trip in stop_times_and_trips]
         return most_recent_updates
-    
+
     async def get_distinct_realtime_trips(self) -> List[str]:
         """
         Returns all distinct trips.
