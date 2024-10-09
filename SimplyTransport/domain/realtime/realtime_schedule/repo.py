@@ -38,6 +38,14 @@ class RealtimeScheduleRepository:
         most_recent_updates = [(stop_time, trip) for stop_time, trip in stop_times_and_trips]
         return most_recent_updates
 
+    async def get_distinct_realtime_trips(self) -> List[str]:
+        """
+        Returns all distinct trips.
+        """
+        trips_statement = select(RTTripModel.trip_id).distinct()
+        result = await self.session.execute(trips_statement)
+        return [trip[0] for trip in result]
+
 
 async def provide_schedule_update_repo(db_session: AsyncSession) -> RealtimeScheduleRepository:
     """This provides the RealtimeSchedule repository."""

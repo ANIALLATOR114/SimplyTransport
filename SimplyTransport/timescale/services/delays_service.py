@@ -53,10 +53,13 @@ class DelaysService:
         current_day = DayOfWeek(datetime.now().weekday())
         start_time = datetime.now() - timedelta(minutes=20)
         end_time = datetime.now() + timedelta(minutes=20)
-        logger.info(f"Fetching schedules for {current_day} between {start_time} and {end_time}.")
+        realtime_trip_ids = await self.realtime_service.get_distinct_realtime_trips()
+        logger.info(
+            f"Fetching schedules for {current_day} between {start_time} and {end_time} using {len(realtime_trip_ids)} trips."
+        )
 
         schedules = await self.schedule_service.get_all_schedule_for_day_between_times(
-            day=current_day, start_time=start_time.time(), end_time=end_time.time()
+            day=current_day, start_time=start_time.time(), end_time=end_time.time(), trips=realtime_trip_ids
         )
         logger.info(f"Found {len(schedules)} schedules.")
 

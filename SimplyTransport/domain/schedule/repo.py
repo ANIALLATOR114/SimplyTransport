@@ -26,6 +26,7 @@ class ScheduleRepository:
         stop_id: str | None = None,
         start_time: time | None = None,
         end_time: time | None = None,
+        trips: list[str] | None = None,
     ) -> list[ScheduleTuple]:
         """
         Retrieve static schedules based on the given parameters.
@@ -60,6 +61,9 @@ class ScheduleRepository:
 
         if stop_id:
             conditions.append(StopModel.id == stop_id)
+
+        if trips:
+            conditions.append(TripModel.id.in_(trips))
 
         if start_time and end_time:
             if start_time > end_time:

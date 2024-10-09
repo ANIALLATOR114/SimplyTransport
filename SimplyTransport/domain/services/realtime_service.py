@@ -116,6 +116,11 @@ class RealTimeService:
         ]
         return realtime_schedules
 
+    async def get_distinct_realtime_trips(self) -> List[str]:
+        """Returns all distinct trips."""
+
+        return await self.realtime_schedule_repository.get_distinct_realtime_trips()
+
 
 async def provide_realtime_service(db_session: AsyncSession) -> RealTimeService:
     """Constructs repository and service objects for the realtime service."""
