@@ -30,3 +30,14 @@ class TS_StopTime(BaseModel):
     route_code: str
     scheduled_time: time
     delay_in_seconds: int
+
+
+class TS_StopTimeDelay(BaseModel):
+    avg: int
+    max: int
+    min: int
+    standard_deviation : float
+    median: int
+    p75: int
+    p90: int
+    samples: int

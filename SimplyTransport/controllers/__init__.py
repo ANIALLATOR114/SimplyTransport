@@ -15,6 +15,7 @@ from .api import (
     map,
     statistics,
     events as eventsAPI,
+    delays,
 )
 from ..lib.openapi.tags import Tags
 
@@ -128,6 +129,12 @@ def create_api_router() -> Router:
         route_handlers=[eventsAPI.EventsController],
     )
 
+    delays_route_handler = Router(
+        path="/delays",
+        tags=[tags.DELAYS.name],
+        route_handlers=[delays.DelaysController],
+    )
+
     return Router(
         path="/api/v1",
         route_handlers=[
@@ -144,5 +151,6 @@ def create_api_router() -> Router:
             maps_route_handler,
             statistics_route_handler,
             events_route_handler,
+            delays_route_handler,
         ],
     )
