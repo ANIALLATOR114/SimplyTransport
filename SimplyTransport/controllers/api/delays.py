@@ -36,10 +36,8 @@ class DelaysController(Controller):
         try:
             scheduled_time_parsed = time.fromisoformat(scheduled_time)
         except ValueError:
-            raise ValidationException(
-                detail="Invalid scheduled time format. Use HH:MM:SS"
-            )
-        
+            raise ValidationException(detail="Invalid scheduled time format. Use HH:MM:SS")
+
         result = await repo.get_delay_on_stop_on_route_on_time(route_code, stop_id, scheduled_time_parsed)
 
         if not result:
