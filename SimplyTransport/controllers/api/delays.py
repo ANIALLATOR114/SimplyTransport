@@ -33,10 +33,10 @@ class DelaysController(Controller):
         repo: TSStopTimeRepository,
         scheduled_time: str = Parameter(required=True, description="Format: HH:MM:SS"),
     ) -> TS_StopTimeDelay:
-        
+
         scheduled_time_parsed = time.fromisoformat(scheduled_time)
         result = await repo.get_delay_on_stop_on_route_on_time(route_code, stop_id, scheduled_time_parsed)
-        
+
         if not result:
             raise NotFoundException(detail=f"Delays not found for {stop_id}, {route_code}, {scheduled_time}")
         return result

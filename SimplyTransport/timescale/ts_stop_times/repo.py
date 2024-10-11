@@ -8,7 +8,9 @@ from .model import TS_StopTimeDelay, TS_StopTimeModel
 class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
     """TSStopTime repository."""
 
-    async def get_delay_on_stop_on_route_on_time(self, route_code:str, stop_id: str, scheduled_time: time) -> TS_StopTimeDelay | None:
+    async def get_delay_on_stop_on_route_on_time(
+        self, route_code: str, stop_id: str, scheduled_time: time
+    ) -> TS_StopTimeDelay | None:
         """
         Retrieves delay statistics for a specific stop on a specific route at a given scheduled time.
         Args:
@@ -20,7 +22,8 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
                                       otherwise None.
         """
 
-        statement = text("""
+        statement = text(
+            """
         SELECT 
             AVG(delay_in_seconds) as avg_delay,
             MAX(delay_in_seconds) as max_delay,
@@ -34,7 +37,8 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         WHERE route_code = :route_code
           AND stop_id = :stop_id
           AND scheduled_time = :scheduled_time;
-        """)
+        """
+        )
 
         params = {
             "route_code": route_code,
@@ -50,15 +54,13 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
                 avg=int(row.avg_delay),
                 max=int(row.max_delay),
                 min=int(row.min_delay),
-                standard_deviation=round(float(row.stddev_delay),2)
-                if row.stddev_delay is not None
-                else 0.0,
+                standard_deviation=round(float(row.stddev_delay), 2) if row.stddev_delay is not None else 0.0,
                 median=int(row.median_delay),
                 p75=int(row.p75_delay),
                 p90=int(row.p90_delay),
                 samples=row.samples,
             )
-        
+
         return None
 
     model_type = TS_StopTimeModel

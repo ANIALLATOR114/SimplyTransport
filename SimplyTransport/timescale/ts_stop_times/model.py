@@ -36,7 +36,7 @@ class TS_StopTimeDelay(BaseModel):
     avg: int
     max: int
     min: int
-    standard_deviation : float
+    standard_deviation: float
     median: int
     p75: int
     p90: int
