@@ -1,9 +1,11 @@
 import pytest
 from datetime import time, datetime
+from litestar.exceptions import ValidationException
 from SimplyTransport.lib.time_date_conversions import (
     convert_joined_date_to_date,
     return_time_difference,
     convert_29_hours_to_24_hours,
+    validate_time_range,
 )
 
 
@@ -58,3 +60,32 @@ def test_convert_joined_date_to_date(date_str, expected_date):
 )
 def test_convert_29_hours_to_24_hours(time_29, expected_time):
     assert convert_29_hours_to_24_hours(time_29) == expected_time
+
+
+@pytest.mark.parametrize(
+    "start_time, end_time",
+    [
+        (datetime(2023, 10, 10, 10, 0, 0), datetime(2023, 10, 10, 12, 0, 0)),
+        (datetime(2023, 10, 10, 10, 0, 0), datetime(2023, 10, 10, 10, 0, 0)),
+        (None, datetime(2023, 10, 10, 10, 0, 0)),
+        (datetime(2023, 10, 10, 10, 0, 0), None),
+        (None, None),
+    ],
+)
+def test_validate_time_range_no_exception(start_time, end_time):
+    try:
+        validate_time_range(start_time, end_time)
+    except ValidationException:
+        pytest.fail("validate_time_range raised ValidationException unexpectedly!")
+
+
+@pytest.mark.parametrize(
+    "start_time, end_time",
+    [
+        (datetime(2023, 10, 10, 12, 0, 0), datetime(2023, 10, 10, 10, 0, 0)),
+        (datetime(2023, 10, 10, 10, 0, 1), datetime(2023, 10, 10, 10, 0, 0)),
+    ],
+)
+def test_validate_time_range_exception(start_time, end_time):
+    with pytest.raises(ValidationException):
+        validate_time_range(start_time, end_time)
