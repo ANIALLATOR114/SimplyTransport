@@ -30,9 +30,32 @@ class CacheKeys(Enum):
     STATIC_MAP_STOP_DELETE_KEY_TEMPLATE = "*static_map:stop:{map_type}"
 
     # Delays
-    DELAYS_SPECIFIC_KEY_TEMPLATE = "delays_specific:{stop_id}:{route_code}:{scheduled_time}"
+    DELAYS_AGGREGATED_SPECIFIC_KEY_TEMPLATE = (
+        "delays_aggregated_specific:{stop_id}:{route_code}:{scheduled_time}"
+    )
+    DELAYS_AGGREGATED_SPECIFIC_DELETE_ALL_KEY_TEMPLATE = "*delays_aggregated_specific:*"
+    DELAYS_AGGREGATED_SPECIFIC_DELETE_KEY_TEMPLATE = (
+        "*delays_aggregated_specific:{stop_id}:{route_code}:*"
+    )
+    DELAYS_SPECIFIC_KEY_TEMPLATE = (
+        "delays_specific:{stop_id}:{route_code}:{scheduled_time}"
+    )
     DELAYS_SPECIFIC_DELETE_ALL_KEY_TEMPLATE = "*delays_specific:*"
-    DELAYS_SPECIFIC_DELETE_KEY_TEMPLATE = "*delays_specific:{stop_id}:{route_code}:*"
+    DELAYS_SPECIFIC_DELETE_KEY_TEMPLATE = (
+        "*delays_specific:{stop_id}:{route_code}:*"
+    )
+    DELAYS_SPECIFIC_SLIM_KEY_TEMPLATE = (
+        "delays_specific_slim:{stop_id}:{route_code}:{scheduled_time}"
+    )
+    DELAYS_SPECIFIC_SLIM_DELETE_ALL_KEY_TEMPLATE = "*delays_specific_slim:*"
+    DELAYS_SPECIFIC_SLIM_DELETE_KEY_TEMPLATE = (
+        "*delays_specific_slim:{stop_id}:{route_code}:*"
+    )
+    DELAYS_AGGREGATED_ROUTE_KEY_TEMPLATE = "delays_aggregated_route:{route_code}"
+    DELAYS_AGGREGATED_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*delays_aggregated_route:*"
+    DELAYS_AGGREGATED_ROUTE_DELETE_KEY_TEMPLATE = (
+        "*delays_aggregated_route:{route_code}"
+    )
 
 
 def key_builder_from_path(template: CacheKeys, *args):
