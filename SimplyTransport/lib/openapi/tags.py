@@ -54,6 +54,10 @@ class Tags:
         name="Events",
         description="Events are records of tthings that have happened in the system",
     )
+    DELAYS = Tag(
+        name="Delays",
+        description="Delays are records of when a vehicle is late or early",
+    )
 
     @classmethod
     def list_all_tags(cls) -> list[Tag]:
