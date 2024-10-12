@@ -4,6 +4,7 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException, ValidationException
 from litestar.params import Parameter
 
+from ...lib.time_date_conversions import validate_time_range
 from ...timescale.ts_stop_times.model import TS_StopTime, TS_StopTimeDelayAggregated, TS_StopTimeForGraph
 from ...timescale.ts_stop_times.repo import provide_ts_stop_time_repo, TSStopTimeRepository, MAXIMUM_TIMESTAMP
 from ...lib.cache_keys import CacheKeys, key_builder_from_path
@@ -42,11 +43,7 @@ class DelaysController(Controller):
         ),
     ) -> TS_StopTimeDelayAggregated:
 
-        if start_time and end_time and start_time > end_time:
-            raise ValidationException(
-                detail=f"Start time cannot be greater than end time {start_time} > {end_time}"
-            )
-
+        validate_time_range(start_time, end_time)
         result = await repo.get_aggregated_delay_on_stop_on_route_on_time(
             route_code, stop_id, scheduled_time, start_time, end_time
         )
@@ -122,11 +119,8 @@ class DelaysController(Controller):
             description="Use data up to this time. Format: 2023-10-13T21:34:23Z",
         ),
     ) -> list[TS_StopTimeForGraph]:
-        if start_time and end_time and start_time > end_time:
-            raise ValidationException(
-                detail=f"Start time cannot be greater than end time {start_time} > {end_time}"
-            )
-
+        
+        validate_time_range(start_time, end_time)
         result = await repo.get_truncated_delay_on_stop_on_route_on_time(
             route_code, stop_id, scheduled_time, start_time, end_time
         )
@@ -157,11 +151,8 @@ class DelaysController(Controller):
             description="Use data up to this time. Format: 2023-10-13T21:34:23Z",
         ),
     ) -> TS_StopTimeDelayAggregated:
-        if start_time and end_time and start_time > end_time:
-            raise ValidationException(
-                detail=f"Start time cannot be greater than end time {start_time} > {end_time}"
-            )
-
+        
+        validate_time_range(start_time, end_time)
         result = await repo.get_aggregated_delay_on_stop_on_route_on_time(
             route_code, start_time=start_time, end_time=end_time
         )
