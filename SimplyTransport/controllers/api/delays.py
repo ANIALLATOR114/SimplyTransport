@@ -119,7 +119,7 @@ class DelaysController(Controller):
             description="Use data up to this time. Format: 2023-10-13T21:34:23Z",
         ),
     ) -> list[TS_StopTimeForGraph]:
-        
+
         validate_time_range(start_time, end_time)
         result = await repo.get_truncated_delay_on_stop_on_route_on_time(
             route_code, stop_id, scheduled_time, start_time, end_time
@@ -151,7 +151,7 @@ class DelaysController(Controller):
             description="Use data up to this time. Format: 2023-10-13T21:34:23Z",
         ),
     ) -> TS_StopTimeDelayAggregated:
-        
+
         validate_time_range(start_time, end_time)
         result = await repo.get_aggregated_delay_on_stop_on_route_on_time(
             route_code, start_time=start_time, end_time=end_time

@@ -2,6 +2,7 @@ from datetime import datetime, time, date
 import json
 from litestar.exceptions import ValidationException
 
+
 def convert_29_hours_to_24_hours(time_str: str) -> time:
     """
     Converts a time string in 29-hour format to 24-hour format.
@@ -11,7 +12,7 @@ def convert_29_hours_to_24_hours(time_str: str) -> time:
     Returns:
         time: A time object representing the converted time in 24-hour format.
     """
-    
+
     hours, minutes, seconds = map(int, time_str.split(":"))
     return time((hours - 24) if hours > 23 else hours, minutes, seconds)
 
