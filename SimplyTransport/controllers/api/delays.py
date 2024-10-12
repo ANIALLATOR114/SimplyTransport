@@ -43,14 +43,17 @@ class DelaysController(Controller):
     ) -> TS_StopTimeDelayAggregated:
 
         if start_time and end_time and start_time > end_time:
-            raise ValidationException(detail=f"Start time cannot be greater than end time {start_time} > {end_time}")
+            raise ValidationException(
+                detail=f"Start time cannot be greater than end time {start_time} > {end_time}"
+            )
 
-        result = await repo.get_aggregated_delay_on_stop_on_route_on_time(route_code, stop_id, scheduled_time, start_time, end_time)
+        result = await repo.get_aggregated_delay_on_stop_on_route_on_time(
+            route_code, stop_id, scheduled_time, start_time, end_time
+        )
 
         if not result:
             raise NotFoundException(detail=f"Delays not found for {stop_id}, {route_code}, {scheduled_time}")
         return result
-    
 
     @get(
         "/{stop_id:str}/{route_code:str}/{scheduled_time:str}",
@@ -88,9 +91,9 @@ class DelaysController(Controller):
         result = await repo.get_delay_on_stop_on_route_on_time(
             route_code, stop_id, scheduled_time, start_time, end_time
         )
-        
+
         return [TS_StopTime.model_validate(obj) for obj in result]
-    
+
     @get(
         "/{stop_id:str}/{route_code:str}/{scheduled_time:str}/truncated",
         cache=600,
@@ -129,7 +132,6 @@ class DelaysController(Controller):
         )
 
         return [TS_StopTimeForGraph.model_validate(obj) for obj in result]
-    
 
     @get(
         "/{route_code:str}/aggregated",
@@ -165,7 +167,5 @@ class DelaysController(Controller):
         )
 
         if not result:
-            raise NotFoundException(
-                detail=f"Delays not found for {route_code}"
-            )
+            raise NotFoundException(detail=f"Delays not found for {route_code}")
         return result

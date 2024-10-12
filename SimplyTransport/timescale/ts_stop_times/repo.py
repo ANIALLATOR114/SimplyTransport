@@ -8,13 +8,18 @@ from .model import TS_StopTimeDelayAggregated, TS_StopTimeForGraph, TS_StopTimeM
 MAXIMUM_LIMIT = 730
 MAXIMUM_TIMESTAMP = datetime.now() - timedelta(days=MAXIMUM_LIMIT)
 
+
 class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
     """TSStopTime repository."""
 
     async def get_aggregated_delay_on_stop_on_route_on_time(
-        self, route_code: str, stop_id: str | None = None, scheduled_time: time | None = None, start_time: datetime | None = None, end_time: datetime | None = None
+        self,
+        route_code: str,
+        stop_id: str | None = None,
+        scheduled_time: time | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
     ) -> TS_StopTimeDelayAggregated | None:
-
         """
         Retrieves delay statistics for a specific stop on a specific route at a given scheduled time.
         Args:
@@ -48,9 +53,9 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         if end_time:
             base_query += ' AND "Timestamp" <= :end_time'
         if stop_id:
-            base_query += ' AND stop_id = :stop_id'
+            base_query += " AND stop_id = :stop_id"
         if scheduled_time:
-            base_query += ' AND scheduled_time = :scheduled_time'
+            base_query += " AND scheduled_time = :scheduled_time"
 
         statement = text(base_query)
 
@@ -86,7 +91,7 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
             )
 
         return None
-    
+
     async def get_delay_on_stop_on_route_on_time(
         self,
         route_code: str,
@@ -95,7 +100,6 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         start_time: datetime | None = None,
         end_time: datetime | None = None,
     ) -> List[TS_StopTimeModel]:
-        
         """
         Retrieve delay information for a specific stop on a route at a scheduled time.
         Args:
@@ -107,28 +111,33 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         Returns:
             List[TS_StopTimeModel]: A list of TS_StopTimeModel instances that match the criteria.
         """
-        
+
         conditions = []
         if start_time:
             conditions.append(TS_StopTimeModel.Timestamp >= start_time)
         if end_time:
             conditions.append(TS_StopTimeModel.Timestamp <= end_time)
 
-        statement = select(TS_StopTimeModel).where(
-            TS_StopTimeModel.route_code == route_code,
-            TS_StopTimeModel.stop_id == stop_id,
-            TS_StopTimeModel.scheduled_time == scheduled_time,
-            TS_StopTimeModel.Timestamp > MAXIMUM_TIMESTAMP,
-        ).order_by(TS_StopTimeModel.Timestamp.desc()).limit(MAXIMUM_LIMIT)
+        statement = (
+            select(TS_StopTimeModel)
+            .where(
+                TS_StopTimeModel.route_code == route_code,
+                TS_StopTimeModel.stop_id == stop_id,
+                TS_StopTimeModel.scheduled_time == scheduled_time,
+                TS_StopTimeModel.Timestamp > MAXIMUM_TIMESTAMP,
+            )
+            .order_by(TS_StopTimeModel.Timestamp.desc())
+            .limit(MAXIMUM_LIMIT)
+        )
 
         if conditions:
             statement = statement.where(*conditions)
-        
+
         result = await self.session.execute(statement)
         rows = result.scalars().all()
 
         return list(rows)
-    
+
     async def get_truncated_delay_on_stop_on_route_on_time(
         self,
         route_code: str,
@@ -137,7 +146,6 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         start_time: datetime | None = None,
         end_time: datetime | None = None,
     ) -> List[TS_StopTimeForGraph]:
-        
         """
         Retrieves a list of truncated delays for a specific stop on a route at a scheduled time.
         Args:
@@ -149,7 +157,7 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         Returns:
             List[TS_StopTimeForGraph]: A list of TS_StopTimeForGraph objects containing the timestamp and delay in seconds.
         """
-        
+
         conditions = []
         if start_time:
             conditions.append(TS_StopTimeModel.Timestamp >= start_time)
@@ -175,7 +183,7 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         rows = result.all()
 
         return [TS_StopTimeForGraph(Timestamp=row[0], delay_in_seconds=row[1]) for row in rows]
-    
+
     model_type = TS_StopTimeModel
 
 

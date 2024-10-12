@@ -35,11 +35,12 @@ class TS_StopTime(BaseModel):
     @property
     def delay_in_minutes(self) -> float:
         return round(self.delay_in_seconds / 60, 1)
-    
+
 
 class TS_StopTimeForGraph(BaseModel):
     Timestamp: datetime
     delay_in_seconds: int = Field(exclude=True)
+
     @computed_field
     @property
     def delay_in_minutes(self) -> float:
