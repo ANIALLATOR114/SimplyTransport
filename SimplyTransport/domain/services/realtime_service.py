@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Tuple, List
 
+from ..realtime.enums import OnTimeStatus
 from ..realtime.stop_time.repo import RTStopTimeRepository
 from ..realtime.trip.repo import RTTripRepository
 from ..realtime.vehicle.repo import RTVehicleRepository
@@ -112,7 +113,7 @@ class RealTimeService:
         realtime_schedules = [
             schedule
             for schedule in realtime_schedules
-            if schedule.rt_stop_time is not None and schedule.rt_trip is not None
+            if schedule.on_time_status != OnTimeStatus.UNKNOWN
         ]
         return realtime_schedules
 

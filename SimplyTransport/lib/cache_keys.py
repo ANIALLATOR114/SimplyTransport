@@ -1,52 +1,60 @@
-from enum import Enum
+from enum import StrEnum
 
 from litestar import Request
 
+class CacheKeys():
+    class Meta(StrEnum):
+        ALL_KEYS = "*"
 
-class CacheKeys(Enum):
-    ALL_KEYS = "*"
+    class StopMaps(StrEnum):
+        STOP_MAP_KEY_TEMPLATE = "stop_map:{stop_id}"
+        STOP_MAP_DELETE_ALL_KEY_TEMPLATE = "*stop_map:*"
+        STOP_MAP_DELETE_KEY_TEMPLATE = "*stop_map:{stop_id}"
 
-    # Stop Maps
-    STOP_MAP_KEY_TEMPLATE = "stop_map:{stop_id}"
-    STOP_MAP_DELETE_ALL_KEY_TEMPLATE = "*stop_map:*"
-    STOP_MAP_DELETE_KEY_TEMPLATE = "*stop_map:{stop_id}"
+    class RouteMaps(StrEnum):
+        ROUTE_MAP_KEY_TEMPLATE = "route_map:{route_id}:{direction}"
+        ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE = "*route_map:*"
+        ROUTE_MAP_DELETE_KEY_TEMPLATE = "*route_map:{route_id}:*"
 
-    # Route Maps
-    ROUTE_MAP_KEY_TEMPLATE = "route_map:{route_id}:{direction}"
-    ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE = "*route_map:*"
-    ROUTE_MAP_DELETE_KEY_TEMPLATE = "*route_map:{route_id}:*"
+    class Schedules(StrEnum):
+        SCHEDULE_KEY_TEMPLATE = "schedule:{stop_id}:{day}"
+        SCHEDULE_DELETE_ALL_KEY_TEMPLATE = "*schedule:*"
+        SCHEDULE_DELETE_KEY_TEMPLATE = "*schedule:{stop_id}:*"
 
-    # Schedules
-    SCHEDULE_KEY_TEMPLATE = "schedule:{stop_id}:{day}"
-    SCHEDULE_DELETE_ALL_KEY_TEMPLATE = "*schedule:*"
-    SCHEDULE_DELETE_KEY_TEMPLATE = "*schedule:{stop_id}:*"
+    class RealTime(StrEnum):
+        REALTIME_STOP_KEY_TEMPLATE = "realtime:stop:{stop_id}"
+        REALTIME_STOP_DELETE_ALL_KEY_TEMPLATE = "*realtime:stop:*"
+        REALTIME_STOP_DELETE_KEY_TEMPLATE = "*realtime:stop:{stop_id}"
+        REALTIME_TRIP_KEY_TEMPLATE = "realtime:trip:{trip_id}"
+        REALTIME_TRIP_DELETE_ALL_KEY_TEMPLATE = "*realtime:trip:*"
+        REALTIME_TRIP_DELETE_KEY_TEMPLATE = "*realtime:trip:{trip_id}"
 
-    # Static Maps
-    STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE = "static_map:agency:route:{agency_id}"
-    STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*static_map:agency:route:*"
-    STATIC_MAP_AGENCY_ROUTE_DELETE_KEY_TEMPLATE = "*static_map:agency:route:{agency_id}"
-    STATIC_MAP_STOP_KEY_TEMPLATE = "static_map:stop:{map_type}"
-    STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE = "*static_map:stop:*"
-    STATIC_MAP_STOP_DELETE_KEY_TEMPLATE = "*static_map:stop:{map_type}"
+    class StaticMaps(StrEnum):
+        STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE = "static_map:agency:route:{agency_id}"
+        STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*static_map:agency:route:*"
+        STATIC_MAP_AGENCY_ROUTE_DELETE_KEY_TEMPLATE = "*static_map:agency:route:{agency_id}"
+        STATIC_MAP_STOP_KEY_TEMPLATE = "static_map:stop:{map_type}"
+        STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE = "*static_map:stop:*"
+        STATIC_MAP_STOP_DELETE_KEY_TEMPLATE = "*static_map:stop:{map_type}"
 
-    # Delays
-    DELAYS_AGGREGATED_SPECIFIC_KEY_TEMPLATE = (
-        "delays_aggregated_specific:{stop_id}:{route_code}:{scheduled_time}"
-    )
-    DELAYS_AGGREGATED_SPECIFIC_DELETE_ALL_KEY_TEMPLATE = "*delays_aggregated_specific:*"
-    DELAYS_AGGREGATED_SPECIFIC_DELETE_KEY_TEMPLATE = "*delays_aggregated_specific:{stop_id}:{route_code}:*"
-    DELAYS_SPECIFIC_KEY_TEMPLATE = "delays_specific:{stop_id}:{route_code}:{scheduled_time}"
-    DELAYS_SPECIFIC_DELETE_ALL_KEY_TEMPLATE = "*delays_specific:*"
-    DELAYS_SPECIFIC_DELETE_KEY_TEMPLATE = "*delays_specific:{stop_id}:{route_code}:*"
-    DELAYS_SPECIFIC_SLIM_KEY_TEMPLATE = "delays_specific_slim:{stop_id}:{route_code}:{scheduled_time}"
-    DELAYS_SPECIFIC_SLIM_DELETE_ALL_KEY_TEMPLATE = "*delays_specific_slim:*"
-    DELAYS_SPECIFIC_SLIM_DELETE_KEY_TEMPLATE = "*delays_specific_slim:{stop_id}:{route_code}:*"
-    DELAYS_AGGREGATED_ROUTE_KEY_TEMPLATE = "delays_aggregated_route:{route_code}"
-    DELAYS_AGGREGATED_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*delays_aggregated_route:*"
-    DELAYS_AGGREGATED_ROUTE_DELETE_KEY_TEMPLATE = "*delays_aggregated_route:{route_code}"
+    class Delays(StrEnum):
+        DELAYS_AGGREGATED_SPECIFIC_KEY_TEMPLATE = (
+            "delays_aggregated_specific:{stop_id}:{route_code}:{scheduled_time}"
+        )
+        DELAYS_AGGREGATED_SPECIFIC_DELETE_ALL_KEY_TEMPLATE = "*delays_aggregated_specific:*"
+        DELAYS_AGGREGATED_SPECIFIC_DELETE_KEY_TEMPLATE = "*delays_aggregated_specific:{stop_id}:{route_code}:*"
+        DELAYS_SPECIFIC_KEY_TEMPLATE = "delays_specific:{stop_id}:{route_code}:{scheduled_time}"
+        DELAYS_SPECIFIC_DELETE_ALL_KEY_TEMPLATE = "*delays_specific:*"
+        DELAYS_SPECIFIC_DELETE_KEY_TEMPLATE = "*delays_specific:{stop_id}:{route_code}:*"
+        DELAYS_SPECIFIC_SLIM_KEY_TEMPLATE = "delays_specific_slim:{stop_id}:{route_code}:{scheduled_time}"
+        DELAYS_SPECIFIC_SLIM_DELETE_ALL_KEY_TEMPLATE = "*delays_specific_slim:*"
+        DELAYS_SPECIFIC_SLIM_DELETE_KEY_TEMPLATE = "*delays_specific_slim:{stop_id}:{route_code}:*"
+        DELAYS_AGGREGATED_ROUTE_KEY_TEMPLATE = "delays_aggregated_route:{route_code}"
+        DELAYS_AGGREGATED_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*delays_aggregated_route:*"
+        DELAYS_AGGREGATED_ROUTE_DELETE_KEY_TEMPLATE = "*delays_aggregated_route:{route_code}"
 
 
-def key_builder_from_path(template: CacheKeys, *args):
+def key_builder_from_path(template: StrEnum, *args):
     """
     Builds a cache key based on the provided template and IDs.
 
@@ -64,7 +72,7 @@ def key_builder_from_path(template: CacheKeys, *args):
     return _key_builder
 
 
-def key_builder_from_query(template: CacheKeys, *args):
+def key_builder_from_query(template: StrEnum, *args):
     """
     Builds a cache key based on the provided template and query parameters.
 
@@ -83,7 +91,7 @@ def key_builder_from_query(template: CacheKeys, *args):
 
 
 def key_builder_from_path_and_query(
-    template: CacheKeys, path_args: list[str] = [], query_args: list[str] = []
+    template: StrEnum, path_args: list[str] = [], query_args: list[str] = []
 ):
     """
     Builds a cache key based on the provided template and IDs.
@@ -105,7 +113,7 @@ def key_builder_from_path_and_query(
     return _key_builder
 
 
-def key_builder_from_header(template: CacheKeys, *args):
+def key_builder_from_header(template: StrEnum, *args):
     """
     Builds a cache key based on the provided template and header parameters.
 

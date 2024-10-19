@@ -1,3 +1,4 @@
+from enum import StrEnum
 from litestar.config.response_cache import ResponseCacheConfig
 from litestar.stores.redis import RedisStore
 from redis.asyncio import Redis
@@ -46,12 +47,12 @@ class RedisService:
         self.redis = redis_factory()
         self.default_expiration = default_expiration
 
-    async def delete_keys(self, pattern: CacheKeys) -> None:
+    async def delete_keys(self, pattern: StrEnum) -> None:
         """
         Delete keys from the cache based on the given pattern.
 
         Args:
-            pattern (CacheKeys): The pattern to match the keys.
+            pattern (StrEnum): The pattern to match the keys.
 
         Returns:
             None
@@ -60,12 +61,12 @@ class RedisService:
         if keys:
             await self.redis.delete(*keys)
 
-    async def delete_key(self, template: CacheKeys, id: str) -> None:
+    async def delete_key(self, template: StrEnum, id: str) -> None:
         """
         Delete a key from the cache.
 
         Args:
-            key (CacheKeys): The key to delete from the cache.
+            key (StrEnum): The key to delete from the cache.
 
         Returns:
             None
@@ -77,7 +78,7 @@ class RedisService:
         """
         Deletes all keys from the cache.
         """
-        await self.delete_keys(CacheKeys.ALL_KEYS)
+        await self.delete_keys(CacheKeys.Meta.ALL_KEYS)
 
     async def count_all_keys(self) -> int:
         """
@@ -86,14 +87,14 @@ class RedisService:
         Returns:
             int: The number of keys in the cache.
         """
-        return len(await self.redis.keys(CacheKeys.ALL_KEYS.value))
+        return len(await self.redis.keys(CacheKeys.Meta.ALL_KEYS.value))
 
-    async def set(self, template: CacheKeys, id: str, value: str, expiration: int = None) -> None:
+    async def set(self, template: StrEnum, id: str, value: str, expiration: int | None = None) -> None:
         """
         Set a value in the cache.
 
         Args:
-            template (CacheKeys): The cache key template.
+            template (StrEnum): The cache key template.
             id (str): The identifier used in the cache key template.
             value (str): The value to be stored in the cache.
             expiration (int, optional): The expiration time in seconds. Defaults to None.

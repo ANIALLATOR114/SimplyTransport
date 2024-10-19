@@ -53,7 +53,16 @@
                             <td class="dense-text no-pointer bold-highlight {{ on_time_style }}">
                                 <span class="code-highlight">{{ rt.static_schedule.route.short_name }}</span>
                             </td>
-                            <td class="dense-text no-pointer">{{ rt.real_arrival_time }}</td>
+                            <td class="dense-text no-pointer">
+                                <a class="no-underline"
+                                   href="/realtime/trip/{{ rt.static_schedule.trip.id }}">
+                                    <img class="link-icon-table"
+                                         src="/static/link.svg"
+                                         alt="Link Icon"
+                                         width="13"
+                                         height="13">
+                                </a>{{ rt.real_arrival_time }}
+                            </td>
                             <td class="dense-text no-pointer">{{ rt.real_eta_text }}</td>
                             <td class="dense-text no-pointer">{{ rt.delay }}</td>
                         </tr>

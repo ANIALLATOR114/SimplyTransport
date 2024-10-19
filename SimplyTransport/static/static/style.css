@@ -99,6 +99,11 @@ h3 {
 	letter-spacing: 0.1rem;
 }
 
+.h2-table {
+	margin-top: 0.4rem;
+	margin-bottom: 1rem;
+}
+
 .h3-table {
 	margin-top: 0.2rem;
 	margin-bottom: 1rem;

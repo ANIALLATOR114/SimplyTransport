@@ -10,7 +10,7 @@ from SimplyTransport.lib.cache_keys import (
 
 
 def test_key_builder_from_path():
-    template = CacheKeys.STOP_MAP_KEY_TEMPLATE
+    template = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE
     key_builder = key_builder_from_path(template, "stop_id")
     request = AsyncMock(spec=Request)
     type(request).path_params = PropertyMock(return_value={"stop_id": "123"})
@@ -19,7 +19,7 @@ def test_key_builder_from_path():
 
 
 def test_key_builder_from_path_with_multiple_args():
-    template = CacheKeys.SCHEDULE_KEY_TEMPLATE
+    template = CacheKeys.Schedules.SCHEDULE_KEY_TEMPLATE
     key_builder = key_builder_from_path(template, "stop_id", "day")
     request = AsyncMock(spec=Request)
     type(request).path_params = PropertyMock(return_value={"stop_id": "123", "day": "1"})
@@ -28,7 +28,7 @@ def test_key_builder_from_path_with_multiple_args():
 
 
 def test_key_builder_from_path_with_missing_args():
-    template = CacheKeys.SCHEDULE_KEY_TEMPLATE
+    template = CacheKeys.Schedules.SCHEDULE_KEY_TEMPLATE
     key_builder = key_builder_from_path(template, "stop_id", "day")
     request = AsyncMock(spec=Request)
     type(request).path_params = PropertyMock(return_value={"stop_id": "123"})
@@ -37,7 +37,7 @@ def test_key_builder_from_path_with_missing_args():
 
 
 def test_key_builder_from_query():
-    template = CacheKeys.STOP_MAP_KEY_TEMPLATE
+    template = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE
     key_builder = key_builder_from_query(template, "stop_id")
     request = AsyncMock(spec=Request)
     type(request).query_params = PropertyMock(return_value={"stop_id": "123"})
@@ -46,7 +46,7 @@ def test_key_builder_from_query():
 
 
 def test_key_builder_from_query_with_multiple_args():
-    template = CacheKeys.SCHEDULE_KEY_TEMPLATE
+    template = CacheKeys.Schedules.SCHEDULE_KEY_TEMPLATE
     key_builder = key_builder_from_query(template, "stop_id", "day")
     request = AsyncMock(spec=Request)
     type(request).query_params = PropertyMock(return_value={"stop_id": "123", "day": "1"})
@@ -55,7 +55,7 @@ def test_key_builder_from_query_with_multiple_args():
 
 
 def test_key_builder_from_query_with_missing_args():
-    template = CacheKeys.SCHEDULE_KEY_TEMPLATE
+    template = CacheKeys.Schedules.SCHEDULE_KEY_TEMPLATE
     key_builder = key_builder_from_query(template, "stop_id", "day")
     request = AsyncMock(spec=Request)
     type(request).query_params = PropertyMock(return_value={"stop_id": "123"})
@@ -64,7 +64,7 @@ def test_key_builder_from_query_with_missing_args():
 
 
 def test_key_builder_from_path_and_query():
-    template = CacheKeys.SCHEDULE_KEY_TEMPLATE
+    template = CacheKeys.Schedules.SCHEDULE_KEY_TEMPLATE
     key_builder = key_builder_from_path_and_query(template, path_args=["stop_id"], query_args=["day"])
     request = AsyncMock(spec=Request)
     type(request).path_params = PropertyMock(return_value={"stop_id": "123"})
@@ -74,7 +74,7 @@ def test_key_builder_from_path_and_query():
 
 
 def test_key_builder_from_path_and_query_with_missing_args():
-    template = CacheKeys.SCHEDULE_KEY_TEMPLATE
+    template = CacheKeys.Schedules.SCHEDULE_KEY_TEMPLATE
     key_builder = key_builder_from_path_and_query(template, path_args=["stop_id"], query_args=["day"])
     request = AsyncMock(spec=Request)
     type(request).path_params = PropertyMock(return_value={"stop_id": "123"})
@@ -84,7 +84,7 @@ def test_key_builder_from_path_and_query_with_missing_args():
 
 
 def test_key_builder_from_header():
-    template = CacheKeys.STOP_MAP_KEY_TEMPLATE
+    template = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE
     key_builder = key_builder_from_header(template, "stop_id")
     request = AsyncMock(spec=Request)
     type(request).headers = PropertyMock(return_value={"stop_id": "123"})
@@ -93,7 +93,7 @@ def test_key_builder_from_header():
 
 
 def test_key_builder_from_header_with_missing_args():
-    template = CacheKeys.STOP_MAP_KEY_TEMPLATE
+    template = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE
     key_builder = key_builder_from_header(template, "stop_id")
     request = AsyncMock(spec=Request)
     type(request).headers = PropertyMock(return_value={})

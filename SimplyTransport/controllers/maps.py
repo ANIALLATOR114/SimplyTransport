@@ -34,7 +34,7 @@ class MapsController(Controller):
     @get(
         "/realtime/stop/{stop_id:str}",
         cache=86400,
-        cache_key_builder=key_builder_from_path(CacheKeys.STOP_MAP_KEY_TEMPLATE, "stop_id"),
+        cache_key_builder=key_builder_from_path(CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE, "stop_id"),
     )
     async def map_for_stop(self, stop_id: str, map_service: MapService) -> Template | Response:
         try:
@@ -47,7 +47,7 @@ class MapsController(Controller):
     @get(
         "/realtime/route/{route_id:str}/{direction:int}",
         cache=86400,
-        cache_key_builder=key_builder_from_path(CacheKeys.ROUTE_MAP_KEY_TEMPLATE, "route_id", "direction"),
+        cache_key_builder=key_builder_from_path(CacheKeys.RouteMaps.ROUTE_MAP_KEY_TEMPLATE, "route_id", "direction"),
     )
     async def map_for_route(
         self, route_id: str, direction: int, map_service: MapService
@@ -87,7 +87,7 @@ class MapsController(Controller):
     @get(
         "/static/agency/route/{agency_id:str}",
         cache=86400 * 7,
-        cache_key_builder=key_builder_from_path(CacheKeys.STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE, "agency_id"),
+        cache_key_builder=key_builder_from_path(CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE, "agency_id"),
     )
     async def static_agency_route_map(self, agency_id: str) -> Template:
         return Template(f"{MAPS_TEMPLATES_ROUTES_DIR}/{agency_id}.html")
@@ -114,7 +114,7 @@ class MapsController(Controller):
     @get(
         "/static/stop/{map_type:str}",
         cache=86400 * 7,
-        cache_key_builder=key_builder_from_path(CacheKeys.STATIC_MAP_STOP_KEY_TEMPLATE, "map_type"),
+        cache_key_builder=key_builder_from_path(CacheKeys.StaticMaps.STATIC_MAP_STOP_KEY_TEMPLATE, "map_type"),
     )
     async def static_stop_map(self, map_type: str) -> Template:
         return Template(f"{MAPS_TEMPLATES_STOPS_DIR}/{map_type}.html")
