@@ -7,6 +7,7 @@ urls = [
     "/elements",
     "/redoc",
     "/rapidoc",
+    "/scalar",
     "/openapi.json",
     "/openapi.yaml",
 ]

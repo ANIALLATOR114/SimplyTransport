@@ -12,12 +12,20 @@
             <tr>
                 <td class="dense-text no-pointer bold-highlight">
                     <a class="no-underline" href="/realtime/route/{{ schedule.route.id }}/1">
-                        <img class="link-icon-table" src="/static/link.svg" alt="Link Icon">
+                        <img class="link-icon-table"
+                             src="/static/link.svg"
+                             alt="Link Icon"
+                             width="13"
+                             height="13">
                     </a><span class="code-highlight">{{ schedule.route.short_name }}</span>
                 </td>
                 <td class="dense-text no-pointer">
                     <a class="no-underline" href="/realtime/trip/{{ schedule.trip.id }}">
-                        <img class="link-icon-table" src="/static/link.svg" alt="Link Icon">
+                        <img class="link-icon-table"
+                             src="/static/link.svg"
+                             alt="Link Icon"
+                             width="13"
+                             height="13">
                     </a>{{ schedule.stop_time.arrival_time }}
                 </td>
             </tr>

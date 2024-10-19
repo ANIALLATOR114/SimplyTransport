@@ -19,7 +19,7 @@ class DelaysController(Controller):
         "/{stop_id:str}/{route_code:str}/{scheduled_time:str}/aggregated",
         cache=600,
         cache_key_builder=key_builder_from_path(
-            CacheKeys.DELAYS_AGGREGATED_SPECIFIC_KEY_TEMPLATE,
+            CacheKeys.Delays.DELAYS_AGGREGATED_SPECIFIC_KEY_TEMPLATE,
             "stop_id",
             "route_code",
             "scheduled_time",
@@ -56,7 +56,7 @@ class DelaysController(Controller):
         "/{stop_id:str}/{route_code:str}/{scheduled_time:str}",
         cache=600,
         cache_key_builder=key_builder_from_path(
-            CacheKeys.DELAYS_SPECIFIC_KEY_TEMPLATE,
+            CacheKeys.Delays.DELAYS_SPECIFIC_KEY_TEMPLATE,
             "stop_id",
             "route_code",
             "scheduled_time",
@@ -95,7 +95,7 @@ class DelaysController(Controller):
         "/{stop_id:str}/{route_code:str}/{scheduled_time:str}/truncated",
         cache=600,
         cache_key_builder=key_builder_from_path(
-            CacheKeys.DELAYS_SPECIFIC_SLIM_KEY_TEMPLATE,
+            CacheKeys.Delays.DELAYS_SPECIFIC_SLIM_KEY_TEMPLATE,
             "stop_id",
             "route_code",
             "scheduled_time",
@@ -131,7 +131,7 @@ class DelaysController(Controller):
         "/{route_code:str}/aggregated",
         cache=600,
         cache_key_builder=key_builder_from_path(
-            CacheKeys.DELAYS_AGGREGATED_ROUTE_KEY_TEMPLATE,
+            CacheKeys.Delays.DELAYS_AGGREGATED_ROUTE_KEY_TEMPLATE,
             "route_code",
         ),
         summary="Get aggregated delay data for a route",

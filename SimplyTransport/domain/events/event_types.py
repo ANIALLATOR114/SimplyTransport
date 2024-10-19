@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     # Type of event, should be less than 255 chars long
 
     # GTFS

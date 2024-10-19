@@ -113,7 +113,7 @@ async def provide_event_repo(db_session: AsyncSession) -> EventRepository:
 
 
 async def create_event_with_session(
-    event_type: EventType, description: str, attributes: dict, expiry_time: datetime = None
+    event_type: EventType, description: str, attributes: dict, expiry_time: datetime | None = None
 ):
     async with async_session_factory() as db_session:
         event_repo = await provide_event_repo(db_session=db_session)

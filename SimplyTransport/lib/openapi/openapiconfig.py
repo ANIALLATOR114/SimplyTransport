@@ -11,7 +11,8 @@ from litestar.openapi.plugins import (
 from .. import settings
 from .tags import Tags
 
-DESCRIPTION = """SimplyTransport - An API for retrieving transport information.
+DESCRIPTION = """
+SimplyTransport - An API for retrieving transport information.
 
 This API provides access to transport data for agencies, routes, stops, trips, stop times, calendars, calendar dates, shapes, realtime information, schedules, maps, and statistics.
 

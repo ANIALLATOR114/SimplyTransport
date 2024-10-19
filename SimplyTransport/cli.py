@@ -106,17 +106,14 @@ class CLIPlugin(CLIPluginProtocol):
                 console.print("[red]Error: OpenAPI controller not found.")
                 return
 
-            docs_path = app.openapi_config.openapi_controller.path
-            redoc_path = list(app.openapi_config.openapi_controller.redoc.paths)[0]
-            swagger_path = list(app.openapi_config.openapi_controller.swagger_ui.paths)[0]
-            elements_path = list(app.openapi_config.openapi_controller.stoplight_elements.paths)[0]
-            rapidoc_path = list(app.openapi_config.openapi_controller.rapidoc.paths)[0]
+            docs_path = app.openapi_config.path
+            renderers = app.openapi_config.render_plugins
 
             table.add_row("Default", f"{base_url}{docs_path}")
-            table.add_row("Redoc", f"{base_url}{docs_path}{redoc_path}")
-            table.add_row("Swagger", f"{base_url}{docs_path}{swagger_path}")
-            table.add_row("Elements", f"{base_url}{docs_path}{elements_path}")
-            table.add_row("Rapidoc", f"{base_url}{docs_path}{rapidoc_path}")
+            for renderer in renderers:
+                renderer_name = renderer.__class__.__name__.replace("RenderPlugin", "")
+                renderer_path = renderer.paths[0]
+                table.add_row(renderer_name, f"{base_url}{docs_path}{renderer_path}")
 
             console.print(table)
 
@@ -219,10 +216,13 @@ class CLIPlugin(CLIPluginProtocol):
             )
 
             redis_service = provide_redis_service()
-            await redis_service.delete_keys(CacheKeys.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys(CacheKeys.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys(CacheKeys.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys(CacheKeys.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(CacheKeys.Schedules.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(
+                CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
+            )
+            await redis_service.delete_keys(CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
 
             finish = time.perf_counter()
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
@@ -362,7 +362,7 @@ class CLIPlugin(CLIPluginProtocol):
             )
 
             redis_service = provide_redis_service()
-            await redis_service.delete_keys(CacheKeys.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
 
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
@@ -568,7 +568,9 @@ class CLIPlugin(CLIPluginProtocol):
             for result in results:
                 if isinstance(result, Exception):
                     logger.error(f"Error generating route map: {result}")
-            await redis_service.delete_keys(CacheKeys.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(
+                CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
+            )
 
             console.print("Generating stop maps")
             tasks = [build_stop_map(map_type) for map_type in StaticStopMapTypes]
@@ -576,7 +578,7 @@ class CLIPlugin(CLIPluginProtocol):
             for result in results:
                 if isinstance(result, Exception):
                     logger.error(f"Error generating stop map: {result}")
-            await redis_service.delete_keys(CacheKeys.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
 
             finish = time.perf_counter()
             logger.info(f"Finished generating static maps in {round(finish-start, 2)} second(s)")

@@ -39,7 +39,7 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
             MAX(delay_in_seconds) as max_delay,
             MIN(delay_in_seconds) as min_delay,
             STDDEV(delay_in_seconds) as stddev_delay,
-            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY delay_in_seconds) as median_delay,
+            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY delay_in_seconds) as p50_delay,
             PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY delay_in_seconds) as p75_delay,
             PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY delay_in_seconds) as p90_delay,
             COUNT(*) as samples
@@ -84,7 +84,7 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
                 max=int(row.max_delay),
                 min=int(row.min_delay),
                 standard_deviation=round(float(row.stddev_delay), 2) if row.stddev_delay is not None else 0.0,
-                median=int(row.median_delay),
+                p50=int(row.p50_delay),
                 p75=int(row.p75_delay),
                 p90=int(row.p90_delay),
                 samples=row.samples,

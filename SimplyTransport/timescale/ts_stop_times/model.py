@@ -52,7 +52,7 @@ class TS_StopTimeDelayAggregated(BaseModel):
     max: int
     min: int
     standard_deviation: float
-    median: int
+    p50: int
     p75: int
     p90: int
     samples: int

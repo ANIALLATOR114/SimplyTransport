@@ -33,7 +33,13 @@ class RealtimeController(Controller):
         "realtime_service": Provide(provide_realtime_service),
     }
 
-    @get("/stop/{stop_id:str}")
+    @get(
+        "/stop/{stop_id:str}",
+        cache=20,
+        cache_key_builder=key_builder_from_path_and_query(
+            CacheKeys.RealTime.REALTIME_STOP_KEY_TEMPLATE, ["stop_id"]
+        ),
+    )
     async def realtime_stop(
         self,
         stop_id: str,
@@ -86,7 +92,7 @@ class RealtimeController(Controller):
         "/stop/{stop_id:str}/schedule",
         cache=86400,
         cache_key_builder=key_builder_from_path_and_query(
-            CacheKeys.SCHEDULE_KEY_TEMPLATE, ["stop_id"], ["day"]
+            CacheKeys.Schedules.SCHEDULE_KEY_TEMPLATE, ["stop_id"], ["day"]
         ),
     )
     async def realtime_stop_schedule(
@@ -122,25 +128,40 @@ class RealtimeController(Controller):
             context={"route": route, "stops": stops_and_sequences, "direction": direction},
         )
 
-    @get("/trip/{trip_id:str}")
+    @get(
+        "/trip/{trip_id:str}",
+        cache=20,
+        cache_key_builder=key_builder_from_path_and_query(
+            CacheKeys.RealTime.REALTIME_TRIP_KEY_TEMPLATE, ["trip_id"]
+        ),
+    )
     async def realtime_trip(
         self,
         trip_id: str,
         schedule_service: ScheduleService,
+        realtime_service: RealTimeService,
     ) -> Template:
         schedules = await schedule_service.get_by_trip_id(trip_id=trip_id)
 
         if len(schedules) == 0:
-            return str("No schedules found for trip")  # TODO 404
-            # accessing list position 0 here so will throw an error if there arent any schedules
+            return Template(
+                template_name="/errors/404.html", context={"message": "Schedule for trip not found"}
+            )
 
-        direction_value = schedules[0].trip.direction
+        schedules = await schedule_service.apply_custom_23_00_sorting(schedules)
+
+        realtime_schedules = await realtime_service.get_realtime_schedules_for_static_schedules(schedules)
+        realtime_schedules = await realtime_service.apply_custom_23_00_sorting(realtime_schedules)
+
+        prime_schedule = realtime_schedules[0].static_schedule
+        direction_value = prime_schedule.trip.direction
         direction_string = "Southbound" if direction_value == 0 else "Northbound"
 
         return Template(
             template_name="realtime/trip.html",
             context={
-                "schedules": schedules,
+                "rt_schedules": realtime_schedules,
                 "direction_string": direction_string,
+                "prime_schedule": prime_schedule,
             },
         )
