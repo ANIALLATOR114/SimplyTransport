@@ -34,7 +34,9 @@ class MapController(Controller):
     @get(
         "/route/{route_id:str}/{direction:int}",
         cache=86400,
-        cache_key_builder=key_builder_from_path(CacheKeys.RouteMaps.ROUTE_MAP_KEY_TEMPLATE, "route_id", "direction"),
+        cache_key_builder=key_builder_from_path(
+            CacheKeys.RouteMaps.ROUTE_MAP_KEY_TEMPLATE, "route_id", "direction"
+        ),
         summary="Get a map for a route",
         description="Will return an iframe with a map centered on the first stop on the route",
         raises=[NotFoundException],

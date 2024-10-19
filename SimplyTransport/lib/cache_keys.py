@@ -2,7 +2,8 @@ from enum import StrEnum
 
 from litestar import Request
 
-class CacheKeys():
+
+class CacheKeys:
     class Meta(StrEnum):
         ALL_KEYS = "*"
 
@@ -42,7 +43,9 @@ class CacheKeys():
             "delays_aggregated_specific:{stop_id}:{route_code}:{scheduled_time}"
         )
         DELAYS_AGGREGATED_SPECIFIC_DELETE_ALL_KEY_TEMPLATE = "*delays_aggregated_specific:*"
-        DELAYS_AGGREGATED_SPECIFIC_DELETE_KEY_TEMPLATE = "*delays_aggregated_specific:{stop_id}:{route_code}:*"
+        DELAYS_AGGREGATED_SPECIFIC_DELETE_KEY_TEMPLATE = (
+            "*delays_aggregated_specific:{stop_id}:{route_code}:*"
+        )
         DELAYS_SPECIFIC_KEY_TEMPLATE = "delays_specific:{stop_id}:{route_code}:{scheduled_time}"
         DELAYS_SPECIFIC_DELETE_ALL_KEY_TEMPLATE = "*delays_specific:*"
         DELAYS_SPECIFIC_DELETE_KEY_TEMPLATE = "*delays_specific:{stop_id}:{route_code}:*"
@@ -90,9 +93,7 @@ def key_builder_from_query(template: StrEnum, *args):
     return _key_builder
 
 
-def key_builder_from_path_and_query(
-    template: StrEnum, path_args: list[str] = [], query_args: list[str] = []
-):
+def key_builder_from_path_and_query(template: StrEnum, path_args: list[str] = [], query_args: list[str] = []):
     """
     Builds a cache key based on the provided template and IDs.
 

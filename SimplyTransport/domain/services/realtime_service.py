@@ -111,9 +111,7 @@ class RealTimeService:
         """Filters the realtime schedules to only those that have realtime updates"""
 
         realtime_schedules = [
-            schedule
-            for schedule in realtime_schedules
-            if schedule.on_time_status != OnTimeStatus.UNKNOWN
+            schedule for schedule in realtime_schedules if schedule.on_time_status != OnTimeStatus.UNKNOWN
         ]
         return realtime_schedules
 

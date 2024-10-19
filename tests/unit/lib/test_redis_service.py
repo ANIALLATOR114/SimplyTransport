@@ -33,7 +33,9 @@ def redis_service(mock_redis: AsyncMock) -> RedisService:
         (["key1", "key2"], CacheKeys.Meta.ALL_KEYS, 1),
     ],
 )
-async def test_delete_keys(keys: list, pattern: StrEnum, expected_calls: int, redis_service: RedisService, mock_redis: Redis):
+async def test_delete_keys(
+    keys: list, pattern: StrEnum, expected_calls: int, redis_service: RedisService, mock_redis: Redis
+):
     # Arrange
     mock_redis.keys.return_value = keys
 
@@ -48,7 +50,9 @@ async def test_delete_keys(keys: list, pattern: StrEnum, expected_calls: int, re
 @pytest.mark.asyncio
 async def test_delete_key(redis_service: RedisService, mock_redis: Redis):
     await redis_service.delete_key(CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE, "stop_id")
-    mock_redis.delete.assert_called_once_with(CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id"))
+    mock_redis.delete.assert_called_once_with(
+        CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id")
+    )
 
 
 @pytest.mark.asyncio

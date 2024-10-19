@@ -144,18 +144,14 @@ class RealtimeController(Controller):
         schedules = await schedule_service.get_by_trip_id(trip_id=trip_id)
 
         if len(schedules) == 0:
-            return Template(template_name="/errors/404.html", context={"message": "Schedule for trip not found"})
-        
+            return Template(
+                template_name="/errors/404.html", context={"message": "Schedule for trip not found"}
+            )
+
         schedules = await schedule_service.apply_custom_23_00_sorting(schedules)
 
-        realtime_schedules = (
-            await realtime_service.get_realtime_schedules_for_static_schedules(
-                schedules
-            )
-        )
-        realtime_schedules = await realtime_service.apply_custom_23_00_sorting(
-            realtime_schedules
-        )
+        realtime_schedules = await realtime_service.get_realtime_schedules_for_static_schedules(schedules)
+        realtime_schedules = await realtime_service.apply_custom_23_00_sorting(realtime_schedules)
 
         prime_schedule = realtime_schedules[0].static_schedule
         direction_value = prime_schedule.trip.direction

@@ -219,7 +219,9 @@ class CLIPlugin(CLIPluginProtocol):
             await redis_service.delete_keys(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys(CacheKeys.Schedules.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys(CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(
+                CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
+            )
             await redis_service.delete_keys(CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
 
             finish = time.perf_counter()
@@ -566,7 +568,9 @@ class CLIPlugin(CLIPluginProtocol):
             for result in results:
                 if isinstance(result, Exception):
                     logger.error(f"Error generating route map: {result}")
-            await redis_service.delete_keys(CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(
+                CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
+            )
 
             console.print("Generating stop maps")
             tasks = [build_stop_map(map_type) for map_type in StaticStopMapTypes]
