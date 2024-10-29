@@ -1,0 +1,16 @@
+<script type="speculationrules">
+    {
+    "prerender": [
+        {
+        "source" : "list",
+        "urls": ["routes", "stops"],
+        "eagerness" : "eager"
+        },
+        {
+        "source" : "document",
+        "where": { "href_matches" : "/*" },
+        "eagerness" : "moderate"
+        }
+    ]
+    }
+</script>
