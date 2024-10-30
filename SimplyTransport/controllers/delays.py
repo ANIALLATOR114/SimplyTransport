@@ -17,8 +17,7 @@ class DelaysController(Controller):
         "/route/{route_code:str}",
         cache=86400,
         cache_key_builder=key_builder_from_path(
-            CacheKeys.Delays.DELAYS_HTML_ROUTE_KEY_TEMPLATE,
-            "route_code"
+            CacheKeys.Delays.DELAYS_HTML_ROUTE_KEY_TEMPLATE, "route_code"
         ),
     )
     async def delays_route(
@@ -26,9 +25,7 @@ class DelaysController(Controller):
         route_code: str,
         repo: TSStopTimeRepository,
     ) -> Template:
-        
+
         result = await repo.get_aggregated_delay_on_stop_on_route_on_time(route_code=route_code)
 
-        return Template(
-            template_name="/delays/routes/route.html", context={"delay": result}
-        )
+        return Template(template_name="/delays/routes/route.html", context={"delay": result})

@@ -91,7 +91,7 @@ class RootController(Controller):
     @get("/routes")
     async def route(self) -> Template:
         return Template("gtfs_search/route_search.html")
-    
+
     @get("/delays-explained")
     async def delays_explained(self) -> Template:
         return Template("delays/explained.html")
