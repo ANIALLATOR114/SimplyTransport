@@ -1,0 +1,29 @@
+<h2 class="no-top-margin">Historical Delays</h2>
+{% if delay is none %}
+    <p class="dense-text">No historical data available for this route.</p>
+{% else %}
+    <p class="dense-text">
+        The following data is based on historical delays aggregated across the entire route. All values in seconds.
+    </p>
+    <div class="data-updates data-updates-2-columns">
+        <div class="dense-text">Average</div>
+        <div class="dense-text">{{ delay.avg }}</div>
+        <div class="dense-text">50th Percentile</div>
+        <div class="dense-text">{{ delay.p50 }}</div>
+        <div class="dense-text">75th Percentile</div>
+        <div class="dense-text">{{ delay.p75 }}</div>
+        <div class="dense-text">90th Percentile</div>
+        <div class="dense-text">{{ delay.p90 }}</div>
+        <div class="dense-text">Standard Deviation</div>
+        <div class="dense-text">{{ delay.standard_deviation }}</div>
+        <div class="dense-text">Minimum</div>
+        <div class="dense-text">{{ delay.min }}</div>
+        <div class="dense-text">Maximum</div>
+        <div class="dense-text">{{ delay.max }}</div>
+        <div class="dense-text">Samples</div>
+        <div class="dense-text">{{ delay.samples }}</div>
+        <div class="dense-text">
+            <a class="link-style" href="/delays-explained">Data Explained</a>
+        </div>
+    </div>
+{% endif %}

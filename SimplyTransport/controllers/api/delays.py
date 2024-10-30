@@ -17,7 +17,7 @@ class DelaysController(Controller):
 
     @get(
         "/{stop_id:str}/{route_code:str}/{scheduled_time:str}/aggregated",
-        cache=600,
+        cache=86400,
         cache_key_builder=key_builder_from_path(
             CacheKeys.Delays.DELAYS_AGGREGATED_SPECIFIC_KEY_TEMPLATE,
             "stop_id",
@@ -54,7 +54,7 @@ class DelaysController(Controller):
 
     @get(
         "/{stop_id:str}/{route_code:str}/{scheduled_time:str}",
-        cache=600,
+        cache=86400,
         cache_key_builder=key_builder_from_path(
             CacheKeys.Delays.DELAYS_SPECIFIC_KEY_TEMPLATE,
             "stop_id",
@@ -93,7 +93,7 @@ class DelaysController(Controller):
 
     @get(
         "/{stop_id:str}/{route_code:str}/{scheduled_time:str}/truncated",
-        cache=600,
+        cache=86400,
         cache_key_builder=key_builder_from_path(
             CacheKeys.Delays.DELAYS_SPECIFIC_SLIM_KEY_TEMPLATE,
             "stop_id",
@@ -129,7 +129,7 @@ class DelaysController(Controller):
 
     @get(
         "/{route_code:str}/aggregated",
-        cache=600,
+        cache=86400,
         cache_key_builder=key_builder_from_path(
             CacheKeys.Delays.DELAYS_AGGREGATED_ROUTE_KEY_TEMPLATE,
             "route_code",

@@ -55,6 +55,9 @@ class CacheKeys:
         DELAYS_AGGREGATED_ROUTE_KEY_TEMPLATE = "delays_aggregated_route:{route_code}"
         DELAYS_AGGREGATED_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*delays_aggregated_route:*"
         DELAYS_AGGREGATED_ROUTE_DELETE_KEY_TEMPLATE = "*delays_aggregated_route:{route_code}"
+        DELAYS_HTML_ROUTE_KEY_TEMPLATE = "delays_html_route:{route_code}"
+        DELAYS_HTML_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*delays_html_route:*"
+        DELAYS_HTML_ROUTE_DELETE_KEY_TEMPLATE = "*delays_html_route:{route_code}"
 
 
 def key_builder_from_path(template: StrEnum, *args):

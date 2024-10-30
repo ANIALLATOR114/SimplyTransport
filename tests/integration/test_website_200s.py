@@ -1,7 +1,17 @@
 import pytest
 from litestar.testing import TestClient
 
-urls = ["/", "/events/", "/stops/", "/routes/", "/apidocs", "/about", "/maps"]
+urls = [
+    "/",
+    "/stops/",
+    "/routes/",
+    "/maps",
+    "/stats",
+    "/apidocs",
+    "/events/",
+    "/delays-explained",
+    "/about",
+]
 
 
 @pytest.mark.parametrize("url", urls)
