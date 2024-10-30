@@ -5,7 +5,7 @@
         display: flex;
         align-items: center;
         position: sticky;
-        top:0;
+        top: 0;
         background-color: var(--bg-color);
         z-index: 999;
     }
@@ -44,7 +44,24 @@
         align-items: center;
     }
 
-    .nav-button{
+    .nav-dropdown-logo {
+        width: 2.5rem;
+        display: flex;
+        align-items: center;
+        display: none;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translate(-50%, 50%);
+        cursor: pointer;
+        transition : transform 0.3s ease-in-out;
+    }
+
+    .nav-dropdown-logo.rotate {
+        transform: translate(-50%, 50%) rotate(180deg);
+    }
+
+    .nav-button {
         border-radius: 10px;
         background: transparent;
         padding: 0.6rem;
@@ -59,12 +76,12 @@
         cursor: pointer;
     }
 
-    .nav-button:hover{
+    .nav-button:hover {
         background-color: var(--bg-color-highlight);
         transition: all 0.2s ease-in-out;
     }
 
-    .nav-link{
+    .nav-link {
         font-weight: 500;
         font-size: 1.1rem;
         padding: 0.6rem;
@@ -82,12 +99,12 @@
         color: var(--font-color);
     }
 
-    .nav-link:hover{
+    .nav-link:hover {
         background-color: var(--bg-color-highlight);
         transition: all 0.2s ease-in-out;
     }
 
-    .version-tag{
+    .version-tag {
         font-weight: 500;
         font-size: 1.0rem;
         padding-top: 0.1rem;
@@ -105,12 +122,12 @@
     }
 
     @media screen and (max-width: 750px) {
-	.navbar-flex {
+    .navbar-flex {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         justify-items: center;
         gap: 0.6rem;
-	}
+    }
 
     .navbar-flex > :first-child {
         grid-column: span 2;
@@ -127,12 +144,28 @@
     .nav-link {
         font-size: 1rem;
     }
+
     .navbar {
         position: relative;
     }
 
     .navbar-head {
         font-size: 1.2rem;
+    }
+
+    .nav-dropdown-logo {
+        display: block;
+    }
+
+    .nav-dropdown {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-out;
+    }
+
+    .nav-dropdown.show {
+        max-height: 200px;
+        transition: max-height 0.4s ease-in;
     }
 }
 </style>
@@ -171,35 +204,42 @@
                     </button>
                 </a>
             </div>
-            <div class="navbar-item">
+            <div class="navbar-item nav-dropdown">
                 <a href="/maps">
                     <button class="nav-link">
                         <span class="nav-link-text">Maps</span>
                     </button>
                 </a>
             </div>
-            <div class="navbar-item">
+            <div class="navbar-item nav-dropdown">
                 <a href="/stats">
                     <button class="nav-link">
                         <span class="nav-link-text">Stats</span>
                     </button>
                 </a>
             </div>
-            <div class="navbar-item">
+            <div class="navbar-item nav-dropdown">
                 <a href="/apidocs">
                     <button class="nav-link">
                         <span class="nav-link-text">Api Docs</span>
                     </button>
                 </a>
             </div>
-            <div class="navbar-item">
+            <div class="navbar-item nav-dropdown">
                 <a href="/events">
                     <button class="nav-link">
                         <span class="nav-link-text">Events</span>
                     </button>
                 </a>
             </div>
-            <div class="navbar-item">
+            <div class="navbar-item nav-dropdown">
+                <a href="/delays-explained">
+                    <button class="nav-link">
+                        <span class="nav-link-text">Delays</span>
+                    </button>
+                </a>
+            </div>
+            <div class="navbar-item nav-dropdown">
                 <a href="/about">
                     <button class="nav-link">
                         <span class="nav-link-text">About</span>
@@ -207,5 +247,22 @@
                 </a>
             </div>
         </div>
+        <div class="nav-dropdown-logo" id="nav-dropdown-button">
+            <img src="/static/down-arrow.svg"
+                 onclick="toggleDropdown()"
+                 alt="search"
+                 width="100%"
+                 height="100%">
+        </div>
     </div>
 </nav>
+<script>
+    function toggleDropdown() {
+        const dropdownContent = document.getElementsByClassName('nav-dropdown');
+        const dropdownButton = document.getElementById('nav-dropdown-button');
+        for (let i = 0; i < dropdownContent.length; i++) {
+            dropdownContent[i].classList.toggle('show');
+        }
+        dropdownButton.classList.toggle('rotate');
+    }
+</script>

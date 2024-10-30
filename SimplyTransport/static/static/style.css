@@ -174,7 +174,7 @@ h3 {
 	border-radius: 0.5rem;
 	padding: 0.9rem;
 	background-color: var(--bg-color-bump);
-	min-width: fit-content;
+	overflow-x: auto;
 	border: 1px solid var(--bg-color-bump-border);
 }
 
@@ -269,7 +269,7 @@ h3 {
 .search-box {
 	border-radius: 0.3rem;
 	font-size: 1rem;
-	padding: 0.7rem;
+	padding: 0.6rem;
 	outline: none;
 	border: 3px solid var(--bg-color-highlight);
 	background-color: var(--bg-color);
@@ -371,6 +371,10 @@ h3 {
 	justify-items: start;
 	gap: var(--gap);
 	overflow: hidden;
+}
+
+.data-updates-2-columns {
+	grid-template-columns: 1fr 1fr;
 }
 
 .data-updates > div {
@@ -538,6 +542,29 @@ h3 {
 		padding-right: 0.9rem;
 		padding-bottom: 0.4rem;
 		padding-left: 0.9rem;
+	}
+
+	.search-box {
+		font-size: 0.9rem;
+		padding: 0.5rem;
+	}
+
+	.bottom-margin {
+		margin-bottom: 0.8rem;
+	}
+
+	.table-search-top-text-pad {
+		padding-bottom: 0.5rem;
+	}
+
+	.h2-table {
+		margin-top: 0.3rem;
+		margin-bottom: 0.8rem;
+	}
+
+	.h3-table {
+		margin-top: 0.18rem;
+		margin-bottom: 0.8rem;
 	}
 
 	.dropdown {

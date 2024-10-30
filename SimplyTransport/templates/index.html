@@ -42,6 +42,15 @@
                     {% endif %}
                 </div>
                 <div class="dense-text">Every minute</div>
+                <div class="dense-text">Recording Delays</div>
+                <div class="dense-text">
+                    {% if delays_recorded %}
+                        {{ delays_recorded.created_at_pretty }}
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </div>
+                <div class="dense-text">Every minute</div>
                 <div class="dense-text">GTFS Static Schedules</div>
                 <div class="dense-text">
                     {% if gtfs_updated %}

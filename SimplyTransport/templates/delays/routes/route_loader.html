@@ -1,0 +1,13 @@
+<div hx-get="/delays/route/{{ route.short_name }}"
+     hx-trigger="load"
+     hx-target="#route-delay-element"
+     hx-indicator="#delay-loader"
+     hx-swap="transition:true">
+    <div id="route-delay-element"></div>
+    <img class="map-loader"
+         id="delay-loader"
+         src="/static/loader.svg"
+         width="100%"
+         height="80px"
+         alt="Loading spinner">
+</div>

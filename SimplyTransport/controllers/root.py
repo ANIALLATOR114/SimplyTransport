@@ -31,7 +31,7 @@ class RootController(Controller):
         "map": Provide(Map, sync_to_thread=False),
     }
 
-    @get("/", cache=60)
+    @get("/", cache=120)
     async def root(
         self,
         event_repo: EventRepository,
@@ -48,6 +48,10 @@ class RootController(Controller):
             EventType.STOP_FEATURES_DATABASE_UPDATED
         )
 
+        delays_recorded_event = await event_repo.get_single_pretty_event_by_type(
+            EventType.RECORD_TS_STOP_TIMES
+        )
+
         return Template(
             template_name="index.html",
             context={
@@ -55,6 +59,7 @@ class RootController(Controller):
                 "realtime_updated": realtime_updated_event,
                 "vehicles_updated": vehicles_updated_event,
                 "stop_features_updated": stop_features_updated_event,
+                "delays_recorded": delays_recorded_event,
             },
         )
 
@@ -86,6 +91,10 @@ class RootController(Controller):
     @get("/routes")
     async def route(self) -> Template:
         return Template("gtfs_search/route_search.html")
+
+    @get("/delays-explained")
+    async def delays_explained(self) -> Template:
+        return Template("delays/explained.html")
 
     @get("/maps")
     async def maps(self, agency_repo: AgencyRepository) -> Template:

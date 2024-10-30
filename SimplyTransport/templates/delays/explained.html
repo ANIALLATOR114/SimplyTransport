@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ request.app.openapi_config.title
+    }} - Delay Data Explained
+{% endblock title %}
+{% block content %}
+    <div class="narrow-container">
+        <h1>Historical Delay Data</h1>
+        <p class="dense-text">
+            Every single minute, SimplyTransport is collecting and aggregating delay data from the Realtime API.
+            This data is stored and then used to calculate historical statistics over time.
+        </p>
+        <p class="dense-text">
+            This data is inserted into a database with millions of entries, which is is growing all the time with thousands, or tens of thousands, of new data points every hour.
+        </p>
+        <p class="dense-text">
+            You can see the number of samples being recorded in the <a class="link-style" href="/events">Events</a> page which records each update under <span class="code-highlight">timeseries.delays.recorded</span>.
+        </p>
+        <h2>Definitions</h2>
+        <p class="dense-text">
+            <span class="code-highlight">Unit of Measurement</span> Unless otherwise specified, all values are recorded in seconds.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">Average</span> The average delay across all samples.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">50th Percentile</span> The delay value below which 50% of the samples fall.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">75th Percentile</span> The delay value below which 75% of the samples fall.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">90th Percentile</span> The delay value below which 90% of the samples fall.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">Standard Deviation</span> A measure of the amount of variation or dispersion of a set of values.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">Minimum</span> The single minimum delay value recorded.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">Maximum</span> The single maximum delay value recorded.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">Samples</span> The total number of samples recorded.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">TimeStamp</span> The exact time at which the data was recorded.
+        </p>
+        <p class="dense-text">
+            <span class="code-highlight">Delay in Seconds</span> The negative or positive delay value in seconds.
+        </p>
+        <h2>Limitations</h2>
+        <p class="dense-text">
+            The data is collected from the Realtime API, which is subject to the accuracy of the data provided by the transport operators (TFI).
+        </p>
+        <p class="dense-text">
+            Not every vehicle is equipped with a GPS tracker, so some vehicles may not be represented in the data or may have only partial data available.
+        </p>
+    </div>
+{% endblock content %}

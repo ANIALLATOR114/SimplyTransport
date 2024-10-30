@@ -1,6 +1,6 @@
 from litestar import Router
 
-from . import root, search, realtime, events, maps, stats
+from . import root, search, realtime, events, maps, stats, delays
 from .api import (
     agency,
     calendar,
@@ -15,7 +15,7 @@ from .api import (
     map,
     statistics,
     events as eventsAPI,
-    delays,
+    delays as delaysAPI,
 )
 from ..lib.openapi.tags import Tags
 
@@ -49,6 +49,12 @@ def create_views_router() -> Router:
         include_in_schema=False,
     )
 
+    delays_route_handler = Router(
+        path="/delays",
+        route_handlers=[delays.DelaysController],
+        include_in_schema=False,
+    )
+
     static_route_handler = Router(
         path="/stats",
         route_handlers=[stats.StatsController],
@@ -63,6 +69,7 @@ def create_views_router() -> Router:
             realtime_route_handler,
             events_route_handler,
             maps_route_handler,
+            delays_route_handler,
             static_route_handler,
         ],
     )
@@ -132,7 +139,7 @@ def create_api_router() -> Router:
     delays_route_handler = Router(
         path="/delays",
         tags=[tags.DELAYS.name],
-        route_handlers=[delays.DelaysController],
+        route_handlers=[delaysAPI.DelaysController],
     )
 
     return Router(
