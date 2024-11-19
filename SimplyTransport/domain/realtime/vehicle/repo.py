@@ -1,3 +1,4 @@
+from typing import Sequence
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload
@@ -12,7 +13,7 @@ from .model import RTVehicleModel
 class RTVehicleRepository(SQLAlchemyAsyncRepository[RTVehicleModel]):
     """RTVehicle repository."""
 
-    async def get_vehicles_on_routes(self, route_ids: list, direction: int) -> list[RTVehicleModel]:
+    async def get_vehicles_on_routes(self, route_ids: list, direction: int) -> Sequence[RTVehicleModel]:
         """Get most recent vehicle updates for vehicles on routes.
 
         Args:

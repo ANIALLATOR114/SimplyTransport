@@ -1,24 +1,26 @@
 <script>
-    function filterTable() {
-        // Get input value and convert to lowercase for case-insensitive comparison
-        var filterValue = document.querySelector('.search-box').value.toLowerCase();
-        
-        // Get all rows in the table body
-        var rows = document.querySelectorAll('.table-search tbody tr');
-
-        // Iterate through each row and check if it contains the filter value
-        rows.forEach(function(row) {
-            var routeName = row.querySelector('.dense-text').textContent.toLowerCase();
-
-            // If the row contains the filter value, display it; otherwise, hide it
-            if (routeName.includes(filterValue)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+    document.addEventListener('DOMContentLoaded', () => {
+        const filterTable = (searchBox, tableSearch) => {
+            const filterValue = document.getElementById(searchBox).value.toLowerCase();
+            const table = document.getElementById(tableSearch);
+            if (!table) {
+                console.error(`Table with ID ${tableSearch} not found.`);
+                return;
             }
-        });
-    }
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const routeName = row.querySelector('.dense-text').textContent.toLowerCase();
+                row.style.display = routeName.includes(filterValue) ? '' : 'none';
+            });
+        };
 
-    // Attach the filterTable function to the input's 'input' event
-    document.querySelector('.search-box').addEventListener('input', filterTable);
+        const attachFilter = (searchBox, tableSearch) => {
+            document.getElementById(searchBox)?.addEventListener('input', () => {
+                filterTable(searchBox, tableSearch);
+            });
+        };
+
+        attachFilter('search-box-1', 'table-1');
+        attachFilter('search-box-2', 'table-2');
+    });
 </script>

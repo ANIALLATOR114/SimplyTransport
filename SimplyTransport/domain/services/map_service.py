@@ -132,14 +132,24 @@ class MapService:
         if len(shapes) == 0:
             raise NotFoundError(f"No shapes found for route {route_id} and direction {direction}")
 
+        vehicles_on_route = await self.rt_vehicle_repository.get_vehicles_on_routes([route_id], direction)
+
         sorted_shapes = sorted(shapes, key=lambda x: x.sequence)
 
         route_map = Map(lat=sorted_shapes[0].lat, lon=sorted_shapes[0].lon, zoom=12, height=500)
         route_map.setup_defaults()
 
         route_poly = RoutePolyLine(route=route, locations=[(shape.lat, shape.lon) for shape in sorted_shapes])
-        route_layer = Layer(f"{route.short_name}")
+        route_layer = Layer(f"{route_poly.route_color.to_html_square()} {route.short_name}")
         route_layer.add_child(route_poly.polyline)
+
+        bus_markers = [
+            BusMarker(vehicle=vehicle, create_links=True, color=route_poly.route_color).create_marker()
+            for vehicle in vehicles_on_route
+        ]
+        for bus_marker in bus_markers:
+            route_layer.add_child(bus_marker)
+
         route_layer.add_to(route_map.map_base)
 
         other_stops_on_routes = await self.stop_repository.get_stops_by_route_id(route_id, direction)

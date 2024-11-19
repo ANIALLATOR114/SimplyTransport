@@ -363,6 +363,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             redis_service = provide_redis_service()
             await redis_service.delete_keys(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
 
             console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
 
