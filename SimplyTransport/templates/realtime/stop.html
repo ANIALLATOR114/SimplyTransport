@@ -28,9 +28,9 @@
                 <span class="dense-text">Showing <span class="word-highlight">{{ start_time_difference }}</span> and <span class="word-highlight">+{{ end_time_difference }}</span> mins</span><span class="code-highlight">{{ current_time.strftime("%H:%M:%S") }}</span>
             </div>
             <div class="bottom-margin">
-                <input class="search-box" placeholder="Filter by route...">
+                <input class="search-box" id="search-box-1" placeholder="Filter by route...">
             </div>
-            <table class="table-search" aria-label="Realtime">
+            <table class="table-search" id="table-1" aria-label="Realtime">
                 <thead>
                     <tr>
                         <th class="dense-text">Route</th>
@@ -114,11 +114,12 @@
                     </select>
                 </div>
                 <div class="bottom-margin">
-                    <input class="search-box" placeholder="Filter by route...">
+                    <input class="search-box" id="search-box-2" placeholder="Filter by route...">
                 </div>
                 <div id="schedule-table">
                     <h3 class="h3-table">Day: {{ day_string }}</h3>
                     <table class="table-search no-stripe table-sortable"
+                           id="table-2"
                            aria-label="Trips at stop">
                         <thead class="hoverable">
                             <tr>
