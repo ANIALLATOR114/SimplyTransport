@@ -11,7 +11,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
 coverage==7.3.3
-cssbeautifier==1.14.9
+cssbeautifier==1.15.1
 Deprecated==1.2.14
 djlint==1.34.0
 EditorConfig==0.12.3
