@@ -51,7 +51,7 @@ opentelemetry-instrumentation-sqlalchemy==0.44b0
 opentelemetry-proto==1.23.0
 opentelemetry-sdk==1.23.0
 opentelemetry-semantic-conventions==0.44b0
-opentelemetry-util-http==0.44b0
+opentelemetry-util-http==0.50b0
 packaging==23.2
 pathspec==0.11.2
 pluggy==1.3.0
