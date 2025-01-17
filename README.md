@@ -454,3 +454,33 @@ coverage html --show-contexts
 ```
 
 This will generate a htmlcov directory in the root directory where you can open index.html to view the report in your browser.
+
+## Pre-commit Hooks
+
+The hooks are configured to run Black with the same settings as the CI pipeline.
+
+### Installation
+
+Install development dependencies:
+
+```bash
+pip install -r requirements-dev.txt
+pre-commit install
+```
+
+### Usage
+
+The hooks will run automatically on every commit. Black will automatically format your code and include the changes in your commit - no need to stage the reformatted files again.
+
+### Current Hooks
+
+- **black**: Python code formatter (auto-formats code)
+  - Line length: 110 characters
+  - Targets: SimplyTransport/ and tests/ directories
+  - Auto-adds reformatted files to your commit
+
+### Configuration Files
+
+- `.pre-commit-config.yaml`: Pre-commit hook configuration
+- `requirements-dev.txt`: Development dependencies including pre-commit
+- `.github/workflows/format_code.yaml`: GitHub Action that runs the same formatting in CI

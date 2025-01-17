@@ -1,7 +1,8 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 24.10.0 # Use the latest stable version
+    rev: 24.10.0
     hooks:
       - id: black
         args: [--line-length=110]
         files: ^(SimplyTransport|tests)/
+        stages: [commit]
