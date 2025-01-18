@@ -34,17 +34,17 @@ jobs:
             exit 1
           fi
 
-      - name: Run Ruff format on main directory
-        run: ruff format SimplyTransport
-
-      - name: Run Ruff format on tests directory
-        run: ruff format tests
-
       - name: Run Ruff check with fixes on main directory
         run: ruff check --fix SimplyTransport
 
       - name: Run Ruff check with fixes on tests directory
         run: ruff check --fix tests
+
+      - name: Run Ruff format on main directory
+        run: ruff format SimplyTransport
+
+      - name: Run Ruff format on tests directory
+        run: ruff format tests
 
       - name: Check for modified files
         id: git-check
