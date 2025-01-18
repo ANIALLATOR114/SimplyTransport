@@ -1,8 +1,9 @@
 from datetime import datetime
+
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from pydantic import BaseModel as _BaseModel
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from pydantic import BaseModel as _BaseModel
 
 
 class BaseModel(_BaseModel):

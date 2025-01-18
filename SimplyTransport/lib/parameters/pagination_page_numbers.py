@@ -14,7 +14,7 @@ def generate_pagination_pages(current_page: int, total_pages: int) -> list[int]:
         return list(range(1, total_pages + 1))
     else:
         # Generate the first page, last page, current page, and two pages around the current_page
-        intermediate_pages = sorted(set([1, current_page - 1, current_page, current_page + 1, total_pages]))
+        intermediate_pages = sorted({1, current_page - 1, current_page, current_page + 1, total_pages})
 
         # Ensure the intermediate pages are within the valid page range
         intermediate_pages = [page for page in intermediate_pages if 1 <= page <= total_pages]

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
 from sqlalchemy import ForeignKey, Index, Integer, String, UniqueConstraint
@@ -33,8 +31,8 @@ class RTStopTimeModel(BigIntAuditBase):
     )
     stop_sequence: Mapped[int] = mapped_column(Integer)
     schedule_relationship: Mapped[ScheduleRealtionship] = mapped_column(String(length=1000))
-    arrival_delay: Mapped[Optional[int]] = mapped_column(Integer)
-    departure_delay: Mapped[Optional[int]] = mapped_column(Integer)
+    arrival_delay: Mapped[int | None] = mapped_column(Integer)
+    departure_delay: Mapped[int | None] = mapped_column(Integer)
     entity_id: Mapped[str] = mapped_column(String(length=1000), index=True)
     dataset: Mapped[str] = mapped_column(String(length=80))
     # If you add a new field, remember to update the batch insert query in the realtime importer

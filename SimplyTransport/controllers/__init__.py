@@ -1,23 +1,31 @@
 from litestar import Router
 
-from . import root, search, realtime, events, maps, stats, delays
+from ..lib.openapi.tags import Tags
+from . import delays, events, maps, realtime, root, search, stats
 from .api import (
     agency,
     calendar,
     calendar_date,
-    route,
-    trip,
-    stop,
-    shape,
-    stoptime,
-    realtime as realtimeAPI,
-    schedule as scheduleAPI,
     map,
+    route,
+    shape,
     statistics,
-    events as eventsAPI,
-    delays as delaysAPI,
+    stop,
+    stoptime,
+    trip,
 )
-from ..lib.openapi.tags import Tags
+from .api import (
+    delays as delays_api,
+)
+from .api import (
+    events as events_api,
+)
+from .api import (
+    realtime as realtime_api,
+)
+from .api import (
+    schedule as schedule_api,
+)
 
 __all__ = ["create_api_router", "create_views_router"]
 
@@ -113,13 +121,13 @@ def create_api_router() -> Router:
     realtime_route_handler = Router(
         path="/realtime",
         tags=[tags.REALTIME.name],
-        route_handlers=[realtimeAPI.RealtimeController],
+        route_handlers=[realtime_api.RealtimeController],
     )
 
     schedule_route_handler = Router(
         path="/schedule",
         tags=[tags.SCHEDULE.name],
-        route_handlers=[scheduleAPI.ScheduleController],
+        route_handlers=[schedule_api.ScheduleController],
     )
 
     maps_route_handler = Router(path="/map", tags=[tags.MAP.name], route_handlers=[map.MapController])
@@ -133,13 +141,13 @@ def create_api_router() -> Router:
     events_route_handler = Router(
         path="/events",
         tags=[tags.EVENTS.name],
-        route_handlers=[eventsAPI.EventsController],
+        route_handlers=[events_api.EventsController],
     )
 
     delays_route_handler = Router(
         path="/delays",
         tags=[tags.DELAYS.name],
-        route_handlers=[delaysAPI.DelaysController],
+        route_handlers=[delays_api.DelaysController],
     )
 
     return Router(

@@ -1,14 +1,12 @@
+from datetime import time
 from unittest.mock import AsyncMock
 
-from datetime import time
-
+import pytest
 from SimplyTransport.domain.realtime.realtime_schedule.model import RealTimeScheduleModel
 from SimplyTransport.domain.realtime.stop_time.model import RTStopTimeModel
 from SimplyTransport.domain.realtime.trip.model import RTTripModel
 from SimplyTransport.domain.schedule.model import StaticScheduleModel
 from SimplyTransport.domain.services.realtime_service import RealTimeService
-import pytest
-
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 
 

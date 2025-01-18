@@ -1,13 +1,13 @@
 from datetime import date
 
+from advanced_alchemy import NotFoundError
+from advanced_alchemy.filters import OnBeforeAfter
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
-from advanced_alchemy import NotFoundError
-from advanced_alchemy.filters import OnBeforeAfter
 
 from ...domain.calendar.model import Calendar, CalendarWithTotal
-from ...domain.calendar.repo import provide_calendar_repo, CalendarRepository
+from ...domain.calendar.repo import CalendarRepository, provide_calendar_repo
 
 __all__ = ["CalendarController"]
 

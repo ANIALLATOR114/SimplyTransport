@@ -1,5 +1,7 @@
-from datetime import datetime, time, date
 import json
+from datetime import date, datetime, time
+from typing import Any
+
 from litestar.exceptions import ValidationException
 
 
@@ -31,7 +33,7 @@ def convert_joined_date_to_date(date: str) -> date:
 
 
 class DateTimeEncoderForJson(json.JSONEncoder):
-    def default(self, o):
+    def default(self, o: Any) -> str:
         if isinstance(o, datetime):
             return o.strftime("%H:%M:%S %d-%m-%Y")
         return super().default(o)
@@ -57,7 +59,7 @@ def return_time_difference(start_time: time, end_time: time) -> int:
     return difference
 
 
-def validate_time_range(start_time: datetime | None, end_time: datetime | None):
+def validate_time_range(start_time: datetime | None, end_time: datetime | None) -> None:
     """
     Validates that the start time is not greater than the end time.
 

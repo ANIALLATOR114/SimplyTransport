@@ -1,9 +1,10 @@
 from typing import Literal
+
+from advanced_alchemy.filters import LimitOffset
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
-from advanced_alchemy.filters import LimitOffset
 
 from SimplyTransport.domain.events.event_types import EventType
 from SimplyTransport.domain.events.model import Event, EventsWithTotal
@@ -50,7 +51,6 @@ class EventsController(Controller):
             required=False, description="Order by descending or ascending", default="desc"
         ),
     ) -> EventsWithTotal:
-
         result, total = await repo.get_paginated_events_by_type_with_total(type, limit_offset, order)
 
         if not result:

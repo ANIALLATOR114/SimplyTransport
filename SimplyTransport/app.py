@@ -4,21 +4,20 @@ from litestar.di import Provide
 from litestar.stores.registry import StoreRegistry
 
 from SimplyTransport.lib import exception_handlers
-from .lib.logging.logging import logging_setup
+from SimplyTransport.lib.db import services as db_services
 
+from .cli import CLIPlugin
 from .controllers import create_api_router, create_views_router
 from .lib import settings
-from SimplyTransport.lib.db import services as db_services
-from .lib.db.database import sqlalchemy_plugin
-from .lib.openapi.openapiconfig import custom_open_api_config
-from .lib.template_engine import custom_template_config
-from .lib.static_files import create_static_router
 from .lib.cache import redis_service_cache_config_factory, redis_store_factory
-from .cli import CLIPlugin
-from .lib.parameters.limitoffset import provide_limit_offset_pagination
 from .lib.compression import compression_config
-from .lib.logging.logging import logging_shutdown
+from .lib.db.database import sqlalchemy_plugin
+from .lib.logging.logging import logging_setup, logging_shutdown
+from .lib.openapi.openapiconfig import custom_open_api_config
 from .lib.opentelemetry import open_telemetry_plugin
+from .lib.parameters.limitoffset import provide_limit_offset_pagination
+from .lib.static_files import create_static_router
+from .lib.template_engine import custom_template_config
 
 
 def create_app() -> Litestar:

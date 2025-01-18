@@ -1,16 +1,14 @@
 import SimplyTransport.lib.settings as settings
-
 from litestar.contrib.sqlalchemy.plugins import (
     AsyncSessionConfig,
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
 )
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
 # Sync version for importer
 from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session
 
 engine = create_engine(settings.app.DB_URL_SYNC, echo=settings.app.DB_ECHO, pool_pre_ping=True)

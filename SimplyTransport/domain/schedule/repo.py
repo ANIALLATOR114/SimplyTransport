@@ -5,8 +5,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..calendar.model import CalendarModel
-from ..route.model import RouteModel
 from ..enums import DayOfWeek
+from ..route.model import RouteModel
 from ..stop.model import StopModel
 from ..stop_times.model import StopTimeModel
 from ..trip.model import TripModel
@@ -31,10 +31,13 @@ class ScheduleRepository:
         """
         Retrieve static schedules based on the given parameters.
         Parameters:
-        - stop_id (str | None): The ID of the stop. If provided, only schedules for this stop will be retrieved.
+        - stop_id (str | None): The ID of the stop.
+        If provided, only schedules for this stop will be retrieved.
         - day (DayOfWeek): The day of the week for which schedules should be retrieved.
-        - start_time (time | None): The start time of the schedules. If provided, only schedules with arrival times greater than or equal to this time will be retrieved.
-        - end_time (time | None): The end time of the schedules. If provided, only schedules with arrival times less than or equal to this time will be retrieved.
+        - start_time (time | None): The start time of the schedules.
+        If provided, only schedules with arrival times greater than or equal to this time will be retrieved.
+        - end_time (time | None): The end time of the schedules.
+        If provided, only schedules with arrival times less than or equal to this time will be retrieved.
         Returns:
         - list[ScheduleTuple]: A list of ScheduleTuple objects representing the retrieved schedules.
         Raises:

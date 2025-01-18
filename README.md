@@ -455,9 +455,11 @@ coverage html --show-contexts
 
 This will generate a htmlcov directory in the root directory where you can open index.html to view the report in your browser.
 
-## Pre-commit Hooks
+## Code Quality Tools
 
-The hooks are configured to run Black with the same settings as the CI pipeline.
+### Pre-commit Hooks
+
+The hooks are configured to run Ruff with the same settings as the CI pipeline.
 
 ### Installation
 
@@ -470,17 +472,57 @@ pre-commit install
 
 ### Usage
 
-The hooks will run automatically on every commit. Black will automatically format your code and include the changes in your commit - no need to stage the reformatted files again.
+The hooks will run automatically on every commit. Ruff will:
+
+1. Check for code quality issues
+2. Format your code (similar to Black)
+3. Auto-fix common issues
+4. Include the changes in your commit
+
+You can also run Ruff manually:
+
+```bash
+# Check code
+ruff check .
+
+# Format code
+ruff format .
+
+# Fix issues automatically
+ruff check --fix .
+```
 
 ### Current Hooks
 
-- **black**: Python code formatter (auto-formats code)
+- **ruff**: Fast Python linter and formatter (written in Rust)
   - Line length: 110 characters
   - Targets: SimplyTransport/ and tests/ directories
-  - Auto-adds reformatted files to your commit
+  - Enabled rules:
+    - pycodestyle errors (E)
+    - pyflakes (F)
+    - isort (I)
+    - flake8-bugbear (B)
+    - flake8-comprehensions (C4)
+    - pyupgrade (UP)
+    - pep8-naming (N)
+    - pycodestyle warnings (W)
 
 ### Configuration Files
 
 - `.pre-commit-config.yaml`: Pre-commit hook configuration
-- `requirements-dev.txt`: Development dependencies including pre-commit
-- `.github/workflows/format_code.yaml`: GitHub Action that runs the same formatting in CI
+- `pyproject.toml`: Ruff configuration
+- `requirements-dev.txt`: Development dependencies
+
+### Pyright - Type checking
+
+Pyright is a static type checker for Python. It is not yet enforced in the CI pipeline as the project is not yet fully typed.
+
+It is currently set to basic but the goal is to get it to strict.
+
+You can run Pyright manually using the following command:
+
+```bash
+pyright
+```
+
+This will check the entire project for type errors and warnings.

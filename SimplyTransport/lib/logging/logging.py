@@ -1,9 +1,9 @@
-from SimplyTransport.lib import settings
-from SimplyTransport.lib.logging.handlers import get_loki_handler_path
+import logging.config
 
 import litestar
 import structlog
-import logging.config
+from SimplyTransport.lib import settings
+from SimplyTransport.lib.logging.handlers import get_loki_handler_path
 
 
 def provide_logger(logger_name: str) -> structlog.stdlib.BoundLogger:
@@ -27,7 +27,7 @@ def provide_logger(logger_name: str) -> structlog.stdlib.BoundLogger:
     return logger
 
 
-def logging_setup():
+def logging_setup() -> None:
     timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S")
     pre_chain = [
         structlog.stdlib.add_log_level,
@@ -119,7 +119,7 @@ def logging_setup():
     )
 
 
-def logging_shutdown():
+def logging_shutdown() -> None:
     logger = provide_logger(__name__)
     logger.info(
         "Application shutting down",

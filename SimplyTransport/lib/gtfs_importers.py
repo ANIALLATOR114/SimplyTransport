@@ -1,7 +1,8 @@
-import csv
 import asyncio
+import csv
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List
+from collections.abc import Iterator
+from typing import Any
 
 import rich.progress as rp
 
@@ -10,12 +11,12 @@ from ..domain.calendar.model import CalendarModel
 from ..domain.calendar_dates.model import CalendarDateModel
 from ..domain.enums import RouteType
 from ..domain.route.model import RouteModel
-from ..domain.trip.model import TripModel
-from ..domain.stop.model import StopModel
 from ..domain.shape.model import ShapeModel
+from ..domain.stop.model import StopModel
 from ..domain.stop_times.model import StopTimeModel
-from .db.database import session, async_session_factory
+from ..domain.trip.model import TripModel
 from . import time_date_conversions as tdc
+from .db.database import async_session_factory, session
 
 NUMBER_OF_CONSUMERS = 2
 QUEUE_MAXSIZE = 2
@@ -34,7 +35,7 @@ progress_columns = (
 
 
 class AsyncImporter(ABC):
-    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -71,7 +72,7 @@ async def consumer(q: asyncio.Queue) -> None:
             q.task_done()
 
 
-def create_queue_and_tasks(producer) -> List[asyncio.Task]:
+def create_queue_and_tasks(producer) -> list[asyncio.Task]:
     """Creates a queue and tasks for producers and consumers"""
 
     q = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
@@ -82,7 +83,7 @@ def create_queue_and_tasks(producer) -> List[asyncio.Task]:
 
 
 def get_importer_for_file(
-    file: str, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str
+    file: str, reader: Iterator[dict[str, Any]], row_count: int, dataset: str
 ) -> AsyncImporter:
     """Maps a file name to the appropriate importer class"""
 
@@ -98,8 +99,8 @@ def get_importer_for_file(
     }
     try:
         importer_class = map_file_to_importer[file]
-    except KeyError:
-        raise ValueError(f"File '{file}' does not have a supported importer.")
+    except KeyError as err:
+        raise ValueError(f"File '{file}' does not have a supported importer.") from err
     importer = importer_class(reader, row_count, dataset)
     return importer
 
@@ -109,13 +110,12 @@ class GTFSImporter:
         self.path = path
         self.filename = filename
 
-    def get_reader(self) -> Iterator[Dict[str, Any]]:
+    def get_reader(self) -> Iterator[dict[str, Any]]:
         """Returns a DictReader object for the file"""
 
-        with open(self.path + self.filename, "r", encoding="utf8") as f:
+        with open(self.path + self.filename, encoding="utf8") as f:
             reader = csv.DictReader(f)
-            for row in reader:
-                yield row
+            yield from reader
 
     def get_row_count(self):
         """Returns the number of rows in the file"""
@@ -133,7 +133,7 @@ class GTFSImporter:
 
 
 class AgencyImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -189,7 +189,7 @@ class AgencyImporter(AsyncImporter):
 class CalendarImporter(AsyncImporter):
     def __init__(
         self,
-        reader: Iterator[Dict[str, Any]],
+        reader: Iterator[dict[str, Any]],
         row_count: int,
         dataset: str,
     ):
@@ -252,7 +252,7 @@ class CalendarImporter(AsyncImporter):
 
 
 class CalendarDateImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -312,7 +312,7 @@ class CalendarDateImporter(AsyncImporter):
 
 
 class RouteImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -373,7 +373,7 @@ class RouteImporter(AsyncImporter):
 
 
 class TripImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -431,7 +431,7 @@ class TripImporter(AsyncImporter):
 
 
 class StopImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -501,7 +501,7 @@ class StopImporter(AsyncImporter):
 
 
 class ShapeImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
@@ -556,7 +556,7 @@ class ShapeImporter(AsyncImporter):
 
 
 class StopTimeImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[Dict[str, Any]], row_count: int, dataset: str):
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset

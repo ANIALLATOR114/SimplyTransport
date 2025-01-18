@@ -1,15 +1,12 @@
 import asyncio
 from logging.config import fileConfig
 
+from alembic import context
 from litestar.contrib.sqlalchemy.base import UUIDBase
+from SimplyTransport.lib import settings
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
-
-from alembic import context
-
-from SimplyTransport.lib import settings
-
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -33,15 +30,18 @@ target_metadata = UUIDBase.metadata
 
 # Retreives the DB name from the cmd args
 cmd_kwargs = context.get_x_argument(as_dictionary=True)
-if 'db' not in cmd_kwargs:
-    raise Exception('We couldn\'t find `db` in the CLI arguments. '
-                    'Please verify `alembic` was run with `-x db=<db_name>` '
-                    '(e.g. `alembic -x db=main upgrade head`)')
-db_name = cmd_kwargs['db']
+if "db" not in cmd_kwargs:
+    raise Exception(
+        "We couldn't find `db` in the CLI arguments. "
+        "Please verify `alembic` was run with `-x db=<db_name>` "
+        "(e.g. `alembic -x db=main upgrade head`)"
+    )
+db_name = cmd_kwargs["db"]
 
 # Ensure correct domain is in scope for the migration
 if db_name == "main":
     from SimplyTransport import domain  # noqa: F401
+
     target_metadata = UUIDBase.metadata
 elif db_name == "timescale":
     from SimplyTransport import timescale  # noqa: F401
@@ -80,11 +80,13 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+
 def do_run_migrations(connection: Connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
         context.run_migrations()
+
 
 async def run_migrations_online() -> None:
     """Run migrations in 'online' mode.

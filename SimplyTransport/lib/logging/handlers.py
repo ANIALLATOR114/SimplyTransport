@@ -1,14 +1,13 @@
-import os
-from queue import Queue
-from SimplyTransport.lib import settings
-
 import logging.config
 import logging.handlers
+from queue import Queue
+
 import logging_loki
+from SimplyTransport.lib import settings
 
 
 class FilterDefaultTags(logging.Filter):
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         r = record.__dict__
         line_number = r["lineno"]
         calling_function = r["funcName"]
@@ -29,7 +28,7 @@ class FilterDefaultTags(logging.Filter):
 class LokiHandler:
     """A handler for logging to Loki"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         tags = {
             "app": settings.app.NAME,
             "env": settings.app.ENVIRONMENT,
@@ -62,21 +61,21 @@ class LokiHandler:
         )
         return handler
 
-    def setFormatter(self, formatter: logging.Formatter) -> None:
+    def setFormatter(self, formatter: logging.Formatter) -> None:  # noqa: N802
         self.handler.setFormatter(formatter)
 
-    def setLevel(self, level: int) -> None:
+    def setLevel(self, level: int) -> None:  # noqa: N802
         self.level = level
         self.handler.setLevel(level)
 
     def handle(self, record: logging.LogRecord) -> None:
         self.handler.handle(record)
 
-    def addFilter(self, filter: logging.Filter) -> None:
+    def addFilter(self, filter: logging.Filter) -> None:  # noqa: N802
         self.handler.addFilter(filter)
 
 
-def get_loki_handler_path():
+def get_loki_handler_path() -> str:
     """
     Returns the fully qualified path of the LokiHandler class.
 

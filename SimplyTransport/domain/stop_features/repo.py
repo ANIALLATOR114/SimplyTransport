@@ -1,5 +1,6 @@
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from .model import StopFeatureModel
 
 

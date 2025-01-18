@@ -1,37 +1,34 @@
+import asyncio
+import functools
 import json
 import os
 import time
-import asyncio
-import functools
 
-import geojson
 import click
+import geojson
 import rich.progress as rp
 from litestar import Litestar
 from litestar.plugins import CLIPluginProtocol
 from rich.console import Console
 from rich.table import Table
 
-from .domain.services.statistics_service import provide_statistics_service
-from .timescale.services.delays_service import provide_delays_service
-
-from .domain.maps.enums import StaticStopMapTypes
-
-from .domain.agency.repo import provide_agency_repo
-from .lib.logging.logging import provide_logger
-from .lib.cache import provide_redis_service
-from .lib.cache_keys import CacheKeys
-from .lib.gtfs_static_maps import build_route_map, build_stop_map
-
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.db import services as db_services
-from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter, progress_columns
-from .lib.stop_features_importer import StopFeaturesImporter
-from .domain.events.repo import create_event_with_session, provide_event_repo
+
+from .domain.agency.repo import provide_agency_repo
 from .domain.events.event_types import EventType
+from .domain.events.repo import create_event_with_session, provide_event_repo
+from .domain.maps.enums import StaticStopMapTypes
+from .domain.services.statistics_service import provide_statistics_service
+from .lib.cache import provide_redis_service
+from .lib.cache_keys import CacheKeys
 from .lib.db.database import async_session_factory
 from .lib.db.timescale_database import async_timescale_session_factory
-
+from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter, progress_columns
+from .lib.gtfs_static_maps import build_route_map, build_stop_map
+from .lib.logging.logging import provide_logger
+from .lib.stop_features_importer import StopFeaturesImporter
+from .timescale.services.delays_service import provide_delays_service
 
 DEFAULT_GTFS_DIRECTORY = "./gtfs_data/TFI/"
 
@@ -131,7 +128,8 @@ class CLIPlugin(CLIPluginProtocol):
             dir_path = dir.split("/")
             dataset = dir_path[-2]
             response = click.prompt(
-                f"\nYou are about to import this dataset and assign it to '{dataset}'. Press 'y' to continue, anything else to abort: ",
+                f"\nYou are about to import this dataset and assign it to '{dataset}'. "
+                "Press 'y' to continue, anything else to abort: ",
                 type=str,
                 default="",
                 show_default=False,
@@ -225,7 +223,7 @@ class CLIPlugin(CLIPluginProtocol):
             await redis_service.delete_keys(CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
 
             finish = time.perf_counter()
-            console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
 
         @cli.command(name="importrealtime", help="Imports GTFS realtime data into the database")
         @click.option("-url", help="Override the default URL for the GTFS realtime data")
@@ -293,7 +291,7 @@ class CLIPlugin(CLIPluginProtocol):
                 attributes,
             )
 
-            console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
 
         @cli.command(
             name="importrealtimevehicles", help="Imports GTFS realtime vehicle data into the database"
@@ -365,7 +363,7 @@ class CLIPlugin(CLIPluginProtocol):
             await redis_service.delete_keys(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
 
-            console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
 
         @cli.command(name="create_tables", help="Creates the database tables")
         def create_tables():
@@ -391,7 +389,8 @@ class CLIPlugin(CLIPluginProtocol):
             dir_path = dir.split("/")
             dataset = dir_path[-2]
             response = click.prompt(
-                f"\nYou are about to import this dataset and assign it to '{dataset}'. Press 'y' to continue, anything else to abort: ",
+                f"\nYou are about to import this dataset and assign it to '{dataset}'. "
+                "Press 'y' to continue, anything else to abort: ",
                 type=str,
                 default="",
                 show_default=False,
@@ -403,11 +402,12 @@ class CLIPlugin(CLIPluginProtocol):
             def geojson_cleaner(filename: str) -> geojson.FeatureCollection:
                 console.print(f"Cleaning {filename}...")
 
-                with open(filename, "r", encoding="utf8") as f:
+                with open(filename, encoding="utf8") as f:
                     data = json.load(f)
 
                 # Convert the coordinates to numbers from strings
-                # This is needed because geojson doesn't support floats and for some TFI reason thats what the data is formatted with
+                # This is needed because geojson doesn't support floats and for some TFI reason
+                # thats what the data is formatted with
                 for feature in data["features"]:
                     feature["geometry"]["coordinates"] = [
                         float(coord) for coord in feature["geometry"]["coordinates"]
@@ -449,7 +449,7 @@ class CLIPlugin(CLIPluginProtocol):
                 attributes,
             )
 
-            console.print(f"\n[blue]Finished import in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
 
         @cli.command(name="recreate_indexes", help="Recreates the indexes on a given table")
         @click.option("-table", help="The table to recreate the indexes on")
@@ -461,7 +461,8 @@ class CLIPlugin(CLIPluginProtocol):
             if table is None:
                 console.print("[yellow]No table specified to recreate indexes on from the -table argument")
                 response = click.prompt(
-                    "\nYou are about to recreate indexes on all tables. Press 'y' to continue, anything else to abort: ",
+                    "\nYou are about to recreate indexes on all tables. Press 'y' to continue, "
+                    "anything else to abort: ",
                     type=str,
                     default="",
                     show_default=False,
@@ -472,7 +473,8 @@ class CLIPlugin(CLIPluginProtocol):
             else:
                 console.print(f"Recreating indexes on table {table}")
                 response = click.prompt(
-                    f"\nYou are about to recreate indexes on table {table}. Press 'y' to continue, anything else to abort: ",
+                    f"\nYou are about to recreate indexes on table {table}. Press 'y' to continue, "
+                    "anything else to abort: ",
                     type=str,
                     default="",
                     show_default=False,
@@ -486,7 +488,7 @@ class CLIPlugin(CLIPluginProtocol):
             db_services.recreate_indexes(table)
 
             finish = time.perf_counter()
-            console.print(f"\n[blue]Finished recreating indexes in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished recreating indexes in {round(finish - start, 2)} second(s)")
 
         @cli.command(name="cleanupevents", help="Cleans up expired events from the database")
         @click.option("-event", help="Cleanup just a specific event type")
@@ -527,7 +529,7 @@ class CLIPlugin(CLIPluginProtocol):
                 attributes,
             )
             console.print(f"\n[blue]Deleted {number_deleted} events")
-            console.print(f"\n[blue]Finished cleanup in {round(finish-start, 2)} second(s)")
+            console.print(f"\n[blue]Finished cleanup in {round(finish - start, 2)} second(s)")
 
         @cli.command(name="flushredis", help="Flushes the Redis cache")
         @make_sync
@@ -582,8 +584,8 @@ class CLIPlugin(CLIPluginProtocol):
             await redis_service.delete_keys(CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
 
             finish = time.perf_counter()
-            logger.info(f"Finished generating static maps in {round(finish-start, 2)} second(s)")
-            console.print(f"\n[blue]Finished generating static maps in {round(finish-start, 2)} second(s)")
+            logger.info(f"Finished generating static maps in {round(finish - start, 2)} second(s)")
+            console.print(f"\n[blue]Finished generating static maps in {round(finish - start, 2)} second(s)")
 
         @cli.command(name="generatestatistics", help="Generates the statistics for the database")
         @make_sync
@@ -606,8 +608,8 @@ class CLIPlugin(CLIPluginProtocol):
                 "Statistics generated for the database",
                 attributes,
             )
-            logger.info(f"Finished generating statistics in {round(finish-start, 2)} second(s)")
-            console.print(f"\n[blue]Finished generating statistics in {round(finish-start, 2)} second(s)")
+            logger.info(f"Finished generating statistics in {round(finish - start, 2)} second(s)")
+            console.print(f"\n[blue]Finished generating statistics in {round(finish - start, 2)} second(s)")
 
         @cli.command(
             name="recorddelays", help="Records the stop time delays for every schedule in the database"
@@ -637,5 +639,5 @@ class CLIPlugin(CLIPluginProtocol):
                 "Delays recorded for every active schedule",
                 attributes,
             )
-            logger.info(f"Finished recording delays in {round(finish-start, 2)} second(s)")
-            console.print(f"\n[blue]Finished recording delays in {round(finish-start, 2)} second(s)")
+            logger.info(f"Finished recording delays in {round(finish - start, 2)} second(s)")
+            console.print(f"\n[blue]Finished recording delays in {round(finish - start, 2)} second(s)")

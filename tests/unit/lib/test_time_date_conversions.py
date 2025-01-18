@@ -1,10 +1,11 @@
+from datetime import datetime, time
+
 import pytest
-from datetime import time, datetime
 from litestar.exceptions import ValidationException
 from SimplyTransport.lib.time_date_conversions import (
+    convert_29_hours_to_24_hours,
     convert_joined_date_to_date,
     return_time_difference,
-    convert_29_hours_to_24_hours,
     validate_time_range,
 )
 

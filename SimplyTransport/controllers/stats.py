@@ -1,13 +1,12 @@
 from litestar import Controller, get
-from litestar.response import Template
 from litestar.di import Provide
+from litestar.response import Template
 
-from ..lib.logging.logging import provide_logger
 from ..domain.database_statistics.repo import DatabaseStatisticRepository, provide_database_statistic_repo
+from ..domain.database_statistics.statistic_type import StatisticType
 from ..domain.services.statistics_service import StatisticsService, provide_statistics_service
 from ..domain.stop.repo import StopRepository, provide_stop_repo
-from ..domain.database_statistics.statistic_type import StatisticType
-
+from ..lib.logging.logging import provide_logger
 
 __all__ = [
     "StatsController",
@@ -27,7 +26,6 @@ class StatsController(Controller):
     async def static_stats(
         self, stats_repo: DatabaseStatisticRepository, stats_service: StatisticsService
     ) -> Template:
-
         stats = await stats_repo.get_statistics_most_recent_by_type(StatisticType.GTFS_RECORD_COUNTS)
         stats_with_percentages = stats_service.convert_stats_to_stats_with_percentage_totals(stats)
         stats_with_percentages = stats_service.sort_stats_by_value(stats_with_percentages)
@@ -41,7 +39,6 @@ class StatsController(Controller):
     async def operator_stats(
         self, stats_repo: DatabaseStatisticRepository, stats_service: StatisticsService
     ) -> Template:
-
         routes = await stats_repo.get_statistics_most_recent_by_type(StatisticType.OPERATOR_ROUTE_COUNTS)
         routes_with_percentages = stats_service.convert_stats_to_stats_with_percentage_totals(
             routes, total_row_key="Total Routes"

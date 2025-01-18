@@ -1,8 +1,8 @@
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from sqlalchemy import String, Integer, ForeignKey
+from pydantic import BaseModel as _BaseModel
+from pydantic import Field
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from pydantic import BaseModel as _BaseModel, Field
-from typing import Optional
 
 from ..enums import RouteType
 
@@ -23,11 +23,11 @@ class RouteModel(BigIntAuditBase):
     agency: Mapped["AgencyModel"] = relationship(back_populates="routes")  # noqa: F821
     short_name: Mapped[str] = mapped_column(String(length=1000), index=True)
     long_name: Mapped[str] = mapped_column(String(length=1000), index=True)
-    description: Mapped[Optional[str]] = mapped_column(String(length=1000))
+    description: Mapped[str | None] = mapped_column(String(length=1000))
     route_type: Mapped[RouteType] = mapped_column(Integer)
-    url: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    color: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    text_color: Mapped[Optional[str]] = mapped_column(String(length=1000))
+    url: Mapped[str | None] = mapped_column(String(length=1000))
+    color: Mapped[str | None] = mapped_column(String(length=1000))
+    text_color: Mapped[str | None] = mapped_column(String(length=1000))
     trips: Mapped[list["TripModel"]] = relationship(back_populates="route")  # noqa: F821
     rt_trips: Mapped[list["RTTripModel"]] = relationship(back_populates="route")  # noqa: F821
     dataset: Mapped[str] = mapped_column(String(length=80))
@@ -38,13 +38,13 @@ class Route(BaseModel):
     agency_id: str
     short_name: str
     long_name: str
-    description: Optional[str]
+    description: str | None
     route_type: RouteType = Field(
         description="Indicates the type of transportation used on a route",
     )
-    url: Optional[str]
-    color: Optional[str]
-    text_color: Optional[str]
+    url: str | None
+    color: str | None
+    text_color: str | None
     dataset: str
 
 

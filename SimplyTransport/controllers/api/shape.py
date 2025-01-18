@@ -1,3 +1,4 @@
+from advanced_alchemy.filters import OrderBy
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
@@ -5,7 +6,6 @@ from litestar.exceptions import NotFoundException
 from ...domain.shape.model import Shape
 from ...domain.shape.repo import ShapeRepository, provide_shape_repo
 from ...lib.parameters.orderby_shapes import provide_order_by_shapes
-from advanced_alchemy.filters import OrderBy
 
 __all__ = ["ShapeController"]
 

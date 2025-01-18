@@ -1,23 +1,21 @@
+from datetime import UTC, datetime, timedelta
 from json import JSONDecodeError
-from typing import List
+
 import httpx
-from datetime import datetime, timedelta, timezone
+import rich.progress as rp
 from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .logging.logging import provide_logger
-from .db.database import async_session_factory
-from . import time_date_conversions as tdc
-
 from ..domain.realtime.stop_time.model import RTStopTimeModel
 from ..domain.realtime.trip.model import RTTripModel
-from ..domain.route.model import RouteModel
-from ..domain.trip.model import TripModel
 from ..domain.realtime.vehicle.model import RTVehicleModel
+from ..domain.route.model import RouteModel
 from ..domain.stop.model import StopModel
-
-import rich.progress as rp
+from ..domain.trip.model import TripModel
+from . import time_date_conversions as tdc
+from .db.database import async_session_factory
+from .logging.logging import provide_logger
 
 logger = provide_logger(__name__)
 
@@ -33,7 +31,7 @@ progress_columns = (
     rp.TimeRemainingColumn(),
 )
 
-RETENTION_PERIOD = datetime.now(timezone.utc) - timedelta(minutes=30)
+RETENTION_PERIOD = datetime.now(UTC) - timedelta(minutes=30)
 
 
 class RealTimeImporter:
@@ -42,7 +40,7 @@ class RealTimeImporter:
         self.api_key = api_key
         self.dataset = dataset
 
-    def bulk_upsert_statement(self, model, objects_to_commit, index_elements: List[str], update_dict: dict):
+    def bulk_upsert_statement(self, model, objects_to_commit, index_elements: list[str], update_dict: dict):
         stmt = insert(model).values(objects_to_commit)
         stmt = stmt.on_conflict_do_update(
             index_elements=index_elements,
@@ -51,7 +49,7 @@ class RealTimeImporter:
         return stmt
 
     async def bulk_upsert(
-        self, model, objects_to_commit, index_elements: List[str], update_dict: dict, session: AsyncSession
+        self, model, objects_to_commit, index_elements: list[str], update_dict: dict, session: AsyncSession
     ):
         batch_size = 3000
         for i in range(0, len(objects_to_commit), batch_size):

@@ -1,8 +1,10 @@
-from typing import Optional, Sequence
+from collections.abc import Sequence
+
 from advanced_alchemy import NotFoundError
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from .model import TripModel
 
 
@@ -10,7 +12,7 @@ class TripRepository(SQLAlchemyAsyncRepository[TripModel]):
     """Trip repository."""
 
     async def get_first_trips_by_route_ids(
-        self, route_ids: list[str], direction: Optional[int] = None
+        self, route_ids: list[str], direction: int | None = None
     ) -> Sequence[TripModel]:
         """Get first trips by route_ids."""
         query = select(TripModel).where(TripModel.route_id.in_(route_ids)).distinct(TripModel.route_id)

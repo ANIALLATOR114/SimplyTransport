@@ -1,2 +1,42 @@
 [tool.coverage.run]
 dynamic_context = "test_function"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+# Enable specific rules
+lint.select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "W",   # pycodestyle warnings
+]
+
+# Ignore specific rules
+lint.ignore = [
+    "N801",  # class names should use CapWords convention
+    "N999",  # invalid module name
+]
+
+# Files to exclude
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+# This is the source code for the project and ruff will consider these 1st party packages
+src = ["SimplyTransport", "tests"]
+
+[tool.pyright]
+include = ["SimplyTransport", "tests"]
+exclude = ["**/node_modules", "**/__pycache__"]
+typeCheckingMode = "basic"
+pythonVersion = "3.11"

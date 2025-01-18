@@ -1,8 +1,7 @@
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from sqlalchemy import String, Integer, Float
-from sqlalchemy.orm import Mapped, mapped_column
 from pydantic import BaseModel as _BaseModel
-from typing import Optional
+from sqlalchemy import Float, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class BaseModel(_BaseModel):
@@ -17,7 +16,7 @@ class ShapeModel(BigIntAuditBase):
     lat: Mapped[float] = mapped_column(Float)
     lon: Mapped[float] = mapped_column(Float)
     sequence: Mapped[int] = mapped_column(Integer)
-    distance: Mapped[Optional[float]] = mapped_column(Float)
+    distance: Mapped[float | None] = mapped_column(Float)
     dataset: Mapped[str] = mapped_column(String(length=80))
 
 
@@ -27,5 +26,5 @@ class Shape(BaseModel):
     lat: float
     lon: float
     sequence: int
-    distance: Optional[float]
+    distance: float | None
     dataset: str

@@ -1,9 +1,7 @@
+import folium as fl
+import pytest
 from SimplyTransport.domain.agency.model import AgencyModel
 from SimplyTransport.domain.maps.polylines import PolyLineColors, RoutePolyLine
-import folium as fl
-
-import pytest
-
 from SimplyTransport.domain.route.model import RouteModel
 
 

@@ -1,9 +1,11 @@
 import asyncio
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 from litestar.contrib.sqlalchemy.base import UUIDBase
 from sqlalchemy import MetaData, text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
-from .database import engine, session, async_engine
+
+from .database import async_engine, engine, session
 from .timescale_database import async_timescale_engine
 
 
@@ -23,7 +25,8 @@ async def create_database() -> None:
     except ConnectionRefusedError as e:
         print(e)
         print(
-            f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {async_engine.url}\n"
+            f"\nDatabase connection refused. Please ensure the database is "
+            f"running and accessible.\nURL: {async_engine.url}\n"
         )
         raise e
 
@@ -43,7 +46,8 @@ def create_database_sync() -> None:
     except ConnectionRefusedError as e:
         print(e)
         print(
-            f"\nDatabase connection refused. Please ensure the database is running and accessible.\nURL: {engine.url}\n"
+            f"\nDatabase connection refused. Please ensure the database "
+            f"is running and accessible.\nURL: {engine.url}\n"
         )
         raise e
 
@@ -52,7 +56,8 @@ def recreate_indexes(table_name: str | None = None):
     """Recreate all indexes
 
     Args:
-        table_name (str | None): The name of the table to recreate indexes for. If None, indexes will be recreated for all tables.
+        table_name (str | None): The name of the table to recreate indexes for.
+        If None, indexes will be recreated for all tables.
 
     """
     metadata = MetaData()
@@ -91,7 +96,8 @@ async def test_database_connections():
         except Exception as e:
             print(e)
             print(
-                f"\n{db_name} Database connection refused. Please ensure the database is running and accessible.\nURL: {engine.url}\n"
+                f"\n{db_name} Database connection refused. Please ensure the database "
+                f"is running and accessible.\nURL: {engine.url}\n"
             )
             raise e
 

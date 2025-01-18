@@ -1,14 +1,15 @@
-from datetime import date, datetime, timedelta
-from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from sqlalchemy import DateTime, Index, String
+import json
+from datetime import datetime, timedelta
 from typing import Any
+
+from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from pydantic import BaseModel as _BaseModel
+from sqlalchemy import DateTime, Index, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
-from pydantic import BaseModel as _BaseModel
-import json
 
-from .event_types import EventType
 from ...lib.time_date_conversions import DateTimeEncoderForJson
+from .event_types import EventType
 
 
 class BaseModel(_BaseModel):
@@ -18,7 +19,7 @@ class BaseModel(_BaseModel):
 
 
 class EventModel(BigIntAuditBase):
-    __tablename__ = "event"
+    __tablename__: str = "event"  # type: ignore[assignment]
     __table_args__ = (Index("ix_event_created_at", "created_at"),)
 
     event_type: Mapped[EventType] = mapped_column(String(length=255), index=True)
@@ -26,9 +27,11 @@ class EventModel(BigIntAuditBase):
     expiry_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     attributes: Mapped[dict] = mapped_column(JSONB)
 
-    def to_dict(self) -> dict[str, Any]:
-        exclude = {"updated_at"}
-        return super().to_dict(exclude)
+    def to_dict(self, exclude: set[str] | None = None) -> dict[str, Any]:
+        if exclude is None:
+            exclude = set()
+        exclude.add("updated_at")
+        return super().to_dict(exclude=exclude)
 
     def to_json(self, indent: int = 4) -> str:
         return json.dumps(self.to_dict(), cls=DateTimeEncoderForJson, indent=indent)

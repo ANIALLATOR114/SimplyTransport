@@ -1,5 +1,5 @@
-from litestar.testing import TestClient
 import pytest
+from litestar.testing import TestClient
 
 urls = ["/fakeroute", "/fakerouter/fake", "/api/fakeroute", "/api/fakeroute/fake"]
 

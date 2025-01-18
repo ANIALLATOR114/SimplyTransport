@@ -1,4 +1,5 @@
 from unittest.mock import patch
+
 import click
 from click.testing import CliRunner
 

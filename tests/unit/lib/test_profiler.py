@@ -1,4 +1,5 @@
 import cProfile
+
 import pytest
 from SimplyTransport.lib import profiling
 

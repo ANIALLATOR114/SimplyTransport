@@ -1,13 +1,11 @@
 import SimplyTransport.lib.settings as settings
-
 from litestar.contrib.sqlalchemy.plugins import (
     AsyncSessionConfig,
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
 )
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 async_timescale_engine = create_async_engine(
     settings.app.TIMESCALE_URL,

@@ -1,9 +1,10 @@
-from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from sqlalchemy import String, Integer, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from pydantic import BaseModel as _BaseModel, Field
 from enum import Enum
-from typing import Optional
+
+from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from pydantic import BaseModel as _BaseModel
+from pydantic import Field
+from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class BaseModel(_BaseModel):
@@ -32,10 +33,10 @@ class TripModel(BigIntAuditBase):
     )
     service: Mapped["CalendarModel"] = relationship(back_populates="trips")  # noqa: F821
     stop_times: Mapped[list["StopTimeModel"]] = relationship(back_populates="trip")  # noqa: F821
-    headsign: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    short_name: Mapped[Optional[str]] = mapped_column(String(length=1000))
+    headsign: Mapped[str | None] = mapped_column(String(length=1000))
+    short_name: Mapped[str | None] = mapped_column(String(length=1000))
     direction: Mapped[Direction] = mapped_column(Integer)
-    block_id: Mapped[Optional[str]] = mapped_column(String(length=1000))
+    block_id: Mapped[str | None] = mapped_column(String(length=1000))
     shape_id: Mapped[str] = mapped_column(String(length=1000), index=True)
     rt_trips: Mapped[list["RTTripModel"]] = relationship(back_populates="trip")  # noqa: F821
     rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="trip")  # noqa: F821
@@ -48,10 +49,10 @@ class Trip(BaseModel):
     route_id: str
     service_id: str
     shape_id: str
-    headsign: Optional[str]
-    short_name: Optional[str]
+    headsign: str | None
+    short_name: str | None
     direction: Direction = Field(description="Direction of travel. Mapping between agencies could differ.")
-    block_id: Optional[str]
+    block_id: str | None
     dataset: str
 
 

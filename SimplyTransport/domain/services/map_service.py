@@ -1,28 +1,26 @@
 from collections import defaultdict
 from itertools import cycle
-from typing import Dict, List, Literal
+from typing import Literal
 
 from advanced_alchemy import NotFoundError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..maps.clusters import Cluster
-from ..maps.enums import StaticStopMapTypes
 from ...lib.logging.logging import provide_logger
-
-from ..maps.layers import Layer
+from ..maps.clusters import Cluster
 from ..maps.colors import Colors
-from ..realtime.vehicle.model import RTVehicleModel
-from ..maps.polylines import RoutePolyLine
-from ..realtime.vehicle.repo import RTVehicleRepository
-from ..shape.model import ShapeModel
-from ..stop.model import StopModel
-from ..shape.repo import ShapeRepository
-from ..trip.repo import TripRepository
-from ..route.repo import RouteRepository
+from ..maps.enums import StaticStopMapTypes
+from ..maps.layers import Layer
 from ..maps.maps import Map
 from ..maps.markers import BusMarker, StopMarker
+from ..maps.polylines import RoutePolyLine
+from ..realtime.vehicle.model import RTVehicleModel
+from ..realtime.vehicle.repo import RTVehicleRepository
+from ..route.repo import RouteRepository
+from ..shape.model import ShapeModel
+from ..shape.repo import ShapeRepository
+from ..stop.model import StopModel
 from ..stop.repo import StopRepository
-
-from sqlalchemy.ext.asyncio import AsyncSession
+from ..trip.repo import TripRepository
 
 logger = provide_logger(__name__)
 
@@ -64,13 +62,13 @@ class MapService:
         trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids, direction)
 
         vehicles_on_routes = await self.rt_vehicle_repository.get_vehicles_on_routes(route_ids, direction)
-        vehicles_dict: Dict[str, List[RTVehicleModel]] = defaultdict(list)
+        vehicles_dict: dict[str, list[RTVehicleModel]] = defaultdict(list)
         for vehicle in vehicles_on_routes:
             vehicles_dict[vehicle.trip.route_id].append(vehicle)
 
         shape_ids = [trip.shape_id for trip in trips]
         shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
-        shapes_dict: Dict[str, List[ShapeModel]] = defaultdict(list)
+        shapes_dict: dict[str, list[ShapeModel]] = defaultdict(list)
         for shape in shapes:
             shapes_dict[shape.shape_id].append(shape)
 
@@ -189,7 +187,7 @@ class MapService:
 
         shape_ids = [trip.shape_id for trip in trips]
         shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
-        shapes_dict: Dict[str, List[ShapeModel]] = defaultdict(list)
+        shapes_dict: dict[str, list[ShapeModel]] = defaultdict(list)
         for shape in shapes:
             shapes_dict[shape.shape_id].append(shape)
 
@@ -227,7 +225,7 @@ class MapService:
         stop_map.add_layer_control()
         return stop_map
 
-    async def get_stops_based_on_type(self, map_type: StaticStopMapTypes) -> List[StopModel]:
+    async def get_stops_based_on_type(self, map_type: StaticStopMapTypes) -> list[StopModel]:
         match map_type:
             case StaticStopMapTypes.ALL_STOPS:
                 return await self.stop_repository.get_all_with_stop_feature()

@@ -1,15 +1,17 @@
+from typing import TYPE_CHECKING
+
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from sqlalchemy import String, Integer, ForeignKey, Float
+from pydantic import BaseModel as _BaseModel
+from pydantic import Field
+from sqlalchemy import Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from pydantic import BaseModel as _BaseModel, Field
-from typing import Optional, TYPE_CHECKING
 
 from ..enums import LocationType
 
 if TYPE_CHECKING:
-    from ..stop_times.model import StopTimeModel
     from ..realtime.stop_time.model import RTStopTimeModel
     from ..stop_features.model import StopFeatureModel
+    from ..stop_times.model import StopTimeModel
 
 
 class BaseModel(_BaseModel):
@@ -19,18 +21,18 @@ class BaseModel(_BaseModel):
 
 
 class StopModel(BigIntAuditBase):
-    __tablename__ = "stop"
+    __tablename__: str = "stop"  # type: ignore[assignment]
 
     id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
-    code: Mapped[Optional[str]] = mapped_column(String(length=1000), index=True)
+    code: Mapped[str | None] = mapped_column(String(length=1000), index=True)
     name: Mapped[str] = mapped_column(String(length=1000), index=True)
-    description: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    lat: Mapped[Optional[float]] = mapped_column(Float)
-    lon: Mapped[Optional[float]] = mapped_column(Float)
-    zone_id: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    url: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    location_type: Mapped[Optional[LocationType]] = mapped_column(Integer)
-    parent_station: Mapped[Optional[str]] = mapped_column(String(length=1000), ForeignKey("stop.id"))
+    description: Mapped[str | None] = mapped_column(String(length=1000))
+    lat: Mapped[float | None] = mapped_column(Float)
+    lon: Mapped[float | None] = mapped_column(Float)
+    zone_id: Mapped[str | None] = mapped_column(String(length=1000))
+    url: Mapped[str | None] = mapped_column(String(length=1000))
+    location_type: Mapped[LocationType | None] = mapped_column(Integer)
+    parent_station: Mapped[str | None] = mapped_column(String(length=1000), ForeignKey("stop.id"))
     stop_times: Mapped[list["StopTimeModel"]] = relationship(
         back_populates="stop",
         cascade="all, delete-orphan",
@@ -43,15 +45,15 @@ class StopModel(BigIntAuditBase):
 
 class Stop(BaseModel):
     id: str
-    code: Optional[str]
+    code: str | None
     name: str
-    description: Optional[str]
-    lat: Optional[float]
-    lon: Optional[float]
-    zone_id: Optional[str]
-    url: Optional[str]
-    location_type: Optional[LocationType] = Field(
+    description: str | None
+    lat: float | None
+    lon: float | None
+    zone_id: str | None
+    url: str | None
+    location_type: LocationType | None = Field(
         description="Indicates the type of the location",
     )
-    parent_station: Optional[str]
+    parent_station: str | None
     dataset: str

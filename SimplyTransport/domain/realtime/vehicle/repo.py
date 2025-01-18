@@ -1,11 +1,12 @@
-from typing import Sequence
+from collections.abc import Sequence
+
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import func, select
-from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
+
 from ...agency.model import AgencyModel
 from ...route.model import RouteModel
-
 from ...trip.model import TripModel
 from .model import RTVehicleModel
 
@@ -20,7 +21,8 @@ class RTVehicleRepository(SQLAlchemyAsyncRepository[RTVehicleModel]):
             route_ids (list): List of route IDs.
 
         Returns:
-            list: List of RTVehicleModel objects representing the most recent vehicle updates for vehicles on the specified routes.
+            list: List of RTVehicleModel objects representing the most recent vehicle updates
+            for vehicles on the specified routes.
         """
 
         subquery = (

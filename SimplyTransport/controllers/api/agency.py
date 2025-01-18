@@ -1,10 +1,10 @@
+from advanced_alchemy import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
-from advanced_alchemy import NotFoundError
 
 from ...domain.agency.model import Agency, AgencyWithTotal
-from ...domain.agency.repo import provide_agency_repo, AgencyRepository
+from ...domain.agency.repo import AgencyRepository, provide_agency_repo
 
 __all__ = ["AgencyController"]
 

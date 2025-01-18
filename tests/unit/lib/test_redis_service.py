@@ -1,11 +1,11 @@
 from enum import StrEnum
-import pytest
 from unittest.mock import AsyncMock
 
+import pytest
 from redis.asyncio import Redis
 from SimplyTransport.lib.cache import (
-    RedisService,
     CacheKeys,
+    RedisService,
     redis_factory,
     redis_service_cache_config_factory,
     redis_store_factory,

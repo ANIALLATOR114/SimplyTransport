@@ -1,7 +1,7 @@
+from datetime import date
+
 from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
-
-from datetime import date
 
 
 def test_calendar_model_returns_true_if_active():

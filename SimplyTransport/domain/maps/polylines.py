@@ -1,8 +1,7 @@
-import folium as fl
-
 from enum import Enum
-from SimplyTransport.domain.maps.colors import Colors
 
+import folium as fl
+from SimplyTransport.domain.maps.colors import Colors
 from SimplyTransport.domain.route.model import RouteModel
 
 
@@ -45,8 +44,10 @@ class RoutePolyLine:
 
         Args:
             route (RouteModel): The route model associated with the polyline.
-            locations (list[tuple[float, float]]): The list of locations (latitude, longitude) that define the polyline.
-            route_color (PolyLineColors, optional): The color of the polyline. Defaults to PolyLineColors.BLUE.
+            locations (list[tuple[float, float]]): The list of locations (latitude, longitude)
+            that define the polyline.
+            route_color (PolyLineColors, optional): The color of the polyline.
+                Defaults to PolyLineColors.BLUE.
             create_popup (bool, optional): Whether to create a popup for the polyline. Defaults to True.
             create_tooltip (bool, optional): Whether to create a tooltip for the polyline. Defaults to True.
             create_links (bool, optional): Whether to create links for the polyline. Defaults to True.

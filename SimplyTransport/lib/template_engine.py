@@ -1,7 +1,9 @@
 from pathlib import Path
-from litestar.template.config import TemplateConfig
+
 from litestar.contrib.jinja import JinjaTemplateEngine
-from .constants import TEMPLATE_DIR, APP_DIR
+from litestar.template.config import TemplateConfig
+
+from .constants import APP_DIR, TEMPLATE_DIR
 
 
 def custom_template_config() -> TemplateConfig:
