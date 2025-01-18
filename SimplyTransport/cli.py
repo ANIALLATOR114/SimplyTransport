@@ -641,3 +641,32 @@ class CLIPlugin(CLIPluginProtocol):
             )
             logger.info(f"Finished recording delays in {round(finish - start, 2)} second(s)")
             console.print(f"\n[blue]Finished recording delays in {round(finish - start, 2)} second(s)")
+
+        @cli.command(name="cleanupdelays", help="Cleans up the old delays from the database")
+        @make_sync
+        async def cleanupdelays():
+            console = Console()
+            console.print("Cleaning up delays...")
+            start = time.perf_counter()
+
+            async with async_timescale_session_factory() as timescale_session:
+                async with async_session_factory() as session:
+                    delays_service = await provide_delays_service(
+                        timescale_db_session=timescale_session,
+                        db_session=session,
+                    )
+                    number_deleted = await delays_service.cleanup_old_delays()
+
+            finish = time.perf_counter()
+
+            attributes = {
+                "time_taken(s)": round(finish - start, 2),
+                "number_deleted": number_deleted,
+            }
+            await create_event_with_session(
+                EventType.CLEANUP_DELAYS_DELETED,
+                "Old delays cleaned up from the database",
+                attributes,
+            )
+            logger.info(f"Finished cleaning up delays in {round(finish - start, 2)} second(s)")
+            console.print(f"\n[blue]Finished cleaning up delays in {round(finish - start, 2)} second(s)")

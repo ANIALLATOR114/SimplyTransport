@@ -87,7 +87,7 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
 
         return results
 
-    async def cleanup_events(self, event_type: EventType = None) -> int:
+    async def cleanup_events(self, event_type: EventType | None = None) -> int:
         """Cleanup events that have expired. If event_type is provided, only cleanup events of that type."""
 
         if event_type:
