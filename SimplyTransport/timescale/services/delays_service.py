@@ -5,6 +5,7 @@ import rich.progress as rp
 from SimplyTransport.domain.realtime.realtime_schedule.model import RealTimeScheduleModel
 from SimplyTransport.domain.schedule.model import StaticScheduleModel
 from SimplyTransport.domain.services.realtime_service import RealTimeService, provide_realtime_service
+from SimplyTransport.lib.constants import CLEANUP_DELAYS_AFTER_DAYS
 from SimplyTransport.lib.logging.logging import provide_logger
 from SimplyTransport.timescale.ts_stop_times.model import TS_StopTimeModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -116,6 +117,18 @@ class DelaysService:
 
         logger.info(f"Recorded {len(realtime_schedules)} delays.")
         return len(realtime_schedules)
+
+    async def cleanup_old_delays(self) -> int:
+        """
+        Cleans up the old delays from the database.
+        Returns:
+            int: The number of delays deleted.
+        """
+        cutoff_time = datetime.now() - timedelta(days=CLEANUP_DELAYS_AFTER_DAYS)
+        number_of_delays_deleted = await self.ts_stop_time_repository.delete_old_delays(cutoff_time)
+
+        logger.info(f"Deleted {number_of_delays_deleted} delays older than {CLEANUP_DELAYS_AFTER_DAYS} days.")
+        return number_of_delays_deleted
 
 
 async def provide_delays_service(

@@ -21,6 +21,7 @@ class EventType(StrEnum):
 
     # Cleanup
     CLEANUP_EVENTS_DELETED = "cleanup.events.deleted"
+    CLEANUP_DELAYS_DELETED = "cleanup.delays.deleted"
 
     # Time Series
     RECORD_TS_STOP_TIMES = "timeseries.delays.recorded"

@@ -1,7 +1,7 @@
 from datetime import datetime, time, timedelta
 
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
-from sqlalchemy import select, text
+from sqlalchemy import delete, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .model import TS_StopTimeDelayAggregated, TS_StopTimeForGraph, TS_StopTimeModel
@@ -187,6 +187,28 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         rows = result.all()
 
         return [TS_StopTimeForGraph(Timestamp=row[0], delay_in_seconds=row[1]) for row in rows]
+
+    async def delete_old_delays(self, cutoff_time: datetime) -> int:
+        """
+        Deletes old delays from the database in batches.
+        Args:
+            cutoff_time (datetime): The cutoff time for deleting delays.
+        Returns:
+            int: The number of delays deleted.
+        """
+
+        # Delete in batches of 10000
+        batch_size = 10000
+        total_deleted = 0
+
+        while True:
+            statement = delete(TS_StopTimeModel).where(TS_StopTimeModel.Timestamp < cutoff_time)
+            result = await self.session.execute(statement)
+            await self.session.commit()
+            total_deleted += result.rowcount
+            if result.rowcount < batch_size:
+                break
+        return total_deleted
 
     model_type = TS_StopTimeModel
 
