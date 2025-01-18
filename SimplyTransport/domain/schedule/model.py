@@ -1,12 +1,13 @@
+from datetime import date, time
+
 from pydantic import BaseModel as _BaseModel
 
-from ..route.model import Route, RouteModel
-from ..stop_times.model import StopTime, StopTimeModel
 from ..calendar.model import CalendarModel
 from ..calendar_dates.model import CalendarDateModel
+from ..route.model import Route, RouteModel
 from ..stop.model import StopModel
+from ..stop_times.model import StopTime, StopTimeModel
 from ..trip.model import Trip, TripModel
-import datetime as DateTime
 
 
 class BaseModel(_BaseModel):
@@ -30,12 +31,10 @@ class StaticScheduleModel:
         self.stop = stop
         self.trip = trip
 
-    def true_if_active(self, date: DateTime.date):
+    def true_if_active(self, date: date):
         return self.calendar.true_if_active(date)
 
-    def true_if_active_between_times(
-        self, date: DateTime.date, start_time: DateTime.time, end_time: DateTime.time
-    ):
+    def true_if_active_between_times(self, date: date, start_time: time, end_time: time):
         return self.calendar.true_if_active(date) and self.stop_time.true_if_active_between_times(
             start_time=start_time, end_time=end_time
         )

@@ -15,16 +15,19 @@ class Layer:
         self.name = name
         self.base_layer = fl.FeatureGroup(name=name)
 
-    def add_to(self, map: fl.Map):
+    def add_to(self, map: fl.Map) -> None:
         """
         Adds the layer to the given map.
 
         Args:
             map: The map to add the layer to.
+
+        Returns:
+            None
         """
         self.base_layer.add_to(map)
 
-    def add_child(self, child):
+    def add_child(self, child: fl.FeatureGroup) -> None:
         """
         Adds a child object to the layer.
 

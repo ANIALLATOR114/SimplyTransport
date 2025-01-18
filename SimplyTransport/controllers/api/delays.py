@@ -1,15 +1,26 @@
-from datetime import time, datetime
+from datetime import datetime, time
+
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException, ValidationException
 from litestar.params import Parameter
 
+from ...lib.cache_keys import CacheKeys, key_builder_from_path
 from ...lib.time_date_conversions import validate_time_range
 from ...timescale.ts_stop_times.model import TS_StopTime, TS_StopTimeDelayAggregated, TS_StopTimeForGraph
-from ...timescale.ts_stop_times.repo import provide_ts_stop_time_repo, TSStopTimeRepository, MAXIMUM_TIMESTAMP
-from ...lib.cache_keys import CacheKeys, key_builder_from_path
+from ...timescale.ts_stop_times.repo import MAXIMUM_TIMESTAMP, TSStopTimeRepository, provide_ts_stop_time_repo
 
 __all__ = ["DelaysController"]
+
+SCHEDULED_TIME_PARAM = Parameter(required=True, description="Format: HH:MM:SS")
+START_TIME_PARAM = Parameter(
+    required=False,
+    description="Use data from this time onwards. Format: 2023-10-13T21:34:23Z",
+)
+END_TIME_PARAM = Parameter(
+    required=False,
+    description="Use data up to this time. Format: 2023-10-13T21:34:23Z",
+)
 
 
 class DelaysController(Controller):
@@ -33,16 +44,10 @@ class DelaysController(Controller):
         stop_id: str,
         route_code: str,
         repo: TSStopTimeRepository,
-        scheduled_time: time = Parameter(required=True, description="Format: HH:MM:SS"),
-        start_time: datetime | None = Parameter(
-            required=False,
-            description="Use data from this time onwards. Format: 2023-10-13T21:34:23Z",
-        ),
-        end_time: datetime | None = Parameter(
-            required=False, description="Use data up to this time. Format: 2023-10-13T21:34:23Z"
-        ),
+        scheduled_time: time = SCHEDULED_TIME_PARAM,
+        start_time: datetime | None = START_TIME_PARAM,
+        end_time: datetime | None = END_TIME_PARAM,
     ) -> TS_StopTimeDelayAggregated:
-
         validate_time_range(start_time, end_time)
         result = await repo.get_aggregated_delay_on_stop_on_route_on_time(
             route_code, stop_id, scheduled_time, start_time, end_time
@@ -62,7 +67,8 @@ class DelaysController(Controller):
             "scheduled_time",
         ),
         summary="Get delay data for a route on a stop on a time",
-        description=f"All queries will be limited to {MAXIMUM_TIMESTAMP.strftime('%Y-%m-%d')} onwards or 730 records",
+        description=f"All queries will be limited to {MAXIMUM_TIMESTAMP.strftime('%Y-%m-%d')} "
+        f"onwards or 730 records",
         raises=[ValidationException],
     )
     async def get_delay_on_stop_on_route_on_time(
@@ -70,15 +76,9 @@ class DelaysController(Controller):
         stop_id: str,
         route_code: str,
         repo: TSStopTimeRepository,
-        scheduled_time: time = Parameter(required=True, description="Format: HH:MM:SS"),
-        start_time: datetime | None = Parameter(
-            required=False,
-            description="Use data from this time onwards. Format: 2023-10-13T21:34:23Z",
-        ),
-        end_time: datetime | None = Parameter(
-            required=False,
-            description="Use data up to this time. Format: 2023-10-13T21:34:23Z",
-        ),
+        scheduled_time: time = SCHEDULED_TIME_PARAM,
+        start_time: datetime | None = START_TIME_PARAM,
+        end_time: datetime | None = END_TIME_PARAM,
     ) -> list[TS_StopTime]:
         if start_time and end_time and start_time > end_time:
             raise ValidationException(
@@ -101,7 +101,8 @@ class DelaysController(Controller):
             "scheduled_time",
         ),
         summary="Get truncated delay data for a route on a stop on a time",
-        description=f"All queries will be limited to {MAXIMUM_TIMESTAMP.strftime('%Y-%m-%d')} onwards or 730 records",
+        description=f"All queries will be limited to {MAXIMUM_TIMESTAMP.strftime('%Y-%m-%d')} "
+        f"onwards or 730 records",
         raises=[ValidationException],
     )
     async def get_truncated_delay_on_stop_on_route_on_time(
@@ -109,17 +110,10 @@ class DelaysController(Controller):
         stop_id: str,
         route_code: str,
         repo: TSStopTimeRepository,
-        scheduled_time: time = Parameter(required=True, description="Format: HH:MM:SS"),
-        start_time: datetime | None = Parameter(
-            required=False,
-            description="Use data from this time onwards. Format: 2023-10-13T21:34:23Z",
-        ),
-        end_time: datetime | None = Parameter(
-            required=False,
-            description="Use data up to this time. Format: 2023-10-13T21:34:23Z",
-        ),
+        scheduled_time: time = SCHEDULED_TIME_PARAM,
+        start_time: datetime | None = START_TIME_PARAM,
+        end_time: datetime | None = END_TIME_PARAM,
     ) -> list[TS_StopTimeForGraph]:
-
         validate_time_range(start_time, end_time)
         result = await repo.get_truncated_delay_on_stop_on_route_on_time(
             route_code, stop_id, scheduled_time, start_time, end_time
@@ -142,16 +136,9 @@ class DelaysController(Controller):
         self,
         route_code: str,
         repo: TSStopTimeRepository,
-        start_time: datetime | None = Parameter(
-            required=False,
-            description="Use data from this time onwards. Format: 2023-10-13T21:34:23Z",
-        ),
-        end_time: datetime | None = Parameter(
-            required=False,
-            description="Use data up to this time. Format: 2023-10-13T21:34:23Z",
-        ),
+        start_time: datetime | None = START_TIME_PARAM,
+        end_time: datetime | None = END_TIME_PARAM,
     ) -> TS_StopTimeDelayAggregated:
-
         validate_time_range(start_time, end_time)
         result = await repo.get_aggregated_delay_on_stop_on_route_on_time(
             route_code, start_time=start_time, end_time=end_time

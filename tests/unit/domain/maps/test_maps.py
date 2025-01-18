@@ -1,5 +1,4 @@
 import folium as fl
-
 from SimplyTransport.domain.maps.maps import Map
 
 

@@ -1,7 +1,6 @@
 from unittest.mock import AsyncMock
 
 import pytest
-
 from SimplyTransport.domain.events.repo import EventRepository
 
 

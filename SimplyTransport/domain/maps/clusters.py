@@ -1,5 +1,4 @@
 import folium as fl
-
 from folium.plugins import MarkerCluster
 
 

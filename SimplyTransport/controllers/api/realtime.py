@@ -1,24 +1,31 @@
-from datetime import datetime, timedelta, time
+from datetime import datetime, time, timedelta
 
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import ValidationException
 from litestar.params import Parameter
 
-from ...lib.time_date_conversions import return_time_difference
-from ...domain.services.schedule_service import (
-    ScheduleService,
-    provide_schedule_service,
-)
+from ...domain.enums import DayOfWeek
+from ...domain.realtime.realtime_schedule.model import RealTimeSchedule
 from ...domain.services.realtime_service import (
     RealTimeService,
     provide_realtime_service,
 )
-from ...domain.realtime.realtime_schedule.model import RealTimeSchedule
-from ...domain.enums import DayOfWeek
-
+from ...domain.services.schedule_service import (
+    ScheduleService,
+    provide_schedule_service,
+)
+from ...lib.time_date_conversions import return_time_difference
 
 __all__ = ["RealtimeController"]
+
+START_TIME_PARAM = Parameter(
+    required=False, description="Start time, defaults to 10 minutes ago\n\nExample: 10:00:00"
+)
+END_TIME_PARAM = Parameter(
+    required=False, description="End time, defaults to 60 minutes from now\n\nExample: 11:00:00"
+)
+DAY_PARAM = Parameter(required=False, description="Day of week, defaults to today")
 
 
 class RealtimeController(Controller):
@@ -33,13 +40,9 @@ class RealtimeController(Controller):
         schedule_service: ScheduleService,
         realtime_service: RealTimeService,
         stop_id: str,
-        start_time: time | None = Parameter(
-            required=False, description="Start time, defaults to 10 minutes ago\n\nExample: 10:00:00"
-        ),
-        end_time: time | None = Parameter(
-            required=False, description="End time, defaults to 60 minutes from now\n\nExample: 11:00:00"
-        ),
-        day: DayOfWeek | None = Parameter(required=False, description="Day of week, defaults to today"),
+        start_time: time | None = START_TIME_PARAM,
+        end_time: time | None = END_TIME_PARAM,
+        day: DayOfWeek | None = DAY_PARAM,
     ) -> list[RealTimeSchedule]:
         """Returns a list of realtime schedules for the given stop_id"""
 

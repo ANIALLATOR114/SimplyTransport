@@ -1,7 +1,7 @@
 import datetime
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from sqlalchemy import select
-from typing import List, Tuple
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..stop_time.model import RTStopTimeModel
 from ..trip.model import RTTripModel
@@ -15,11 +15,11 @@ class RealtimeScheduleRepository:
 
     async def get_realtime_schedules_for_trips(
         self, trips: list[str]
-    ) -> List[Tuple[RTStopTimeModel, RTTripModel]]:
+    ) -> list[tuple[RTStopTimeModel, RTTripModel]]:
         """
         Returns all realtime schedules for the given trips.
         """
-        thirty_mins_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=30)
+        thirty_mins_ago = datetime.datetime.now(datetime.UTC) - datetime.timedelta(minutes=30)
 
         stops_and_trips_statement = (
             select(
@@ -38,7 +38,7 @@ class RealtimeScheduleRepository:
         most_recent_updates = [(stop_time, trip) for stop_time, trip in stop_times_and_trips]
         return most_recent_updates
 
-    async def get_distinct_realtime_trips(self) -> List[str]:
+    async def get_distinct_realtime_trips(self) -> list[str]:
         """
         Returns all distinct trips.
         """

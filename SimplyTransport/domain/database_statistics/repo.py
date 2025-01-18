@@ -1,9 +1,8 @@
 from datetime import date
-from typing import List
+
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import Subquery, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from sqlalchemy.sql.expression import select
 
 from SimplyTransport.domain.agency.model import AgencyModel
@@ -22,7 +21,8 @@ from .model import DatabaseStatisticModel
 
 def max_created_subquery(statistic_type: StatisticType | None = None, date: date | None = None) -> Subquery:
     """
-    Returns a subquery that selects the maximum created_at value for each key in the DatabaseStatisticModel table.
+    Returns a subquery that selects the maximum created_at value for each key
+    in the DatabaseStatisticModel table.
 
     Args:
         statistic_type (StatisticType | None): The statistic type to filter by. Defaults to None.
@@ -83,7 +83,7 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
             )
         ).all()
 
-        return {name: count for name, count in route_counts}
+        return {name: count for name, count in route_counts}  # noqa: C416
 
     async def get_operator_trip_counts(self) -> dict[str, int | None]:
         """Returns a dictionary of the counts of each operator's trips."""
@@ -97,7 +97,7 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
             )
         ).all()
 
-        return {name: count for name, count in trip_counts}
+        return {name: count for name, count in trip_counts}  # noqa: C416
 
     async def get_stop_feature_counts(self) -> dict[str, int | None]:
         """Returns a dictionary of the counts of each stop feature type."""
@@ -173,7 +173,7 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
 
         await self.session.commit()
 
-    async def get_statistics_most_recent_by_type(self, type: StatisticType) -> List[DatabaseStatisticModel]:
+    async def get_statistics_most_recent_by_type(self, type: StatisticType) -> list[DatabaseStatisticModel]:
         """Returns the most recent statistics for a given type."""
 
         subquery = max_created_subquery(type)
@@ -200,7 +200,7 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
 
     async def get_statistics_by_type_and_date(
         self, type: StatisticType, date: date
-    ) -> List[DatabaseStatisticModel]:
+    ) -> list[DatabaseStatisticModel]:
         """Returns the statistics for a given type on a given date."""
 
         subquery = max_created_subquery(type, date)

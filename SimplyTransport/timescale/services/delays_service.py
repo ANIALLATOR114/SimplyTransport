@@ -1,17 +1,17 @@
 import asyncio
 from datetime import datetime, timedelta
-import rich.progress as rp
 
+import rich.progress as rp
 from SimplyTransport.domain.realtime.realtime_schedule.model import RealTimeScheduleModel
 from SimplyTransport.domain.schedule.model import StaticScheduleModel
 from SimplyTransport.domain.services.realtime_service import RealTimeService, provide_realtime_service
 from SimplyTransport.lib.logging.logging import provide_logger
 from SimplyTransport.timescale.ts_stop_times.model import TS_StopTimeModel
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ...domain.enums import DayOfWeek
 from ...domain.services.schedule_service import ScheduleService, provide_schedule_service
 from ..ts_stop_times.repo import TSStopTimeRepository
-from ...domain.enums import DayOfWeek
-
-from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = provide_logger(__name__)
 
@@ -55,7 +55,8 @@ class DelaysService:
         end_time = datetime.now() + timedelta(minutes=20)
         realtime_trip_ids = await self.realtime_service.get_distinct_realtime_trips()
         logger.info(
-            f"Fetching schedules for {current_day} between {start_time} and {end_time} using {len(realtime_trip_ids)} trips."
+            f"Fetching schedules for {current_day} between {start_time} and {end_time} "
+            f"using {len(realtime_trip_ids)} trips."
         )
 
         schedules = await self.schedule_service.get_all_schedule_for_day_between_times(

@@ -1,12 +1,12 @@
 from enum import StrEnum
+
 from litestar.config.response_cache import ResponseCacheConfig
 from litestar.stores.redis import RedisStore
+from opentelemetry.instrumentation.redis import RedisInstrumentor
 from redis.asyncio import Redis
 
-from .cache_keys import CacheKeys
 from . import settings
-
-from opentelemetry.instrumentation.redis import RedisInstrumentor
+from .cache_keys import CacheKeys
 
 RedisInstrumentor().instrument()
 
@@ -34,7 +34,8 @@ def redis_store_factory(name: str) -> RedisStore:
 def redis_service_cache_config_factory() -> ResponseCacheConfig:
     """
     Factory function that returns a ResponseCacheConfig object for Redis service cache.
-    If a store exists in the registry, it will be used to create the cache configuration which should only be redis.
+    If a store exists in the registry, it will be used to create the
+    cache configuration which should only be redis.
 
     Returns:
         ResponseCacheConfig: The cache configuration object.

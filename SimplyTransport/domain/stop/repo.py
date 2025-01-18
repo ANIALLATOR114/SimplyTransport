@@ -1,17 +1,15 @@
-from typing import List, Tuple
-
-from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from ..stop_features.model import StopFeatureModel
-from .model import StopModel
-from ..trip.model import TripModel
-from ..route.model import RouteModel
-from ..stop_times.model import StopTimeModel
-from sqlalchemy import select
-from advanced_alchemy.filters import LimitOffset, OrderBy
 from advanced_alchemy import NotFoundError
+from advanced_alchemy.filters import LimitOffset, OrderBy
+from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
+
+from ..route.model import RouteModel
+from ..stop_features.model import StopFeatureModel
+from ..stop_times.model import StopTimeModel
+from ..trip.model import TripModel
+from .model import StopModel
 
 
 class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
@@ -26,7 +24,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
 
     async def list_by_name_or_code(
         self, search: str, limit_offset: LimitOffset
-    ) -> Tuple[List[StopModel], int]:
+    ) -> tuple[list[StopModel], int]:
         """List stops that start with name/code."""
 
         results, total = await self.list_and_count(
@@ -79,7 +77,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
 
     async def get_by_route_id_with_sequence(
         self, route_id: str, direction: int
-    ) -> List[Tuple[StopModel, int]]:
+    ) -> list[tuple[StopModel, int]]:
         """Get stops by route_id with a stop_sequence."""
 
         result = await self.session.execute(

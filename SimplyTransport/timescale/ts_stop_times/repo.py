@@ -1,8 +1,9 @@
 from datetime import datetime, time, timedelta
-from typing import List
+
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from .model import TS_StopTimeDelayAggregated, TS_StopTimeForGraph, TS_StopTimeModel
 
 MAXIMUM_LIMIT = 730
@@ -29,12 +30,12 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
             start_time (datetime): The start time of the data.
             end_time (datetime): The end time of the data.
         Returns:
-            TS_StopTimeDelay | None: An instance of TS_StopTimeDelay containing delay statistics if data is available,
-                                      otherwise None.
+            TS_StopTimeDelay | None: An instance of TS_StopTimeDelay containing delay statistics
+            if data is available, otherwise None.
         """
 
         base_query = """
-        SELECT 
+        SELECT
             AVG(delay_in_seconds) as avg_delay,
             MAX(delay_in_seconds) as max_delay,
             MIN(delay_in_seconds) as min_delay,
@@ -99,7 +100,7 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         scheduled_time: time,
         start_time: datetime | None = None,
         end_time: datetime | None = None,
-    ) -> List[TS_StopTimeModel]:
+    ) -> list[TS_StopTimeModel]:
         """
         Retrieve delay information for a specific stop on a route at a scheduled time.
         Args:
@@ -145,17 +146,20 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
         scheduled_time: time,
         start_time: datetime | None = None,
         end_time: datetime | None = None,
-    ) -> List[TS_StopTimeForGraph]:
+    ) -> list[TS_StopTimeForGraph]:
         """
         Retrieves a list of truncated delays for a specific stop on a route at a scheduled time.
         Args:
             route_code (str): The code of the route.
             stop_id (str): The ID of the stop.
             scheduled_time (time): The scheduled time of the stop.
-            start_time (datetime | None, optional): The start time for filtering the results. Defaults to None.
-            end_time (datetime | None, optional): The end time for filtering the results. Defaults to None.
+            start_time (datetime | None, optional): The start time for filtering the results.
+            Defaults to None.
+            end_time (datetime | None, optional): The end time for filtering the results.
+            Defaults to None.
         Returns:
-            List[TS_StopTimeForGraph]: A list of TS_StopTimeForGraph objects containing the timestamp and delay in seconds.
+            List[TS_StopTimeForGraph]: A list of TS_StopTimeForGraph objects containing the timestamp
+            and delay in seconds.
         """
 
         conditions = []

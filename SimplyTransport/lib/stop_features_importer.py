@@ -1,13 +1,12 @@
-from geojson import FeatureCollection
 from datetime import datetime
 
-from sqlalchemy import delete, select
-from ..domain.stop.model import StopModel
-
-from .db.database import async_session_factory
-
-from ..domain.stop_features.model import StopFeatureModel
 import rich.progress as rp
+from geojson import FeatureCollection
+from sqlalchemy import delete, select
+
+from ..domain.stop.model import StopModel
+from ..domain.stop_features.model import StopFeatureModel
+from .db.database import async_session_factory
 
 progress_columns = (
     rp.SpinnerColumn(finished_text="✅"),

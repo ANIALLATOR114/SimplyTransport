@@ -1,6 +1,5 @@
 import pytest
 from litestar.testing import TestClient
-
 from SimplyTransport.controllers.events import ALL_EVENTS
 from SimplyTransport.domain.events.event_types import EventType
 

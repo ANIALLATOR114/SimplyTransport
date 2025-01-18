@@ -1,7 +1,7 @@
+from advanced_alchemy import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
-from advanced_alchemy import NotFoundError
 
 from ...domain.trip.model import Trip, TripsWithTotal
 from ...domain.trip.repo import TripRepository, provide_trip_repo

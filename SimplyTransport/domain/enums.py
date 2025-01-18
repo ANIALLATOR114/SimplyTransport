@@ -56,7 +56,8 @@ class DropoffType(int, Enum):
 
 
 class Timepoint(int, Enum):
-    """Indicates if arrival and departure times for a stop are strictly adhered to by the vehicle or if they are instead approximate and/or interpolated times
+    """Indicates if arrival and departure times for a stop are strictly adhered to by the vehicle
+    or if they are instead approximate and/or interpolated times
     A null value here means EXACT
     """
 

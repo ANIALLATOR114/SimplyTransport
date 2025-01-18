@@ -1,4 +1,5 @@
-from typing import Sequence
+from collections.abc import Sequence
+
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

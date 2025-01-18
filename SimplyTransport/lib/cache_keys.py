@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from enum import StrEnum
 
 from litestar import Request
@@ -60,7 +61,7 @@ class CacheKeys:
         DELAYS_HTML_ROUTE_DELETE_KEY_TEMPLATE = "*delays_html_route:{route_code}"
 
 
-def key_builder_from_path(template: StrEnum, *args):
+def key_builder_from_path(template: StrEnum, *args) -> Callable[[Request], str]:
     """
     Builds a cache key based on the provided template and IDs.
 
@@ -72,13 +73,13 @@ def key_builder_from_path(template: StrEnum, *args):
         callable: A function that takes a `Request` object and returns the cache key.
     """
 
-    def _key_builder(request: Request):
+    def _key_builder(request: Request) -> str:
         return template.value.format(**{arg: request.path_params.get(arg) for arg in args})
 
     return _key_builder
 
 
-def key_builder_from_query(template: StrEnum, *args):
+def key_builder_from_query(template: StrEnum, *args) -> Callable[[Request], str]:
     """
     Builds a cache key based on the provided template and query parameters.
 
@@ -90,13 +91,15 @@ def key_builder_from_query(template: StrEnum, *args):
         callable: A function that takes a request object and returns the cache key.
     """
 
-    def _key_builder(request: Request):
+    def _key_builder(request: Request) -> str:
         return template.value.format(**{arg: request.query_params.get(arg) for arg in args})
 
     return _key_builder
 
 
-def key_builder_from_path_and_query(template: StrEnum, path_args: list[str] = [], query_args: list[str] = []):
+def key_builder_from_path_and_query(
+    template: StrEnum, path_args: list[str] | None = None, query_args: list[str] | None = None
+) -> Callable[[Request], str]:
     """
     Builds a cache key based on the provided template and IDs.
 
@@ -108,8 +111,12 @@ def key_builder_from_path_and_query(template: StrEnum, path_args: list[str] = []
     Returns:
         callable: A function that takes a `Request` object and returns the cache key.
     """
+    if path_args is None:
+        path_args = []
+    if query_args is None:
+        query_args = []
 
-    def _key_builder(request: Request):
+    def _key_builder(request: Request) -> str:
         params = {arg: request.path_params.get(arg) for arg in path_args}
         params.update({arg: request.query_params.get(arg) for arg in query_args})
         return template.value.format(**params)
@@ -117,7 +124,7 @@ def key_builder_from_path_and_query(template: StrEnum, path_args: list[str] = []
     return _key_builder
 
 
-def key_builder_from_header(template: StrEnum, *args):
+def key_builder_from_header(template: StrEnum, *args) -> Callable[[Request], str]:
     """
     Builds a cache key based on the provided template and header parameters.
 
@@ -129,7 +136,7 @@ def key_builder_from_header(template: StrEnum, *args):
         callable: A function that takes a request object and returns the cache key.
     """
 
-    def _key_builder(request: Request):
+    def _key_builder(request: Request) -> str:
         return template.value.format(**{arg: request.headers.get(arg) for arg in args})
 
     return _key_builder

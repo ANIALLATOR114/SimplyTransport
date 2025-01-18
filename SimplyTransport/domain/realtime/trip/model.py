@@ -6,8 +6,8 @@ from pydantic import Field
 from sqlalchemy import Date, ForeignKey, Index, Integer, String, Time, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..enums import ScheduleRealtionship
 from ...trip.model import Direction
+from ..enums import ScheduleRealtionship
 
 
 class BaseModel(_BaseModel):

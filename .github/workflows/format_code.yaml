@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  Run_black:
+  Run_ruff:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,13 +23,28 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install black
+        run: pip install ruff==0.9.2
 
-      - name: Run Black on main directory
-        run: black SimplyTransport --line-length 110
+      - name: Verify pyproject.toml
+        run: |
+          if [ -f "pyproject.toml" ]; then
+            echo "Using project's pyproject.toml"
+          else
+            echo "pyproject.toml not found"
+            exit 1
+          fi
 
-      - name: Run Black on tests directory
-        run: black tests --line-length 110
+      - name: Run Ruff format on main directory
+        run: ruff format SimplyTransport
+
+      - name: Run Ruff format on tests directory
+        run: ruff format tests
+
+      - name: Run Ruff check with fixes on main directory
+        run: ruff check --fix SimplyTransport
+
+      - name: Run Ruff check with fixes on tests directory
+        run: ruff check --fix tests
 
       - name: Check for modified files
         id: git-check

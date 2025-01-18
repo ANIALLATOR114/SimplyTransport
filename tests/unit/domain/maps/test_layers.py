@@ -1,5 +1,5 @@
-from SimplyTransport.domain.maps.layers import Layer
 import folium as fl
+from SimplyTransport.domain.maps.layers import Layer
 
 
 def test_init_layer():

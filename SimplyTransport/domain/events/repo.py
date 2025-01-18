@@ -1,13 +1,14 @@
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
+from typing import Literal
+
+from advanced_alchemy import NotFoundError
+from advanced_alchemy.filters import LimitOffset, OrderBy
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
-from advanced_alchemy.filters import OrderBy, LimitOffset
-from advanced_alchemy import NotFoundError
-from typing import List, Literal, Tuple
 
-from .model import EventModel
-from .event_types import EventType
 from ...lib.db.database import async_session_factory
+from .event_types import EventType
+from .model import EventModel
 
 
 class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
@@ -34,7 +35,7 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
         event_type: EventType,
         limit_offset: LimitOffset,
         order: Literal["asc", "desc"] = "desc",
-    ) -> Tuple[List[EventModel], int]:
+    ) -> tuple[list[EventModel], int]:
         """Get paginated events by type with total."""
 
         results, total = await self.list_and_count(
@@ -69,7 +70,7 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
 
     async def get_paginated_events_with_total(
         self, limit_offset: LimitOffset, order="desc"
-    ) -> Tuple[List[EventModel], int]:
+    ) -> tuple[list[EventModel], int]:
         """Get paginated events with total."""
 
         results, total = await self.list_and_count(OrderBy(EventModel.created_at, order), limit_offset)
@@ -79,7 +80,7 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
 
         return results, total
 
-    async def get_paginated_events(self, limit_offset: LimitOffset, order="desc") -> List[EventModel]:
+    async def get_paginated_events(self, limit_offset: LimitOffset, order="desc") -> list[EventModel]:
         """Get paginated events."""
 
         results = await self.list(OrderBy(EventModel.created_at, order), limit_offset)

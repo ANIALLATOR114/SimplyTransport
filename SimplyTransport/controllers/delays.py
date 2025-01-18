@@ -25,7 +25,6 @@ class DelaysController(Controller):
         route_code: str,
         repo: TSStopTimeRepository,
     ) -> Template:
-
         result = await repo.get_aggregated_delay_on_stop_on_route_on_time(route_code=route_code)
 
         return Template(template_name="/delays/routes/route.html", context={"delay": result})

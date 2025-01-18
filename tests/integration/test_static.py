@@ -1,7 +1,6 @@
-from SimplyTransport.lib.constants import STATIC_DIR
-
-from litestar.testing import AsyncTestClient
 import pytest
+from litestar.testing import AsyncTestClient
+from SimplyTransport.lib.constants import STATIC_DIR
 
 
 @pytest.mark.asyncio

@@ -2,9 +2,10 @@ from typing import Literal
 
 from SimplyTransport.domain.maps.enums import StaticStopMapTypes
 from SimplyTransport.domain.services.map_service import provide_map_service
-from .logging.logging import provide_logger
-from .constants import MAPS_STATIC_ROUTES_DIR, MAPS_STATIC_STOPS_DIR
+
 from ..lib.db.database import async_session_factory
+from .constants import MAPS_STATIC_ROUTES_DIR, MAPS_STATIC_STOPS_DIR
+from .logging.logging import provide_logger
 
 logger = provide_logger(__name__)
 

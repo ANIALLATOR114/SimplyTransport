@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import NamedTuple
+
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from pydantic import BaseModel as _BaseModel
 from sqlalchemy import Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-from pydantic import BaseModel as _BaseModel
 
 from SimplyTransport.domain.database_statistics.statistic_type import StatisticType
 
@@ -15,7 +16,8 @@ class BaseModel(_BaseModel):
 
 
 class DatabaseStatisticModel(BigIntAuditBase):
-    __tablename__ = "database_statistic"
+    __tablename__: str = "database_statistic"  # type: ignore[assignment]
+
     __table_args__ = (Index("ix_statistic_created_at", "created_at"),)
 
     statistic_type: Mapped[StatisticType] = mapped_column(String(length=255), index=True)

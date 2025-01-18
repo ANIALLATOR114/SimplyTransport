@@ -1,14 +1,16 @@
 import cProfile
-import pstats
 import io
+import pstats
+from collections.abc import Callable
 from functools import wraps
+from typing import Any
 
 number_of_lines_to_print = 15
 
 
-def profile(func):
+def profile(func: Callable) -> Callable:
     @wraps(func)
-    async def async_wrapper(*args, **kwargs):
+    async def async_wrapper(*args, **kwargs) -> Any:
         pr = cProfile.Profile()
         print("Profiling function:", func.__name__)
         pr.enable()
@@ -24,9 +26,9 @@ def profile(func):
     return async_wrapper
 
 
-def profile_sync(func):
+def profile_sync(func: Callable) -> Callable:
     @wraps(func)
-    def sync_wrapper(*args, **kwargs):
+    def sync_wrapper(*args, **kwargs) -> Any:
         pr = cProfile.Profile()
         print("Profiling function:", func.__name__)
         pr.enable()
@@ -43,14 +45,14 @@ def profile_sync(func):
 
 
 class Profiler:
-    def __init__(self):
+    def __init__(self) -> None:
         self.pr = cProfile.Profile()
 
-    def __enter__(self):
+    def __enter__(self) -> "Profiler":
         self.pr.enable()
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type: Any, value: Any, traceback: Any) -> None:
         self.pr.disable()
         s = io.StringIO()
         sortby = "cumulative"

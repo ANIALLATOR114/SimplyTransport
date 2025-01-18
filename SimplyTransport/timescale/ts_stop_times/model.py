@@ -1,9 +1,10 @@
 from datetime import datetime, time
-from litestar.contrib.sqlalchemy.base import BigIntBase
 
+from litestar.contrib.sqlalchemy.base import BigIntBase
+from pydantic import BaseModel as _BaseModel
+from pydantic import Field, computed_field
 from sqlalchemy import DateTime, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column
-from pydantic import BaseModel as _BaseModel, Field, computed_field
 
 
 class BaseModel(_BaseModel):
@@ -13,7 +14,7 @@ class BaseModel(_BaseModel):
 
 
 class TS_StopTimeModel(BigIntBase):
-    __tablename__ = "ts_stop_times"
+    __tablename__: str = "ts_stop_times"  # type: ignore[assignment]
 
     Timestamp: Mapped[DateTime] = mapped_column(
         DateTime, nullable=False, default=datetime.now, primary_key=True
@@ -31,8 +32,8 @@ class TS_StopTime(BaseModel):
     scheduled_time: time
     delay_in_seconds: int
 
-    @computed_field
     @property
+    @computed_field
     def delay_in_minutes(self) -> float:
         return round(self.delay_in_seconds / 60, 1)
 
@@ -41,8 +42,8 @@ class TS_StopTimeForGraph(BaseModel):
     Timestamp: datetime
     delay_in_seconds: int = Field(exclude=True)
 
-    @computed_field
     @property
+    @computed_field
     def delay_in_minutes(self) -> float:
         return round(self.delay_in_seconds / 60, 1)
 

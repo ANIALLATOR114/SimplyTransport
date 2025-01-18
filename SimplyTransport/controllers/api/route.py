@@ -1,8 +1,8 @@
+from advanced_alchemy import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
-from advanced_alchemy import NotFoundError
 
 from ...domain.route.model import Route, RouteWithTotal
 from ...domain.route.repo import RouteRepository, provide_route_repo

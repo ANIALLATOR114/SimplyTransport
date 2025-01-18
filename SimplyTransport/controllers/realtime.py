@@ -1,21 +1,21 @@
 from datetime import datetime, timedelta
-from advanced_alchemy import NotFoundError
 
+from advanced_alchemy import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.response import Template
 
 from SimplyTransport.lib.cache_keys import CacheKeys, key_builder_from_path_and_query
 
-from ..domain.route.repo import RouteRepository, provide_route_repo
 from ..domain.enums import DayOfWeek
-from ..domain.services.schedule_service import (
-    ScheduleService,
-    provide_schedule_service,
-)
+from ..domain.route.repo import RouteRepository, provide_route_repo
 from ..domain.services.realtime_service import (
     RealTimeService,
     provide_realtime_service,
+)
+from ..domain.services.schedule_service import (
+    ScheduleService,
+    provide_schedule_service,
 )
 from ..domain.stop.repo import StopRepository, provide_stop_repo
 from ..domain.trip.model import Direction
@@ -99,8 +99,10 @@ class RealtimeController(Controller):
         self,
         stop_id: str,
         schedule_service: ScheduleService,
-        day: DayOfWeek = DayOfWeek(datetime.now().weekday()),
+        day: DayOfWeek | None = None,
     ) -> Template:
+        if day is None:
+            day = DayOfWeek(datetime.now().weekday())
         schedules = await schedule_service.get_schedule_on_stop_for_day(stop_id=stop_id, day=day)
         schedules = await schedule_service.remove_exceptions_and_inactive_calendars(schedules)
         schedules = await schedule_service.add_in_added_exceptions(schedules)  # TODO

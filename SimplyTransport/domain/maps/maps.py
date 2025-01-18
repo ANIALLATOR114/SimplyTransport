@@ -1,6 +1,7 @@
+from pathlib import Path
+
 import folium as fl
 import folium.plugins as flp
-from pathlib import Path
 
 ATTRIBUTION = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a>'
 
@@ -8,7 +9,7 @@ ATTRIBUTION = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; 
 class Map:
     def __init__(
         self,
-        height: int = None,
+        height: int | None = None,
         lat: float = 53.44928237017178,
         lon: float = -7.514413484752406,
         zoom: int = 8,
@@ -18,7 +19,8 @@ class Map:
         Initializes a Maps object.
 
         Args:
-            height (int, optional): The height of the map in pixels. Defaults to None. If not provided the map will maintain 16:9 aspect ratio.
+            height (int, optional): The height of the map in pixels. Defaults to None.
+            If not provided the map will maintain 16:9 aspect ratio.
             lat (float, optional): The latitude of the map's center. Defaults to 53.44928237017178.
             lon (float, optional): The longitude of the map's center. Defaults to -7.514413484752406.
             zoom (int, optional): The initial zoom level of the map. Defaults to 8.
@@ -60,8 +62,8 @@ class Map:
         self,
         name: str = "Detailed",
         tiles: str = "OpenStreetMap",
-        attribution: str = None,
-        max_zoom: int = None,
+        attribution: str | None = None,
+        max_zoom: int | None = None,
     ) -> None:
         """
         Adds a tile layer to the map.
@@ -69,7 +71,8 @@ class Map:
         Args:
             name (str): The name of the tile layer. Defaults to "Detailed".
             tiles (str): The type of tiles to use. Defaults to "OpenStreetMap".
-            max_zoom (int): The maximum zoom level for the tile layer. If not provided, the maximum zoom level of the map will be used.
+            max_zoom (int): The maximum zoom level for the tile layer. If not provided, the maximum zoom
+            level of the map will be used.
 
         Returns:
             None
@@ -120,7 +123,7 @@ class Map:
         Returns:
             str: The HTML representation of the map.
         """
-        return self.map_base._repr_html_()
+        return self.map_base._repr_html_()  # type: ignore[no-any-return]
 
     def save(self, path: str, filename: str) -> None:
         """

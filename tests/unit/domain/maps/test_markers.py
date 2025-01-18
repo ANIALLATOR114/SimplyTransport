@@ -1,14 +1,13 @@
 import datetime
 import math
+
+import folium as fl
+import pytest
 from SimplyTransport.domain.agency.model import AgencyModel
 from SimplyTransport.domain.maps.colors import Colors
 from SimplyTransport.domain.maps.markers import BusMarker, StopMarker
-import folium as fl
-
-import pytest
 from SimplyTransport.domain.realtime.vehicle.model import RTVehicleModel
 from SimplyTransport.domain.route.model import RouteModel
-
 from SimplyTransport.domain.stop.model import StopModel
 from SimplyTransport.domain.trip.model import TripModel
 

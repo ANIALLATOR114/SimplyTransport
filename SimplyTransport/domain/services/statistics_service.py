@@ -1,12 +1,11 @@
-from typing import List
 from SimplyTransport.domain.database_statistics.model import (
     DatabaseStatisticModel,
     DatabaseStatisticWithPercentage,
 )
 from SimplyTransport.domain.database_statistics.statistic_type import StatisticType
-from ..database_statistics.repo import DatabaseStatisticRepository
-
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..database_statistics.repo import DatabaseStatisticRepository
 
 
 class StatisticsService:
@@ -52,34 +51,39 @@ class StatisticsService:
 
     def convert_stats_to_stats_with_percentage_totals(
         self,
-        stats: List[DatabaseStatisticModel],
+        stats: list[DatabaseStatisticModel],
         decimals_places_to_round: int = 2,
         add_totals_row: bool = True,
         total_row_key: str = "Total Rows",
         total_override: int | None = None,
-    ) -> List[DatabaseStatisticWithPercentage]:
+    ) -> list[DatabaseStatisticWithPercentage]:
         """
-        Converts a list of DatabaseStatisticModel objects to a list of DatabaseStatisticWithPercentage objects,
+        Converts a list of DatabaseStatisticModel objects to a list of DatabaseStatisticWithPercentage objects
         with the addition of a totals row if specified.
 
         Args:
             stats (List[DatabaseStatisticModel]): The list of DatabaseStatisticModel objects to convert.
-            decimals_places_to_round (int, optional): The number of decimal places to round the percentages to.
+            decimals_places_to_round (int, optional): The number of decimal places to round the
+            percentages to.
                 Defaults to 2.
-            add_totals_row (bool, optional): Whether to add a totals row to the resulting list. Defaults to True.
-            total_row_key (str, optional): The key for the totals row. Defaults to "Total Rows".
-            total_override (int | None, optional): An optional override for the total number of rows. If provided,
-                this value will be used instead of calculating the sum of the values in the stats list. Defaults to None.
+            add_totals_row (bool, optional): Whether to add a totals row to the resulting list.
+                Defaults to True.
+            total_row_key (str, optional): The key for the totals row.
+                Defaults to "Total Rows".
+            total_override (int | None, optional): An optional override for the total number of rows.
+            If provided, this value will be used instead of calculating the sum of the values
+            in the stats list.
+                Defaults to None.
 
         Returns:
-            List[DatabaseStatisticWithPercentage]: The list of DatabaseStatisticWithPercentage objects, including
-            the totals row if specified.
+            List[DatabaseStatisticWithPercentage]: The list of DatabaseStatisticWithPercentage objects,
+            including the totals row if specified.
         """
         if total_override is None:
             total_rows = sum(stat.value for stat in stats)
         else:
             total_rows = total_override
-        stats_with_percentages: List[DatabaseStatisticWithPercentage] = []
+        stats_with_percentages: list[DatabaseStatisticWithPercentage] = []
 
         if add_totals_row:
             stat_for_totals = DatabaseStatisticWithPercentage(
@@ -87,7 +91,7 @@ class StatisticsService:
                 value=total_rows,
                 percentage=100,
             )
-            stats_with_percentages.append((stat_for_totals))
+            stats_with_percentages.append(stat_for_totals)
 
         for stat in stats:
             percentage = round((stat.value / total_rows) * 100, decimals_places_to_round)
@@ -96,12 +100,12 @@ class StatisticsService:
                 value=stat.value,
                 percentage=percentage,
             )
-            stats_with_percentages.append((percentage_stat))
+            stats_with_percentages.append(percentage_stat)
         return stats_with_percentages
 
     def sort_stats_by_value(
-        self, stats: List[DatabaseStatisticWithPercentage], descending: bool = True
-    ) -> List[DatabaseStatisticWithPercentage]:
+        self, stats: list[DatabaseStatisticWithPercentage], descending: bool = True
+    ) -> list[DatabaseStatisticWithPercentage]:
         """
         Sorts a list of DatabaseStatisticWithPercentage objects based on their value.
 

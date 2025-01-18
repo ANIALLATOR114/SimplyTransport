@@ -1,18 +1,17 @@
 import math
 from typing import Literal
 
-from litestar import Controller, get
-from litestar.response import Template
-from litestar.di import Provide
-from litestar.params import Parameter
-from litestar.exceptions import ValidationException
-from advanced_alchemy.filters import LimitOffset
 from advanced_alchemy import NotFoundError
+from advanced_alchemy.filters import LimitOffset
+from litestar import Controller, get
+from litestar.di import Provide
+from litestar.exceptions import ValidationException
+from litestar.params import Parameter
+from litestar.response import Template
 
-from ..domain.events.repo import EventRepository, provide_event_repo
 from ..domain.events.event_types import EventType
+from ..domain.events.repo import EventRepository, provide_event_repo
 from ..lib.parameters.pagination_page_numbers import generate_pagination_pages
-
 
 __all__ = [
     "EventsController",

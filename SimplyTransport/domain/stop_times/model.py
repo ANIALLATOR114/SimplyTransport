@@ -1,13 +1,16 @@
-import datetime as DateTime
 from datetime import time
-from typing import Optional
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..stop.model import StopModel
+    from ..trip.model import TripModel
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
 from sqlalchemy import ForeignKey, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..enums import PickupType, DropoffType, Timepoint
+from ..enums import DropoffType, PickupType, Timepoint
 
 
 class BaseModel(_BaseModel):
@@ -17,23 +20,23 @@ class BaseModel(_BaseModel):
 
 
 class StopTimeModel(BigIntAuditBase):
-    __tablename__ = "stop_time"
+    __tablename__: str = "stop_time"  # type: ignore[assignment]
     trip_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True
     )
-    trip: Mapped["TripModel"] = relationship(back_populates="stop_times")  # noqa: F821
+    trip: Mapped["TripModel"] = relationship(back_populates="stop_times")
     arrival_time: Mapped[time] = mapped_column(Time)
     departure_time: Mapped[time] = mapped_column(Time)
     stop_id: Mapped[str] = mapped_column(ForeignKey("stop.id"), index=True)
-    stop: Mapped["StopModel"] = relationship(back_populates="stop_times")  # noqa: F821
+    stop: Mapped["StopModel"] = relationship(back_populates="stop_times")
     stop_sequence: Mapped[int] = mapped_column(Integer)
-    stop_headsign: Mapped[Optional[str]] = mapped_column(String(length=1000))
-    pickup_type: Mapped[Optional[PickupType]] = mapped_column(Integer)
-    dropoff_type: Mapped[Optional[DropoffType]] = mapped_column(Integer)
-    timepoint: Mapped[Optional[Timepoint]] = mapped_column(Integer)
+    stop_headsign: Mapped[str | None] = mapped_column(String(length=1000))
+    pickup_type: Mapped[PickupType | None] = mapped_column(Integer)
+    dropoff_type: Mapped[DropoffType | None] = mapped_column(Integer)
+    timepoint: Mapped[Timepoint | None] = mapped_column(Integer)
     dataset: Mapped[str] = mapped_column(String(length=80))
 
-    def true_if_active_between_times(self, start_time: DateTime.time, end_time: DateTime.time):
+    def true_if_active_between_times(self, start_time: time, end_time: time):
         """Returns True if the stop time arrival_time is active between the two times"""
         if start_time <= self.arrival_time <= end_time:
             return True
@@ -46,8 +49,8 @@ class StopTime(BaseModel):
     departure_time: time
     stop_id: str
     stop_sequence: int
-    stop_headsign: Optional[str]
-    pickup_type: Optional[PickupType]
-    dropoff_type: Optional[DropoffType]
-    timepoint: Optional[Timepoint]
+    stop_headsign: str | None
+    pickup_type: PickupType | None
+    dropoff_type: DropoffType | None
+    timepoint: Timepoint | None
     dataset: str

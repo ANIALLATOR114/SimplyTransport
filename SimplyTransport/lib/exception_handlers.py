@@ -1,6 +1,6 @@
-from litestar.response import Template
 from litestar import Request, Response
 from litestar.exceptions import HTTPException
+from litestar.response import Template
 
 from SimplyTransport.lib.logging.logging import provide_logger
 

@@ -1,12 +1,11 @@
-from pydantic import BaseModel as _BaseModel
-from typing import Optional
+from datetime import datetime, time, timedelta
 
-from ..stop_time.model import RTStopTimeModel, RTStopTime
-from ..trip.model import RTTripModel, RTTrip
+from pydantic import BaseModel as _BaseModel
+
 from ...schedule.model import StaticScheduleModel
 from ..enums import OnTimeStatus
-
-from datetime import datetime, timedelta, time
+from ..stop_time.model import RTStopTime, RTStopTimeModel
+from ..trip.model import RTTrip, RTTripModel
 
 
 class BaseModel(_BaseModel):
@@ -104,8 +103,8 @@ class RealTimeScheduleModel:
 
 
 class RealTimeSchedule(BaseModel):
-    rt_stop_time: Optional[RTStopTime]
-    rt_trip: Optional[RTTrip]
+    rt_stop_time: RTStopTime | None
+    rt_trip: RTTrip | None
     delay: str
     delay_in_seconds: int
     real_arrival_time: time

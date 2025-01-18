@@ -1,8 +1,8 @@
+from advanced_alchemy import NotFoundError
 from litestar import Controller, MediaType, Response, get
 from litestar.di import Provide
-from advanced_alchemy import NotFoundError
-from litestar.response import Template
 from litestar.exceptions import NotFoundException
+from litestar.response import Template
 
 from SimplyTransport.domain.services.map_service import MapService, provide_map_service
 from SimplyTransport.lib.cache_keys import CacheKeys, key_builder_from_path

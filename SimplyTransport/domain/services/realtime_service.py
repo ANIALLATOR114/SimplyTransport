@@ -1,15 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Tuple, List
 
 from ..realtime.enums import OnTimeStatus
+from ..realtime.realtime_schedule.model import RealTimeScheduleModel
+from ..realtime.realtime_schedule.repo import RealtimeScheduleRepository
+from ..realtime.stop_time.model import RTStopTimeModel
 from ..realtime.stop_time.repo import RTStopTimeRepository
+from ..realtime.trip.model import RTTripModel
 from ..realtime.trip.repo import RTTripRepository
 from ..realtime.vehicle.repo import RTVehicleRepository
-from ..realtime.realtime_schedule.repo import RealtimeScheduleRepository
-from ..realtime.realtime_schedule.model import RealTimeScheduleModel
 from ..schedule.model import StaticScheduleModel
-from ..realtime.stop_time.model import RTStopTimeModel
-from ..realtime.trip.model import RTTripModel
 
 
 class RealTimeService:
@@ -26,14 +25,15 @@ class RealTimeService:
         self.realtime_schedule_repository = realtime_schedule_repository
 
     def parse_most_recent_realtime_update(
-        self, realtime_updates: List[Tuple[RTStopTimeModel, RTTripModel]]
-    ) -> List[Tuple[RTStopTimeModel, RTTripModel]]:
-        """Returns a list of RealTimeSchedule objects that are the most recent update for each trip according to the stop_sequence"""
+        self, realtime_updates: list[tuple[RTStopTimeModel, RTTripModel]]
+    ) -> list[tuple[RTStopTimeModel, RTTripModel]]:
+        """Returns a list of RealTimeSchedule objects that are the most recent update
+        for each trip according to the stop_sequence"""
 
         if not realtime_updates:
             return []
 
-        most_recent_realtime_updates = {}
+        most_recent_realtime_updates: dict[str, tuple[RTStopTimeModel, RTTripModel]] = {}
 
         for stop_time, trip in realtime_updates:
             trip_id = trip.trip_id
@@ -87,7 +87,8 @@ class RealTimeService:
         def custom_sort_key(realtime_schedule: RealTimeScheduleModel):
             arrival_time = realtime_schedule.real_arrival_time
 
-            # Handle the exception case where times in the range 00:00 to 02:00 sort after times in the range 23:00 to 23:59
+            # Handle the exception case where times in the range 00:00 to 02:00
+            # sort after times in the range 23:00 to 23:59
             if 0 <= arrival_time.hour <= 2:
                 return (24, arrival_time.hour, arrival_time.minute, arrival_time.second)
             else:
@@ -115,7 +116,7 @@ class RealTimeService:
         ]
         return realtime_schedules
 
-    async def get_distinct_realtime_trips(self) -> List[str]:
+    async def get_distinct_realtime_trips(self) -> list[str]:
         """Returns all distinct trips."""
 
         return await self.realtime_schedule_repository.get_distinct_realtime_trips()

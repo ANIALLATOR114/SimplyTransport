@@ -1,20 +1,18 @@
 from litestar import Controller, Response, get
-from litestar.response import Template, File
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
+from litestar.response import File, Template
 
 from ..domain.agency.model import AgencyModel
 from ..domain.agency.repo import AgencyRepository, provide_agency_repo
-
-from ..lib.logging.logging import provide_logger
-from ..domain.maps.maps import Map
-from ..domain.maps.enums import StaticStopMapTypes
-from ..domain.services.map_service import MapService
-from ..domain.events.repo import EventRepository, provide_event_repo
 from ..domain.events.event_types import EventType
+from ..domain.events.repo import EventRepository, provide_event_repo
+from ..domain.maps.enums import StaticStopMapTypes
+from ..domain.maps.maps import Map
+from ..domain.services.map_service import MapService
+from ..lib.constants import APP_DIR, STATIC_DIR
 from ..lib.db.services import test_database_connections
-from ..lib.constants import STATIC_DIR, APP_DIR
-
+from ..lib.logging.logging import provide_logger
 
 __all__ = [
     "RootController",
@@ -36,7 +34,6 @@ class RootController(Controller):
         self,
         event_repo: EventRepository,
     ) -> Template:
-
         gtfs_updated_event = await event_repo.get_single_pretty_event_by_type(EventType.GTFS_DATABASE_UPDATED)
         realtime_updated_event = await event_repo.get_single_pretty_event_by_type(
             EventType.REALTIME_DATABASE_UPDATED

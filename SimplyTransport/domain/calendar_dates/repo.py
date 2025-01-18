@@ -1,9 +1,10 @@
+from datetime import date
+
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..enums import ExceptionType
 from .model import CalendarDateModel
-from datetime import date
 
 
 class CalendarDateRepository(SQLAlchemyAsyncRepository[CalendarDateModel]):

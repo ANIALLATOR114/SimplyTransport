@@ -1,6 +1,6 @@
-from litestar.testing import TestClient
-
 from datetime import date
+
+from litestar.testing import TestClient
 
 
 def test_statistics_most_recent_gtfs(client: TestClient) -> None:

@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from advanced_alchemy import NotFoundError
 from litestar import Controller, MediaType, Response, get
 from litestar.di import Provide
@@ -6,6 +7,8 @@ from litestar.response import Template
 
 from ..domain.agency.model import AgencyModel
 from ..domain.agency.repo import AgencyRepository, provide_agency_repo
+from ..domain.services.map_service import MapService, provide_map_service
+from ..lib.cache_keys import CacheKeys, key_builder_from_path
 from ..lib.constants import (
     MAPS_STATIC_ROUTES_DIR,
     MAPS_STATIC_STOPS_DIR,
@@ -13,10 +16,6 @@ from ..lib.constants import (
     MAPS_TEMPLATES_STOPS_DIR,
 )
 from ..lib.logging.logging import provide_logger
-
-from ..domain.services.map_service import MapService, provide_map_service
-from ..lib.cache_keys import CacheKeys, key_builder_from_path
-
 
 __all__ = [
     "MapsController",

@@ -78,10 +78,11 @@ class ScheduleService:
     ) -> list[StaticScheduleModel]:
         """Sorts the schedules by arrival time"""
 
-        def custom_sort_key(static_schedule: StaticScheduleModel):
+        def custom_sort_key(static_schedule: StaticScheduleModel) -> tuple[int, ...]:
             arrival_time = static_schedule.stop_time.arrival_time
 
-            # Handle the exception case where times in the range 00:00 to 02:00 sort after times in the range 23:00 to 23:59
+            # Handle the exception case where times in the range 00:00 to 02:00
+            # sort after times in the range 23:00 to 23:59
             if 0 <= arrival_time.hour <= 2:
                 return (24, arrival_time.hour, arrival_time.minute, arrival_time.second)
             else:

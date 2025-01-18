@@ -1,20 +1,19 @@
 import folium as fl
 
-from .colors import Colors
 from ..realtime.vehicle.model import RTVehicleModel
 from ..route.model import RouteModel
-
 from ..stop.model import StopModel
+from .colors import Colors
 
 
 class StopMarker:
     def __init__(
         self,
         stop: StopModel,
-        routes: list[RouteModel] = None,
+        routes: list[RouteModel] | None = None,
         create_link: bool = True,
         create_stop_features: bool = True,
-        color: Colors = None,
+        color: Colors | None = None,
     ) -> None:
         """
         Initialize a Marker object.
@@ -23,7 +22,8 @@ class StopMarker:
             stop (StopModel): The stop associated with the marker.
             routes (list[RouteModel], optional): The routes associated with the marker. Defaults to None.
             create_links (bool, optional): Whether to create links for the marker. Defaults to True.
-            create_stop_features (bool, optional): Whether to create stop features for the marker. Defaults to True.
+            create_stop_features (bool, optional): Whether to create stop features for the marker.
+            Defaults to True.
             color (MarkerColors, optional): The color of the marker. Defaults to None.
         """
         self.stop = stop
@@ -60,7 +60,8 @@ class StopMarker:
 
         stop_lat_lon = f"""
             <p>
-                <a target='_parent' href="https://www.google.com/maps?layer=c&amp;cbll={ self.stop.lat },{ self.stop.lon }&amp;cbp=0,0,,,">Street view</a><br>
+                <a target='_parent' href="https://www.google.com/maps?layer=c&amp;"
+                   "cbll={self.stop.lat},{self.stop.lon}&amp;cbp=0,0,,,">Street view</a><br>
                 Lat: {self.stop.lat}<br>
                 Lon: {self.stop.lon}
                 </p>
@@ -81,7 +82,15 @@ class StopMarker:
             stop_routes = f"""
                 <p>
                     <h5>{len(self.routes)} Routes </h5>
-                    {'<br>'.join([f"<a target='_parent' href='/realtime/route/{route.id}/1'>{route.short_name}</a> - {route.long_name}" for route in self.routes])}
+                    {
+                "<br>".join(
+                    [
+                        f"<a target='_parent' href='/realtime/route/{route.id}/1'>"
+                        f"{route.short_name}</a> - {route.long_name}"
+                        for route in self.routes
+                    ]
+                )
+            }
                 </p>
             """
 
@@ -127,13 +136,16 @@ class StopMarker:
         Returns:
         None
         """
+
+        if self.stop.lat is None or self.stop.lon is None:
+            raise ValueError("Stop must have latitude and longitude")
+
         if type_of_marker == "circle":
             fl.CircleMarker(
                 [self.stop.lat, self.stop.lon],
                 color="#000",
                 tooltip=self.tooltip,
                 popup=self.popup,
-                icon=self.icon,
                 fill_color="#ccc",
                 fill_opacity=1,
                 radius=radius,
@@ -159,13 +171,15 @@ class StopMarker:
         Returns:
         - fl.Marker: The marker object.
         """
+        if self.stop.lat is None or self.stop.lon is None:
+            raise ValueError("Stop must have latitude and longitude")
+
         if type_of_marker == "circle":
             return fl.CircleMarker(
                 [self.stop.lat, self.stop.lon],
                 color="#000",
                 tooltip=self.tooltip,
                 popup=self.popup,
-                icon=self.icon,
                 fill_color="#ccc",
                 fill_opacity=1,
                 radius=radius,
@@ -186,7 +200,7 @@ class BusMarker:
         self,
         vehicle: RTVehicleModel,
         create_links: bool = True,
-        color: Colors = None,
+        color: Colors | None = None,
     ) -> None:
         self.vehicle = vehicle
         self.create_links = create_links
