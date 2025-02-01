@@ -36,7 +36,7 @@ class RoutePolyLine:
         create_popup: bool = True,
         create_tooltip: bool = True,
         create_links: bool = True,
-        weight: int = 9,
+        weight: int = 8,
         opacity: float = 1,
     ) -> None:
         """

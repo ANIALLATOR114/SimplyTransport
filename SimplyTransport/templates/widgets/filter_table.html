@@ -1,5 +1,5 @@
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    function initializeFilters() {
         const filterTable = (searchBox, tableSearch) => {
             const filterValue = document.getElementById(searchBox).value.toLowerCase();
             const table = document.getElementById(tableSearch);
@@ -15,12 +15,29 @@
         };
 
         const attachFilter = (searchBox, tableSearch) => {
-            document.getElementById(searchBox)?.addEventListener('input', () => {
+            const searchElement = document.getElementById(searchBox);
+            if (!searchElement) return;
+            
+            // Check if we already attached a listener to this element
+            if (searchElement.dataset.hasFilter === 'true') {
+                return;
+            }
+
+            searchElement.addEventListener('input', () => {
                 filterTable(searchBox, tableSearch);
             });
+            
+            // Mark this element as having a filter attached
+            searchElement.dataset.hasFilter = 'true';
         };
 
         attachFilter('search-box-1', 'table-1');
         attachFilter('search-box-2', 'table-2');
-    });
+    }
+
+    // Run on initial page load
+    document.addEventListener('DOMContentLoaded', initializeFilters);
+
+    // Run when HTMX content is swapped
+    document.addEventListener('htmx:afterSwap', initializeFilters);
 </script>

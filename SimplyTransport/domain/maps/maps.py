@@ -100,21 +100,21 @@ class Map:
         self.add_fullscreen()
         self.add_mouse_position()
         self.add_tilelayer()
-        self.add_tilelayer(
-            name="Light",
-            tiles="https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png",
-            attribution=ATTRIBUTION,
-        )
-        self.add_tilelayer(
-            name="Terrain",
-            tiles="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
-            attribution=ATTRIBUTION,
-        )
-        self.add_tilelayer(
-            name="Dark",
-            tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
-            attribution=ATTRIBUTION,
-        )
+        # self.add_tilelayer(
+        #     name="Light",
+        #     tiles="https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png",
+        #     attribution=ATTRIBUTION,
+        # )
+        # self.add_tilelayer(
+        #     name="Terrain",
+        #     tiles="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
+        #     attribution=ATTRIBUTION,
+        # )
+        # self.add_tilelayer(
+        #     name="Dark",
+        #     tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
+        #     attribution=ATTRIBUTION,
+        # )
 
     def render(self) -> str:
         """
@@ -140,3 +140,78 @@ class Map:
         check_if_file_exists.touch(exist_ok=True)
 
         self.map_base.save(path + filename + ".html")
+
+    def add_toggle_all_layers_control(self) -> None:
+        """
+        Adds a button to toggle all layers on/off.
+        """
+        custom_css = """
+        <style>
+        .toggle-all-layers {
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            z-index: 1000;
+            background: white;
+            padding: 5px 10px;
+            border: 2px solid rgba(0,0,0,0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .toggle-all-layers:hover {
+            background: #f4f4f4;
+        }
+
+        </style>
+        """
+
+        toggle_script = """
+        <script>
+        function initializeToggleButton() {
+            var mapElement = document.querySelector('.folium-map');
+            if (!mapElement) {
+                console.error('Map element not found');
+                return;
+            }
+
+            // Remove existing toggle button if it exists
+            var existingBtn = document.querySelector('.toggle-all-layers');
+            if (existingBtn) {
+                existingBtn.remove();
+            }
+
+            var toggleBtn = document.createElement('button');
+            toggleBtn.className = 'toggle-all-layers';
+            toggleBtn.innerHTML = 'Toggle all off';
+
+            mapElement.appendChild(toggleBtn);
+
+            var layersOn = true;
+            toggleBtn.onclick = function() {
+                layersOn = !layersOn;
+                var layers = document.querySelectorAll('.leaflet-control-layers-selector');
+
+                layers.forEach(function(layer) {
+                    if (layer.checked !== layersOn) {
+                        layer.click();
+                    }
+                });
+
+                toggleBtn.innerHTML = layersOn ? 'Toggle all off' : 'Toggle all on';
+            };
+        }
+
+
+        // Run when document is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeToggleButton);
+        } else {
+            initializeToggleButton();
+        }
+        </script>
+        """
+
+        # Add both CSS and script to the map's HTML
+        element = fl.Element(custom_css + toggle_script)
+        self.map_base.get_root().html.add_child(element)  # type: ignore

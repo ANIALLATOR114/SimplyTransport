@@ -12,15 +12,17 @@ class TripRepository(SQLAlchemyAsyncRepository[TripModel]):
     """Trip repository."""
 
     async def get_first_trips_by_route_ids(
-        self, route_ids: list[str], direction: int | None = None
+        self, route_ids: list[str], direction: int = 1
     ) -> Sequence[TripModel]:
         """Get first trips by route_ids."""
-        query = select(TripModel).where(TripModel.route_id.in_(route_ids)).distinct(TripModel.route_id)
 
-        if direction is not None:
-            query = query.where(TripModel.direction == direction)
+        result = await self.session.execute(
+            select(TripModel)
+            .where(TripModel.route_id.in_(route_ids))
+            .where(TripModel.direction == direction)
+            .distinct(TripModel.route_id)
+        )
 
-        result = await self.session.execute(query)
         return result.scalars().all()
 
     async def get_first_trip_by_route_id(self, route_id: str, direction: int) -> TripModel:
@@ -31,6 +33,7 @@ class TripRepository(SQLAlchemyAsyncRepository[TripModel]):
             .where(TripModel.route_id == route_id)
             .where(TripModel.direction == direction)
             .distinct(TripModel.route_id)
+            .limit(1)
         )
         trip = result.scalars().first()
         if trip is None:
