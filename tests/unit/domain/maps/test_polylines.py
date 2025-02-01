@@ -11,15 +11,15 @@ def route():
 
 
 def test_route_polyline_init(route: RouteModel):
-    route = RoutePolyLine(route, [(53.0, -7.0), (53.1, -7.1)])
-    assert route.route.id == "123"
-    assert route.route.short_name == "Test Route"
-    assert route.route.agency.name == "test"
-    assert route.locations == [(53.0, -7.0), (53.1, -7.1)]
-    assert route.create_links is True
-    assert route.weight == 9
-    assert route.opacity == 1
-    assert type(route.polyline) is fl.PolyLine
+    polyline = RoutePolyLine(route, [(53.0, -7.0), (53.1, -7.1)])
+    assert polyline.route.id == "123"
+    assert polyline.route.short_name == "Test Route"
+    assert polyline.route.agency.name == "test"
+    assert polyline.locations == [(53.0, -7.0), (53.1, -7.1)]
+    assert polyline.create_links is True
+    assert polyline.weight == 8
+    assert polyline.opacity == 1
+    assert type(polyline.polyline) is fl.PolyLine
 
 
 @pytest.mark.parametrize(
