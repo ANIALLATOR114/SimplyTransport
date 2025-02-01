@@ -10,7 +10,7 @@ MAXIMUM_LIMIT = 730
 MAXIMUM_TIMESTAMP = datetime.now() - timedelta(days=MAXIMUM_LIMIT)
 
 
-class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):
+class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):  # type: ignore
     """TSStopTime repository."""
 
     async def get_aggregated_delay_on_stop_on_route_on_time(

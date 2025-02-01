@@ -1,5 +1,5 @@
 from enum import StrEnum
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock, call
 
 import pytest
 from redis.asyncio import Redis
@@ -33,14 +33,14 @@ def redis_service(mock_redis: AsyncMock) -> RedisService:
         (["key1", "key2"], CacheKeys.Meta.ALL_KEYS, 1),
     ],
 )
-async def test_delete_keys(
+async def test_delete_keys_by_pattern(
     keys: list, pattern: StrEnum, expected_calls: int, redis_service: RedisService, mock_redis: Redis
 ):
     # Arrange
     mock_redis.keys.return_value = keys
 
     # Act
-    await redis_service.delete_keys(pattern)
+    await redis_service.delete_keys_by_pattern(pattern)
 
     # Assert
     mock_redis.keys.assert_called_once_with(pattern.value)
@@ -48,11 +48,35 @@ async def test_delete_keys(
 
 
 @pytest.mark.asyncio
+async def test_delete_keys_list(redis_service: RedisService, mock_redis: Redis):
+    # Arrange
+    keys = ["key1", "key2"]
+
+    # Act
+    await redis_service.delete_keys(keys)
+
+    # Assert
+    mock_redis.delete.assert_called_once_with("key1", "key2")
+
+
+@pytest.mark.asyncio
+async def test_delete_keys_set(redis_service: RedisService, mock_redis: Redis):
+    # Arrange
+    keys = {"key1", "key2"}
+
+    # Act
+    await redis_service.delete_keys(keys)
+
+    # Assert
+    assert mock_redis.delete.call_args.args[0] in {"key1", "key2"}
+    assert mock_redis.delete.call_count == 1
+
+
+@pytest.mark.asyncio
 async def test_delete_key(redis_service: RedisService, mock_redis: Redis):
-    await redis_service.delete_key(CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE, "stop_id")
-    mock_redis.delete.assert_called_once_with(
-        CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id")
-    )
+    key = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id")
+    await redis_service.delete_key(key)
+    mock_redis.delete.assert_called_once_with(key)
 
 
 @pytest.mark.asyncio
@@ -70,17 +94,25 @@ async def test_delete_all_no_keys_present(redis_service: RedisService, mock_redi
 
 @pytest.mark.asyncio
 async def test_count_all_keys(redis_service: RedisService, mock_redis: Redis):
-    mock_redis.keys.return_value = ["key1", "key2", "key3"]
+    mock_redis.dbsize.return_value = 3
     count = await redis_service.count_all_keys()
     assert count == 3
 
 
 @pytest.mark.asyncio
 async def test_set(redis_service: RedisService, mock_redis: Redis):
-    await redis_service.set(CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE, "stop_id", "value")
-    mock_redis.set.assert_called_once_with(
-        CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id"), "value", ex=60
-    )
+    key = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id")
+    await redis_service.set(key, "value")
+    mock_redis.set.assert_called_once_with(key, "value", ex=60)
+
+
+@pytest.mark.asyncio
+async def test_get(redis_service: RedisService, mock_redis: Redis):
+    mock_redis.get.return_value = "value"
+    key = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id")
+    value = await redis_service.get(key)
+    assert value == "value"
+    mock_redis.get.assert_called_once_with(key)
 
 
 def test_redis_factory():
@@ -98,3 +130,45 @@ def test_redis_service_cache_config_factory():
 def test_redis_store_factory():
     redis_store = redis_store_factory("test_name")
     assert redis_store.namespace is not None and "test_name" in redis_store.namespace
+
+
+@pytest.mark.asyncio
+async def test_check_keys_exist(redis_service: RedisService, mock_redis: Redis):
+    # Arrange
+    keys = ["key1", "key2", "key3"]
+    pipeline_mock = Mock()
+    pipeline_mock.execute = AsyncMock(return_value=[True, False, True])
+    mock_redis.pipeline = Mock(return_value=pipeline_mock)
+
+    # Act
+    result = await redis_service.check_keys_exist(keys)
+
+    # Assert
+    assert result == {"key1": True, "key2": False, "key3": True}
+    assert pipeline_mock.exists.call_count == 3
+    pipeline_mock.exists.assert_has_calls([call("key1"), call("key2"), call("key3")])
+
+
+@pytest.mark.asyncio
+async def test_set_many_empty_keys_with_expiry(redis_service: RedisService, mock_redis: Redis):
+    # Arrange
+    keys = ["key1", "key2", "key3"]
+    pipeline_mock = Mock()
+    pipeline_mock.execute = AsyncMock(return_value=[True, True, True])
+    mock_redis.pipeline = Mock(return_value=pipeline_mock)
+    expiry = 120
+    batch_size = 2
+
+    # Act
+    await redis_service.set_many_empty_keys(keys, expiration=expiry, batch_size=batch_size)
+
+    # Assert
+    assert mock_redis.pipeline.call_count == 2
+    pipeline_mock.set.assert_has_calls(
+        [
+            call("key1", value="", ex=expiry),
+            call("key2", value="", ex=expiry),
+            call("key3", value="", ex=expiry),
+        ]
+    )
+    assert pipeline_mock.execute.call_count == 2

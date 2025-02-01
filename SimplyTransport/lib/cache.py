@@ -1,9 +1,12 @@
+from collections.abc import Iterable, Sequence
 from enum import StrEnum
 
 from litestar.config.response_cache import ResponseCacheConfig
 from litestar.stores.redis import RedisStore
 from opentelemetry.instrumentation.redis import RedisInstrumentor
 from redis.asyncio import Redis
+
+from SimplyTransport.lib.extensions.chunking import chunk_list
 
 from . import settings
 from .cache_keys import CacheKeys
@@ -48,7 +51,7 @@ class RedisService:
         self.redis = redis_factory()
         self.default_expiration = default_expiration
 
-    async def delete_keys(self, pattern: StrEnum) -> None:
+    async def delete_keys_by_pattern(self, pattern: StrEnum) -> None:
         """
         Delete keys from the cache based on the given pattern.
 
@@ -62,7 +65,7 @@ class RedisService:
         if keys:
             await self.redis.delete(*keys)
 
-    async def delete_key(self, template: StrEnum, id: str) -> None:
+    async def delete_key(self, key: str) -> None:
         """
         Delete a key from the cache.
 
@@ -72,14 +75,25 @@ class RedisService:
         Returns:
             None
         """
-        key = template.value.format(**{id: id})
         await self.redis.delete(key)
+
+    async def delete_keys(self, keys: Iterable[str]) -> None:
+        """
+        Delete keys from the cache.
+
+        Args:
+            keys (Iterable[str]): The keys to delete from the cache.
+
+        Returns:
+            None
+        """
+        await self.redis.delete(*keys)
 
     async def delete_all_keys(self) -> None:
         """
         Deletes all keys from the cache.
         """
-        await self.delete_keys(CacheKeys.Meta.ALL_KEYS)
+        await self.delete_keys_by_pattern(CacheKeys.Meta.ALL_KEYS)
 
     async def count_all_keys(self) -> int:
         """
@@ -88,20 +102,64 @@ class RedisService:
         Returns:
             int: The number of keys in the cache.
         """
-        return len(await self.redis.keys(CacheKeys.Meta.ALL_KEYS.value))
+        return await self.redis.dbsize()
 
-    async def set(self, template: StrEnum, id: str, value: str, expiration: int | None = None) -> None:
+    async def set(self, key: str, value: str, expiration: int | None = None) -> None:
         """
         Set a value in the cache.
 
         Args:
-            template (StrEnum): The cache key template.
-            id (str): The identifier used in the cache key template.
+            key (str): The key to set the value in the cache.
             value (str): The value to be stored in the cache.
             expiration (int, optional): The expiration time in seconds. Defaults to None.
         """
-        key = template.value.format(**{id: id})
         await self.redis.set(key, value, ex=expiration or self.default_expiration)
+
+    async def get(self, key: str) -> str | None:
+        """
+        Get a value from the cache.
+
+        Args:
+            key (str): The key to get the value from the cache.
+
+        Returns:
+            str | None: The value from the cache or None if the key does not exist.
+        """
+        return await self.redis.get(key)
+
+    async def check_keys_exist(self, keys: Sequence[str]) -> dict[str, bool]:
+        """
+        Efficiently check if multiple keys exist using pipeline.
+
+        Args:
+            keys (Sequence[str]): Keys to check
+
+        Returns:
+            dict[str, bool]: Mapping of key to existence boolean.
+                            True if key exists, False if it doesn't.
+        """
+        pipe = self.redis.pipeline()
+        for key in keys:
+            pipe.exists(key)
+
+        results = await pipe.execute()
+        return dict(zip(keys, (bool(result) for result in results), strict=True))
+
+    async def set_many_empty_keys(
+        self, keys: Sequence[str], expiration: int | None = None, batch_size: int = 1000
+    ) -> None:
+        """
+        Efficiently set empty values for multiple keys with expiration using pipeline.
+
+        Args:
+            keys (Sequence[str]): Sequence of keys
+            expiration (int): Seconds until key expires
+        """
+        for batch in chunk_list(keys, batch_size):
+            pipe = self.redis.pipeline()
+            for key in batch:
+                pipe.set(key, value="", ex=expiration or self.default_expiration)
+            await pipe.execute()
 
 
 def provide_redis_service() -> RedisService:

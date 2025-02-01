@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..realtime.enums import OnTimeStatus
@@ -45,7 +47,7 @@ class RealTimeService:
         return list(most_recent_realtime_updates.values())
 
     async def get_realtime_schedules_for_static_schedules(
-        self, schedules: list[StaticScheduleModel]
+        self, schedules: Sequence[StaticScheduleModel]
     ) -> list[RealTimeScheduleModel]:
         """Returns a list of RealTimeSchedule objects for the given list of StaticSchedule objects"""
 

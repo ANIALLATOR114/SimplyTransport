@@ -59,6 +59,7 @@ class CacheKeys:
         DELAYS_HTML_ROUTE_KEY_TEMPLATE = "delays_html_route:{route_code}"
         DELAYS_HTML_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*delays_html_route:*"
         DELAYS_HTML_ROUTE_DELETE_KEY_TEMPLATE = "*delays_html_route:{route_code}"
+        DELAYS_RECORDING_KEY_TEMPLATE = "delays_recording:{route_code}:{stop_id}:{scheduled_time}"
 
 
 def key_builder_from_path(template: StrEnum, *args) -> Callable[[Request], str]:
