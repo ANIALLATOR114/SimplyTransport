@@ -153,10 +153,10 @@ class RedisService:
 
         Args:
             keys (Sequence[str]): Sequence of keys
-            expiry_seconds (int): Seconds until key expires
+            expiration (int): Seconds until key expires
         """
         for batch in chunk_list(keys, batch_size):
-            pipe = await self.redis.pipeline()
+            pipe = self.redis.pipeline()
             for key in batch:
                 pipe.set(key, value="", ex=expiration or self.default_expiration)
             await pipe.execute()

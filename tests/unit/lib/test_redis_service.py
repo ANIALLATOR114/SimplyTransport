@@ -1,5 +1,5 @@
 from enum import StrEnum
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock, call
 
 import pytest
 from redis.asyncio import Redis
@@ -136,31 +136,39 @@ def test_redis_store_factory():
 async def test_check_keys_exist(redis_service: RedisService, mock_redis: Redis):
     # Arrange
     keys = ["key1", "key2", "key3"]
-    mock_redis.exists.return_value = keys
+    pipeline_mock = Mock()
+    pipeline_mock.execute = AsyncMock(return_value=[True, False, True])
+    mock_redis.pipeline = Mock(return_value=pipeline_mock)
 
     # Act
     result = await redis_service.check_keys_exist(keys)
 
     # Assert
     assert result == {"key1": True, "key2": False, "key3": True}
+    assert pipeline_mock.exists.call_count == 3
+    pipeline_mock.exists.assert_has_calls([call("key1"), call("key2"), call("key3")])
 
 
 @pytest.mark.asyncio
 async def test_set_many_empty_keys_with_expiry(redis_service: RedisService, mock_redis: Redis):
     # Arrange
     keys = ["key1", "key2", "key3"]
-    pipeline_mock = AsyncMock()
-    mock_redis.pipeline.return_value = pipeline_mock
+    pipeline_mock = Mock()
+    pipeline_mock.execute = AsyncMock(return_value=[True, True, True])
+    mock_redis.pipeline = Mock(return_value=pipeline_mock)
     expiry = 120
     batch_size = 2
 
     # Act
-    await redis_service.set_many_empty_keys(keys, expiry_seconds=expiry, batch_size=batch_size)
+    await redis_service.set_many_empty_keys(keys, expiration=expiry, batch_size=batch_size)
 
     # Assert
     assert mock_redis.pipeline.call_count == 2
-    pipeline_mock.set.assert_any_call("key1", value="", ex=expiry)
-    pipeline_mock.set.assert_any_call("key2", value="", ex=expiry)
-    pipeline_mock.set.assert_any_call("key3", value="", ex=expiry)
-    assert pipeline_mock.set.call_count == 3
+    pipeline_mock.set.assert_has_calls(
+        [
+            call("key1", value="", ex=expiry),
+            call("key2", value="", ex=expiry),
+            call("key3", value="", ex=expiry),
+        ]
+    )
     assert pipeline_mock.execute.call_count == 2
