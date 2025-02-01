@@ -214,13 +214,15 @@ class CLIPlugin(CLIPluginProtocol):
             )
 
             redis_service = provide_redis_service()
-            await redis_service.delete_keys(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys(CacheKeys.Schedules.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys(
+            await redis_service.delete_keys_by_pattern(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys_by_pattern(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys_by_pattern(CacheKeys.Schedules.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys_by_pattern(
                 CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
             )
-            await redis_service.delete_keys(CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
+            )
 
             finish = time.perf_counter()
             console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
@@ -360,8 +362,8 @@ class CLIPlugin(CLIPluginProtocol):
             )
 
             redis_service = provide_redis_service()
-            await redis_service.delete_keys(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys_by_pattern(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys_by_pattern(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
 
             console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
 
@@ -571,7 +573,7 @@ class CLIPlugin(CLIPluginProtocol):
             for result in results:
                 if isinstance(result, Exception):
                     logger.error(f"Error generating route map: {result}")
-            await redis_service.delete_keys(
+            await redis_service.delete_keys_by_pattern(
                 CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
             )
 
@@ -581,7 +583,9 @@ class CLIPlugin(CLIPluginProtocol):
             for result in results:
                 if isinstance(result, Exception):
                     logger.error(f"Error generating stop map: {result}")
-            await redis_service.delete_keys(CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
+            )
 
             finish = time.perf_counter()
             logger.info(f"Finished generating static maps in {round(finish - start, 2)} second(s)")
