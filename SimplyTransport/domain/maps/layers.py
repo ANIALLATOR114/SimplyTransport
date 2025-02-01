@@ -27,7 +27,7 @@ class Layer:
         """
         self.base_layer.add_to(map)
 
-    def add_child(self, child: fl.FeatureGroup) -> None:
+    def add_child(self, child: fl.FeatureGroup | fl.Marker | fl.PolyLine) -> None:
         """
         Adds a child object to the layer.
 

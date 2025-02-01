@@ -57,6 +57,7 @@ class MapService:
 
         stop_map = Map(lat=stop.lat, lon=stop.lon, zoom=14, height=500)
         stop_map.setup_defaults()
+        stop_map.add_toggle_all_layers_control()
 
         route_ids = [route.id for route in routes]
         trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids, direction)
@@ -137,7 +138,8 @@ class MapService:
         route_map = Map(lat=sorted_shapes[0].lat, lon=sorted_shapes[0].lon, zoom=12, height=500)
         route_map.setup_defaults()
 
-        route_poly = RoutePolyLine(route=route, locations=[(shape.lat, shape.lon) for shape in sorted_shapes])
+        locations = [(shape.lat, shape.lon) for shape in sorted_shapes]
+        route_poly = RoutePolyLine(route=route, locations=locations)
         route_layer = Layer(f"{route_poly.route_color.to_html_square()} {route.short_name}")
         route_layer.add_child(route_poly.polyline)
 
@@ -193,6 +195,7 @@ class MapService:
 
         route_map = Map(zoom=7, height=600)
         route_map.setup_defaults()
+        route_map.add_toggle_all_layers_control()
 
         route_colors = cycle(list(Colors))
 
@@ -203,7 +206,7 @@ class MapService:
             trip_shapes = shapes_dict.get(trip.shape_id, [])
             locations = [(shape.lat, shape.lon) for shape in trip_shapes]
             route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
-            route_layer = Layer(f"{route.short_name}")
+            route_layer = Layer(f"{route_poly.route_color.to_html_square()} {route.short_name}")
             route_layer.add_child(route_poly.polyline)
             route_layer.add_to(route_map.map_base)
 
