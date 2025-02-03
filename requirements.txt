@@ -6,7 +6,7 @@ asgiref==3.7.2
 async-timeout==4.0.3
 asyncpg==0.28.0
 branca==0.7.1
-certifi==2023.7.22
+certifi==2025.1.31
 charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
