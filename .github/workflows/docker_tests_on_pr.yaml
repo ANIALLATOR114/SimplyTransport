@@ -41,7 +41,7 @@ jobs:
           EOF
 
       - name: Build and start services
-        run: docker-compose -f docker-compose.prod.yaml up -d --build
+        run: docker compose -f docker-compose.prod.yaml up -d --build
 
       - name: Wait for services to be healthy
         run: |
@@ -74,7 +74,7 @@ jobs:
         if: failure()
         run: |
           echo "Docker compose logs:"
-          docker-compose -f docker-compose.prod.yaml logs
+          docker compose -f docker-compose.prod.yaml logs
 
           echo "Container status:"
           docker ps -a
@@ -85,4 +85,4 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: docker-compose -f docker-compose.prod.yaml down -v
+        run: docker compose -f docker-compose.prod.yaml down -v
