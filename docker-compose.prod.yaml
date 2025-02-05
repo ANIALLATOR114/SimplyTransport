@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  app:
+    extends:
+      file: Docker/app/docker-compose.yaml
+      service: simplytransport
+
+  postgres:
+    extends:
+      file: Docker/postgres/docker-compose.yaml
+      service: postgres
+
+  redis:
+    extends:
+      file: Docker/redis/docker-compose.yaml
+      service: redis
+
+  timescale:
+    extends:
+      file: Docker/timescale/docker-compose.yaml
+      service: timescale
+
+  opentelemetry-collector:
+    extends:
+      file: Docker/otel-collector/docker-compose.yaml
+      service: opentelemetry-collector
+
+networks:
+  simplytransport-network:
+    name: simplytransport-network

@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  opentelemetry-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: ot-collector
+    ports:
+      - "4318:4318"
+    command: "--config /etc/otelcol/config.yaml"
+    volumes:
+      - ../../deployment_linux/collector-config.yaml:/etc/otelcol/config.yaml
+    environment:
+      - TEMPO_USERNAME=${TEMPO_USERNAME}
+      - TEMPO_PASSWORD=${TEMPO_PASSWORD}
+      - TEMPO_URL=${TEMPO_URL}
+      - PROMETHEUS_USERNAME=${PROMETHEUS_USERNAME}
+      - PROMETHEUS_PASSWORD=${PROMETHEUS_PASSWORD}
+      - PROMETHEUS_URL=${PROMETHEUS_URL}
+    restart: unless-stopped
+    networks:
+      - simplytransport-network
