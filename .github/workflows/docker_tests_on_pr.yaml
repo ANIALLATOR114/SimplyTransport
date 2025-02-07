@@ -42,6 +42,19 @@ jobs:
           # Redis
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           REDIS_PORT=6379
+
+          # Tempo
+          TEMPO_USERNAME=fake
+          TEMPO_PASSWORD=fake
+          TEMPO_URL=fake
+
+          # Prometheus
+          PROMETHEUS_USERNAME=fake
+          PROMETHEUS_PASSWORD=fake
+          PROMETHEUS_URL=fake
+
+          # Loki
+          LOKI_URL=fake
           EOF
 
       - name: Build and start services
