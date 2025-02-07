@@ -16,6 +16,7 @@ jobs:
     env:
       ENVIRONMENT: PR-TEST-CI
       LOKI_URL: ${{ secrets.LOKI_URL }}
+      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
 
     services:
       postgres:
@@ -33,10 +34,13 @@ jobs:
 
       redis:
         image: redis
+        env:
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          REDIS_ARGS: "--requirepass ${{ secrets.REDIS_PASSWORD }}"
         options: >-
-          --health-cmd "redis-cli ping" 
-          --health-interval 1s 
-          --health-timeout 2s 
+          --health-cmd "redis-cli -a ${{ secrets.REDIS_PASSWORD }} ping"
+          --health-interval 1s
+          --health-timeout 2s
           --health-retries 20
         ports:
           - 6379:6379
