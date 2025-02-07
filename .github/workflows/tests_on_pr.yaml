@@ -36,12 +36,13 @@ jobs:
         image: redis
         env:
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          REDIS_ARGS: "--requirepass ${{ secrets.REDIS_PASSWORD }}"
         options: >-
-          --health-cmd "redis-cli -a ${{ secrets.REDIS_PASSWORD }} ping"
+          --health-cmd "redis-cli ping"
           --health-interval 1s
           --health-timeout 2s
           --health-retries 20
+          --entrypoint redis-server
+          --redis-server-args "--requirepass ${REDIS_PASSWORD}"
         ports:
           - 6379:6379
 
