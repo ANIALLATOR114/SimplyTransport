@@ -64,7 +64,7 @@ jobs:
             postgres \
             redis \
             timescale \
-            simplytransport
+            app
 
       - name: Wait for services to be healthy
         run: |
