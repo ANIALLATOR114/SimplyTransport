@@ -33,8 +33,6 @@ jobs:
 
       redis:
         image: redis
-        env:
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 1s
