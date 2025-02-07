@@ -21,7 +21,12 @@ def redis_factory() -> Redis:
     Returns:
         Redis: The Redis instance.
     """
-    return Redis(host=settings.app.REDIS_HOST, port=settings.app.REDIS_PORT, db=0)
+    return Redis(
+        host=settings.app.REDIS_HOST,
+        port=settings.app.REDIS_PORT,
+        db=0,
+        password=settings.app.REDIS_PASSWORD,
+    )
 
 
 def redis_store_factory(name: str) -> RedisStore:

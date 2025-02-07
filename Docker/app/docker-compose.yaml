@@ -16,6 +16,8 @@ services:
       - TIMESCALE_URL=postgresql+asyncpg://${TIMESCALE_USER}:${TIMESCALE_PASSWORD}@timescale:5432/${TIMESCALE_DB}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_URL=redis://default:${REDIS_PASSWORD}@redis:6379/0
     volumes:
       - ../../static:/app/static
     depends_on:

@@ -38,6 +38,9 @@ jobs:
           TIMESCALE_DB=postgres
           TIMESCALE_USER=${{ secrets.TIMESCALE_USER }}
           TIMESCALE_PASSWORD=${{ secrets.TIMESCALE_PASSWORD }}
+
+          # Redis
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           EOF
 
       - name: Build and start services

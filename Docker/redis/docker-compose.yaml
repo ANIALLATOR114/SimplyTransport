@@ -6,8 +6,9 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     restart: unless-stopped
     networks:
       - simplytransport-network

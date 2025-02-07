@@ -198,6 +198,9 @@ POSTGRES_PASSWORD=example3
 TIMESCALE_DB=example
 TIMESCALE_USER=example
 TIMESCALE_PASSWORD=example
+
+# Redis
+REDIS_PASSWORD=example
 ```
 
 Once you have the variables above set please run the command in [Database](#database)
