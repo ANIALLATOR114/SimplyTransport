@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  simplytransport:
+    build:
+      context: ../../
+      dockerfile: Docker/app/Dockerfile
+    container_name: simplytransport
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - DB_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DB_URL_SYNC=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - TIMESCALE_URL=postgresql+asyncpg://${TIMESCALE_USER}:${TIMESCALE_PASSWORD}@timescale:5432/${TIMESCALE_DB}
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - GTFS_TFI_REALTIME_URL=${GTFS_TFI_REALTIME_URL}
+      - GTFS_TFI_REALTIME_VEHICLES_URL=${GTFS_TFI_REALTIME_VEHICLES_URL}
+      - GTFS_TFI_API_KEY_1=${GTFS_TFI_API_KEY_1}
+      - GTFS_TFI_API_KEY_2=${GTFS_TFI_API_KEY_2}
+      - GTFS_TFI_DATASET=${GTFS_TFI_DATASET}
+      - LOKI_URL=${LOKI_URL}
+
+    volumes:
+      - ../../static:/app/static
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_started
+      timescale:
+        condition: service_started
+      opentelemetry-collector:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthcheck"]
+      interval: 30s
+      timeout: 2s
+      retries: 10
+      start_period: 40s
+    networks:
+      - simplytransport-network

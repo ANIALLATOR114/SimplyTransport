@@ -26,6 +26,16 @@
   - [Running Locally](#running-locally)
   - [Running in Production](#running-in-production)
 
+- [Docker Deployment](#docker-deployment)
+
+  - [Project Structure](#project-structure)
+  - [Development Environment](#development-environment)
+  - [Production Environment](#production-environment)
+  - [Container Health Checks](#container-health-checks)
+  - [Environment Variables](#environment-variables)
+  - [Networks](#networks)
+  - [Volumes](#volumes)
+
 - [Development](#development)
   - [Project Structure](#project-structure)
     - [Controllers](#controllers)
@@ -111,7 +121,7 @@ The primary map is on the page for a stop, it shows the location of the stop and
 
 - [x] Maps on route pages
 - [x] Maps on stop pages
-- [ ] Aggregation of stops
+- [x] Aggregation of stops
 - [x] Aggregation of routes
 
 ## CLI Interface
@@ -159,6 +169,7 @@ Install the dependencies in your virtual environment
 
 ```
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
 Create a copy of .env.example and populate it with your environment variables
@@ -187,11 +198,102 @@ POSTGRES_PASSWORD=example3
 TIMESCALE_DB=example
 TIMESCALE_USER=example
 TIMESCALE_PASSWORD=example
+
+# Redis
+REDIS_PASSWORD=example
 ```
 
 Once you have the variables above set please run the command in [Database](#database)
 
+## Docker Deployment
+
+The application is containerized using Docker and can be run in both development and production environments.
+
+### Project Structure
+
+```
+.
+├── Docker/
+│   ├── app/
+│   │   ├── Dockerfile
+│   │   └── docker-compose.yaml
+│   ├── postgres/
+│   │   └── docker-compose.yaml
+│   ├── redis/
+│   │   └── docker-compose.yaml
+│   ├── timescale/
+│   │   └── docker-compose.yaml
+│   └── otel-collector/
+│       └── docker-compose.yaml
+├── docker-compose.dev.yaml
+└── docker-compose.prod.yaml
+```
+
+### Development Environment
+
+For local development, you can run just the dependencies (databases, Redis, and OpenTelemetry):
+
+```bash
+docker-compose -f docker-compose.dev.yaml up -d
+```
+
+This will start:
+
+- PostgreSQL (port 5432)
+- Redis (port 6379)
+- TimescaleDB (port 5433)
+- OpenTelemetry Collector (port 4318)
+
+You can then run the application locally using:
+
+```bash
+litestar run
+```
+
+### Production Environment
+
+For production deployment, use:
+
+```bash
+docker-compose -f docker-compose.prod.yaml up -d
+```
+
+This will start all services including the application:
+
+- SimplyTransport App (port 8000)
+- PostgreSQL (port 5432)
+- Redis (port 6379)
+- TimescaleDB (port 5433)
+- OpenTelemetry Collector (port 4318)
+
+### Container Health Checks
+
+The application container includes health checks that monitor its status:
+
+- Endpoint: `/healthcheck`
+- Interval: 30s
+- Timeout: 2s
+- Retries: 10
+- Start period: 40s
+
+### Environment Variables
+
+Make sure to set up your environment variables in a `.env` file. See `.env.example` for required variables.
+
+### Networks
+
+All services are connected through a Docker network named `simplytransport-network`.
+
+### Volumes
+
+The application mounts the following volumes:
+
+- `static/`: For serving static files
+- `deployment_linux/collector-config.yaml`: OpenTelemetry collector configuration
+
 ## Running Locally
+
+Note - Docker is available - see above for more details
 
 You can run the app using the litestar run command for local development which will use a uvicorn worker to launch the app on 127.0.0.1:8000
 
@@ -221,6 +323,8 @@ litestar recorddelays
 ```
 
 ## Running in Production
+
+Note - Docker is available - see above for more details
 
 You should use uvicorn directly to run the app in production and not litestar, this will allow you to configure the number of workers, ports etc
 

@@ -34,9 +34,9 @@ jobs:
       redis:
         image: redis
         options: >-
-          --health-cmd "redis-cli ping" 
-          --health-interval 1s 
-          --health-timeout 2s 
+          --health-cmd "redis-cli ping"
+          --health-interval 1s
+          --health-timeout 2s
           --health-retries 20
         ports:
           - 6379:6379

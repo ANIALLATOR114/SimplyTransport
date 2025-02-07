@@ -1,0 +1,115 @@
+name: Docker Tests on Pull Request
+
+on:
+  pull_request:
+    branches: ["*"]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  docker-test:
+    name: Test Docker Configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Create env file
+        run: |
+          cat << EOF > .env
+          ENVIRONMENT=PR-TEST-CI
+
+          # Database
+          DB_URL=postgresql+asyncpg://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/postgres
+          DB_URL_SYNC=postgresql+psycopg2://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/postgres
+          DB_ECHO=false
+          TIMESCALE_URL=postgresql+asyncpg://${{ secrets.TIMESCALE_USER }}:${{ secrets.TIMESCALE_PASSWORD }}@timescale:5432/postgres
+
+          # Postgres Docker
+          POSTGRES_DB=postgres
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+
+          # Timescale Docker
+          TIMESCALE_DB=postgres
+          TIMESCALE_USER=${{ secrets.TIMESCALE_USER }}
+          TIMESCALE_PASSWORD=${{ secrets.TIMESCALE_PASSWORD }}
+
+          # Redis
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          REDIS_PORT=6379
+
+          # Tempo
+          TEMPO_USERNAME=fake
+          TEMPO_PASSWORD=fake
+          TEMPO_URL=fake
+
+          # Prometheus
+          PROMETHEUS_USERNAME=fake
+          PROMETHEUS_PASSWORD=fake
+          PROMETHEUS_URL=fake
+
+          # Loki
+          LOKI_URL=fake
+          EOF
+
+      - name: Build and start services
+        run: docker compose -f docker-compose.prod.yaml up -d --build
+
+      - name: Wait 5 seconds for containers to start
+        run: sleep 5
+
+      - name: Check service status # ignoring the otel collector
+        run: |
+          echo "Checking service status..."
+          docker ps
+          docker logs simplytransport
+
+          echo "Testing PostgreSQL connection..."
+          docker exec postgres pg_isready -U ${{ secrets.POSTGRES_USER }}
+          if [ $? -ne 0 ]; then
+            echo "PostgreSQL connection failed"
+            exit 1
+          fi
+
+          echo "Testing Redis connection... expect pong response"
+          docker exec redis redis-cli -a ${{ secrets.REDIS_PASSWORD }} ping
+          if [ $? -ne 0 ]; then
+            echo "Redis connection failed"
+            exit 1
+          fi
+
+          echo "Testing TimescaleDB connection..."
+          docker exec timescale pg_isready -U ${{ secrets.TIMESCALE_USER }}
+          if [ $? -ne 0 ]; then
+            echo "TimescaleDB connection failed"
+            exit 1
+          fi
+
+          echo "Testing application health..."
+          curl -f http://localhost:8000/healthcheck || exit 1
+          if [ $? -ne 0 ]; then
+            echo "Application health check failed"
+            exit 1
+          fi
+
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          echo "Docker compose logs:"
+          docker compose -f docker-compose.prod.yaml logs
+
+          echo "Container status:"
+          docker ps -a
+
+          echo "Network status:"
+          docker network ls
+          docker network inspect simplytransport-network
+
+      - name: Cleanup
+        if: always()
+        run: docker compose -f docker-compose.prod.yaml down -v

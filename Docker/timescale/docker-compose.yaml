@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  timescale:
+    image: timescale/timescaledb:latest-pg16
+    container_name: timescale
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=${TIMESCALE_USER}
+      - POSTGRES_PASSWORD=${TIMESCALE_PASSWORD}
+      - POSTGRES_DB=${TIMESCALE_DB}
+    restart: unless-stopped
+    networks:
+      - simplytransport-network

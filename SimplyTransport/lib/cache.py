@@ -21,7 +21,20 @@ def redis_factory() -> Redis:
     Returns:
         Redis: The Redis instance.
     """
-    return Redis(host=settings.app.REDIS_HOST, port=settings.app.REDIS_PORT, db=0)
+    # If no password is set, attempt to connect to an un-authenticated redis instance
+    if not settings.app.REDIS_PASSWORD:
+        return Redis(
+            host=settings.app.REDIS_HOST,
+            port=settings.app.REDIS_PORT,
+            db=0,
+        )
+
+    return Redis(
+        host=settings.app.REDIS_HOST,
+        port=settings.app.REDIS_PORT,
+        db=0,
+        password=settings.app.REDIS_PASSWORD,
+    )
 
 
 def redis_store_factory(name: str) -> RedisStore:
