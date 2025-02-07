@@ -41,6 +41,8 @@ jobs:
 
           # Redis
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          REDIS_HOST=redis
+          REDIS_PORT=6379
           EOF
 
       - name: Build and start services
@@ -48,10 +50,10 @@ jobs:
 
       - name: Wait for services to be healthy
         run: |
-          timeout 60s bash -c '
+          timeout 30s bash -c '
           until [ "$(docker inspect --format="{{.State.Health.Status}}" simplytransport)" = "healthy" ]; do
             echo "Waiting for services to be healthy..."
-            sleep 1
+            sleep 2
           done
           '
 
