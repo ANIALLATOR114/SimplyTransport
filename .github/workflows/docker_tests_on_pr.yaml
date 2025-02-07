@@ -51,7 +51,7 @@ jobs:
           timeout 60s bash -c '
           until [ "$(docker inspect --format="{{.State.Health.Status}}" simplytransport)" = "healthy" ]; do
             echo "Waiting for services to be healthy..."
-            sleep 5
+            sleep 1
           done
           '
 
@@ -63,15 +63,31 @@ jobs:
 
           echo "Testing PostgreSQL connection..."
           docker exec postgres pg_isready -U ${{ secrets.POSTGRES_USER }}
+          if [ $? -ne 0 ]; then
+            echo "PostgreSQL connection failed"
+            exit 1
+          fi
 
-          echo "Testing Redis connection..."
-          docker exec redis redis-cli ping
+          echo "Testing Redis connection... expect pong response"
+          docker exec redis redis-cli -a ${{ secrets.REDIS_PASSWORD }} ping
+          if [ $? -ne 0 ]; then
+            echo "Redis connection failed"
+            exit 1
+          fi
 
           echo "Testing TimescaleDB connection..."
           docker exec timescale pg_isready -U ${{ secrets.TIMESCALE_USER }}
+          if [ $? -ne 0 ]; then
+            echo "TimescaleDB connection failed"
+            exit 1
+          fi
 
           echo "Testing application health..."
           curl -f http://localhost:8000/healthcheck || exit 1
+          if [ $? -ne 0 ]; then
+            echo "Application health check failed"
+            exit 1
+          fi
 
       - name: Show logs on failure
         if: failure()
