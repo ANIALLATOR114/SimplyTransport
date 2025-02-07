@@ -58,7 +58,13 @@ jobs:
           EOF
 
       - name: Build and start services
-        run: docker compose -f docker-compose.prod.yaml up -d --build
+        run: |
+          # Start only the required services for testing
+          docker compose -f docker-compose.prod.yaml up -d \
+            postgres \
+            redis \
+            timescale \
+            simplytransport
 
       - name: Wait for services to be healthy
         run: |
