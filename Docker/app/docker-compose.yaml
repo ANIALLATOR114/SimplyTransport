@@ -8,16 +8,22 @@ services:
     container_name: simplytransport
     ports:
       - "8000:8000"
-    env_file:
-      - ../../.env
     environment:
+      - ENVIRONMENT=${ENVIRONMENT}
+      - LOG_LEVEL=${LOG_LEVEL}
       - DB_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - DB_URL_SYNC=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - TIMESCALE_URL=postgresql+asyncpg://${TIMESCALE_USER}:${TIMESCALE_PASSWORD}@timescale:5432/${TIMESCALE_DB}
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_URL=redis://default:${REDIS_PASSWORD}@redis:6379/0
+      - GTFS_TFI_REALTIME_URL=${GTFS_TFI_REALTIME_URL}
+      - GTFS_TFI_REALTIME_VEHICLES_URL=${GTFS_TFI_REALTIME_VEHICLES_URL}
+      - GTFS_TFI_API_KEY_1=${GTFS_TFI_API_KEY_1}
+      - GTFS_TFI_API_KEY_2=${GTFS_TFI_API_KEY_2}
+      - GTFS_TFI_DATASET=${GTFS_TFI_DATASET}
+      - LOKI_URL=${LOKI_URL}
+
     volumes:
       - ../../static:/app/static
     depends_on:

@@ -41,13 +41,12 @@ RUN mkdir -p static && chown -R appuser:appuser /app
 # Copy application code
 COPY SimplyTransport SimplyTransport/
 COPY migrations migrations/
-COPY .env .
 
 # Set ownership of application files
-RUN chown -R appuser:appuser /app/SimplyTransport /app/migrations /app/.env
+RUN chown -R appuser:appuser /app/SimplyTransport /app/migrations
 
 # Switch to non-root user
 USER appuser
 
 # Command to run the application
-CMD ["uvicorn", "SimplyTransport.app:create_app", "--host", "0.0.0.0", "--port", "8000", "--env-file", ".env"] 
+CMD ["uvicorn", "SimplyTransport.app:create_app", "--host", "0.0.0.0", "--port", "8000"] 

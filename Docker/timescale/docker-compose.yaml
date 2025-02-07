@@ -10,7 +10,6 @@ services:
       - POSTGRES_USER=${TIMESCALE_USER}
       - POSTGRES_PASSWORD=${TIMESCALE_PASSWORD}
       - POSTGRES_DB=${TIMESCALE_DB}
-      - TIMESCALEDB_TELEMETRY=off
     restart: unless-stopped
     networks:
       - simplytransport-network
