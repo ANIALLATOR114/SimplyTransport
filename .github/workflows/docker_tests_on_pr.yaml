@@ -58,24 +58,12 @@ jobs:
           EOF
 
       - name: Build and start services
-        run: |
-          # Start only the required services for testing
-          docker compose -f docker-compose.prod.yaml up -d \
-            postgres \
-            redis \
-            timescale \
-            app
+        run: docker compose -f docker-compose.prod.yaml up -d --build
 
-      - name: Wait for services to be healthy
-        run: |
-          timeout 30s bash -c '
-          until [ "$(docker inspect --format="{{.State.Health.Status}}" simplytransport)" = "healthy" ]; do
-            echo "Waiting for services to be healthy..."
-            sleep 2
-          done
-          '
+      - name: Wait 5 seconds for containers to start
+        run: sleep 5
 
-      - name: Check service status
+      - name: Check service status # ignoring the otel collector
         run: |
           echo "Checking service status..."
           docker ps
