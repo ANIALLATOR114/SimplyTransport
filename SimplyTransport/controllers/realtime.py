@@ -51,7 +51,10 @@ class RealtimeController(Controller):
         try:
             stop = await stop_repo.get_by_id_with_stop_feature(stop_id)
         except NotFoundError:
-            return Template(template_name="/errors/404.html", context={"message": "Stop not found"})
+            return Template(
+                template_name="/errors/404.html",
+                context={"message": "Sorry this stop could not be found, try the search bar above."},
+            )
         routes = await route_repo.get_routes_by_stop_id(stop.id)
         routes.sort(key=lambda x: x.short_name)
 
@@ -123,8 +126,15 @@ class RealtimeController(Controller):
         route_repo: RouteRepository,
         stop_repo: StopRepository,
     ) -> Template:
-        route = await route_repo.get_by_id_with_agency(route_id)
+        try:
+            route = await route_repo.get_by_id_with_agency(route_id)
+        except NotFoundError:
+            return Template(
+                template_name="/errors/404.html",
+                context={"message": "Sorry this route could not be found, try the search bar above."},
+            )
         stops_and_sequences = await stop_repo.get_by_route_id_with_sequence(route.id, direction)
+
         return Template(
             template_name="realtime/route.html",
             context={"route": route, "stops": stops_and_sequences, "direction": direction},
