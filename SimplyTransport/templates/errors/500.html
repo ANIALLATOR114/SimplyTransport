@@ -7,6 +7,10 @@
     <div class="narrow-container">
         <h1>500 Error</h1>
         <p class="dense-text">Something went wrong here, you may have found a bug!</p>
-        {% if message %}<p class="dense-text">{{ message }}</p>{% endif %}
+        {% if message %}
+            <div class="inner-container">
+                <p class="dense-text">{{ message }}</p>
+            </div>
+        {% endif %}
     </div>
 {% endblock content %}
