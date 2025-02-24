@@ -157,7 +157,7 @@ class Map:
             border: 2px solid rgba(0,0,0,0.3);
             border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
         }
         .toggle-all-layers:hover {
             background: #f4f4f4;

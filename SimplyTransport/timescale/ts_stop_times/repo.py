@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .model import TS_StopTimeDelayAggregated, TS_StopTimeForGraph, TS_StopTimeModel
 
-MAXIMUM_LIMIT = 730
+MAXIMUM_LIMIT = 180
 MAXIMUM_TIMESTAMP = datetime.now() - timedelta(days=MAXIMUM_LIMIT)
 
 
@@ -186,7 +186,7 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):  # type
         result = await self.session.execute(statement)
         rows = result.all()
 
-        return [TS_StopTimeForGraph(Timestamp=row[0], delay_in_seconds=row[1]) for row in rows]
+        return [TS_StopTimeForGraph(timestamp=row[0], delay_in_seconds=row[1]) for row in rows]
 
     async def delete_old_delays(self, cutoff_time: datetime) -> int:
         """

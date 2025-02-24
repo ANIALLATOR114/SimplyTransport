@@ -8,7 +8,12 @@ from litestar.params import Parameter
 from ...lib.cache_keys import CacheKeys, key_builder_from_path
 from ...lib.time_date_conversions import validate_time_range
 from ...timescale.ts_stop_times.model import TS_StopTime, TS_StopTimeDelayAggregated, TS_StopTimeForGraph
-from ...timescale.ts_stop_times.repo import MAXIMUM_TIMESTAMP, TSStopTimeRepository, provide_ts_stop_time_repo
+from ...timescale.ts_stop_times.repo import (
+    MAXIMUM_LIMIT,
+    MAXIMUM_TIMESTAMP,
+    TSStopTimeRepository,
+    provide_ts_stop_time_repo,
+)
 
 __all__ = ["DelaysController"]
 
@@ -68,7 +73,7 @@ class DelaysController(Controller):
         ),
         summary="Get delay data for a route on a stop on a time",
         description=f"All queries will be limited to {MAXIMUM_TIMESTAMP.strftime('%Y-%m-%d')} "
-        f"onwards or 730 records",
+        f"onwards or {MAXIMUM_LIMIT} records",
         raises=[ValidationException],
     )
     async def get_delay_on_stop_on_route_on_time(
@@ -102,7 +107,7 @@ class DelaysController(Controller):
         ),
         summary="Get truncated delay data for a route on a stop on a time",
         description=f"All queries will be limited to {MAXIMUM_TIMESTAMP.strftime('%Y-%m-%d')} "
-        f"onwards or 730 records",
+        f"onwards or {MAXIMUM_LIMIT} records",
         raises=[ValidationException],
     )
     async def get_truncated_delay_on_stop_on_route_on_time(

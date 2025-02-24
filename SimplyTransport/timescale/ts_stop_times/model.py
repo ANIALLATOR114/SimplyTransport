@@ -26,24 +26,24 @@ class TS_StopTimeModel(BigIntBase):
 
 
 class TS_StopTime(BaseModel):
-    Timestamp: datetime
+    timestamp: datetime
     stop_id: str
     route_code: str
     scheduled_time: time
-    delay_in_seconds: int
+    delay_in_seconds: int = Field(exclude=True)
 
+    @computed_field(description="Delay in minutes (rounded to 1 decimal place)", return_type=float)
     @property
-    @computed_field
     def delay_in_minutes(self) -> float:
         return round(self.delay_in_seconds / 60, 1)
 
 
 class TS_StopTimeForGraph(BaseModel):
-    Timestamp: datetime
+    timestamp: datetime
     delay_in_seconds: int = Field(exclude=True)
 
+    @computed_field(description="Delay in minutes (rounded to 1 decimal place)", return_type=float)
     @property
-    @computed_field
     def delay_in_minutes(self) -> float:
         return round(self.delay_in_seconds / 60, 1)
 
