@@ -21,7 +21,7 @@ class StopMarker:
         Args:
             stop (StopModel): The stop associated with the marker.
             routes (list[RouteModel], optional): The routes associated with the marker. Defaults to None.
-            create_links (bool, optional): Whether to create links for the marker. Defaults to True.
+            create_link (bool, optional): Whether to create links for the marker. Defaults to True.
             create_stop_features (bool, optional): Whether to create stop features for the marker.
             Defaults to True.
             color (MarkerColors, optional): The color of the marker. Defaults to None.
@@ -160,13 +160,13 @@ class StopMarker:
                 icon=self.icon,
             ).add_to(canvas)
 
-    def create_marker(self, type_of_marker: str = "regular", radius: float = 7) -> fl.Marker:
+    def create_marker(self, type_of_marker: str = "regular", radius: float = 8) -> fl.Marker:
         """
         Creates a marker for the stop.
 
         Args:
         - type_of_marker (str): The type of marker to create. Default is "regular".
-        - radius (float): The radius of the marker if type_of_marker is "circle". Default is 7.
+        - radius (float): The radius of the marker if type_of_marker is "circle". Default is 8.
 
         Returns:
         - fl.Marker: The marker object.
@@ -282,4 +282,53 @@ class BusMarker:
             tooltip=self.tooltip,
             popup=self.popup,
             icon=self.icon,
+        )
+
+
+class YourLocationMarker:
+    def __init__(
+        self,
+        latitude: float,
+        longitude: float,
+    ) -> None:
+        self.latitude = latitude
+        self.longitude = longitude
+        self.create_icon()
+        self.create_tooltip()
+
+    def create_icon(self) -> None:
+        """
+        Creates an icon for your location marker.
+
+        Returns:
+        - None
+        """
+        self.icon = fl.Icon(color="red", icon="user", prefix="fa")
+
+    def create_tooltip(self) -> None:
+        """
+        Creates a tooltip for the bus marker.
+
+        Returns:
+        - None
+        """
+        self.tooltip = fl.Tooltip(
+            """
+            <h5>
+                Your Location
+            </h5>
+        """
+        )
+
+    def create_marker(self) -> fl.Marker:
+        """
+        Creates a marker for your location.
+
+        Returns:
+        - fl.Marker: The marker object.
+        """
+        return fl.Marker(
+            [self.latitude, self.longitude],
+            icon=self.icon,
+            tooltip=self.tooltip,
         )

@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from ...lib.distance_calculator import calculate_min_max_coordinates, distance_between_points
 from ..route.model import RouteModel
 from ..stop_features.model import StopFeatureModel
 from ..stop_times.model import StopTimeModel
@@ -132,6 +133,31 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
             .join(StopFeatureModel, StopFeatureModel.stop_id == StopModel.id)
             .where(StopFeatureModel.surveyed == False)  # noqa: E712
         )
+
+    async def get_stops_near_location(
+        self, latitude: float, longitude: float, distance_in_meters: int
+    ) -> list[StopModel]:
+        """Get stops near a location."""
+        min_max_coordinates = calculate_min_max_coordinates(latitude, longitude, distance_in_meters)
+
+        potential_stops = await self.list(
+            statement=select(StopModel)
+            .options(joinedload(StopModel.stop_feature))
+            .where(StopModel.lat.between(min_max_coordinates.min_latitude, min_max_coordinates.max_latitude))
+            .where(
+                StopModel.lon.between(min_max_coordinates.min_longitude, min_max_coordinates.max_longitude)
+            )
+            .where(StopModel.lat.is_not(None))
+            .where(StopModel.lon.is_not(None))
+        )
+        # Database will return a square shape, so we need to filter out stops that are not within the circle
+        stops = [
+            stop
+            for stop in potential_stops
+            if distance_between_points(latitude, longitude, stop.lat, stop.lon) <= distance_in_meters  # type: ignore
+        ]
+
+        return stops
 
 
 async def provide_stop_repo(db_session: AsyncSession) -> StopRepository:

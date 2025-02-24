@@ -3,12 +3,13 @@ from pathlib import Path
 from advanced_alchemy import NotFoundError
 from litestar import Controller, MediaType, Response, get
 from litestar.di import Provide
+from litestar.params import Parameter
 from litestar.response import Template
 
 from ..domain.agency.model import AgencyModel
 from ..domain.agency.repo import AgencyRepository, provide_agency_repo
 from ..domain.services.map_service import MapService, provide_map_service
-from ..lib.cache_keys import CacheKeys, key_builder_from_path
+from ..lib.cache_keys import CacheKeys, key_builder_from_path, key_builder_from_query
 from ..lib.constants import (
     MAPS_STATIC_ROUTES_DIR,
     MAPS_STATIC_STOPS_DIR,
@@ -38,6 +39,26 @@ class MapsController(Controller):
     async def map_for_stop(self, stop_id: str, map_service: MapService) -> Template | Response:
         try:
             stop_map = await map_service.generate_stop_map(stop_id)
+        except NotFoundError:
+            return Response(status_code=404, content="Stop map could not be generated.")
+
+        return Template(template_str=stop_map.render(), media_type=MediaType.HTML)
+
+    @get(
+        "/realtime/stop/nearby",
+        cache=86400,
+        cache_key_builder=key_builder_from_query(
+            CacheKeys.StopMaps.STOP_MAP_NEARBY_KEY_TEMPLATE, "latitude", "longitude"
+        ),
+    )
+    async def map_for_stop_nearby(
+        self,
+        map_service: MapService,
+        latitude: float = Parameter(query="latitude", required=True, description="Latitude of the user"),
+        longitude: float = Parameter(query="longitude", required=True, description="Longitude of the user"),
+    ) -> Template | Response:
+        try:
+            stop_map = await map_service.generate_stop_map_nearby(latitude, longitude)
         except NotFoundError:
             return Response(status_code=404, content="Stop map could not be generated.")
 

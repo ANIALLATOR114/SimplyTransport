@@ -215,6 +215,9 @@ class CLIPlugin(CLIPluginProtocol):
 
             redis_service = provide_redis_service()
             await redis_service.delete_keys_by_pattern(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.StopMaps.STOP_MAP_NEARBY_DELETE_ALL_KEY_TEMPLATE
+            )
             await redis_service.delete_keys_by_pattern(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys_by_pattern(CacheKeys.Schedules.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys_by_pattern(

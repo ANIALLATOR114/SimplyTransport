@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
 from pydantic import Field
-from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy import Float, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..enums import LocationType
@@ -22,6 +22,7 @@ class BaseModel(_BaseModel):
 
 class StopModel(BigIntAuditBase):
     __tablename__: str = "stop"  # type: ignore[assignment]
+    __table_args__ = (Index("idx_stop_coordinates", "lat", "lon"),)
 
     id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
     code: Mapped[str | None] = mapped_column(String(length=1000), index=True)

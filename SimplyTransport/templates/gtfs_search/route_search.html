@@ -13,40 +13,38 @@
             Searches <span class="code-highlight">names</span> \ <span class="code-highlight">codes</span> where either start with your search term
         </p>
         <div>
-            <div>
-                <input class="search-box"
-                       hx-get="/search/routes?pageSize=20"
-                       hx-trigger="keyup[target.value.length> 0] changed delay:200ms, search"
-                       hx-target="#route-search-results"
-                       hx-swap="innerhtml transition:true"
-                       type="search"
-                       name="search"
-                       placeholder="Search...">
-                <span class="htmx-indicator">
-                    <img class="loader-svg"
-                         src="/static/loader.svg"
-                         width="30px"
-                         height="30px"
-                         alt="Loading spinner">
-                </span>
-            </div>
-            <div class="inner-container">
-                <div id="route-search-results">
-                    <table class="table-search" aria-label="Search Results">
-                        <thead>
-                            <tr>
-                                <th class="dense-text">Code</th>
-                                <th class="dense-text">Long Name</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Waiting for your search 😊</td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <input class="search-box"
+                   hx-get="/search/routes?pageSize=20"
+                   hx-trigger="keyup[target.value.length> 0] changed delay:200ms, search"
+                   hx-target="#route-search-results"
+                   hx-swap="innerhtml transition:true"
+                   type="search"
+                   name="search"
+                   placeholder="Search...">
+            <span class="htmx-indicator">
+                <img class="loader-svg"
+                     src="/static/loader.svg"
+                     width="30px"
+                     height="30px"
+                     alt="Loading spinner">
+            </span>
+        </div>
+        <div class="inner-container">
+            <div id="route-search-results">
+                <table class="table-search" aria-label="Search Results">
+                    <thead>
+                        <tr>
+                            <th class="dense-text">Code</th>
+                            <th class="dense-text">Long Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Waiting for your search 😊</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

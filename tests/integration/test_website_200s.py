@@ -11,6 +11,7 @@ urls = [
     "/events/",
     "/delays-explained",
     "/about",
+    "/search/stops/nearby?latitude=53.3004288&longitude=-6.2980096",
 ]
 
 

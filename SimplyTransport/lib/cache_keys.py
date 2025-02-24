@@ -12,6 +12,9 @@ class CacheKeys:
         STOP_MAP_KEY_TEMPLATE = "stop_map:{stop_id}"
         STOP_MAP_DELETE_ALL_KEY_TEMPLATE = "*stop_map:*"
         STOP_MAP_DELETE_KEY_TEMPLATE = "*stop_map:{stop_id}"
+        STOP_MAP_NEARBY_KEY_TEMPLATE = "stop_map_nearby:{latitude}:{longitude}"
+        STOP_MAP_NEARBY_DELETE_ALL_KEY_TEMPLATE = "*stop_map_nearby:*"
+        STOP_MAP_NEARBY_DELETE_KEY_TEMPLATE = "*stop_map_nearby:{latitude}:{longitude}"
 
     class RouteMaps(StrEnum):
         ROUTE_MAP_KEY_TEMPLATE = "route_map:{route_id}:{direction}"
