@@ -6,12 +6,13 @@ from advanced_alchemy import NotFoundError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...lib.logging.logging import provide_logger
+from ..maps.circles import Circle
 from ..maps.clusters import Cluster
 from ..maps.colors import Colors
 from ..maps.enums import StaticStopMapTypes
 from ..maps.layers import Layer
 from ..maps.maps import Map
-from ..maps.markers import BusMarker, StopMarker
+from ..maps.markers import BusMarker, StopMarker, YourLocationMarker
 from ..maps.polylines import RoutePolyLine
 from ..realtime.vehicle.model import RTVehicleModel
 from ..realtime.vehicle.repo import RTVehicleRepository
@@ -101,6 +102,44 @@ class MapService:
         other_stops_on_routes = await self.stop_repository.get_stops_by_route_ids(route_ids, direction)
         other_stops_layer = Layer("Stops")
         for stop in other_stops_on_routes:
+            stop_marker = StopMarker(stop=stop)
+            other_stops_layer.add_child(stop_marker.create_marker(type_of_marker="circle"))
+        other_stops_layer.add_to(stop_map.map_base)
+
+        stop_map.add_layer_control()
+        return stop_map
+
+    async def generate_stop_map_nearby(self, latitude: float, longitude: float) -> Map:
+        """
+        Generates a map with markers and layers for a given lat and long.
+
+        Args:
+            latitude (float): The latitude of the user.
+            longitude (float): The longitude of the user.
+
+        Returns:
+            Map: The generated map object.
+        """
+        maximum_distance_meters = 1200
+        stops = await self.stop_repository.get_stops_near_location(
+            latitude, longitude, maximum_distance_meters
+        )
+
+        stop_map = Map(lat=latitude, lon=longitude, zoom=15, height=500)
+        stop_map.setup_defaults()
+
+        your_location_marker = YourLocationMarker(latitude, longitude)
+        stop_map.map_base.add_child(your_location_marker.create_marker())
+
+        circle_layer = Layer(f"{maximum_distance_meters / 1000} km")
+        circle = Circle(
+            location=(latitude, longitude), radius=maximum_distance_meters, fill=False, weight=4, opacity=0.3
+        )
+        circle_layer.add_child(circle.circle)
+        circle_layer.add_to(stop_map.map_base)
+
+        other_stops_layer = Layer("Stops")
+        for stop in stops:
             stop_marker = StopMarker(stop=stop)
             other_stops_layer.add_child(stop_marker.create_marker(type_of_marker="circle"))
         other_stops_layer.add_to(stop_map.map_base)

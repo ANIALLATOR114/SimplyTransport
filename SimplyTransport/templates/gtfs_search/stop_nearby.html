@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}
+    SimplyTransport - Stops nearby
+{% endblock title %}
+{% block content %}
+    <div class="narrow-container">
+        <h1>Stops Nearby</h1>
+        <div class="inner-container inner-container-expand">{% include "/maps/realtime/stop_nearby.html" %}</div>
+        <p class="dense-text">
+            Shows stops within 1.2km of your location. Your location is obtained from your browser and may not be exact.
+        </p>
+        <p class="dense-text">Latitude: {{ latitude }}</p>
+        <p class="dense-text">Longitude: {{ longitude }}</p>
+    </div>
+{% endblock content %}

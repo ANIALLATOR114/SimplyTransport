@@ -54,6 +54,20 @@ class SearchController(Controller):
             },
         )
 
+    @get("/stops/nearby")
+    async def stops_nearby(
+        self,
+        latitude: float = Parameter(query="latitude", required=True, description="Latitude of the user"),
+        longitude: float = Parameter(query="longitude", required=True, description="Longitude of the user"),
+    ) -> Template:
+        return Template(
+            "gtfs_search/stop_nearby.html",
+            context={
+                "latitude": latitude,
+                "longitude": longitude,
+            },
+        )
+
     @get("/routes")
     async def routes(
         self,
