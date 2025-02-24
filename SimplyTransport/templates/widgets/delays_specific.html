@@ -1,0 +1,156 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all cells with delay attributes
+        const delayCells = document.querySelectorAll('td[delay-stop-id]');
+        
+        delayCells.forEach(function(cell) {
+            cell.style.cursor = 'pointer';  // Show clickable cursor
+            let hoverTimer = null;
+            let detailRow = null;
+            
+            async function fetchData() {
+                // Don't fetch if already loaded
+                if (cell.getAttribute('data-loaded') === 'true') return;
+                
+                const imgElement = cell.querySelector('img');
+                if (!imgElement) return;
+                
+                const stopId = cell.getAttribute('delay-stop-id');
+                const routeCode = cell.getAttribute('delay-route-code');
+                const scheduledTime = cell.getAttribute('delay-scheduled-time');
+                
+                try {
+                    // Show loading state
+                    imgElement.src = "/static/loader.svg";
+                    
+                    const response = await fetch(
+                        `/api/v1/delays/${stopId}/${routeCode}/${scheduledTime}/aggregated`
+                    );
+
+                    if (response.status === 404) {
+                            cell.innerHTML = `
+                            <span>No data</span>
+                        `;
+                        cell.setAttribute('data-loaded', 'true');
+                        return;
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    const avgMinutes = (data.avg / 60).toFixed(1);
+                    
+                    // Update main cell with average and toggle button
+                    cell.innerHTML = `
+                        <span>${avgMinutes} min</span>
+                        <button class="delays-specific-toggle-button">▼</button>
+                    `;
+                    
+                    cell.setAttribute('data-loaded', 'true');
+                    
+                    // Create detail row content
+                    const detailContent = `
+                        <td colspan="6" class="delays-specific-stats-detail-cell dense-text">
+                            <div class="delays-specific-stats-grid" style="opacity: 0; transition: opacity 0.3s ease-out;">
+                            <div class="delays-specific-stats-row">
+                                    <span>Avg: ${avgMinutes} min</span>
+                                </div>
+                                <div class="delays-specific-stats-row">
+                                    <span>Min: ${(data.min / 60).toFixed(1)} min</span>
+                                </div>
+                                <div class="delays-specific-stats-row">
+                                    <span>Max: ${(data.max / 60).toFixed(1)} min</span>
+                                </div>
+                                <div class="delays-specific-stats-row">
+                                    <span>Std Dev: ${(data.standard_deviation / 60).toFixed(1)} min</span>
+                                </div>
+                                <div class="delays-specific-stats-row">
+                                    <span>P50: ${(data.p50 / 60).toFixed(1)} min</span>
+                                </div>
+                                <div class="delays-specific-stats-row">
+                                    <span>P75: ${(data.p75 / 60).toFixed(1)} min</span>
+                                </div>
+                                <div class="delays-specific-stats-row">
+                                    <span>P90: ${(data.p90 / 60).toFixed(1)} min</span>
+                                </div>
+                                <div class="delays-specific-stats-row">
+                                    <span>Samples: ${data.samples}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    `;
+                    
+                    // Add click handler for toggle button
+                    const toggleButton = cell.querySelector('.delays-specific-toggle-button');
+                    
+                    toggleButton.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        
+                        if (detailRow && detailRow.parentNode) {
+                            // Add transition for closing
+                            const detailCell = detailRow.querySelector('.delays-specific-stats-detail-cell');
+                            const gridContent = detailCell.querySelector('.delays-specific-stats-grid');
+                            
+                            // Fade out content first
+                            gridContent.style.opacity = '0';
+                            detailCell.classList.remove('expanded');
+                            
+                            // Remove after transition
+                            setTimeout(() => {
+                                detailRow.parentNode.removeChild(detailRow);
+                                detailRow = null;
+                            }, 200);
+                            
+                            toggleButton.textContent = '▼';
+                        } else {
+                            // Create and insert detail row
+                            const parentRow = cell.closest('tr');
+                            detailRow = document.createElement('tr');
+                            detailRow.innerHTML = detailContent;
+                            parentRow.insertAdjacentElement('afterend', detailRow);
+                            
+                            // Trigger transition after a small delay
+                            requestAnimationFrame(() => {
+                                const detailCell = detailRow.querySelector('.delays-specific-stats-detail-cell');
+                                detailCell.classList.add('expanded');
+                                
+                                // Fade in content after expansion starts
+                                setTimeout(() => {
+                                    const gridContent = detailCell.querySelector('.delays-specific-stats-grid');
+                                    gridContent.style.opacity = '1';
+                                }, 50);
+                            });
+                            
+                            toggleButton.textContent = '▲';
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error('Error fetching delays:', error);
+                    imgElement.src = "/static/load-me.svg";  // Reset to original icon
+                    cell.title = "Failed to load delay data. Click to try again.";
+                }
+            }
+            
+            // Click handler
+            cell.addEventListener('click', fetchData);
+            
+            // Hover handlers
+            cell.addEventListener('mouseenter', function() {
+                // Start a timer when mouse enters
+                hoverTimer = setTimeout(fetchData, 200);
+            });
+            
+            cell.addEventListener('mouseleave', function() {
+                // Cancel the timer if mouse leaves before fetch
+                if (hoverTimer) {
+                    clearTimeout(hoverTimer);
+                    hoverTimer = null;
+                }
+            });
+        });
+    });
+</script>

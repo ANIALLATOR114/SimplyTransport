@@ -3,6 +3,8 @@
     SimplyTransport - Trip {{ prime_schedule.trip.short_name }} on Route {{ prime_schedule.route.short_name }}
 {% endblock title %}
 {% block content %}
+    <link rel="stylesheet"
+          href="/static/delays.css?{{ request.app.openapi_config.version }}">
     <div class="narrow-container">
         <h1>Trip: {{ prime_schedule.trip.short_name }}</h1>
         <div class="flex-gap">
@@ -27,6 +29,7 @@
                             <th class="dense-text">Scheduled</th>
                             <th class="dense-text">Realtime</th>
                             <th class="dense-text">Delay</th>
+                            <th class="dense-text">Historical</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -57,6 +60,17 @@
                                 <td class="dense-text no-pointer">{{ rt.static_schedule.stop_time.arrival_time }}</td>
                                 <td class="dense-text no-pointer">{{ rt.real_arrival_time }}</td>
                                 <td class="dense-text no-pointer">{{ rt.delay }}</td>
+                                <td class="dense-text"
+                                    delay-stop-id="{{ rt.static_schedule.stop.id }}"
+                                    delay-route-code="{{ rt.static_schedule.route.short_name }}"
+                                    delay-scheduled-time="{{ rt.static_schedule.stop_time.arrival_time }}">
+                                    <img class="link-icon-table"
+                                         src="/static/load-me.svg"
+                                         alt="link-icon"
+                                         width="13"
+                                         height="13">
+                                    Load...
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -76,4 +90,5 @@
     </div>
     {% include "widgets/copy_to_clipboard.html" %}
     {% include "widgets/filter_table.html" %}
+    {% include "widgets/delays_specific.html" %}
 {% endblock content %}

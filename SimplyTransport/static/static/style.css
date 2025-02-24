@@ -34,11 +34,7 @@ body {
 }
 
 .bold {
-	font-weight: bold;
-}
-
-.italic {
-	font-style: italic;
+	font-weight: 700;
 }
 
 .t-big {
@@ -242,7 +238,7 @@ h3 {
 }
 
 .bold-highlight {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .color-late {
@@ -400,7 +396,7 @@ h3 {
 
 .word-highlight {
 	color: var(--font-color-highlight);
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .table-search-top-text-pad {
@@ -450,7 +446,6 @@ h3 {
 }
 
 .stop-feature-header {
-	font-weight: 600;
 	font-size: 1.1rem;
 	border-bottom: 2px solid var(--font-color-highlight);
 	display: flex;
