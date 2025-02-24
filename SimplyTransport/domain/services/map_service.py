@@ -135,7 +135,7 @@ class MapService:
         circle = Circle(
             location=(latitude, longitude), radius=maximum_distance_meters, fill=False, weight=4, opacity=0.3
         )
-        circle_layer.add_child(circle.create_circle())
+        circle_layer.add_child(circle.circle)
         circle_layer.add_to(stop_map.map_base)
 
         other_stops_layer = Layer("Stops")

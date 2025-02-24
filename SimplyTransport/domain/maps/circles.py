@@ -39,7 +39,7 @@ class Circle:
         self.opacity = opacity
         self.create_circle()
 
-    def create_circle(self) -> fl.Circle:
+    def create_circle(self) -> None:
         """
         Create a circle object based on the specified location and properties.
 
@@ -51,7 +51,7 @@ class Circle:
         """
 
         if self.fill:
-            return fl.Circle(
+            self.circle = fl.Circle(
                 location=self.location,
                 radius=self.radius,
                 color=self.color.value,
@@ -62,7 +62,7 @@ class Circle:
                 fill_opacity=self.fill_opacity,
             )
         else:
-            return fl.Circle(
+            self.circle = fl.Circle(
                 location=self.location,
                 radius=self.radius,
                 color=self.color.value,
