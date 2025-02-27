@@ -7,23 +7,33 @@
             // Show waiting state
             button.textContent = "Waiting for permissions...";
             
+            const options = {
+                enableHighAccuracy: false,  // Don't need high accuracy
+                maximumAge: 120000,         // Allow cached positions up to 2 minutes old
+                timeout: 10000             // 10 second timeout
+            };
+            
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
-                    console.log(`User location - Latitude: ${latitude}, Longitude: ${longitude}`);
-                    // Redirect to the near-me search with coordinates
+
                     window.location.href = `/search/stops/nearby?latitude=${latitude}&longitude=${longitude}`;
                 }, 
                 function(error) {
                     console.error("Error getting location:", error.message);
                     if (error.code === error.PERMISSION_DENIED) {
                         button.textContent = "Permissions are required 😔";
+                        button.disabled = true;
+                    } else if (error.code === error.TIMEOUT) {
+                        button.textContent = "Location request timed out - tap to retry 🔄";
+                        // Don't disable the button on timeout so they can retry
                     } else {
-                        button.textContent = "Error getting location 😕";
+                        button.textContent = "Error getting location - tap to retry 😕";
+                        // Don't disable the button on general errors so they can retry
                     }
-                    button.disabled = true;
-                }
+                },
+                options
             );
         } else {
             console.error("Geolocation is not supported by this browser");
