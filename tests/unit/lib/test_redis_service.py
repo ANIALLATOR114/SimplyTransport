@@ -1,3 +1,5 @@
+import json
+from datetime import datetime
 from enum import StrEnum
 from unittest.mock import AsyncMock, Mock, call
 
@@ -172,3 +174,55 @@ async def test_set_many_empty_keys_with_expiry(redis_service: RedisService, mock
         ]
     )
     assert pipeline_mock.execute.call_count == 2
+
+
+@pytest.mark.parametrize(
+    "input_data, expected_output",
+    [
+        # Basic types
+        ({"string": "test"}, '{"string": "test"}'),
+        ({"number": 42}, '{"number": 42}'),
+        ({"bool": True}, '{"bool": true}'),
+        # Datetime
+        ({"date": datetime(2024, 1, 1, 12, 0)}, '{"date": "2024-01-01T12:00:00"}'),
+        # Mixed types
+        (
+            {"string": "test", "date": datetime(2024, 1, 1), "number": 42},
+            '{"string": "test", "date": "2024-01-01T00:00:00", "number": 42}',
+        ),
+        # Nested structure
+        (
+            {"nested": {"date": datetime(2024, 1, 1), "value": "test"}},
+            '{"nested": {"date": "2024-01-01T00:00:00", "value": "test"}}',
+        ),
+    ],
+)
+def test_serialize(input_data, expected_output, redis_service):
+    result = redis_service.serialize(input_data)
+    assert json.loads(result) == json.loads(expected_output)
+
+
+@pytest.mark.parametrize(
+    "input_string, expected_output",
+    [
+        # Basic types
+        ('{"string": "test"}', {"string": "test"}),
+        ('{"number": 42}', {"number": 42}),
+        ('{"bool": true}', {"bool": True}),
+        # Datetime string
+        ('{"date": "2024-01-01T12:00:00"}', {"date": datetime(2024, 1, 1, 12, 0)}),
+        # Mixed types
+        (
+            '{"string": "test", "date": "2024-01-01T00:00:00", "number": 42}',
+            {"string": "test", "date": datetime(2024, 1, 1), "number": 42},
+        ),
+        # Nested structure
+        (
+            '{"nested": {"date": "2024-01-01T00:00:00", "value": "test"}}',
+            {"nested": {"date": datetime(2024, 1, 1), "value": "test"}},
+        ),
+    ],
+)
+def test_deserialize(input_string, expected_output, redis_service):
+    result = redis_service.deserialize(input_string)
+    assert result == expected_output

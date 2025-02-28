@@ -3,6 +3,7 @@ from itertools import cycle
 from typing import Literal
 
 from advanced_alchemy import NotFoundError
+from SimplyTransport.lib.cache import RedisService
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...lib.logging.logging import provide_logger
@@ -124,6 +125,7 @@ class MapService:
         stops = await self.stop_repository.get_stops_near_location(
             latitude, longitude, maximum_distance_meters
         )
+        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids([stop.id for stop in stops])
 
         stop_map = Map(lat=latitude, lon=longitude, zoom=15, height=500)
         stop_map.setup_defaults()
@@ -140,7 +142,7 @@ class MapService:
 
         other_stops_layer = Layer("Stops")
         for stop in stops:
-            stop_marker = StopMarker(stop=stop)
+            stop_marker = StopMarker(stop=stop, routes=routes_by_stop_id.get(stop.id, []))
             other_stops_layer.add_child(stop_marker.create_marker(type_of_marker="circle"))
         other_stops_layer.add_to(stop_map.map_base)
 
@@ -282,7 +284,7 @@ class MapService:
                 return []
 
 
-async def provide_map_service(db_session: AsyncSession) -> MapService:
+async def provide_map_service(db_session: AsyncSession, redis_service: RedisService) -> MapService:
     """
     Provides a map service instance.
 
@@ -294,7 +296,7 @@ async def provide_map_service(db_session: AsyncSession) -> MapService:
     """
     return MapService(
         StopRepository(session=db_session),
-        RouteRepository(session=db_session),
+        RouteRepository(session=db_session, cache=redis_service),
         ShapeRepository(session=db_session),
         TripRepository(session=db_session),
         RTVehicleRepository(session=db_session),

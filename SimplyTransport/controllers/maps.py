@@ -40,6 +40,7 @@ class MapsController(Controller):
         try:
             stop_map = await map_service.generate_stop_map(stop_id)
         except NotFoundError:
+            # This is an embed so cannot return the error page
             return Response(status_code=404, content="Stop map could not be generated.")
 
         return Template(template_str=stop_map.render(), media_type=MediaType.HTML)
@@ -77,6 +78,7 @@ class MapsController(Controller):
         try:
             route_map = await map_service.generate_route_map(route_id, direction)
         except NotFoundError:
+            # This is an embed so cannot return the error page
             return Response(status_code=404, content="Route map could not be generated.")
 
         return Template(template_str=route_map.render(), media_type=MediaType.HTML)

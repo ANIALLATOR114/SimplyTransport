@@ -213,7 +213,7 @@ class CLIPlugin(CLIPluginProtocol):
                 attributes,
             )
 
-            redis_service = provide_redis_service()
+            redis_service = await provide_redis_service()
             await redis_service.delete_keys_by_pattern(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys_by_pattern(
                 CacheKeys.StopMaps.STOP_MAP_NEARBY_DELETE_ALL_KEY_TEMPLATE
@@ -225,6 +225,9 @@ class CLIPlugin(CLIPluginProtocol):
             )
             await redis_service.delete_keys_by_pattern(
                 CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
+            )
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.Routes.ROUTES_BY_STOP_ID_DELETE_ALL_KEY_TEMPLATE
             )
 
             finish = time.perf_counter()
@@ -364,7 +367,7 @@ class CLIPlugin(CLIPluginProtocol):
                 attributes,
             )
 
-            redis_service = provide_redis_service()
+            redis_service = await provide_redis_service()
             await redis_service.delete_keys_by_pattern(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
             await redis_service.delete_keys_by_pattern(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
 
@@ -544,7 +547,7 @@ class CLIPlugin(CLIPluginProtocol):
             console = Console()
             console.print("Flushing the Redis cache...")
 
-            redis_service = provide_redis_service()
+            redis_service = await provide_redis_service()
 
             total_keys = await redis_service.count_all_keys()
             console.print(f"\nTotal keys in the Redis cache: {total_keys}")
@@ -557,7 +560,7 @@ class CLIPlugin(CLIPluginProtocol):
         async def generatemaps():
             """Generates static maps for each agency in the database as well as stop maps."""
 
-            redis_service = provide_redis_service()
+            redis_service = await provide_redis_service()
 
             console = Console()
             console.print("Generating static maps...")
@@ -632,6 +635,7 @@ class CLIPlugin(CLIPluginProtocol):
                     delays_service = await provide_delays_service(
                         timescale_db_session=timescale_session,
                         db_session=session,
+                        redis_cache=await provide_redis_service(),
                     )
                     delays_recorded = await delays_service.record_all_delays()
 
@@ -661,6 +665,7 @@ class CLIPlugin(CLIPluginProtocol):
                     delays_service = await provide_delays_service(
                         timescale_db_session=timescale_session,
                         db_session=session,
+                        redis_cache=await provide_redis_service(),
                     )
                     number_deleted = await delays_service.cleanup_old_delays()
 
