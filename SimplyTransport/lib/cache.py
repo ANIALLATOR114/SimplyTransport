@@ -1,5 +1,8 @@
+import json
 from collections.abc import Iterable, Sequence
+from datetime import datetime
 from enum import StrEnum
+from typing import Any
 
 from litestar.config.response_cache import ResponseCacheConfig
 from litestar.stores.redis import RedisStore
@@ -174,8 +177,32 @@ class RedisService:
                 pipe.set(key, value="", ex=expiration or self.default_expiration)
             await pipe.execute()
 
+    def serialize(self, data: Any) -> str:
+        """Serialize data to JSON string."""
 
-def provide_redis_service() -> RedisService:
+        def datetime_handler(obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return str(obj)
+
+        return json.dumps(data, default=datetime_handler)
+
+    def deserialize(self, data: str) -> Any:
+        """Deserialize JSON string to data."""
+
+        def datetime_parser(dct):
+            for k, v in dct.items():
+                if isinstance(v, str):
+                    try:
+                        dct[k] = datetime.fromisoformat(v)
+                    except ValueError:
+                        pass
+            return dct
+
+        return json.loads(data, object_hook=datetime_parser)
+
+
+async def provide_redis_service() -> RedisService:
     """
     Provides a RedisService instance.
 

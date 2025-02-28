@@ -60,8 +60,9 @@ class StopMarker:
 
         stop_lat_lon = f"""
             <p>
-                <a target='_parent' href="https://www.google.com/maps?layer=c&amp;"
-                   "cbll={self.stop.lat},{self.stop.lon}&amp;cbp=0,0,,,">Street view</a><br>
+                <a target='_parent'
+                   href="https://www.google.com/maps?layer=c&amp;\
+cbll={self.stop.lat},{self.stop.lon}&amp;cbp=0,0,,,">Street view</a><br>
                 Lat: {self.stop.lat}<br>
                 Lon: {self.stop.lon}
                 </p>

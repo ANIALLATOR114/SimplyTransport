@@ -49,7 +49,7 @@ def handle_404(_: Request, exc: HTTPException) -> Response | Template:
         )
 
 
-def exception_handler(_: Request, exc: HTTPException) -> Response | Template:
+def exception_handler(request: Request, exc: HTTPException) -> Response | Template:
     """
     Handle exceptions raised during request processing.
 
@@ -64,19 +64,19 @@ def exception_handler(_: Request, exc: HTTPException) -> Response | Template:
     """
     status_code = getattr(exc, "status_code", 500)
 
-    if check_if_website(_):
-        logger.bind(path=_.url.path, code=status_code).exception("Website Exception", exc_info=exc)
+    if check_if_website(request):
+        logger.bind(path=request.url.path, code=status_code).exception("Website Exception", exc_info=exc)
         return Template(
             template_name="errors/500.html",
             status_code=status_code,
             context={},
         )
     else:
-        logger.bind(path=_.url.path, code=status_code).exception("API Exception", exc_info=exc)
+        logger.bind(path=request.url.path, code=status_code).exception("API Exception", exc_info=exc)
         return Response(
             status_code=status_code,
             content={
-                "path": _.url.path,
+                "path": request.url.path,
                 "detail": exc.detail,
                 "status_code": exc.status_code,
             },
