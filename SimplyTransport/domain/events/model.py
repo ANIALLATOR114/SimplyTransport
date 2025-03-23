@@ -36,12 +36,11 @@ class EventModel(BigIntAuditBase):
     def to_json(self, indent: int = 4) -> str:
         return json.dumps(self.to_dict(), cls=DateTimeEncoderForJson, indent=indent)
 
-    def add_pretty_created_at(self):
+    def add_pretty_created_at(self, current_time: datetime):
         """Adds a created_at_pretty to an event"""
-        now = datetime.now()
-        if self.created_at.date() == now.date():
+        if self.created_at.date() == current_time.date():
             self.created_at_pretty = "Today - " + self.created_at.strftime("%H:%M")
-        elif self.created_at.date() == (now - timedelta(days=1)).date():
+        elif self.created_at.date() == (current_time - timedelta(days=1)).date():
             self.created_at_pretty = "Yesterday - " + self.created_at.strftime("%H:%M")
         else:
             self.created_at_pretty = self.created_at.strftime("%d %b - %H:%M")
