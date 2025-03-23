@@ -41,8 +41,8 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
 
         results, total = await self.list_and_count(
             EventModel.event_type == event_type,
-            OrderBy(EventModel.created_at, order),
-            limit_offset,  # type: ignore
+            OrderBy(EventModel.created_at, order),  # type: ignore
+            limit_offset,
         )
 
         if total == 0:
@@ -95,8 +95,8 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
         """Get paginated events with total."""
 
         results, total = await self.list_and_count(
-            OrderBy(EventModel.created_at, order),
-            limit_offset,  # type: ignore
+            OrderBy(EventModel.created_at, order),  # type: ignore
+            limit_offset,
         )
 
         if total == 0:
@@ -109,9 +109,7 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
     ) -> list[EventModel]:
         """Get paginated events."""
 
-        results = await self.list(OrderBy(EventModel.created_at, order), limit_offset)  # type: ignore
-
-        return results
+        return await self.list(OrderBy(EventModel.created_at, order), limit_offset)  # type: ignore
 
     async def cleanup_events(self, event_type: EventType | None = None) -> int:
         """Cleanup events that have expired. If event_type is provided, only cleanup events of that type."""
