@@ -40,7 +40,9 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
         """Get paginated events by type with total."""
 
         results, total = await self.list_and_count(
-            EventModel.event_type == event_type, OrderBy(EventModel.created_at.__str__(), order), limit_offset
+            EventModel.event_type == event_type,
+            OrderBy(EventModel.created_at, order),
+            limit_offset,  # type: ignore
         )
 
         if total == 0:
@@ -93,7 +95,8 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
         """Get paginated events with total."""
 
         results, total = await self.list_and_count(
-            OrderBy(EventModel.created_at.__str__(), order), limit_offset
+            OrderBy(EventModel.created_at, order),
+            limit_offset,  # type: ignore
         )
 
         if total == 0:
@@ -106,7 +109,7 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
     ) -> list[EventModel]:
         """Get paginated events."""
 
-        results = await self.list(OrderBy(EventModel.created_at.__str__(), order), limit_offset)
+        results = await self.list(OrderBy(EventModel.created_at, order), limit_offset)  # type: ignore
 
         return results
 
