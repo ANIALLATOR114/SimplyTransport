@@ -37,11 +37,11 @@ class RootController(Controller):
             ]
         )
 
-        gtfs_updated_event = events[EventType.GTFS_DATABASE_UPDATED]
-        realtime_updated_event = events[EventType.REALTIME_DATABASE_UPDATED]
-        vehicles_updated_event = events[EventType.REALTIME_VEHICLES_DATABASE_UPDATED]
-        stop_features_updated_event = events[EventType.STOP_FEATURES_DATABASE_UPDATED]
-        delays_recorded_event = events[EventType.RECORD_TS_STOP_TIMES]
+        gtfs_updated_event = events.get(EventType.GTFS_DATABASE_UPDATED)
+        realtime_updated_event = events.get(EventType.REALTIME_DATABASE_UPDATED)
+        vehicles_updated_event = events.get(EventType.REALTIME_VEHICLES_DATABASE_UPDATED)
+        stop_features_updated_event = events.get(EventType.STOP_FEATURES_DATABASE_UPDATED)
+        delays_recorded_event = events.get(EventType.RECORD_TS_STOP_TIMES)
 
         return Template(
             template_name="index.html",
