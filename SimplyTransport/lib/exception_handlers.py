@@ -17,7 +17,7 @@ def check_if_website(request: Request) -> bool:
     Returns:
         bool: True if the request accepts HTML content, False otherwise.
     """
-    return "text/html" in request.headers.get("accept", "")
+    return "text/html" in request.headers.get("accept", "") or "true" in request.headers.get("Hx-Request", "")
 
 
 def handle_404(_: Request, exc: HTTPException) -> Response | Template:

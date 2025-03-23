@@ -1,4 +1,5 @@
 import math
+from datetime import UTC, datetime
 from typing import Literal
 
 from advanced_alchemy import NotFoundError
@@ -62,13 +63,14 @@ class EventsController(Controller):
 
             try:
                 events, total = await event_repo.get_paginated_events_by_type_with_total(
-                    event_type=search_type, limit_offset=limit_offset, order=sort
+                    event_type=EventType(search_type), limit_offset=limit_offset, order=sort
                 )
             except NotFoundError:
                 events = []
                 total = 0
 
-        events = [event.add_pretty_created_at() for event in events]
+        current_time = datetime.now(UTC)
+        events = [event.add_pretty_created_at(current_time) for event in events]
 
         current_page = limit_offset.offset // limit_offset.limit + 1
         total_pages = math.ceil(total / limit_offset.limit)
