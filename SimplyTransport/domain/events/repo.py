@@ -106,9 +106,9 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
     ) -> list[EventModel]:
         """Get paginated events."""
 
-        results = await self.list(OrderBy(EventModel.created_at.__str__(), order), limit_offset)
-
-        return results
+        return await self.list(
+            OrderBy(EventModel.created_at.__str__(), order), limit_offset
+        )
 
     async def cleanup_events(self, event_type: EventType | None = None) -> int:
         """Cleanup events that have expired. If event_type is provided, only cleanup events of that type."""
