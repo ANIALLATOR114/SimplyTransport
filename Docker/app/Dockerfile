@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /build
 
 # Copy and install requirements
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements-top-level.txt .
+RUN pip install --no-cache-dir -r requirements-top-level.txt
 
 # Stage 2: Runtime stage
 FROM python:3.11-slim

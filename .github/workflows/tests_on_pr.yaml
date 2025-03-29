@@ -69,7 +69,7 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-top-level.txt
 
       - name: Running sql scripts MAIN
         run: |
@@ -101,6 +101,9 @@ jobs:
 
       - name: Populate Statistics
         run: LITESTAR_APP=SimplyTransport.app:create_app litestar generatestatistics
+
+      - name: Install dev dependencies
+        run: pip install -r requirements-dev.txt
 
       - name: Run tests with coverage
         run: coverage run --branch -m pytest

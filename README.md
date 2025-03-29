@@ -168,7 +168,7 @@ source venv/scripts/activate
 Install the dependencies in your virtual environment
 
 ```
-pip install -r requirements.txt
+pip install -r requirements-top-level.txt
 pip install -r requirements-dev.txt
 ```
 
@@ -485,6 +485,12 @@ There is a small test dataset of GTFS data in the tests directory which is used 
 
 ```
 pytest
+```
+
+or
+
+```
+python -m pytest
 ```
 
 ## Integration Tests
