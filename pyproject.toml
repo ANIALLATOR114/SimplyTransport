@@ -1,3 +1,9 @@
+[project]
+name = "simplytransport"
+version = "0.1.0"
+description = "API & Website for real-time transport updates and schedules"
+requires-python = ">=3.11"
+
 [tool.coverage.run]
 dynamic_context = "test_function"
 

@@ -62,14 +62,13 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: uv pip install -r requirements-top-level.txt
 
       - name: Running sql scripts MAIN
         run: |
@@ -101,6 +100,9 @@ jobs:
 
       - name: Populate Statistics
         run: LITESTAR_APP=SimplyTransport.app:create_app litestar generatestatistics
+
+      - name: Install dev dependencies
+        run: uv pip install -r requirements-dev.txt
 
       - name: Run tests with coverage
         run: coverage run --branch -m pytest
