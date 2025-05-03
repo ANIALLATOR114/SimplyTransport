@@ -70,6 +70,12 @@ jobs:
       - name: Install dependencies
         run: uv pip install -r requirements-top-level.txt
 
+      - name: Install pyright
+        run: uv pip install pyright==1.1.398
+
+      - name: Run Pyright type checking
+        run: pyright
+
       - name: Running sql scripts MAIN
         run: |
           for file in sql_scripts/main/*.sql; do

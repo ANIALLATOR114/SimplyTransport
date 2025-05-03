@@ -23,7 +23,7 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install ruff==0.9.2 pyright==1.1.398
+        run: pip install ruff==0.9.2
 
       - name: Verify pyproject.toml
         run: |
@@ -45,9 +45,6 @@ jobs:
 
       - name: Run Ruff format on tests directory
         run: ruff format tests
-
-      - name: Run Pyright type checking
-        run: pyright
 
       - name: Check for modified files
         id: git-check
