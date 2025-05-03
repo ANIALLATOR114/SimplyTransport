@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import RTStopTimeModel
 
 
-class RTStopTimeRepository(SQLAlchemyAsyncRepository[RTStopTimeModel]):
+class RTStopTimeRepository(SQLAlchemyAsyncRepository[RTStopTimeModel]):  # type: ignore
     """RTStopTime repository."""
 
     model_type = RTStopTimeModel

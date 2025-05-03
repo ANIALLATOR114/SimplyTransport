@@ -32,8 +32,8 @@ def test_stop_marker_init(stop: StopModel):
     marker = StopMarker(stop, [])
     assert marker.stop.id == "test_stop_id"
     assert marker.stop.name == "Test Stop"
-    assert math.isclose(marker.stop.lon, -7.0, abs_tol=1e-09)
-    assert math.isclose(marker.stop.lat, 53.0, abs_tol=1e-09)
+    assert marker.stop.lon is not None and math.isclose(marker.stop.lon, -7.0, abs_tol=1e-09)
+    assert marker.stop.lat is not None and math.isclose(marker.stop.lat, 53.0, abs_tol=1e-09)
     assert marker.create_link is True
     assert marker.color is None
     assert type(marker.popup) is fl.Popup

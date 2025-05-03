@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import CalendarModel
 
 
-class CalendarRepository(SQLAlchemyAsyncRepository[CalendarModel]):
+class CalendarRepository(SQLAlchemyAsyncRepository[CalendarModel]):  # type: ignore
     """Calendar repository."""
 
     model_type = CalendarModel

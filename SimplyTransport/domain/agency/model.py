@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+if TYPE_CHECKING:
+    from SimplyTransport.domain.route.model import RouteModel
 
 
 class BaseModel(_BaseModel):
@@ -11,16 +16,14 @@ class BaseModel(_BaseModel):
 
 
 class AgencyModel(BigIntAuditBase):
-    __tablename__ = "agency"
+    __tablename__ = "agency"  # type: ignore
 
     id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
     name: Mapped[str] = mapped_column(String(length=1000))
     url: Mapped[str] = mapped_column(String(length=1000))
     timezone: Mapped[str] = mapped_column(String(length=1000))
     dataset: Mapped[str] = mapped_column(String(length=80))
-    routes: Mapped[list["RouteModel"]] = relationship(  # noqa: F821
-        back_populates="agency", cascade="all, delete"
-    )
+    routes: Mapped[list["RouteModel"]] = relationship(back_populates="agency", cascade="all, delete")
 
     def short_name(self):
         delimiter_list = [" – ", " / ", " - "]

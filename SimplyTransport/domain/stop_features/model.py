@@ -26,7 +26,7 @@ class StopFeatureModel(BigIntAuditBase):
     stop_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("stop.id", ondelete="CASCADE"), index=True
     )
-    stop: Mapped["StopModel"] = relationship(back_populates="stop_feature")  # noqa: F821
+    stop: Mapped["StopModel"] = relationship(back_populates="stop_feature")
     stop_name_ie: Mapped[str | None] = mapped_column(String(length=1000))
     stop_type: Mapped[StopType | None] = mapped_column(String(length=20))
     bearing: Mapped[Bearing | None] = mapped_column(String(length=2))

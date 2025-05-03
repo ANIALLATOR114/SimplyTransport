@@ -11,6 +11,7 @@ def test_map_init():
 def test_map_init_with_params():
     map_obj = Map(lat=53.0, lon=-7.0, zoom=10, max_zoom=15)
     assert map_obj.max_zoom == 15
+    assert isinstance(map_obj.map_base, fl.Map)
     assert map_obj.map_base.location == [53.0, -7.0]
 
 

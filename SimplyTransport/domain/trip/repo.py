@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import TripModel
 
 
-class TripRepository(SQLAlchemyAsyncRepository[TripModel]):
+class TripRepository(SQLAlchemyAsyncRepository[TripModel]):  # type: ignore[type-var]
     """Trip repository."""
 
     async def get_first_trips_by_route_ids(

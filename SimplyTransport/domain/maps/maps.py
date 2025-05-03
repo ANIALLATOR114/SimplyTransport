@@ -29,7 +29,7 @@ class Map:
         location = [lat, lon]
 
         if height:
-            f = fl.Figure(height=height)
+            f = fl.Figure(height=str(height))
             self.map_base = fl.Map(
                 location=location, zoom_start=zoom, prefer_canvas=True, max_zoom=max_zoom, tiles=None
             ).add_to(f)

@@ -125,7 +125,10 @@ cbll={self.stop.lat},{self.stop.lon}&amp;cbp=0,0,,,">Street view</a><br>
             self.icon = fl.Icon(color="blue", icon="fa-chevron-circle-down", prefix="fa")
 
     def add_to(
-        self, canvas: fl.Map | fl.FeatureGroup, type_of_marker: str = "regular", radius: float = 7
+        self,
+        canvas: fl.Map | fl.FeatureGroup | fl.Element,
+        type_of_marker: str = "regular",
+        radius: float = 7,
     ) -> None:
         """
         Adds a marker to the given map or layer.

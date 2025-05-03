@@ -15,7 +15,7 @@ class Layer:
         self.name = name
         self.base_layer = fl.FeatureGroup(name=name)
 
-    def add_to(self, map: fl.Map) -> None:
+    def add_to(self, map: fl.Map | fl.Element) -> None:
         """
         Adds the layer to the given map.
 

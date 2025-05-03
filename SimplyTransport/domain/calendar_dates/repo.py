@@ -7,7 +7,7 @@ from ..enums import ExceptionType
 from .model import CalendarDateModel
 
 
-class CalendarDateRepository(SQLAlchemyAsyncRepository[CalendarDateModel]):
+class CalendarDateRepository(SQLAlchemyAsyncRepository[CalendarDateModel]):  # type: ignore
     """Calendar repository."""
 
     async def get_removed_exceptions_on_date(self, date: date) -> list[CalendarDateModel]:

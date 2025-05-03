@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import ShapeModel
 
 
-class ShapeRepository(SQLAlchemyAsyncRepository[ShapeModel]):
+class ShapeRepository(SQLAlchemyAsyncRepository[ShapeModel]):  # type: ignore[type-var]
     """Stop repository."""
 
     async def get_shapes_by_shape_id(self, shape_id: str) -> list[ShapeModel]:

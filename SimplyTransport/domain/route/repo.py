@@ -15,7 +15,7 @@ from ..trip.model import TripModel
 from .model import RouteModel
 
 
-class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
+class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):  # type: ignore
     """Route repository."""
 
     model_type = RouteModel
@@ -33,7 +33,7 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):
         results, total = await self.list_and_count(
             RouteModel.short_name.istartswith(search) | RouteModel.long_name.istartswith(search),
             limit_offset,
-            OrderBy(RouteModel.short_name, "asc"),
+            OrderBy(RouteModel.short_name, "asc"),  # type: ignore
         )
 
         if total == 0:

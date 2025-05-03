@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+if TYPE_CHECKING:
+    from SimplyTransport.domain.trip.model import TripModel
 
 
 class BaseModel(_BaseModel):
@@ -13,10 +17,10 @@ class BaseModel(_BaseModel):
 
 
 class RTVehicleModel(BigIntAuditBase):
-    __tablename__ = "rt_vehicle"
+    __tablename__ = "rt_vehicle"  # type: ignore
 
     vehicle_id: Mapped[int] = mapped_column(Integer)
-    trip: Mapped["TripModel"] = relationship(back_populates="rt_vehicles")  # noqa: F821
+    trip: Mapped["TripModel"] = relationship(back_populates="rt_vehicles")
     trip_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True
     )

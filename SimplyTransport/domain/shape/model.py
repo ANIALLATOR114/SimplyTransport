@@ -11,7 +11,7 @@ class BaseModel(_BaseModel):
 
 
 class ShapeModel(BigIntAuditBase):
-    __tablename__ = "shape"
+    __tablename__ = "shape"  # type: ignore
     shape_id: Mapped[str] = mapped_column(String(length=1000), index=True)
     lat: Mapped[float] = mapped_column(Float)
     lon: Mapped[float] = mapped_column(Float)

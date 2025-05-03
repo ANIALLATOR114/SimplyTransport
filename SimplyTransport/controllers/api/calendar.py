@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, time
 
 from advanced_alchemy import NotFoundError
 from advanced_alchemy.filters import OnBeforeAfter
@@ -39,8 +39,11 @@ class CalendarController(Controller):
         description="Date format = YYYY-MM-DD",
     )
     async def get_active_calendars_on_date(self, repo: CalendarRepository, date: date) -> list[Calendar]:
+        start_date = datetime.combine(date, time.min)
+        end_date = datetime.combine(date, time.max)
+
         result = await repo.list(
-            OnBeforeAfter(field_name="start_date", on_or_before=date, on_or_after=None),
-            OnBeforeAfter(field_name="end_date", on_or_before=None, on_or_after=date),
+            OnBeforeAfter(field_name="start_date", on_or_before=start_date, on_or_after=None),
+            OnBeforeAfter(field_name="end_date", on_or_before=None, on_or_after=end_date),
         )
         return [Calendar.model_validate(obj) for obj in result]

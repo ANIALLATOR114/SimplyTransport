@@ -1,30 +1,6 @@
-from enum import Enum
-
 import folium as fl
 from SimplyTransport.domain.maps.colors import Colors
 from SimplyTransport.domain.route.model import RouteModel
-
-
-class PolyLineColors(Enum):
-    RED = "#FF0000"
-    BLUE = "#0000FF"
-    GREEN = "#00FF00"
-    PURPLE = "#800080"
-    ORANGE = "#FFA500"
-    DARKRED = "#8B0000"
-    LIGHTRED = "#FF6347"
-    DARKBLUE = "#00008B"
-    LIGHTBLUE = "#ADD8E6"
-    DARKGREEN = "#006400"
-    LIGHTGREEN = "#90EE90"
-    DARKPURPLE = "#800080"
-    PINK = "#FFC0CB"
-    CADETBLUE = "#5F9EA0"
-    BEIGE = "#F5F5DC"
-    WHITE = "#FFFFFF"
-    GRAY = "#808080"
-    LIGHTGRAY = "#D3D3D3"
-    BLACK = "#000000"
 
 
 class RoutePolyLine:

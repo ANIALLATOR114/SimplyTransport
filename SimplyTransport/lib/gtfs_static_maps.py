@@ -2,6 +2,7 @@ from typing import Literal
 
 from SimplyTransport.domain.maps.enums import StaticStopMapTypes
 from SimplyTransport.domain.services.map_service import provide_map_service
+from SimplyTransport.lib.cache import RedisService
 
 from ..lib.db.database import async_session_factory
 from .constants import MAPS_STATIC_ROUTES_DIR, MAPS_STATIC_STOPS_DIR
@@ -10,7 +11,7 @@ from .logging.logging import provide_logger
 logger = provide_logger(__name__)
 
 
-async def build_route_map(map_name: str | Literal["All"]) -> None:
+async def build_route_map(map_name: str | Literal["All"], redis_service: RedisService) -> None:
     """
     Builds a route map for the specified agency.
 
@@ -23,7 +24,7 @@ async def build_route_map(map_name: str | Literal["All"]) -> None:
     logger.info(f"Building route map for agency {map_name}")
 
     async with async_session_factory() as session:
-        map_service = await provide_map_service(session)
+        map_service = await provide_map_service(session, redis_service)
         built_map = await map_service.generate_agency_route_map(agency_id=map_name)
 
     with open(f"{MAPS_STATIC_ROUTES_DIR}/{map_name}.html", "w", encoding="utf-8") as file:
@@ -32,7 +33,7 @@ async def build_route_map(map_name: str | Literal["All"]) -> None:
     logger.info(f"Route map for {map_name} built")
 
 
-async def build_stop_map(map_name: StaticStopMapTypes) -> None:
+async def build_stop_map(map_name: StaticStopMapTypes, redis_service: RedisService) -> None:
     """
     Builds a stop map for the specified map name.
 
@@ -45,7 +46,7 @@ async def build_stop_map(map_name: StaticStopMapTypes) -> None:
     logger.info(f"Building stop map for type {map_name}")
 
     async with async_session_factory() as session:
-        map_service = await provide_map_service(session)
+        map_service = await provide_map_service(session, redis_service)
         built_map = await map_service.generate_static_stop_map(map_type=map_name)
 
     with open(f"{MAPS_STATIC_STOPS_DIR}/{map_name.value}.html", "w", encoding="utf-8") as file:

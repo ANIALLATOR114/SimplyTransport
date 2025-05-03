@@ -12,7 +12,7 @@ from .event_types import EventType
 from .model import EventModel
 
 
-class EventRepository(SQLAlchemyAsyncRepository[EventModel]):
+class EventRepository(SQLAlchemyAsyncRepository[EventModel]):  # type: ignore
     """Event repository."""
 
     async def create_event(

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, time
 
 from advanced_alchemy.filters import OnBeforeAfter
 from litestar import Controller, get
@@ -46,8 +46,11 @@ class CalendarDateController(Controller):
     async def get_active_calendar_dates_on_date(
         self, repo: CalendarDateRepository, date: date
     ) -> list[CalendarDate]:
+        start_date = datetime.combine(date, time.min)
+        end_date = datetime.combine(date, time.max)
+
         result = await repo.list(
-            OnBeforeAfter(field_name="date", on_or_before=date, on_or_after=None),
-            OnBeforeAfter(field_name="date", on_or_before=None, on_or_after=date),
+            OnBeforeAfter(field_name="date", on_or_before=start_date, on_or_after=None),
+            OnBeforeAfter(field_name="date", on_or_before=None, on_or_after=end_date),
         )
         return [CalendarDate.model_validate(obj) for obj in result]

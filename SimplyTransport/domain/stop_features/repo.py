@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import StopFeatureModel
 
 
-class StopFeatureRepository(SQLAlchemyAsyncRepository[StopFeatureModel]):
+class StopFeatureRepository(SQLAlchemyAsyncRepository[StopFeatureModel]):  # type: ignore[type-var]
     """Stop Feature repository."""
 
     model_type = StopFeatureModel

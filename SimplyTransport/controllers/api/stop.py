@@ -3,7 +3,7 @@ from advanced_alchemy.filters import LimitOffset
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
-from litestar.pagination import OffsetPagination
+from litestar.pagination import OffsetPagination  # type: ignore
 from litestar.params import Parameter
 
 from ...domain.stop.model import Stop

@@ -1,3 +1,5 @@
+from typing import Literal, cast
+
 from litestar.params import Parameter
 from litestar.repository.filters import OrderBy
 
@@ -27,4 +29,9 @@ async def provide_order_by_shapes(
         Direction to sort.
     """
 
-    return OrderBy(field_name, sort_order)
+    if sort_order not in ["asc", "desc"]:
+        sort_order = "asc"
+
+    sort_order_literal = cast(Literal["asc", "desc"], sort_order)
+
+    return OrderBy(field_name, sort_order_literal)

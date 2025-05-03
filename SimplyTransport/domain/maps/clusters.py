@@ -23,7 +23,7 @@ class Cluster:
         """
         self.cluster = MarkerCluster(name=self.name)
 
-    def add_to(self, map: fl.Map) -> None:
+    def add_to(self, map: fl.Map | fl.Element) -> None:
         """
         Adds the cluster to the map.
 
