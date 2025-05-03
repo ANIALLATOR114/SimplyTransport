@@ -13,7 +13,7 @@ from ..trip.model import TripModel
 from .model import StopModel
 
 
-class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
+class StopRepository(SQLAlchemyAsyncRepository[StopModel]):  # type: ignore[type-var]
     """Stop repository."""
 
     model_type = StopModel
@@ -31,7 +31,7 @@ class StopRepository(SQLAlchemyAsyncRepository[StopModel]):
         results, total = await self.list_and_count(
             StopModel.name.istartswith(search) | StopModel.code.istartswith(search),
             limit_offset,
-            OrderBy(StopModel.code, "asc"),
+            OrderBy(StopModel.code, "asc"),  # type: ignore
         )
 
         if total == 0:

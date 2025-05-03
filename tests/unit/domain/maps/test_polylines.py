@@ -1,7 +1,8 @@
 import folium as fl
 import pytest
 from SimplyTransport.domain.agency.model import AgencyModel
-from SimplyTransport.domain.maps.polylines import PolyLineColors, RoutePolyLine
+from SimplyTransport.domain.maps.colors import Colors
+from SimplyTransport.domain.maps.polylines import RoutePolyLine
 from SimplyTransport.domain.route.model import RouteModel
 
 
@@ -35,10 +36,9 @@ def test_route_polyline_popup(create_popup, expected_in_html, route: RouteModel)
         [(53.0, -7.0), (53.1, -7.1)],
         create_popup=create_popup,
     )
-    figure = fl.Figure()
-    polyline.add_to(figure)
-    html = figure.render()
-    assert ("popup" in html) is expected_in_html
+    map = fl.Map()
+    polyline.add_to(map)
+    assert ("popup" in map._repr_html_()) is expected_in_html
 
 
 @pytest.mark.parametrize(
@@ -55,10 +55,10 @@ def test_route_polyline_link(create_links, expected_in_html, route: RouteModel):
         create_popup=True,
         create_links=create_links,
     )
-    figure = fl.Figure()
+    figure = fl.Map()
     polyline.add_to(figure)
-    html = figure.render()
-    assert ("href" in html) is expected_in_html
+    html = figure._repr_html_()
+    assert ("href=&#x27;/realtime/route/123/1&#x27;&gt;" in html) is expected_in_html
 
 
 @pytest.mark.parametrize(
@@ -74,40 +74,27 @@ def test_route_polyline_tooltip(create_tooltip, expected_in_html, route: RouteMo
         [(53.0, -7.0), (53.1, -7.1)],
         create_tooltip=create_tooltip,
     )
-    figure = fl.Figure()
+    figure = fl.Map()
     polyline.add_to(figure)
-    html = figure.render()
-    print(html)
+    html = figure._repr_html_()
     assert ("Tooltip" in html) is expected_in_html
 
 
 @pytest.mark.parametrize(
     "color",
     [
-        PolyLineColors.RED,
-        PolyLineColors.BLUE,
-        PolyLineColors.GREEN,
-        PolyLineColors.PURPLE,
-        PolyLineColors.ORANGE,
-        PolyLineColors.DARKRED,
-        PolyLineColors.LIGHTRED,
-        PolyLineColors.DARKBLUE,
-        PolyLineColors.LIGHTBLUE,
-        PolyLineColors.DARKGREEN,
-        PolyLineColors.LIGHTGREEN,
-        PolyLineColors.DARKPURPLE,
-        PolyLineColors.PINK,
-        PolyLineColors.CADETBLUE,
-        PolyLineColors.BEIGE,
-        PolyLineColors.WHITE,
-        PolyLineColors.GRAY,
-        PolyLineColors.LIGHTGRAY,
-        PolyLineColors.BLACK,
+        Colors.RED,
+        Colors.BLUE,
+        Colors.GREEN,
+        Colors.PURPLE,
+        Colors.ORANGE,
+        Colors.CADETBLUE,
+        Colors.LIGHTBLUE,
     ],
 )
-def test_route_polyline_color(color: PolyLineColors, route: RouteModel):
+def test_route_polyline_color(color: Colors, route: RouteModel):
     polyline = RoutePolyLine(route, [(1, 1)], route_color=color)
-    figure = fl.Figure()
-    polyline.add_to(figure)
-    html = figure.render()
+    map = fl.Map()
+    polyline.add_to(map)
+    html = map._repr_html_()
     assert color.value in html

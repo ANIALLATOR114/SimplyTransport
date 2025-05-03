@@ -44,7 +44,7 @@ def max_created_subquery(statistic_type: StatisticType | None = None, date: date
     return query.alias("subquery")
 
 
-class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticModel]):
+class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticModel]):  # type: ignore
     """Database Statistic repository."""
 
     async def get_gtfs_record_counts(self) -> dict[str, int | None]:
@@ -105,7 +105,9 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
         record_counts = {
             "Surveyed Stops": (
                 await self.session.execute(
-                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.surveyed)
+                    select(func.count())
+                    .select_from(StopFeatureModel)
+                    .where(StopFeatureModel.surveyed == True)  # noqa: E712
                 )
             ).scalar(),
             "Unsurveyed Stops": (
@@ -127,7 +129,7 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
                 await self.session.execute(
                     select(func.count())
                     .select_from(StopFeatureModel)
-                    .where(StopFeatureModel.wheelchair_accessability)
+                    .where(StopFeatureModel.wheelchair_accessability == True)  # noqa: E712
                 )
             ).scalar(),
             "RealTime Display": (
@@ -142,17 +144,17 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
             ).scalar(),
             "Light Available(Shelter)": (
                 await self.session.execute(
-                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.light)
+                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.light == True)  # noqa: E712
                 )
             ).scalar(),
             "Bench Available": (
                 await self.session.execute(
-                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.bench)
+                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.bench == True)  # noqa: E712
                 )
             ).scalar(),
             "Bin Available": (
                 await self.session.execute(
-                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.bin)
+                    select(func.count()).select_from(StopFeatureModel).where(StopFeatureModel.bin == True)  # noqa: E712
                 )
             ).scalar(),
         }

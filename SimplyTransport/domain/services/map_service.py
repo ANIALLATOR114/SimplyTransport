@@ -42,7 +42,7 @@ class MapService:
         self.trip_repository = trip_repository
         self.rt_vehicle_repository = rt_vehicle_repository
 
-    async def generate_stop_map(self, stop_id: str) -> Map:
+    async def generate_stop_map(self, stop_id: str) -> Map | None:
         """
         Generates a map with markers and layers for a given stop ID.
 
@@ -56,6 +56,9 @@ class MapService:
         stop = await self.stop_repository.get_by_id_with_stop_feature(stop_id)
         direction = await self.stop_repository.get_direction_of_stop(stop_id)
         routes = await self.route_repository.get_routes_by_stop_id_with_agency(stop_id)
+
+        if stop.lat is None or stop.lon is None:
+            return None
 
         stop_map = Map(lat=stop.lat, lon=stop.lon, zoom=14, height=500)
         stop_map.setup_defaults()

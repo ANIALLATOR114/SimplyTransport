@@ -5,7 +5,7 @@ from litestar.contrib.sqlalchemy.base import UUIDBase
 from sqlalchemy import MetaData, text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
-from .database import async_engine, engine, session
+from .database import async_engine, engine
 from .timescale_database import async_timescale_engine
 
 
@@ -42,7 +42,7 @@ def create_database_sync() -> None:
         ConnectionRefusedError: If the database connection is refused.
     """
     try:
-        UUIDBase.metadata.create_all(bind=session.bind)
+        UUIDBase.metadata.create_all(bind=engine)
     except ConnectionRefusedError as e:
         print(e)
         print(

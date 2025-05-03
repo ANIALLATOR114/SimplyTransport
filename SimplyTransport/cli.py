@@ -574,7 +574,7 @@ class CLIPlugin(CLIPluginProtocol):
             agency_ids = [agency.id for agency in agencies]
             agency_ids.append("All")
 
-            tasks = [build_route_map(agency) for agency in agency_ids]
+            tasks = [build_route_map(agency, redis_service) for agency in agency_ids]
             results = await asyncio.gather(*tasks, return_exceptions=True)
             for result in results:
                 if isinstance(result, Exception):
@@ -584,7 +584,7 @@ class CLIPlugin(CLIPluginProtocol):
             )
 
             console.print("Generating stop maps")
-            tasks = [build_stop_map(map_type) for map_type in StaticStopMapTypes]
+            tasks = [build_stop_map(map_type, redis_service) for map_type in StaticStopMapTypes]
             results = await asyncio.gather(*tasks, return_exceptions=True)
             for result in results:
                 if isinstance(result, Exception):

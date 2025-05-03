@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import AgencyModel
 
 
-class AgencyRepository(SQLAlchemyAsyncRepository[AgencyModel]):
+class AgencyRepository(SQLAlchemyAsyncRepository[AgencyModel]):  # type: ignore
     """Agency repository."""
 
     model_type = AgencyModel

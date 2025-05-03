@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import RTTripModel
 
 
-class RTTripRepository(SQLAlchemyAsyncRepository[RTTripModel]):
+class RTTripRepository(SQLAlchemyAsyncRepository[RTTripModel]):  # type: ignore
     """RTTripRepository repository."""
 
     model_type = RTTripModel

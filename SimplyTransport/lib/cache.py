@@ -8,7 +8,6 @@ from litestar.config.response_cache import ResponseCacheConfig
 from litestar.stores.redis import RedisStore
 from opentelemetry.instrumentation.redis import RedisInstrumentor
 from redis.asyncio import Redis
-
 from SimplyTransport.lib.extensions.chunking import chunk_list
 
 from . import settings

@@ -11,7 +11,7 @@ from ...trip.model import TripModel
 from .model import RTVehicleModel
 
 
-class RTVehicleRepository(SQLAlchemyAsyncRepository[RTVehicleModel]):
+class RTVehicleRepository(SQLAlchemyAsyncRepository[RTVehicleModel]):  # type: ignore
     """RTVehicle repository."""
 
     async def get_vehicles_on_routes(self, route_ids: list, direction: int) -> Sequence[RTVehicleModel]:

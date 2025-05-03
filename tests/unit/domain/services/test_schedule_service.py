@@ -1,5 +1,5 @@
 from datetime import date, time
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock
 
 import pytest
 from SimplyTransport.domain.enums import DayOfWeek
@@ -63,8 +63,8 @@ async def test_get_schedule_on_stop_for_day_between_times_should_call_repository
 
     stop_id = "stop_id"
     day = DayOfWeek.MONDAY
-    start_time = "start_time"
-    end_time = "end_time"
+    start_time = time(hour=10, minute=0, second=0)
+    end_time = time(hour=11, minute=0, second=0)
 
     # Act
     await schedule_service.get_schedule_on_stop_for_day_between_times(
@@ -91,8 +91,8 @@ async def test_get_schedule_on_stop_for_day_between_times_should_have_equal_stat
 
     stop_id = "stop_id"
     day = DayOfWeek.MONDAY
-    start_time = "start_time"
-    end_time = "end_time"
+    start_time = time(hour=10, minute=0, second=0)
+    end_time = time(hour=11, minute=0, second=0)
 
     # Act
     result = await schedule_service.get_schedule_on_stop_for_day_between_times(
@@ -221,7 +221,16 @@ async def test_remove_exceptions_and_inactive_calendars_should_call_repository()
         calendar_date_repository=calendar_date_repository,
     )
 
-    mock_schedule_data = [Mock(), Mock()]
+    mock_calendar1 = AsyncMock()
+    mock_calendar1.service_id = "service1"
+    mock_calendar2 = AsyncMock()
+    mock_calendar2.service_id = "service2"
+
+    mock_schedule1 = AsyncMock(spec=StaticScheduleModel)
+    mock_schedule1.calendar = mock_calendar1
+    mock_schedule2 = AsyncMock(spec=StaticScheduleModel)
+    mock_schedule2.calendar = mock_calendar2
+    mock_schedule_data: list[StaticScheduleModel] = [mock_schedule1, mock_schedule2]
 
     # Act
     await schedule_service.remove_exceptions_and_inactive_calendars(mock_schedule_data)

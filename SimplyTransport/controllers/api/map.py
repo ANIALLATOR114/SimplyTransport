@@ -29,6 +29,9 @@ class MapController(Controller):
         except NotFoundError as e:
             raise NotFoundException(detail=f"Stop not found with id {stop_id}") from e
 
+        if stop_map is None:
+            raise NotFoundException(detail=f"Stop not found with id {stop_id}")
+
         return Template(template_str=stop_map.render(), media_type=MediaType.HTML)
 
     @get(

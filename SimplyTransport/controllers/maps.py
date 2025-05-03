@@ -43,6 +43,9 @@ class MapsController(Controller):
             # This is an embed so cannot return the error page
             return Response(status_code=404, content="Stop map could not be generated.")
 
+        if stop_map is None:
+            return Response(status_code=404, content="Stop map could not be generated.")
+
         return Template(template_str=stop_map.render(), media_type=MediaType.HTML)
 
     @get(

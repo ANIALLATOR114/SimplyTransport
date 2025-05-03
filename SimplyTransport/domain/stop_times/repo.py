@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .model import StopTimeModel
 
 
-class StopTimeRepository(SQLAlchemyAsyncRepository[StopTimeModel]):
+class StopTimeRepository(SQLAlchemyAsyncRepository[StopTimeModel]):  # type: ignore[type-var]
     """StopTime repository."""
 
     model_type = StopTimeModel
