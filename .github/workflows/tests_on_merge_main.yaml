@@ -72,8 +72,17 @@ jobs:
       - name: Install pyright
         run: uv pip install pyright==1.1.398
 
+      - name: Create pyright CI config
+        run: |
+          echo '{
+            "include": ["SimplyTransport", "tests"],
+            "exclude": ["**/node_modules", "**/__pycache__"],
+            "typeCheckingMode": "basic",
+            "pythonVersion": "3.11"
+          }' > pyrightconfig.json
+
       - name: Run Pyright type checking
-        run: pyright --ignoreexternal
+        run: pyright
 
       - name: Running sql scripts MAIN
         run: |
