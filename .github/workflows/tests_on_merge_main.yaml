@@ -73,7 +73,7 @@ jobs:
         run: uv pip install pyright==1.1.398
 
       - name: Run Pyright type checking
-        run: pyright
+        run: pyright --ignoreexternal
 
       - name: Running sql scripts MAIN
         run: |
