@@ -1,0 +1,46 @@
+name: Type Check
+
+on:
+  pull_request:
+    branches: ["*"]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+jobs:
+  type_check:
+    name: Pyright Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          uv pip install -r requirements-top-level.txt
+          uv pip install -r requirements-dev.txt
+
+      - name: Install pyright
+        run: uv pip install pyright==1.1.398
+
+      - name: Create pyright CI config
+        run: |
+          echo '{
+            "include": ["SimplyTransport", "tests"],
+            "exclude": ["**/node_modules", "**/__pycache__"],
+            "typeCheckingMode": "basic",
+            "pythonVersion": "3.11"
+          }' > pyrightconfig.json
+
+      - name: Run Pyright type checking
+        run: pyright
