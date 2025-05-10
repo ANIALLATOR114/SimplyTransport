@@ -110,8 +110,11 @@ class DelaysService:
 
         objects_to_commit = []
         keys_to_set = []
-        # Order is important between the two lists
-        for schedule, key_exists in zip(realtime_schedules, keys_in_cache.values(), strict=True):
+
+        for schedule in realtime_schedules:
+            key = self.create_cache_key_for_schedule(schedule)
+            key_exists = keys_in_cache.get(key, False)
+
             if key_exists:
                 continue
 
@@ -121,8 +124,7 @@ class DelaysService:
                 scheduled_time=schedule.static_schedule.stop_time.arrival_time,
                 delay_in_seconds=schedule.delay_in_seconds,
             )
-            keys_to_set.append(self.create_cache_key_for_schedule(schedule))
-
+            keys_to_set.append(key)
             objects_to_commit.append(ts_stop_time)
 
         await self.ts_stop_time_repository.add_many(objects_to_commit, auto_commit=True)
