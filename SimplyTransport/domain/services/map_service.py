@@ -89,6 +89,8 @@ class MapService:
                 continue
             trip_shapes = shapes_dict.get(trip.shape_id, [])
             locations = [(shape.lat, shape.lon) for shape in trip_shapes]
+            if len(locations) == 0:
+                continue
             route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
             route_layer = Layer(f"{route_poly.route_color.to_html_square()} {route.short_name}")
             route_layer.add_child(route_poly.polyline)
@@ -249,6 +251,8 @@ class MapService:
                 continue
             trip_shapes = shapes_dict.get(trip.shape_id, [])
             locations = [(shape.lat, shape.lon) for shape in trip_shapes]
+            if len(locations) == 0:
+                continue
             route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
             route_layer = Layer(f"{route_poly.route_color.to_html_square()} {route.short_name}")
             route_layer.add_child(route_poly.polyline)
