@@ -50,7 +50,8 @@
                     
                     cell.setAttribute('data-loaded', 'true');
                     
-                    // Create detail row content
+                    // Create detail row content with graph widget
+                    const graphContainerId = `graph-container-${stopId}-${routeCode}-${scheduledTime.replace(/:/g, '-')}`;
                     const detailContent = `
                         <td colspan="6" class="delays-specific-stats-detail-cell dense-text">
                             <div class="delays-specific-stats-grid" style="opacity: 0; transition: opacity 0.3s ease-out;">
@@ -78,6 +79,13 @@
                                 <div class="delays-specific-stats-row">
                                     <span>Samples: ${data.samples}</span>
                                 </div>
+                            </div>
+                            
+                            <div id="${graphContainerId}" 
+                                 style="height: 300px; margin-top: 15px; background-color: #1e1e1e; border: 1px solid #555555;"
+                                 data-stop-id="${stopId}"
+                                 data-route-code="${routeCode}" 
+                                 data-scheduled-time="${scheduledTime}">
                             </div>
                         </div>
                     </td>
@@ -124,6 +132,9 @@
                                 }, 50);
                             });
                             
+                            // Load the delay chart
+                            setTimeout(() => loadDelayChart(graphContainerId), 500);
+                            
                             toggleButton.textContent = '▲';
                         }
                     });
@@ -153,4 +164,92 @@
             });
         });
     });
+
+    async function loadDelayChart(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        const stopId = container.dataset.stopId;
+        const routeCode = container.dataset.routeCode;
+        const scheduledTime = container.dataset.scheduledTime;
+        
+        container.innerHTML = '<div style="color:#888;text-align:center;padding:50px;">Loading...</div>';
+                container.style.display = 'block';
+        container.style.position = 'relative';
+        
+        try {
+            const response = await fetch(`/api/v1/delays/${stopId}/${routeCode}/${scheduledTime}/truncated`);
+            const data = await response.json();
+            
+            container.innerHTML = '';
+            
+            const chartData = data.map(d => ({
+                time: new Date(d.timestamp).getTime() / 1000,
+                value: d.delay_in_minutes
+            })).sort((a, b) => a.time - b.time);
+            
+            const chartOptions = {
+                autoSize: true,
+                grid: {
+                    vertLines: {
+                        visible: false
+                    },
+                    horzLines: { visible: false }
+                },
+                layout: {
+                    textColor: '#e6e6e6',
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
+                    attributionLogo: false,
+                    background: { type: 'solid', color: 'black' }
+                }
+            };
+            const chart = LightweightCharts.createChart(document.getElementById(containerId), chartOptions);
+
+            const lineSeries = chart.addSeries(LightweightCharts.LineSeries, { 
+                color: '#2962FF', 
+                pointMarkersVisible: true,
+                priceLineVisible: false,
+                lastValueVisible: false,
+            });
+            
+            lineSeries.setData(chartData);
+            
+            // Calculate and add average line
+            const average = chartData.reduce((sum, point) => sum + point.value, 0) / chartData.length;
+            lineSeries.createPriceLine({
+                price: average,
+                color: '#ff6b6b',
+                lineWidth: 2,
+                lineStyle: 2, // Dashed line
+                axisLabelVisible: true,
+                title: 'Avg',
+            });
+            
+            // Add "on time" reference line at 0
+            lineSeries.createPriceLine({
+                price: 0,
+                color: '#888888',
+                lineWidth: 1,
+                lineStyle: 2, // Dashed line
+                axisLabelVisible: false,
+            });
+            
+            chart.timeScale().fitContent();
+            chart.timeScale().applyOptions({
+                timeVisible: false,
+                secondsVisible: false,
+                tickMarkFormatter: function(time, tickMarkFormatterConfig) {
+                    return new Date(time * 1000).toLocaleDateString('en-IE', { 
+                        weekday: 'short',
+                        month: 'short', 
+                        day: 'numeric'
+                    });
+                }
+            });
+        } catch (err) {
+            console.error('Chart error:', err);
+            container.innerHTML = '<div style="color:#e0e0e0;text-align:center;padding:50px;">Error: ' + err.message + '</div>';
+        }
+    }
 </script>
