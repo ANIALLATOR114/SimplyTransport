@@ -24,7 +24,7 @@
                     imgElement.src = "/static/loader.svg";
                     
                     const response = await fetch(
-                        `/api/v1/delays/${stopId}/${routeCode}/${scheduledTime}/aggregated`
+                        `/api/v1/delays/${stopId}/${encodeURIComponent(routeCode)}/${encodeURIComponent(scheduledTime)}/aggregated`
                     );
 
                     if (response.status === 404) {
@@ -178,7 +178,7 @@
         container.style.position = 'relative';
         
         try {
-            const response = await fetch(`/api/v1/delays/${stopId}/${routeCode}/${scheduledTime}/truncated`);
+            const response = await fetch(`/api/v1/delays/${stopId}/${encodeURIComponent(routeCode)}/${encodeURIComponent(scheduledTime)}/truncated`);
             const data = await response.json();
             
             container.innerHTML = '';
@@ -187,6 +187,12 @@
                 time: new Date(d.timestamp).getTime() / 1000,
                 value: d.delay_in_minutes
             })).sort((a, b) => a.time - b.time);
+            
+            // Check if we have data to prevent divide-by-zero
+            if (chartData.length === 0) {
+                container.innerHTML = '<div style="color:#e0e0e0;text-align:center;padding:50px;">No data available</div>';
+                return;
+            }
             
             const chartOptions = {
                 autoSize: true,
