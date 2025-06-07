@@ -604,9 +604,18 @@ class CLIPlugin(CLIPluginProtocol):
             console.print("Generating statistics...")
             start = time.perf_counter()
 
-            async with async_session_factory() as session:
-                statistics_service = await provide_statistics_service(db_session=session)
+            async with async_timescale_session_factory() as timescale_session:
+                async with async_session_factory() as session:
+                    statistics_service = await provide_statistics_service(
+                        db_session=session,
+                        timescale_db_session=timescale_session,
+                    )
                 await statistics_service.update_all_statistics()
+
+            redis_service = await provide_redis_service()
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.Statistics.STATISTICS_DELETE_ALL_KEY_TEMPLATE
+            )
 
             finish = time.perf_counter()
 

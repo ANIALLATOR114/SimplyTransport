@@ -44,6 +44,17 @@
                  hx-get="{{ url_for("stats.stop_features") }}"
                  hx-trigger="revealed"></div>
         </div>
+        <div class="inner-container">
+            <h2 class="no-top-margin">
+                Delay Statistics
+                <button class="toggle-visibility-button pagination-button">▼</button>
+            </h2>
+            <p class="dense-text">Statistics about the delay records.</p>
+            <div class="collapsible"
+                 style="max-height:0"
+                 hx-get="{{ url_for("stats.delays") }}"
+                 hx-trigger="revealed"></div>
+        </div>
     </div>
     {% include "widgets/toggle_visibility.html" %}
 {% endblock content %}

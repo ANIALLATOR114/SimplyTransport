@@ -6,7 +6,9 @@ from ..domain.database_statistics.repo import DatabaseStatisticRepository, provi
 from ..domain.database_statistics.statistic_type import StatisticType
 from ..domain.services.statistics_service import StatisticsService, provide_statistics_service
 from ..domain.stop.repo import StopRepository, provide_stop_repo
+from ..lib.cache_keys import CacheKeys, simple_key_builder
 from ..lib.logging.logging import provide_logger
+from ..timescale.ts_stop_times.repo import TSStopTimeRepository, provide_ts_stop_time_repo
 
 __all__ = [
     "StatsController",
@@ -20,9 +22,15 @@ class StatsController(Controller):
         "stats_repo": Provide(provide_database_statistic_repo),
         "stats_service": Provide(provide_statistics_service),
         "stop_repo": Provide(provide_stop_repo),
+        "ts_stop_time_repo": Provide(provide_ts_stop_time_repo),
     }
 
-    @get("/static/most-recent", cache=60, name="stats.static_stats")
+    @get(
+        "/static/most-recent",
+        cache=86400,
+        cache_key_builder=simple_key_builder(CacheKeys.Statistics.STATIC_STATS_KEY_TEMPLATE),
+        name="stats.static_stats",
+    )
     async def static_stats(
         self, stats_repo: DatabaseStatisticRepository, stats_service: StatisticsService
     ) -> Template:
@@ -35,7 +43,12 @@ class StatsController(Controller):
             context={"stats_with_percentages": stats_with_percentages},
         )
 
-    @get("/operators/most-recent", cache=60, name="stats.operator_stats")
+    @get(
+        "/operators/most-recent",
+        cache=86400,
+        cache_key_builder=simple_key_builder(CacheKeys.Statistics.OPERATOR_STATS_KEY_TEMPLATE),
+        name="stats.operator_stats",
+    )
     async def operator_stats(
         self, stats_repo: DatabaseStatisticRepository, stats_service: StatisticsService
     ) -> Template:
@@ -59,7 +72,12 @@ class StatsController(Controller):
             },
         )
 
-    @get("/stop-features/most-recent", cache=60, name="stats.stop_features")
+    @get(
+        "/stop-features/most-recent",
+        cache=86400,
+        cache_key_builder=simple_key_builder(CacheKeys.Statistics.STOP_FEATURES_STATS_KEY_TEMPLATE),
+        name="stats.stop_features",
+    )
     async def stop_features(
         self,
         stats_repo: DatabaseStatisticRepository,
@@ -76,5 +94,30 @@ class StatsController(Controller):
 
         return Template(
             template_name="stats/stop_features_data.html",
+            context={"stats_with_percentages": stats_with_percentages},
+        )
+
+    @get(
+        "/delays/most-recent",
+        cache=86400,
+        cache_key_builder=simple_key_builder(CacheKeys.Statistics.DELAYS_STATS_KEY_TEMPLATE),
+        name="stats.delays",
+    )
+    async def delays(
+        self,
+        stats_repo: DatabaseStatisticRepository,
+        stats_service: StatisticsService,
+        ts_stop_time_repo: TSStopTimeRepository,
+    ) -> Template:
+        stats = await stats_repo.get_statistics_most_recent_by_type(StatisticType.DELAY_RECORD_COUNTS)
+        total_delay_count = await ts_stop_time_repo.get_total_delay_record_count()
+
+        stats_with_percentages = stats_service.convert_stats_to_stats_with_percentage_totals(
+            stats, total_row_key="Total Delay Records", total_override=total_delay_count
+        )
+        stats_with_percentages = stats_service.sort_stats_by_value(stats_with_percentages)
+
+        return Template(
+            template_name="stats/delays_data.html",
             context={"stats_with_percentages": stats_with_percentages},
         )

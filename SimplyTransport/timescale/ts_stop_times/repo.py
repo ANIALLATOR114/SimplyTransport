@@ -1,7 +1,7 @@
 from datetime import datetime, time, timedelta
 
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
-from sqlalchemy import delete, select, text
+from sqlalchemy import delete, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .model import TS_StopTimeDelayAggregated, TS_StopTimeForGraph, TS_StopTimeModel
@@ -209,6 +209,25 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):  # type
             if result.rowcount < batch_size:
                 break
         return total_deleted
+
+    async def get_delay_record_counts_for_last_n_hours(self, hours: int) -> dict[str, int | None]:
+        """Returns the number of delay records for the last N hours."""
+
+        cutoff_time = datetime.now() - timedelta(hours=hours)
+        if hours < 25:
+            key = f"Last {hours} Hours"
+        else:
+            key = f"Last {hours // 24} Days"
+
+        statement = select(func.count()).where(TS_StopTimeModel.Timestamp > cutoff_time)
+        result = await self.session.execute(statement)
+        return {key: result.scalar()}
+
+    async def get_total_delay_record_count(self) -> int:
+        """Returns the total number of delay records."""
+        statement = select(func.count()).select_from(TS_StopTimeModel)
+        result = await self.session.execute(statement)
+        return result.scalar() or 0
 
     model_type = TS_StopTimeModel
 
