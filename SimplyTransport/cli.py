@@ -612,7 +612,7 @@ class CLIPlugin(CLIPluginProtocol):
                         db_session=session,
                         timescale_db_session=timescale_session,
                     )
-                await statistics_service.update_all_statistics()
+                    await statistics_service.update_all_statistics()
 
             redis_service = await provide_redis_service()
             await redis_service.delete_keys_by_pattern(
