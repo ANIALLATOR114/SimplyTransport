@@ -13,3 +13,6 @@ class StatisticType(str, Enum):
 
     # Stop Features
     STOP_FEATURE_COUNTS = "stop_features.feature.counts"
+
+    # Delays
+    DELAY_RECORD_COUNTS = "delay.record.counts"

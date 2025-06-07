@@ -1,0 +1,35 @@
+<div class="inner-container">
+    <h3 class="h3-table">Delay Records</h3>
+    <table class="table-search table-sortable" aria-label="Delay Records">
+        <thead class="hoverable">
+            <tr>
+                <th class="dense-text">Name</th>
+                <th class="dense-text">Value</th>
+                <th class="dense-text" data-type="number">Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in stats_with_percentages %}
+                <tr>
+                    <td class="dense-text no-pointer">{{ stat.key }}</td>
+                    <td class="dense-text no-pointer">{{ stat.value }}</td>
+                    <td class="dense-text no-pointer">{{ stat.percentage }}%</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+document.querySelectorAll(".table-sortable th").forEach((headerCell) => {
+  headerCell.addEventListener("click", () => {
+    const tableElement = headerCell.parentElement.parentElement.parentElement;
+    const headerIndex = Array.prototype.indexOf.call(
+      headerCell.parentElement.children,
+      headerCell
+    );
+    const currentIsAscending = headerCell.classList.contains("th-sort-asc");
+
+    sortTableByColumn(tableElement, headerIndex, !currentIsAscending);
+  });
+});
+</script>

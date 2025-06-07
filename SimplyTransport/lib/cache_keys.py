@@ -69,6 +69,30 @@ class CacheKeys:
         ROUTES_BY_STOP_ID_DELETE_ALL_KEY_TEMPLATE = "*routes_by_stop_id:*"
         ROUTES_BY_STOP_ID_DELETE_KEY_TEMPLATE = "*routes_by_stop_id:{stop_id}"
 
+    class Statistics(StrEnum):
+        STATIC_STATS_KEY_TEMPLATE = "stats:static:most_recent"
+        OPERATOR_STATS_KEY_TEMPLATE = "stats:operators:most_recent"
+        STOP_FEATURES_STATS_KEY_TEMPLATE = "stats:stop_features:most_recent"
+        DELAYS_STATS_KEY_TEMPLATE = "stats:delays:most_recent"
+        STATISTICS_DELETE_ALL_KEY_TEMPLATE = "*stats:*"
+
+
+def simple_key_builder(template: StrEnum) -> Callable[[Request], str]:
+    """
+    Builds a simple cache key from a template without any parameters.
+
+    Args:
+        template (StrEnum): The template for the cache key.
+
+    Returns:
+        callable: A function that takes a request object and returns the cache key.
+    """
+
+    def _key_builder(request: Request) -> str:
+        return template.value
+
+    return _key_builder
+
 
 def key_builder_from_path(template: StrEnum, *args) -> Callable[[Request], str]:
     """

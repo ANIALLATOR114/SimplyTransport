@@ -24,7 +24,7 @@ def create_app() -> Litestar:
     return Litestar(
         debug=settings.app.DEBUG,
         route_handlers=[create_views_router(), create_api_router(), create_static_router()],
-        on_startup=[db_services.create_database, logging_setup],
+        on_startup=[db_services.create_database_tables, logging_setup],
         on_shutdown=[logging_shutdown],
         plugins=[sqlalchemy_plugin, CLIPlugin(), open_telemetry_plugin],
         stores=StoreRegistry(default_factory=redis_store_factory),

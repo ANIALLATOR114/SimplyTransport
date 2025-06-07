@@ -374,13 +374,14 @@ class CLIPlugin(CLIPluginProtocol):
             console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
 
         @cli.command(name="create_tables", help="Creates the database tables")
-        def create_tables():
+        @make_sync
+        async def create_tables():
             """Creates the database tables"""
 
             console = Console()
             console.print("Creating database tables...")
 
-            db_services.create_database_sync()
+            await db_services.create_database_tables()
 
         @cli.command(name="importstopfeatures", help="Imports stop features into the database")
         @click.option("-dir", help="Override the directory containing the stop feature data to import")
@@ -461,7 +462,8 @@ class CLIPlugin(CLIPluginProtocol):
 
         @cli.command(name="recreate_indexes", help="Recreates the indexes on a given table")
         @click.option("-table", help="The table to recreate the indexes on")
-        def recreate_indexes(table: str | None = None):
+        @make_sync
+        async def recreate_indexes(table: str | None = None):
             """Recreates the indexes on a given table"""
 
             console = Console()
@@ -493,7 +495,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             start = time.perf_counter()
 
-            db_services.recreate_indexes(table)
+            await db_services.recreate_indexes(table)
 
             finish = time.perf_counter()
             console.print(f"\n[blue]Finished recreating indexes in {round(finish - start, 2)} second(s)")
@@ -604,9 +606,18 @@ class CLIPlugin(CLIPluginProtocol):
             console.print("Generating statistics...")
             start = time.perf_counter()
 
-            async with async_session_factory() as session:
-                statistics_service = await provide_statistics_service(db_session=session)
-                await statistics_service.update_all_statistics()
+            async with async_timescale_session_factory() as timescale_session:
+                async with async_session_factory() as session:
+                    statistics_service = await provide_statistics_service(
+                        db_session=session,
+                        timescale_db_session=timescale_session,
+                    )
+                    await statistics_service.update_all_statistics()
+
+            redis_service = await provide_redis_service()
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.Statistics.STATISTICS_DELETE_ALL_KEY_TEMPLATE
+            )
 
             finish = time.perf_counter()
 
