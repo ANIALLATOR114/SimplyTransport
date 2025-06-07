@@ -374,13 +374,14 @@ class CLIPlugin(CLIPluginProtocol):
             console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
 
         @cli.command(name="create_tables", help="Creates the database tables")
-        def create_tables():
+        @make_sync
+        async def create_tables():
             """Creates the database tables"""
 
             console = Console()
             console.print("Creating database tables...")
 
-            db_services.create_database_sync()
+            await db_services.create_database_tables()
 
         @cli.command(name="importstopfeatures", help="Imports stop features into the database")
         @click.option("-dir", help="Override the directory containing the stop feature data to import")
@@ -461,7 +462,8 @@ class CLIPlugin(CLIPluginProtocol):
 
         @cli.command(name="recreate_indexes", help="Recreates the indexes on a given table")
         @click.option("-table", help="The table to recreate the indexes on")
-        def recreate_indexes(table: str | None = None):
+        @make_sync
+        async def recreate_indexes(table: str | None = None):
             """Recreates the indexes on a given table"""
 
             console = Console()
@@ -493,7 +495,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             start = time.perf_counter()
 
-            db_services.recreate_indexes(table)
+            await db_services.recreate_indexes(table)
 
             finish = time.perf_counter()
             console.print(f"\n[blue]Finished recreating indexes in {round(finish - start, 2)} second(s)")

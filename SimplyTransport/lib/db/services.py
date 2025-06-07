@@ -9,7 +9,7 @@ from .database import async_engine, engine
 from .timescale_database import async_timescale_engine
 
 
-async def create_database() -> None:
+async def create_database_tables() -> None:
     """
     Creates the database tables.
 
@@ -30,29 +30,19 @@ async def create_database() -> None:
         )
         raise e
 
-
-def create_database_sync() -> None:
-    """
-    Creates the database tables synchronously.
-
-    This function creates all the tables defined in the SQLAlchemy models
-    using the metadata and the database connection from the current session.
-
-    Raises:
-        ConnectionRefusedError: If the database connection is refused.
-    """
     try:
-        UUIDBase.metadata.create_all(bind=engine)
+        async with async_timescale_engine.begin() as conn:
+            await conn.run_sync(UUIDBase.metadata.create_all)
     except ConnectionRefusedError as e:
         print(e)
         print(
-            f"\nDatabase connection refused. Please ensure the database "
-            f"is running and accessible.\nURL: {engine.url}\n"
+            f"\nTimescale database connection refused. Please ensure the database is "
+            f"running and accessible.\nURL: {async_timescale_engine.url}\n"
         )
         raise e
 
 
-def recreate_indexes(table_name: str | None = None):
+async def recreate_indexes(table_name: str | None = None):
     """Recreate all indexes
 
     Args:
