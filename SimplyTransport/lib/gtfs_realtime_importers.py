@@ -114,12 +114,12 @@ class RealTimeImporter:
             result_trips = await session.execute(
                 select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
             )
-            trips_in_db = set(result_trips.scalars())
+            trips_in_db = set[str](result_trips.scalars())
 
             result_stops = await session.execute(
                 select(StopModel.id).filter(StopModel.dataset == self.dataset).distinct()
             )
-            stops_in_db = set(result_stops.scalars())
+            stops_in_db = set[str](result_stops.scalars())
 
             try:
                 for item in data.get("entity", []):

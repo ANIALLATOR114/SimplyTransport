@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ScheduleRealtionship(str, Enum):
+class ScheduleRealtionship(StrEnum):
     SCHEDULED = "SCHEDULED"
     SKIPPED = "SKIPPED"
     NO_DATA = "NO_DATA"
@@ -10,7 +10,7 @@ class ScheduleRealtionship(str, Enum):
     CANCELED = "CANCELED"
 
 
-class OnTimeStatus(str, Enum):
+class OnTimeStatus(StrEnum):
     EARLY = "EARLY"
     ON_TIME = "ON_TIME"
     LATE = "LATE"
