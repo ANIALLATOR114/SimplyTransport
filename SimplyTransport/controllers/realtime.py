@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from advanced_alchemy import NotFoundError
+from advanced_alchemy.exceptions import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.response import Template

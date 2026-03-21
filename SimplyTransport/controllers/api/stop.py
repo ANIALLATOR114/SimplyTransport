@@ -1,4 +1,4 @@
-from advanced_alchemy import NotFoundError
+from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import LimitOffset
 from litestar import Controller, get
 from litestar.di import Provide
