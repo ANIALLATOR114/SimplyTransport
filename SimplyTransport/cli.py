@@ -53,6 +53,12 @@ def gtfs_directory_validator(directory: str | None, console: Console):
     return directory
 
 
+def gtfs_dataset_label_from_import_dir(import_dir: str) -> str:
+    """Dataset tag stored on GTFS rows: the folder name that holds the .txt files (e.g. .../TFI -> TFI)."""
+
+    return Path(import_dir).resolve().name
+
+
 # https://github.com/pallets/click/issues/2033
 def make_sync(func):
     """Decorator to run async functions in a sync context"""
@@ -129,8 +135,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             dir = gtfs_directory_validator(dir, console)
 
-            dir_path = dir.split("/")
-            dataset = dir_path[-2]
+            dataset = gtfs_dataset_label_from_import_dir(dir)
             response = click.prompt(
                 f"\nYou are about to import this dataset and assign it to '{dataset}'. "
                 "Press 'y' to continue, anything else to abort: ",
@@ -352,7 +357,7 @@ class CLIPlugin(CLIPluginProtocol):
             total_stop_times, total_trips = await importer.import_from_payload(payload)
             console.print(
                 f"[green]Seeded realtime for dataset {realtime_dataset}: "
-                f"{total_trips} trip update entities, {total_stop_times} RT stop-time rows (feed totals)."
+                f"{total_trips} rt_trip row(s) upserted, {total_stop_times} rt_stop_time row(s) upserted."
             )
 
         @cli.command(
@@ -450,8 +455,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             dir = gtfs_directory_validator(dir, console)
 
-            dir_path = dir.split("/")
-            dataset = dir_path[-2]
+            dataset = gtfs_dataset_label_from_import_dir(dir)
             response = click.prompt(
                 f"\nYou are about to import this dataset and assign it to '{dataset}'. "
                 "Press 'y' to continue, anything else to abort: ",

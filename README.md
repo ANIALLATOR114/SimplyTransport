@@ -329,10 +329,10 @@ To exercise the realtime UI against the small **TFI** fixture under `tests/gtfs_
 
 ```
 litestar importgtfs -dir ./tests/gtfs_test_data/TFI/
-litestar seedrealtimefromfile --file ./tests/gtfs_test_data/TFI/realtime_e2e_trip_updates.json -dataset gtfs_test_data --set-time-to-now
+litestar seedrealtimefromfile --file ./tests/gtfs_test_data/TFI/realtime_e2e_trip_updates.json --set-time-to-now
 ```
 
-The GTFS importer sets the **dataset** label from the second-to-last segment of the `-dir` path, so this example uses **`gtfs_test_data`**. Align that with **`GTFS_TFI_DATASET`** in `.env`, or pass **`-dataset`** on `seedrealtimefromfile` as above. Omit **`--set-time-to-now`** in CI or any pipeline that must stay deterministic.
+`importgtfs` stores the **dataset** tag as the **GTFS folder name** (the last segment of `-dir`, e.g. **`TFI`** for `.../TFI/`). `seedrealtimefromfile` must use the **same** tag: it defaults to **`GTFS_TFI_DATASET`** in `.env` (set that to `TFI` for this layout), or pass **`-dataset TFI`** explicitly. Omit **`--set-time-to-now`** in CI or any pipeline that must stay deterministic.
 
 ## Running in Production
 

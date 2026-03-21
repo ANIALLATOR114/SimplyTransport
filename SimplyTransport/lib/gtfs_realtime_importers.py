@@ -244,11 +244,11 @@ class RealTimeImporter:
                         )
                     except Exception as e:
                         logger.error(f"RealTime: {self.url} failed to commit stop times: {e}")
+                        return 0
+                return len(objects_to_commit)
             except Exception as e:
                 logger.warning(f"RealTime: {self.url} returned invalid JSON in entities: {e}")
                 return 0
-
-        return stop_time_update_count
 
     async def import_trips(self, data: dict, progress: rp.Progress) -> int:
         """Imports the trips from the dataset into the database"""
@@ -337,8 +337,8 @@ class RealTimeImporter:
                     )
                 except Exception as e:
                     logger.error(f"RealTime: {self.url} failed to commit trips: {e}")
-
-        return trip_update_count
+                    return 0
+            return len(objects_to_commit)
 
 
 async def asyncio_gather_imports(
