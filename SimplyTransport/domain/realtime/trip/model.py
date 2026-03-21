@@ -24,7 +24,7 @@ class BaseModel(_BaseModel):
 class RTTripModel(BigIntAuditBase):
     __tablename__ = "rt_trip"  # type: ignore
     __table_args__ = (
-        Index("ix_rt_trip_created_at", "created_at"),
+        Index("ix_rt_trip_dataset_created_at", "dataset", "created_at"),
         UniqueConstraint(
             "trip_id", "route_id", "dataset"
         ),  # Only store the most recent update per trip for each route

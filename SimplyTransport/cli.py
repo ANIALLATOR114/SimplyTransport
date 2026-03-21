@@ -167,21 +167,19 @@ class CLIPlugin(CLIPluginProtocol):
 
                 generic_importer = imp.GTFSImporter(file, dir)
                 reader = generic_importer.get_reader()
-                row_count = generic_importer.get_row_count()
                 try:
-                    importer = imp.get_importer_for_file(file, reader, row_count, dataset)
+                    importer = imp.get_importer_for_file(file, reader, None, dataset)
                 except ValueError:
                     console.print(
                         f"\n[red]Error: File '{file}' does not have a supported importer. Skipping..."
                     )
                     attributes_of_total_rows[file.replace(".txt", "")] = {
                         "time_taken(s)": 0,
-                        "row_count": row_count,
+                        "row_count": 0,
                         "error": f"File '{file}' does not have a supported importer.",
                     }
                     continue
 
-                console.print(f"\nLoaded {importer} for {row_count} rows")
                 with rp.Progress(
                     rp.SpinnerColumn(finished_text="✅"),
                     "[progress.description]{task.description}",
@@ -196,6 +194,8 @@ class CLIPlugin(CLIPluginProtocol):
                 file_finish = time.perf_counter()
                 time_taken = round(file_finish - file_start, 2)
                 total_time_taken += time_taken
+                row_count = importer.rows_imported
+                console.print(f"[green]Imported {row_count} rows from {file}")
 
                 attributes_of_total_rows[file.replace(".txt", "")] = {
                     "time_taken(s)": time_taken,

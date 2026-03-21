@@ -2,9 +2,12 @@ import asyncio
 import csv
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
-from typing import Any
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from typing import Any, Literal
 
 import rich.progress as rp
+from sqlalchemy import insert
 
 from ..domain.agency.model import AgencyModel
 from ..domain.calendar.model import CalendarModel
@@ -34,11 +37,20 @@ progress_columns = (
 )
 
 
+@dataclass(frozen=True, slots=True)
+class GTFSCoreBatch:
+    """Marker payload for PostgreSQL/Core bulk insert (stop_time, shape)."""
+
+    table: Literal["stop_time", "shape"]
+    rows: list[dict[str, Any]]
+
+
 class AsyncImporter(ABC):
-    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int | None, dataset: str):
         self.reader = reader
         self.row_count = row_count
         self.dataset = dataset
+        self.rows_imported = 0
 
     @abstractmethod
     def __str__(self) -> str:
@@ -60,14 +72,23 @@ class AsyncImporter(ABC):
 async def consumer(q: asyncio.Queue) -> None:
     async with async_session_factory() as session:
         while True:
-            objects_to_commit = await q.get()
+            batch = await q.get()
 
-            # If the producer is done, break the loop
-            if objects_to_commit is None:
+            if batch is None:
                 break
 
-            session.add_all(objects_to_commit)
-            await session.commit()
+            if isinstance(batch, GTFSCoreBatch):
+                if batch.table == "stop_time":
+                    await session.execute(insert(StopTimeModel), batch.rows)
+                elif batch.table == "shape":
+                    await session.execute(insert(ShapeModel), batch.rows)
+                else:
+                    msg = f"Unknown GTFS core batch table: {batch.table}"
+                    raise ValueError(msg)
+                await session.commit()
+            else:
+                session.add_all(batch)
+                await session.commit()
 
             q.task_done()
 
@@ -83,7 +104,7 @@ def create_queue_and_tasks(producer) -> list[asyncio.Task]:
 
 
 def get_importer_for_file(
-    file: str, reader: Iterator[dict[str, Any]], row_count: int, dataset: str
+    file: str, reader: Iterator[dict[str, Any]], row_count: int | None, dataset: str
 ) -> AsyncImporter:
     """Maps a file name to the appropriate importer class"""
 
@@ -133,10 +154,8 @@ class GTFSImporter:
 
 
 class AgencyImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
-        self.reader = reader
-        self.row_count = row_count
-        self.dataset = dataset
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int | None, dataset: str):
+        super().__init__(reader, row_count, dataset)
         self.batchsize = 10000
 
     def __str__(self) -> str:
@@ -164,6 +183,7 @@ class AgencyImporter(AsyncImporter):
 
                 objects_to_commit.append(new_agency)
                 batch_count += 1
+                self.rows_imported += 1
                 progress.update(task, advance=1)
 
                 if batch_count >= self.batchsize:
@@ -190,12 +210,10 @@ class CalendarImporter(AsyncImporter):
     def __init__(
         self,
         reader: Iterator[dict[str, Any]],
-        row_count: int,
+        row_count: int | None,
         dataset: str,
     ):
-        self.reader = reader
-        self.row_count = row_count
-        self.dataset = dataset
+        super().__init__(reader, row_count, dataset)
         self.batchsize = 10000
 
     def __str__(self) -> str:
@@ -229,6 +247,7 @@ class CalendarImporter(AsyncImporter):
 
                 objects_to_commit.append(new_calendar)
                 batch_count += 1
+                self.rows_imported += 1
                 progress.update(task, advance=1)
 
                 if batch_count >= self.batchsize:
@@ -252,10 +271,8 @@ class CalendarImporter(AsyncImporter):
 
 
 class CalendarDateImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
-        self.reader = reader
-        self.row_count = row_count
-        self.dataset = dataset
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int | None, dataset: str):
+        super().__init__(reader, row_count, dataset)
         self.batchsize = 10000
 
     def __str__(self) -> str:
@@ -289,6 +306,7 @@ class CalendarDateImporter(AsyncImporter):
 
                 objects_to_commit.append(new_calendar_date)
                 batch_count += 1
+                self.rows_imported += 1
                 progress.update(task, advance=1)
 
                 if batch_count >= self.batchsize:
@@ -312,10 +330,8 @@ class CalendarDateImporter(AsyncImporter):
 
 
 class RouteImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
-        self.reader = reader
-        self.row_count = row_count
-        self.dataset = dataset
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int | None, dataset: str):
+        super().__init__(reader, row_count, dataset)
         self.batchsize = 10000
 
     def __str__(self) -> str:
@@ -350,6 +366,7 @@ class RouteImporter(AsyncImporter):
 
                 objects_to_commit.append(new_route)
                 batch_count += 1
+                self.rows_imported += 1
                 progress.update(task, advance=1)
 
                 if batch_count >= self.batchsize:
@@ -373,10 +390,8 @@ class RouteImporter(AsyncImporter):
 
 
 class TripImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
-        self.reader = reader
-        self.row_count = row_count
-        self.dataset = dataset
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int | None, dataset: str):
+        super().__init__(reader, row_count, dataset)
         self.batchsize = 20000
 
     def __str__(self) -> str:
@@ -408,6 +423,7 @@ class TripImporter(AsyncImporter):
 
                 objects_to_commit.append(new_trip)
                 batch_count += 1
+                self.rows_imported += 1
                 progress.update(task, advance=1)
 
                 if batch_count >= self.batchsize:
@@ -431,10 +447,8 @@ class TripImporter(AsyncImporter):
 
 
 class StopImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
-        self.reader = reader
-        self.row_count = row_count
-        self.dataset = dataset
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int | None, dataset: str):
+        super().__init__(reader, row_count, dataset)
         self.batchsize = 10000
 
     def __str__(self) -> str:
@@ -478,6 +492,7 @@ class StopImporter(AsyncImporter):
 
                 objects_to_commit.append(new_stop)
                 batch_count += 1
+                self.rows_imported += 1
                 progress.update(task, advance=1)
 
                 if batch_count >= self.batchsize:
@@ -501,10 +516,8 @@ class StopImporter(AsyncImporter):
 
 
 class ShapeImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
-        self.reader = reader
-        self.row_count = row_count
-        self.dataset = dataset
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int | None, dataset: str):
+        super().__init__(reader, row_count, dataset)
         self.batchsize = 20000
 
     def __str__(self) -> str:
@@ -515,33 +528,38 @@ class ShapeImporter(AsyncImporter):
         await asyncio.gather(*tasks)
 
     async def producer(self, q: asyncio.Queue, number_of_consumers: int):
-        batch_count = 0
-        objects_to_commit = []
+        batch_dicts: list[dict[str, Any]] = []
 
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing Shapes...", total=self.row_count)
 
             for row in self.reader:
-                new_shape = ShapeModel(
-                    shape_id=row["shape_id"],
-                    lat=float(row["shape_pt_lat"]),
-                    lon=float(row["shape_pt_lon"]),
-                    sequence=int(row["shape_pt_sequence"]),
-                    distance=float(row["shape_dist_traveled"]) if row["shape_dist_traveled"] != "" else None,
-                    dataset=self.dataset,
+                if not batch_dicts:
+                    stamp = datetime.now(UTC)
+                batch_dicts.append(
+                    {
+                        "shape_id": row["shape_id"],
+                        "lat": float(row["shape_pt_lat"]),
+                        "lon": float(row["shape_pt_lon"]),
+                        "sequence": int(row["shape_pt_sequence"]),
+                        "distance": float(row["shape_dist_traveled"])
+                        if row["shape_dist_traveled"] != ""
+                        else None,
+                        "dataset": self.dataset,
+                        "created_at": stamp,
+                        "updated_at": stamp,
+                    }
                 )
+                self.rows_imported += 1
 
-                objects_to_commit.append(new_shape)
-                batch_count += 1
-                progress.update(task, advance=1)
+                if len(batch_dicts) >= self.batchsize:
+                    await q.put(GTFSCoreBatch("shape", batch_dicts))
+                    progress.update(task, advance=len(batch_dicts))
+                    batch_dicts = []
 
-                if batch_count >= self.batchsize:
-                    await q.put(objects_to_commit)
-                    objects_to_commit = []
-                    batch_count = 0
-
-            if objects_to_commit:
-                await q.put(objects_to_commit)
+            if batch_dicts:
+                await q.put(GTFSCoreBatch("shape", batch_dicts))
+                progress.update(task, advance=len(batch_dicts))
 
             # Signal the consumer that the producer is done
             for _ in range(number_of_consumers):
@@ -556,10 +574,8 @@ class ShapeImporter(AsyncImporter):
 
 
 class StopTimeImporter(AsyncImporter):
-    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int, dataset: str):
-        self.reader = reader
-        self.row_count = row_count
-        self.dataset = dataset
+    def __init__(self, reader: Iterator[dict[str, Any]], row_count: int | None, dataset: str):
+        super().__init__(reader, row_count, dataset)
         self.batchsize = 20000
 
     def __str__(self) -> str:
@@ -570,8 +586,7 @@ class StopTimeImporter(AsyncImporter):
         await asyncio.gather(*tasks)
 
     async def producer(self, q: asyncio.Queue, number_of_consumers: int):
-        batch_count = 0
-        objects_to_commit = []
+        batch_dicts: list[dict[str, Any]] = []
 
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing Stop Times...", total=self.row_count)
@@ -595,30 +610,34 @@ class StopTimeImporter(AsyncImporter):
                 else:
                     timepoint = int(row["timepoint"])
 
-                new_stop_time = StopTimeModel(
-                    trip_id=row["trip_id"],
-                    arrival_time=arrival_time,
-                    departure_time=departure_time,
-                    stop_id=row["stop_id"],
-                    stop_sequence=int(row["stop_sequence"]),
-                    stop_headsign=row["stop_headsign"],
-                    pickup_type=pickup_type,
-                    dropoff_type=drop_off_type,
-                    timepoint=timepoint,
-                    dataset=self.dataset,
+                if not batch_dicts:
+                    stamp = datetime.now(UTC)
+                batch_dicts.append(
+                    {
+                        "trip_id": row["trip_id"],
+                        "arrival_time": arrival_time,
+                        "departure_time": departure_time,
+                        "stop_id": row["stop_id"],
+                        "stop_sequence": int(row["stop_sequence"]),
+                        "stop_headsign": row["stop_headsign"],
+                        "pickup_type": pickup_type,
+                        "dropoff_type": drop_off_type,
+                        "timepoint": timepoint,
+                        "dataset": self.dataset,
+                        "created_at": stamp,
+                        "updated_at": stamp,
+                    }
                 )
+                self.rows_imported += 1
 
-                objects_to_commit.append(new_stop_time)
-                batch_count += 1
-                progress.update(task, advance=1)
+                if len(batch_dicts) >= self.batchsize:
+                    await q.put(GTFSCoreBatch("stop_time", batch_dicts))
+                    progress.update(task, advance=len(batch_dicts))
+                    batch_dicts = []
 
-                if batch_count >= self.batchsize:
-                    await q.put(objects_to_commit)
-                    objects_to_commit = []
-                    batch_count = 0
-
-            if objects_to_commit:
-                await q.put(objects_to_commit)
+            if batch_dicts:
+                await q.put(GTFSCoreBatch("stop_time", batch_dicts))
+                progress.update(task, advance=len(batch_dicts))
 
             # Signal the consumer that the producer is done
             for _ in range(number_of_consumers):
