@@ -1,7 +1,9 @@
 from datetime import datetime, time, timedelta
+from typing import Any, cast
 
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import delete, func, select, text
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .model import TS_StopTimeDelayAggregated, TS_StopTimeForGraph, TS_StopTimeModel
@@ -203,7 +205,10 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):  # type
 
         while True:
             statement = delete(TS_StopTimeModel).where(TS_StopTimeModel.Timestamp < cutoff_time)
-            result = await self.session.execute(statement)
+            result = cast(
+                CursorResult[Any],
+                await self.session.execute(statement),
+            )
             await self.session.commit()
             total_deleted += result.rowcount
             if result.rowcount < batch_size:
