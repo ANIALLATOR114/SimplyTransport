@@ -22,6 +22,7 @@ from .domain.maps.enums import StaticStopMapTypes
 from .domain.services.statistics_service import provide_statistics_service
 from .lib.cache import provide_redis_service
 from .lib.cache_keys import CacheKeys
+from .lib.concurrency import concurrency
 from .lib.db.database import async_session_factory
 from .lib.db.timescale_database import async_timescale_session_factory
 from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter, progress_columns
@@ -238,6 +239,7 @@ class CLIPlugin(CLIPluginProtocol):
         @click.option("-apikey", help="Override the default API key for the GTFS realtime data")
         @click.option("-dataset", help="Override the default dataset that the data will be saved against")
         @make_sync
+        @concurrency(1)
         async def importrealtime(url: str, apikey: str, dataset: str):
             """Imports GTFS realtime data into the database"""
 
@@ -308,6 +310,7 @@ class CLIPlugin(CLIPluginProtocol):
         @click.option("-apikey", help="Override the default API key for the GTFS realtime vehicle data")
         @click.option("-dataset", help="Override the default dataset that the data will be saved against")
         @make_sync
+        @concurrency(1)
         async def importrealtimevehicles(url: str, apikey: str, dataset: str):
             """Imports GTFS realtime vehicle data into the database"""
 
@@ -636,6 +639,7 @@ class CLIPlugin(CLIPluginProtocol):
             name="recorddelays", help="Records the stop time delays for every schedule in the database"
         )
         @make_sync
+        @concurrency(1)
         async def recorddelays():
             console = Console()
             console.print("Recording delays...")
