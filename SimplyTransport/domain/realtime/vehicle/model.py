@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import DateTime, Float, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -18,6 +18,7 @@ class BaseModel(_BaseModel):
 
 class RTVehicleModel(BigIntAuditBase):
     __tablename__ = "rt_vehicle"  # type: ignore
+    __table_args__ = (Index("ix_rt_vehicle_dataset_created_at", "dataset", "created_at"),)
 
     vehicle_id: Mapped[int] = mapped_column(Integer)
     trip: Mapped["TripModel"] = relationship(back_populates="rt_vehicles")
