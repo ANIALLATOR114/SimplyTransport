@@ -42,7 +42,9 @@ class RealTimeService:
             trip_id = static.trip.id
             rt_trip = overlay_trips.get(trip_id)
             key = (trip_id, static.stop.id, static.stop_time.stop_sequence)
-            rt_stop_time = overlay_stop_times.get(key)
+            stop_overlay = overlay_stop_times.get(key)
+            rt_stop_time = stop_overlay.row if stop_overlay is not None else None
+            overlay_exact = stop_overlay.exact_match if stop_overlay is not None else False
 
             if rt_trip is not None and rt_trip.schedule_relationship in REMOVED_TRIP_RELATIONSHIPS:
                 realtime_schedules.append(
@@ -50,7 +52,12 @@ class RealTimeService:
                 )
             elif rt_stop_time is not None:
                 realtime_schedules.append(
-                    RealTimeScheduleModel(static_schedule=static, rt_stop_time=rt_stop_time, rt_trip=rt_trip)
+                    RealTimeScheduleModel(
+                        static_schedule=static,
+                        rt_stop_time=rt_stop_time,
+                        rt_trip=rt_trip,
+                        rt_stop_overlay_exact=overlay_exact,
+                    )
                 )
             elif rt_trip is not None:
                 realtime_schedules.append(

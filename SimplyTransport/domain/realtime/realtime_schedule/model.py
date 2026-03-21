@@ -20,10 +20,12 @@ class RealTimeScheduleModel:
         static_schedule: StaticScheduleModel,
         rt_stop_time: RTStopTimeModel | None = None,
         rt_trip: RTTripModel | None = None,
+        rt_stop_overlay_exact: bool = False,
     ):
         self.static_schedule = static_schedule
         self.rt_stop_time = rt_stop_time
         self.rt_trip = rt_trip
+        self.rt_stop_overlay_exact = rt_stop_overlay_exact
 
         self.delay = None
         self.delay_in_seconds = 0
@@ -48,12 +50,16 @@ class RealTimeScheduleModel:
             self.real_arrival_time = static_schedule.stop_time.arrival_time
             self.set_real_eta_text_and_due()
             self.on_time_status = OnTimeStatus.UNKNOWN
-        elif rt_stop_time is not None and rt_stop_time.schedule_relationship == ScheduleRealtionship.SKIPPED:
-            self.delay = "-"
+        elif (
+            rt_stop_time is not None
+            and rt_stop_overlay_exact
+            and rt_stop_time.schedule_relationship == ScheduleRealtionship.SKIPPED
+        ):
+            self.delay = "Skipped"
             self.delay_in_seconds = 0
             self.real_arrival_time = static_schedule.stop_time.arrival_time
             self.set_real_eta_text_and_due()
-            self.on_time_status = OnTimeStatus.UNKNOWN
+            self.on_time_status = OnTimeStatus.SKIPPED
         elif rt_stop_time is not None:
             self.set_delay()
             self.set_real_arrival_time()

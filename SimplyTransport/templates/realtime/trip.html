@@ -34,9 +34,11 @@
                     </thead>
                     <tbody>
                         {% for rt in rt_schedules %}
-                            <tr {% if rt.is_trip_removed %}class="realtime-row-removed"{% endif %}>
+                            <tr {% if rt.is_trip_removed or rt.on_time_status == "SKIPPED" %}class="realtime-row-removed"{% endif %}>
                                 {% if rt.is_trip_removed %}
                                     {% set on_time_style = "" %}
+                                {% elif rt.on_time_status == "SKIPPED" %}
+                                    {% set on_time_style = "color-late" %}
                                 {% elif rt.on_time_status == "UNKNOWN" %}
                                     {% set on_time_style = "color-unknown" %}
                                 {% elif rt.on_time_status == "EARLY" %}
