@@ -1,6 +1,6 @@
 from datetime import date, datetime, time
 
-from advanced_alchemy import NotFoundError
+from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import OnBeforeAfter
 from litestar import Controller, get
 from litestar.di import Provide

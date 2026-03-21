@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from advanced_alchemy import NotFoundError
+from advanced_alchemy.exceptions import NotFoundError
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

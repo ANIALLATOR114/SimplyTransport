@@ -2,7 +2,7 @@ from collections import defaultdict
 from itertools import cycle
 from typing import Literal
 
-from advanced_alchemy import NotFoundError
+from advanced_alchemy.exceptions import NotFoundError
 from SimplyTransport.lib.cache import RedisService
 from sqlalchemy.ext.asyncio import AsyncSession
 
