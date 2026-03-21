@@ -50,7 +50,10 @@ class CalendarDateController(Controller):
         end_date = datetime.combine(date, time.max)
 
         result = await repo.list(
-            OnBeforeAfter(field_name="date", on_or_before=start_date, on_or_after=None),
-            OnBeforeAfter(field_name="date", on_or_before=None, on_or_after=end_date),
+            OnBeforeAfter(
+                field_name="date",
+                on_or_before=end_date,
+                on_or_after=start_date,
+            ),
         )
         return [CalendarDate.model_validate(obj) for obj in result]
