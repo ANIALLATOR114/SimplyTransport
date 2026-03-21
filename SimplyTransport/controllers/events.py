@@ -2,7 +2,7 @@ import math
 from datetime import UTC, datetime
 from typing import Literal
 
-from advanced_alchemy import NotFoundError
+from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import LimitOffset
 from litestar import Controller, get
 from litestar.di import Provide

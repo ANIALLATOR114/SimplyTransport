@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from advanced_alchemy import NotFoundError
+from advanced_alchemy.exceptions import NotFoundError
 from litestar import Controller, MediaType, Response, get
 from litestar.di import Provide
 from litestar.params import Parameter
