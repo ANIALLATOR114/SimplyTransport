@@ -317,10 +317,22 @@ litestar docs
 litestar importgtfs
 litestar importrealtime
 litestar importstopfeatures
+litestar seedrealtimefromfile
 litestar generatemaps
 litestar generatestatistics
 litestar recorddelays
 ```
+
+### Local testing
+
+To exercise the realtime UI against the small **TFI** fixture under `tests/gtfs_test_data` (for example `/realtime/stop/RT_E2E_S1`), import that GTFS directory first, then seed GTFS-RT from the E2E JSON. Use **`--set-time-to-now`** so static `stop_time` rows and trip calendars line up with your machine clock and today’s weekday (the committed fixture times are fixed; without this flag the stop page’s time window often shows nothing).
+
+```
+litestar importgtfs -dir ./tests/gtfs_test_data/TFI/
+litestar seedrealtimefromfile --file ./tests/gtfs_test_data/TFI/realtime_e2e_trip_updates.json -dataset gtfs_test_data --set-time-to-now
+```
+
+The GTFS importer sets the **dataset** label from the second-to-last segment of the `-dir` path, so this example uses **`gtfs_test_data`**. Align that with **`GTFS_TFI_DATASET`** in `.env`, or pass **`-dataset`** on `seedrealtimefromfile` as above. Omit **`--set-time-to-now`** in CI or any pipeline that must stay deterministic.
 
 ## Running in Production
 

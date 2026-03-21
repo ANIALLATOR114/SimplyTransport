@@ -41,8 +41,10 @@
                 </thead>
                 <tbody>
                     {% for rt in realtime_schedules %}
-                        <tr>
-                            {% if rt.on_time_status == "UNKNOWN" %}
+                        <tr {% if rt.is_trip_removed %}class="realtime-row-removed"{% endif %}>
+                            {% if rt.is_trip_removed %}
+                                {% set on_time_style = "color-late" %}
+                            {% elif rt.on_time_status == "UNKNOWN" %}
                                 {% set on_time_style = "color-unknown" %}
                             {% elif rt.on_time_status == "EARLY" %}
                                 {% set on_time_style = "color-early" %}

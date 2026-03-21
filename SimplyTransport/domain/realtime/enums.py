@@ -8,6 +8,16 @@ class ScheduleRealtionship(StrEnum):
     UNSCHEDULED = "UNSCHEDULED"
     ADDED = "ADDED"
     CANCELED = "CANCELED"
+    REPLACEMENT = "REPLACEMENT"
+    DUPLICATED = "DUPLICATED"
+    NEW = "NEW"
+    DELETED = "DELETED"
+
+
+# Trip-level relationships that remove the trip from normal service
+REMOVED_TRIP_RELATIONSHIPS: frozenset[str] = frozenset[str](
+    {ScheduleRealtionship.CANCELED.value, ScheduleRealtionship.DELETED.value}
+)
 
 
 class OnTimeStatus(StrEnum):

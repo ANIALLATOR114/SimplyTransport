@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class StaticStopMapTypes(str, Enum):
+class StaticStopMapTypes(StrEnum):
     ALL_STOPS = "All Stops"
     REALTIME_DISPLAYS = "Realtime Displays"
     SHELTERED_STOPS = "Sheltered Stops"

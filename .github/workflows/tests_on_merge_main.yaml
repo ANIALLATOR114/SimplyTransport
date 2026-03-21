@@ -100,6 +100,9 @@ jobs:
       - name: Populate Statistics
         run: LITESTAR_APP=SimplyTransport.app:create_app litestar generatestatistics
 
+      - name: Seed realtime E2E fixtures
+        run: LITESTAR_APP=SimplyTransport.app:create_app litestar seedrealtimefromfile --file ./tests/gtfs_test_data/TFI/realtime_e2e_trip_updates.json
+
       - name: Install dev dependencies
         run: uv pip install -r requirements-dev.txt
 

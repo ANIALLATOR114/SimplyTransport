@@ -1,24 +1,35 @@
 from collections.abc import Sequence
 
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from ...agency.model import AgencyModel
 from ...route.model import RouteModel
 from ...trip.model import TripModel
+from ..enums import REMOVED_TRIP_RELATIONSHIPS
+from ..trip.model import RTTripModel
 from .model import RTVehicleModel
 
 
 class RTVehicleRepository(SQLAlchemyAsyncRepository[RTVehicleModel]):  # type: ignore
     """RTVehicle repository."""
 
-    async def get_vehicles_on_routes(self, route_ids: list, direction: int) -> Sequence[RTVehicleModel]:
+    async def get_vehicles_on_routes(
+        self,
+        route_ids: list,
+        direction: int,
+        *,
+        exclude_removed_trips: bool = True,
+    ) -> Sequence[RTVehicleModel]:
         """Get most recent vehicle updates for vehicles on routes.
 
         Args:
             route_ids (list): List of route IDs.
+            direction (int): Trip direction.
+            exclude_removed_trips: When True, omit vehicles whose latest ``rt_trip`` row marks the
+                trip as CANCELED or DELETED (positions are still ingested for other uses).
 
         Returns:
             list: List of RTVehicleModel objects representing the most recent vehicle updates
@@ -54,6 +65,17 @@ class RTVehicleRepository(SQLAlchemyAsyncRepository[RTVehicleModel]):  # type: i
             .where(TripModel.direction == direction)
             .order_by(RTVehicleModel.vehicle_id.desc())
         )
+
+        if exclude_removed_trips:
+            statement = statement.outerjoin(
+                RTTripModel,
+                (RTTripModel.trip_id == TripModel.id) & (RTTripModel.dataset == TripModel.dataset),
+            ).where(
+                or_(
+                    RTTripModel.id.is_(None),
+                    RTTripModel.schedule_relationship.not_in(list(REMOVED_TRIP_RELATIONSHIPS)),
+                )
+            )
 
         result = await self.session.execute(statement)
         return result.scalars().all()

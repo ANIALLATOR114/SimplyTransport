@@ -105,3 +105,5 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 8250DB006334,6334,Frascati SC,,53.30109897,-6.18033517,,,,
 8250DB007226,7226,Richmond Grove,,53.28855675,-6.153793442,,,,
 8250DB007660,7660,Frascati Road,,53.29914606,-6.174881877,,,,
+RT_E2E_S1,99001,Test 1,,53.3853464,-6.264886981,,,,
+RT_E2E_S2,99002,Test 2,,53.3860000,-6.2650000,,,,
