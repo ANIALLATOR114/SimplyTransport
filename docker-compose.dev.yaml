@@ -16,10 +16,21 @@ services:
       file: Docker/timescale/docker-compose.yaml
       service: timescale
 
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:13.0
+    container_name: aspire-dashboard
+    ports:
+      - "18888:18888"
+    restart: unless-stopped
+    networks:
+      - simplytransport-network
+
   opentelemetry-collector:
     extends:
       file: Docker/otel-collector/docker-compose.yaml
       service: opentelemetry-collector
+    depends_on:
+      - aspire-dashboard
 
 networks:
   simplytransport-network:

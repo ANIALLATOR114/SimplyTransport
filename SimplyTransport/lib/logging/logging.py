@@ -3,7 +3,7 @@ import logging.config
 import litestar
 import structlog
 from SimplyTransport.lib import settings
-from SimplyTransport.lib.logging.handlers import get_loki_handler_path
+from SimplyTransport.lib.opentelemetry import otel_log_handler
 
 
 def provide_logger(logger_name: str) -> structlog.stdlib.BoundLogger:
@@ -53,19 +53,6 @@ def logging_setup() -> None:
                     ],
                     "foreign_pre_chain": pre_chain,
                 },
-                "loki_formatting": {
-                    "()": structlog.stdlib.ProcessorFormatter,
-                    "processors": [
-                        structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-                        structlog.dev.ConsoleRenderer(
-                            colors=True,
-                            exception_formatter=structlog.dev.RichTracebackFormatter(
-                                suppress=[litestar], max_frames=1
-                            ),
-                        ),
-                    ],
-                    "foreign_pre_chain": pre_chain,
-                },
             },
             "handlers": {
                 "default": {
@@ -73,15 +60,10 @@ def logging_setup() -> None:
                     "class": "logging.StreamHandler",
                     "formatter": "standard",
                 },
-                "loki": {
-                    "level": settings.app.LOG_LEVEL,
-                    "class": get_loki_handler_path(),
-                    "formatter": "loki_formatting",
-                },
             },
             "loggers": {
                 "": {
-                    "handlers": ["default", "loki"],
+                    "handlers": ["default"],
                     "level": settings.app.LOG_LEVEL,
                     "propagate": True,
                 },
@@ -93,6 +75,10 @@ def logging_setup() -> None:
             },
         }
     )
+
+    if otel_log_handler is not None:
+        otel_log_handler.setLevel(settings.app.LOG_LEVEL)
+        logging.getLogger().addHandler(otel_log_handler)
 
     if structlog.is_configured():
         return

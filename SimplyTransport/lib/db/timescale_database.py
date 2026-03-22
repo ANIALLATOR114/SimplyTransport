@@ -4,17 +4,12 @@ from litestar.contrib.sqlalchemy.plugins import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
 )
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 async_timescale_engine = create_async_engine(
     settings.app.TIMESCALE_URL,
     echo=settings.app.DB_ECHO,
     pool_pre_ping=True,
-)
-SQLAlchemyInstrumentor().instrument(
-    engine=async_timescale_engine.sync_engine,
-    enable_commenter=True,
 )
 
 timescale_session_config = AsyncSessionConfig(expire_on_commit=False)

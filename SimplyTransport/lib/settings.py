@@ -33,8 +33,8 @@ class AppSettings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str | None = None
 
-    # Loki
-    LOKI_URL: str = "http://localhost:3100/loki/api/v1/push"
+    # OpenTelemetry (OTLP/HTTP base URL; paths /v1/traces, /v1/metrics, /v1/logs appended in code)
+    OTEL_EXPORTER_OTLP_ENDPOINT: str = "http://127.0.0.1:4318"
 
     # GTFS TFI Realtime
     GTFS_TFI_REALTIME_URL: str = "example"
