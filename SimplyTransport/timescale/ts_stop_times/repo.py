@@ -245,9 +245,11 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):  # type
     ) -> None:
         if not rows:
             return
+        # Core INSERT does not apply ORM column defaults; Timestamp is often unset until flush.
+        recorded_at = datetime.now()
         dict_rows = [
             {
-                "Timestamp": row.Timestamp,
+                "Timestamp": row.Timestamp if row.Timestamp is not None else recorded_at,
                 "stop_id": row.stop_id,
                 "route_code": row.route_code,
                 "scheduled_time": row.scheduled_time,
