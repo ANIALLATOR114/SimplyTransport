@@ -449,43 +449,24 @@ alembic -x db=timescale --name timescale upgrade head
 
 ## Telemetry
 
-SimplyTransport contains configuration and instrumentation for OpenTelemetry Traces and Metrics.
+SimplyTransport sends **traces, metrics, and logs** over OTLP/HTTP to an **OpenTelemetry Collector**, which forwards everything to the **.NET Aspire Dashboard**.
 
-When the docker containers are created an `Opentelemetry Collector` is created and configured using `.env` variabels
+- **Dev:** `docker compose -f docker-compose.dev.yaml up -d` starts Postgres, Redis, Timescale, the collector, and Aspire. Open the dashboard at **http://localhost:18888**.
+- **Prod:** `docker-compose.prod.yaml` includes the same Aspire and collector services. Publish port **18888** on the server to view the dashboard from your LAN (treat it like any internal admin tool: use firewall or VPN as appropriate). Prefer **not** exposing OTLP ports **4317**/**4318** beyond the Docker network.
 
-```
-docker-compose up -d
-```
+Set **`OTEL_EXPORTER_OTLP_ENDPOINT`** on the app (default `http://127.0.0.1:4318` when the process runs on the host). The app container defaults to **`http://opentelemetry-collector:4318`**. The collector forwards to Aspire using **`ASPIRE_OTLP_ENDPOINT`** (default `aspire-dashboard:18889` for OTLP/gRPC on Aspire 9.x inside Docker).
 
-This provides metrics and traces for the following:
+Telemetry export runs only when **`ENVIRONMENT`** is **DEV** or **PROD** (CI test envs do not export).
 
-- [x] The Litestar framework ( http requests and responses )
-- [x] Custom spans
-- [x] Database queries (metrics and statements)
-- [ ] Redis metrics
+Instrumentation includes:
 
-The collector sends the telemetry to Grafana Tempo and Prometheus.
-This can then by visualised in Grafana.
-![image](https://github.com/ANIALLATOR114/SimplyTransport/assets/116189545/3f42c44d-221d-40e8-9290-f25c2152c5d3)
+- [x] Litestar / ASGI (HTTP requests)
+- [x] Database queries (SQLAlchemy)
+- [x] Redis (client spans)
 
 ## Logging
 
-SimplyTransport uses structured logging from structlog and outputs logs to Grafana Loki for aggregation.
-
-The logs are processed using rich which comes with some very nice development and debugging advantages for exceptions.
-
-### Regular logging
-
-Logs are output to the console and in Loki as colourful structured logs.
-![image](https://github.com/ANIALLATOR114/SimplyTransport/assets/116189545/d54ad355-c065-49f5-98ef-a66de5be2b5a)
-
-### Exception Logging
-
-Exceptions to the local console handler are very verbose and include the code that threw the error ( and surrounding code ) but also all of the local variables in scope of the function!
-So you can see exactly what paramaters and object states were present when the error occured.
-
-The only difference when outputting to Loki is that the stacktrace is made more compact with restricted frames, but all the fantastic debugging information is retained.
-![image](https://github.com/ANIALLATOR114/SimplyTransport/assets/116189545/6657e04c-e240-465f-abf6-d5f72a1ba3c5)
+SimplyTransport uses **structlog** with rich for readable console output. In **DEV** and **PROD**, logs are also sent to the collector via **OpenTelemetry Logs** (same OTLP base URL as traces), so they show in Aspire next to traces. The console handler remains the best place for verbose exceptions and local variable context.
 
 # Testing
 

@@ -1,21 +1,23 @@
 import SimplyTransport.lib.settings as settings
-from litestar.contrib.sqlalchemy.plugins import (
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+
+# Patch sqlalchemy module factories before importing create_engine / create_async_engine into this
+# module. A local `from sqlalchemy import create_engine` binds whatever callable the module held
+# at import time; if that happens before instrument(), we keep the unwrapped function and never
+# attach EngineTracer (no query spans — only the global Engine.connect wrap shows "connect").
+SQLAlchemyInstrumentor().instrument(enable_commenter=True)
+
+from litestar.contrib.sqlalchemy.plugins import (  # noqa: E402
     AsyncSessionConfig,
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
 )
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from sqlalchemy import create_engine  # noqa: E402
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine  # noqa: E402
+from sqlalchemy.orm import Session  # noqa: E402
 
 # Sync version for importer
-from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.orm import Session
-
 engine = create_engine(settings.app.DB_URL_SYNC, echo=settings.app.DB_ECHO, pool_pre_ping=True)
-SQLAlchemyInstrumentor().instrument(
-    engine=engine,
-    enable_commenter=True,
-)
 session = Session(engine)
 
 
@@ -24,10 +26,6 @@ async_engine = create_async_engine(
     settings.app.DB_URL,
     echo=settings.app.DB_ECHO,
     pool_pre_ping=True,
-)
-SQLAlchemyInstrumentor().instrument(
-    engine=async_engine.sync_engine,
-    enable_commenter=True,
 )
 
 session_config = AsyncSessionConfig(expire_on_commit=False)

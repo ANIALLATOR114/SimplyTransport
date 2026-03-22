@@ -1,40 +1,35 @@
+# Forwards all OTLP signals to Aspire Dashboard (gRPC).
+# Aspire 9.x listens for OTLP/gRPC on port 18889 inside the container (UI is 18888).
+# Example on Docker network: ASPIRE_OTLP_ENDPOINT=aspire-dashboard:18889
+
 receivers:
   otlp:
     protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
 
 processors:
   batch:
 
-extensions:
-  basicauth/tempo:
-    client_auth:
-      username: ${TEMPO_USERNAME}
-      password: ${TEMPO_PASSWORD}
-  basicauth/prometheus:
-    client_auth:
-      username: ${PROMETHEUS_USERNAME}
-      password: ${PROMETHEUS_PASSWORD}
-
 exporters:
-  otlp/tempo:
-    endpoint: "${TEMPO_URL}"
-    auth:
-      authenticator: basicauth/tempo
-  otlphttp/prometheus:
-    endpoint: "${PROMETHEUS_URL}"
-    auth:
-      authenticator: basicauth/prometheus
+  otlp/aspire:
+    endpoint: ${ASPIRE_OTLP_ENDPOINT}
+    tls:
+      insecure: true
 
 service:
-  extensions: [basicauth/prometheus, basicauth/tempo]
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/tempo]
+      exporters: [otlp/aspire]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlphttp/prometheus]
+      exporters: [otlp/aspire]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/aspire]

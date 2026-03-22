@@ -2,20 +2,16 @@ version: "3.8"
 
 services:
   opentelemetry-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector:0.147.0
     container_name: ot-collector
     ports:
+      - "4317:4317"
       - "4318:4318"
     command: "--config /etc/otelcol/config.yaml"
     volumes:
       - ../../deployment_linux/collector-config.yaml:/etc/otelcol/config.yaml
     environment:
-      - TEMPO_USERNAME=${TEMPO_USERNAME}
-      - TEMPO_PASSWORD=${TEMPO_PASSWORD}
-      - TEMPO_URL=${TEMPO_URL}
-      - PROMETHEUS_USERNAME=${PROMETHEUS_USERNAME}
-      - PROMETHEUS_PASSWORD=${PROMETHEUS_PASSWORD}
-      - PROMETHEUS_URL=${PROMETHEUS_URL}
+      - ASPIRE_OTLP_ENDPOINT=${ASPIRE_OTLP_ENDPOINT:-aspire-dashboard:18889}
     restart: unless-stopped
     networks:
       - simplytransport-network
