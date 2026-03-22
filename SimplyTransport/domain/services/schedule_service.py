@@ -19,59 +19,23 @@ class ScheduleService:
 
     async def get_schedule_on_stop_for_day(self, stop_id: str, day: DayOfWeek) -> list[StaticScheduleModel]:
         """Returns a list of schedules for the given stop and day"""
-        schedules_from_db = await self.schedule_repository.get_static_schedules(stop_id=stop_id, day=day)
-        static_schedules = [
-            StaticScheduleModel(
-                stop_time=schedule.stop_time,
-                route=schedule.route,
-                calendar=schedule.calendar,
-                stop=schedule.stop,
-                trip=schedule.trip,
-            )
-            for schedule in schedules_from_db
-        ]
-
-        return static_schedules
+        return await self.schedule_repository.get_static_schedules(stop_id=stop_id, day=day)
 
     async def get_all_schedule_for_day_between_times(
         self, day: DayOfWeek, start_time: time, end_time: time, trips: list[str]
     ) -> list[StaticScheduleModel]:
         """Returns all schedules that are currently active"""
-        schedules_from_db = await self.schedule_repository.get_static_schedules(
+        return await self.schedule_repository.get_static_schedules(
             day=day, start_time=start_time, end_time=end_time, trips=trips
         )
-        static_schedules = [
-            StaticScheduleModel(
-                stop_time=schedule.stop_time,
-                route=schedule.route,
-                calendar=schedule.calendar,
-                stop=schedule.stop,
-                trip=schedule.trip,
-            )
-            for schedule in schedules_from_db
-        ]
-
-        return static_schedules
 
     async def get_schedule_on_stop_for_day_between_times(
         self, stop_id: str, day: DayOfWeek, start_time: time, end_time: time
     ) -> list[StaticScheduleModel]:
         """Returns a list of schedules for the given stop and day"""
-        schedules_from_db = await self.schedule_repository.get_static_schedules(
+        return await self.schedule_repository.get_static_schedules(
             stop_id=stop_id, day=day, start_time=start_time, end_time=end_time
         )
-        static_schedules = [
-            StaticScheduleModel(
-                stop_time=schedule.stop_time,
-                route=schedule.route,
-                calendar=schedule.calendar,
-                stop=schedule.stop,
-                trip=schedule.trip,
-            )
-            for schedule in schedules_from_db
-        ]
-
-        return static_schedules
 
     async def apply_custom_23_00_sorting(
         self, static_schedules: list[StaticScheduleModel]
@@ -100,15 +64,15 @@ class ScheduleService:
         exceptions_from_db = await self.calendar_date_respository.get_removed_exceptions_on_date(
             date=current_day
         )
+        removed_exception_service_ids = {exc.service_id for exc in exceptions_from_db}
 
         static_schedules_filtered = []
         for schedule in static_schedules:
             if not schedule.true_if_active(date=current_day):
                 continue
-            elif schedule.in_exceptions(list_of_exceptions=exceptions_from_db):
+            if schedule.calendar.id in removed_exception_service_ids:
                 continue
-            else:
-                static_schedules_filtered.append(schedule)
+            static_schedules_filtered.append(schedule)
 
         return static_schedules_filtered
 
@@ -122,19 +86,7 @@ class ScheduleService:
 
     async def get_by_trip_id(self, trip_id: str) -> list[StaticScheduleModel]:
         """Returns a list of schedules for the given trip_id"""
-        schedules_from_db = await self.schedule_repository.get_by_trip_id(trip_id=trip_id)
-        static_schedules = [
-            StaticScheduleModel(
-                stop_time=schedule.stop_time,
-                route=schedule.route,
-                calendar=schedule.calendar,
-                stop=schedule.stop,
-                trip=schedule.trip,
-            )
-            for schedule in schedules_from_db
-        ]
-
-        return static_schedules
+        return await self.schedule_repository.get_by_trip_id(trip_id=trip_id)
 
 
 async def provide_schedule_service(db_session: AsyncSession) -> ScheduleService:

@@ -17,6 +17,8 @@ class BaseModel(_BaseModel):
 
 
 class StaticScheduleModel:
+    __slots__ = ("route", "stop_time", "calendar", "stop", "trip")
+
     def __init__(
         self,
         route: RouteModel,

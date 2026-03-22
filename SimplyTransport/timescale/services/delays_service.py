@@ -11,6 +11,7 @@ from SimplyTransport.lib.cache_keys import CacheKeys
 from SimplyTransport.lib.constants import CLEANUP_DELAYS_AFTER_DAYS
 from SimplyTransport.lib.extensions.chunking import chunk_list
 from SimplyTransport.lib.logging.logging import provide_logger
+from SimplyTransport.lib.tracing import CreateSpan
 from SimplyTransport.timescale.ts_stop_times.model import TS_StopTimeModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,6 +48,7 @@ class DelaysService:
         self.realtime_service = realtime_service
         self.redis_cache = redis_cache
 
+    @CreateSpan()
     async def record_all_delays(self) -> int:
         """
         Records all delays for the current day within a specific time range.
@@ -127,7 +129,7 @@ class DelaysService:
             keys_to_set.append(key)
             objects_to_commit.append(ts_stop_time)
 
-        await self.ts_stop_time_repository.add_many(objects_to_commit, auto_commit=True)
+        await self.ts_stop_time_repository.bulk_insert_delay_records(objects_to_commit, auto_commit=True)
         await self.redis_cache.set_many_empty_keys(keys_to_set, expiration=60 * 5)
         number_of_delays_recorded = len(keys_to_set)
 

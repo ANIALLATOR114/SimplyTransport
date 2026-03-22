@@ -8,7 +8,6 @@ import httpx
 import rich.progress as rp
 from SimplyTransport.lib.tracing import CreateSpan
 from sqlalchemy import delete, select
-from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..domain.realtime.enums import ScheduleRealtionship
@@ -21,6 +20,7 @@ from ..domain.trip.model import TripModel
 from . import time_date_conversions as tdc
 from .db.database import async_session_factory
 from .logging.logging import provide_logger
+from .sqlalchemy_bulk import bulk_insert, bulk_upsert
 
 logger = provide_logger(__name__)
 
@@ -37,46 +37,6 @@ progress_columns = (
 )
 
 RETENTION_PERIOD = datetime.now(UTC) - timedelta(minutes=30)
-
-_BATCH_SIZE = 3000
-
-
-def _bulk_upsert_statement(
-    model, objects_to_commit: list[dict], index_elements: list[str], update_dict: dict
-):
-    stmt = insert(model).values(objects_to_commit)
-    stmt = stmt.on_conflict_do_update(
-        index_elements=index_elements,
-        set_={key: getattr(stmt.excluded, key) for key in update_dict},
-    )
-    return stmt
-
-
-async def bulk_upsert(
-    session: AsyncSession,
-    model,
-    objects_to_commit: list[dict],
-    index_elements: list[str],
-    update_dict: dict,
-    batch_size: int = _BATCH_SIZE,
-) -> None:
-    for i in range(0, len(objects_to_commit), batch_size):
-        batch = objects_to_commit[i : i + batch_size]
-        stmt = _bulk_upsert_statement(model, batch, index_elements, update_dict)
-        await session.execute(stmt)
-    await session.commit()
-
-
-async def bulk_insert(
-    session: AsyncSession,
-    model,
-    rows: list[dict],
-    batch_size: int = _BATCH_SIZE,
-) -> None:
-    for i in range(0, len(rows), batch_size):
-        batch = rows[i : i + batch_size]
-        await session.execute(insert(model).values(batch))
-    await session.commit()
 
 
 @dataclass(frozen=True)
