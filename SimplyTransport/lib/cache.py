@@ -43,10 +43,17 @@ def redis_store_factory(name: str) -> RedisStore:
     """
     Factory function that creates and returns a RedisStore object.
 
+    Litestar's response cache uses store name ``response_cache``. Namespacing that store
+    with ``VERSION`` busts cached HTML after a deploy version bump (cached bodies embed
+    old asset query strings).
+
     Returns:
         RedisStore: The created RedisStore object.
     """
-    return RedisStore(redis_factory(), namespace=f"{settings.app.NAME}:{name}")
+    namespace = f"{settings.app.NAME}:{name}"
+    if name == "response_cache":
+        namespace = f"{settings.app.NAME}:{name}:v{settings.app.VERSION}"
+    return RedisStore(redis_factory(), namespace=namespace)
 
 
 def redis_service_cache_config_factory() -> ResponseCacheConfig:
