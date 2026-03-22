@@ -10,6 +10,7 @@ from typing import ParamSpec, TypeVar
 import click
 import redis.exceptions as redis_exc
 from redis.asyncio import Redis
+from rich.console import Console
 
 from . import settings
 from .cache import redis_factory
@@ -19,6 +20,86 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 logger = provide_logger(__name__)
+
+
+def cli_lock_key(lock_name: str) -> str:
+    """Redis key for a named CLI mutex; ``lock_name`` is a stable suffix (e.g. ``gtfs_static_import``)."""
+    return f"{settings.app.NAME}:cli:{lock_name}"
+
+
+async def is_lock_held(lock_name: str) -> bool:
+    client = redis_factory()
+    try:
+        return bool(await client.exists(cli_lock_key(lock_name)))
+    finally:
+        await client.aclose()
+
+
+async def try_acquire_lock(lock_name: str, ttl_seconds: int) -> tuple[Redis, str] | None:
+    """
+    Try to acquire a named mutex with TTL. On success returns ``(redis_client, token)``; caller must
+    call ``release_lock(client, lock_name, token)``. If the key is already set, returns ``None``.
+
+    Raises click.Abort on Redis errors.
+    """
+    client = redis_factory()
+    try:
+        ttl_ms = ttl_seconds * 1000
+        token = await _acquire_mutex(client, cli_lock_key(lock_name), ttl_ms)
+        if token is None:
+            await client.aclose()
+            return None
+        return (client, token)
+    except redis_exc.RedisError:
+        logger.exception("Redis lock acquire failed for %s", lock_name)
+        await client.aclose()
+        raise click.Abort() from None
+
+
+async def release_lock(client: Redis, lock_name: str, token: str) -> None:
+    try:
+        await _release_mutex(client, cli_lock_key(lock_name), token)
+    except redis_exc.RedisError:
+        logger.exception("Failed to release Redis lock for %s", lock_name)
+    finally:
+        await client.aclose()
+
+
+def skip_if_lock_held(
+    lock_name: str,
+    *,
+    skip_message: str = "Skipped: an exclusive lock is held by another job",
+    skip_log: str | None = None,
+) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R | None]]]:
+    """
+    Skip the wrapped coroutine if ``lock_name`` is held.
+
+    Use above ``@concurrency(1)`` so this check runs before per-command mutexes.
+
+    Raises click.Abort on Redis errors while checking the lock.
+    """
+
+    def decorator(func: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R | None]]:
+        @functools.wraps(func)
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R | None:
+            try:
+                held = await is_lock_held(lock_name)
+            except redis_exc.RedisError:
+                logger.exception("Redis lock check failed for %s", lock_name)
+                raise click.Abort() from None
+            if held:
+                msg = skip_message
+                if skip_log:
+                    msg = f"{msg} — {skip_log}"
+                logger.warning(msg)
+                Console().print(f"[yellow]{msg}")
+                return None
+            return await func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
 
 _MUTEX_RELEASE_LUA = """
 if redis.call('GET', KEYS[1]) == ARGV[1] then

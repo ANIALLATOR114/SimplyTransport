@@ -22,7 +22,7 @@ from .domain.maps.enums import StaticStopMapTypes
 from .domain.services.statistics_service import provide_statistics_service
 from .lib.cache import provide_redis_service
 from .lib.cache_keys import CacheKeys
-from .lib.concurrency import concurrency
+from .lib.concurrency import concurrency, release_lock, skip_if_lock_held, try_acquire_lock
 from .lib.db.database import async_session_factory
 from .lib.db.timescale_database import async_timescale_session_factory
 from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter, progress_columns
@@ -32,6 +32,10 @@ from .lib.stop_features_importer import StopFeaturesImporter
 from .timescale.services.delays_service import provide_delays_service
 
 DEFAULT_GTFS_DIRECTORY = "./gtfs_data/TFI/"
+
+# Redis CLI mutex: static GTFS import vs realtime / delays jobs
+_CLI_LOCK_GTFS_STATIC_IMPORT = "gtfs_static_import"
+_CLI_LOCK_GTFS_STATIC_IMPORT_TTL_S = 4 * 60 * 60
 
 logger = provide_logger(__name__)
 
@@ -139,106 +143,127 @@ class CLIPlugin(CLIPluginProtocol):
                 console.print("[red]Aborting import...")
                 return
 
-            files_to_import = [
-                "agency.txt",
-                "calendar.txt",
-                "calendar_dates.txt",
-                "routes.txt",
-                "stops.txt",
-                "trips.txt",
-                "stop_times.txt",
-                "shapes.txt",
-            ]
-            attributes_of_total_rows = {}
+            lock = await try_acquire_lock(_CLI_LOCK_GTFS_STATIC_IMPORT, _CLI_LOCK_GTFS_STATIC_IMPORT_TTL_S)
+            if lock is None:
+                console.print(
+                    "[yellow]Another GTFS static import is already in progress (Redis lock held). Aborting."
+                )
+                return
+            lock_client, lock_token = lock
 
-            total_time_taken = 0.0
-            start = time.perf_counter()
+            try:
+                files_to_import = [
+                    "agency.txt",
+                    "calendar.txt",
+                    "calendar_dates.txt",
+                    "routes.txt",
+                    "stops.txt",
+                    "trips.txt",
+                    "stop_times.txt",
+                    "shapes.txt",
+                ]
+                attributes_of_total_rows = {}
 
-            for file in files_to_import:
-                file_start = time.perf_counter()
-                if not (os.path.exists(dir) and os.path.isfile(dir + file)):
-                    console.print(f"[red]Error: File '{file}' does not exist. Skipping...")
+                total_time_taken = 0.0
+                start = time.perf_counter()
+
+                for file in files_to_import:
+                    file_start = time.perf_counter()
+                    if not (os.path.exists(dir) and os.path.isfile(dir + file)):
+                        console.print(f"[red]Error: File '{file}' does not exist. Skipping...")
+                        attributes_of_total_rows[file.replace(".txt", "")] = {
+                            "time_taken(s)": 0,
+                            "row_count": 0,
+                            "error": f"File '{file}' does not exist.",
+                        }
+                        continue
+
+                    generic_importer = imp.GTFSImporter(file, dir)
+                    reader = generic_importer.get_reader()
+                    try:
+                        importer = imp.get_importer_for_file(file, reader, None, dataset)
+                    except ValueError:
+                        console.print(
+                            f"\n[red]Error: File '{file}' does not have a supported importer. Skipping..."
+                        )
+                        attributes_of_total_rows[file.replace(".txt", "")] = {
+                            "time_taken(s)": 0,
+                            "row_count": 0,
+                            "error": f"File '{file}' does not have a supported importer.",
+                        }
+                        continue
+
+                    with rp.Progress(
+                        rp.SpinnerColumn(finished_text="✅"),
+                        "[progress.description]{task.description}",
+                        rp.TimeElapsedColumn(),
+                    ) as progress:
+                        task = progress.add_task("[red]Clearing database table...", total=1)
+                        importer.clear_table()
+                        progress.update(task, advance=1)
+
+                    await importer.import_data()
+
+                    file_finish = time.perf_counter()
+                    time_taken = round(file_finish - file_start, 2)
+                    total_time_taken += time_taken
+                    row_count = importer.rows_imported
+                    console.print(f"[green]Imported {row_count} rows from {file}")
+
                     attributes_of_total_rows[file.replace(".txt", "")] = {
-                        "time_taken(s)": 0,
-                        "row_count": 0,
-                        "error": f"File '{file}' does not exist.",
+                        "time_taken(s)": time_taken,
+                        "row_count": row_count,
                     }
-                    continue
 
-                generic_importer = imp.GTFSImporter(file, dir)
-                reader = generic_importer.get_reader()
-                try:
-                    importer = imp.get_importer_for_file(file, reader, None, dataset)
-                except ValueError:
-                    console.print(
-                        f"\n[red]Error: File '{file}' does not have a supported importer. Skipping..."
-                    )
-                    attributes_of_total_rows[file.replace(".txt", "")] = {
-                        "time_taken(s)": 0,
-                        "row_count": 0,
-                        "error": f"File '{file}' does not have a supported importer.",
-                    }
-                    continue
-
-                with rp.Progress(
-                    rp.SpinnerColumn(finished_text="✅"),
-                    "[progress.description]{task.description}",
-                    rp.TimeElapsedColumn(),
-                ) as progress:
-                    task = progress.add_task("[red]Clearing database table...", total=1)
-                    importer.clear_table()
-                    progress.update(task, advance=1)
-
-                await importer.import_data()
-
-                file_finish = time.perf_counter()
-                time_taken = round(file_finish - file_start, 2)
-                total_time_taken += time_taken
-                row_count = importer.rows_imported
-                console.print(f"[green]Imported {row_count} rows from {file}")
-
-                attributes_of_total_rows[file.replace(".txt", "")] = {
-                    "time_taken(s)": time_taken,
-                    "row_count": row_count,
+                attributes = {
+                    "dataset": dataset,
+                    "totals": attributes_of_total_rows,
+                    "total_time_taken(s)": round(total_time_taken, 2),
                 }
 
-            attributes = {
-                "dataset": dataset,
-                "totals": attributes_of_total_rows,
-                "total_time_taken(s)": round(total_time_taken, 2),
-            }
+                await create_event_with_session(
+                    EventType.GTFS_DATABASE_UPDATED,
+                    "GTFS static data updated with latest schedules",
+                    attributes,
+                )
 
-            await create_event_with_session(
-                EventType.GTFS_DATABASE_UPDATED,
-                "GTFS static data updated with latest schedules",
-                attributes,
-            )
+                redis_service = await provide_redis_service()
+                await redis_service.delete_keys_by_pattern(
+                    CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE
+                )
+                await redis_service.delete_keys_by_pattern(
+                    CacheKeys.StopMaps.STOP_MAP_NEARBY_DELETE_ALL_KEY_TEMPLATE
+                )
+                await redis_service.delete_keys_by_pattern(
+                    CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE
+                )
+                await redis_service.delete_keys_by_pattern(
+                    CacheKeys.Schedules.SCHEDULE_DELETE_ALL_KEY_TEMPLATE
+                )
+                await redis_service.delete_keys_by_pattern(
+                    CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
+                )
+                await redis_service.delete_keys_by_pattern(
+                    CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
+                )
+                await redis_service.delete_keys_by_pattern(
+                    CacheKeys.Routes.ROUTES_BY_STOP_ID_DELETE_ALL_KEY_TEMPLATE
+                )
 
-            redis_service = await provide_redis_service()
-            await redis_service.delete_keys_by_pattern(CacheKeys.StopMaps.STOP_MAP_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys_by_pattern(
-                CacheKeys.StopMaps.STOP_MAP_NEARBY_DELETE_ALL_KEY_TEMPLATE
-            )
-            await redis_service.delete_keys_by_pattern(CacheKeys.RouteMaps.ROUTE_MAP_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys_by_pattern(CacheKeys.Schedules.SCHEDULE_DELETE_ALL_KEY_TEMPLATE)
-            await redis_service.delete_keys_by_pattern(
-                CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
-            )
-            await redis_service.delete_keys_by_pattern(
-                CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
-            )
-            await redis_service.delete_keys_by_pattern(
-                CacheKeys.Routes.ROUTES_BY_STOP_ID_DELETE_ALL_KEY_TEMPLATE
-            )
-
-            finish = time.perf_counter()
-            console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
+                finish = time.perf_counter()
+                console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
+            finally:
+                await release_lock(lock_client, _CLI_LOCK_GTFS_STATIC_IMPORT, lock_token)
 
         @cli.command(name="importrealtime", help="Imports GTFS realtime data into the database")
         @click.option("-url", help="Override the default URL for the GTFS realtime data")
         @click.option("-apikey", help="Override the default API key for the GTFS realtime data")
         @click.option("-dataset", help="Override the default dataset that the data will be saved against")
         @make_sync
+        @skip_if_lock_held(
+            _CLI_LOCK_GTFS_STATIC_IMPORT,
+            skip_message="Skipped: GTFS static import is in progress",
+        )
         @concurrency(1)
         async def importrealtime(url: str, apikey: str, dataset: str):
             """Imports GTFS realtime data into the database"""
@@ -310,6 +335,10 @@ class CLIPlugin(CLIPluginProtocol):
         @click.option("-apikey", help="Override the default API key for the GTFS realtime vehicle data")
         @click.option("-dataset", help="Override the default dataset that the data will be saved against")
         @make_sync
+        @skip_if_lock_held(
+            _CLI_LOCK_GTFS_STATIC_IMPORT,
+            skip_message="Skipped: GTFS static import is in progress",
+        )
         @concurrency(1)
         async def importrealtimevehicles(url: str, apikey: str, dataset: str):
             """Imports GTFS realtime vehicle data into the database"""
@@ -639,6 +668,10 @@ class CLIPlugin(CLIPluginProtocol):
             name="recorddelays", help="Records the stop time delays for every schedule in the database"
         )
         @make_sync
+        @skip_if_lock_held(
+            _CLI_LOCK_GTFS_STATIC_IMPORT,
+            skip_message="Skipped: GTFS static import is in progress",
+        )
         @concurrency(1)
         async def recorddelays():
             console = Console()
