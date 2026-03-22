@@ -41,7 +41,7 @@ class StopModel(BigIntAuditBase):
     )
     rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="stop")
     stop_feature: Mapped["StopFeatureModel"] = relationship(back_populates="stop")
-    dataset: Mapped[str] = mapped_column(String(length=80))
+    dataset: Mapped[str] = mapped_column(String(length=80), index=True)
 
 
 class Stop(BaseModel):

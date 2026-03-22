@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import datetime, time, timedelta
 from typing import Any, cast
 
@@ -5,6 +6,8 @@ from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import delete, func, select, text
 from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from SimplyTransport.lib.sqlalchemy_bulk import bulk_insert
 
 from .model import TS_StopTimeDelayAggregated, TS_StopTimeForGraph, TS_StopTimeModel
 
@@ -233,6 +236,31 @@ class TSStopTimeRepository(SQLAlchemyAsyncRepository[TS_StopTimeModel]):  # type
         statement = select(func.count()).select_from(TS_StopTimeModel)
         result = await self.session.execute(statement)
         return result.scalar() or 0
+
+    async def bulk_insert_delay_records(
+        self,
+        rows: Sequence[TS_StopTimeModel],
+        *,
+        auto_commit: bool = True,
+    ) -> None:
+        if not rows:
+            return
+        dict_rows = [
+            {
+                "Timestamp": row.Timestamp,
+                "stop_id": row.stop_id,
+                "route_code": row.route_code,
+                "scheduled_time": row.scheduled_time,
+                "delay_in_seconds": row.delay_in_seconds,
+            }
+            for row in rows
+        ]
+        await bulk_insert(
+            self.session,
+            TS_StopTimeModel,
+            dict_rows,
+            auto_commit=auto_commit,
+        )
 
     model_type = TS_StopTimeModel
 

@@ -1,5 +1,5 @@
-from collections import namedtuple
 from datetime import time
+from typing import Any
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,8 +10,18 @@ from ..route.model import RouteModel
 from ..stop.model import StopModel
 from ..stop_times.model import StopTimeModel
 from ..trip.model import TripModel
+from .model import StaticScheduleModel
 
-ScheduleTuple = namedtuple("ScheduleTuple", ["stop_time", "route", "calendar", "stop", "trip"])
+
+def _static_schedule_from_row(row: Any) -> StaticScheduleModel:
+    stop_time, route, calendar, stop, trip = row
+    return StaticScheduleModel(
+        route=route,
+        stop_time=stop_time,
+        calendar=calendar,
+        stop=stop,
+        trip=trip,
+    )
 
 
 class ScheduleRepository:
@@ -27,7 +37,7 @@ class ScheduleRepository:
         start_time: time | None = None,
         end_time: time | None = None,
         trips: list[str] | None = None,
-    ) -> list[ScheduleTuple]:
+    ) -> list[StaticScheduleModel]:
         """
         Retrieve static schedules based on the given parameters.
         Parameters:
@@ -39,7 +49,7 @@ class ScheduleRepository:
         - end_time (time | None): The end time of the schedules.
         If provided, only schedules with arrival times less than or equal to this time will be retrieved.
         Returns:
-        - list[ScheduleTuple]: A list of ScheduleTuple objects representing the retrieved schedules.
+        - list[StaticScheduleModel]: The retrieved schedules.
         Raises:
         - ValueError: If an invalid day of the week is provided.
         """
@@ -93,9 +103,9 @@ class ScheduleRepository:
         )
 
         result = await self.session.execute(statement)
-        return [ScheduleTuple(*row) for row in result]
+        return [_static_schedule_from_row(row) for row in result]
 
-    async def get_by_trip_id(self, trip_id: str) -> list[ScheduleTuple]:
+    async def get_by_trip_id(self, trip_id: str) -> list[StaticScheduleModel]:
         """Returns a list of schedules for the given trip"""
         statement = (
             select(StopTimeModel, RouteModel, CalendarModel, StopModel, TripModel)
@@ -107,7 +117,7 @@ class ScheduleRepository:
             .order_by(StopTimeModel.arrival_time)
         )
         result = await self.session.execute(statement)
-        return [ScheduleTuple(*row) for row in result]
+        return [_static_schedule_from_row(row) for row in result]
 
 
 async def provide_schedule_repo(db_session: AsyncSession) -> ScheduleRepository:
