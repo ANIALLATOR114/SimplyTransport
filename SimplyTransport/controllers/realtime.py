@@ -5,7 +5,11 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.response import Template
 
-from SimplyTransport.lib.cache_keys import CacheKeys, key_builder_from_path_and_query
+from SimplyTransport.lib.cache_keys import (
+    CacheKeys,
+    key_builder_from_path,
+    key_builder_from_path_and_query,
+)
 
 from ..domain.enums import DayOfWeek
 from ..domain.route.repo import RouteRepository, provide_route_repo
@@ -45,8 +49,6 @@ class RealtimeController(Controller):
         stop_id: str,
         stop_repo: StopRepository,
         route_repo: RouteRepository,
-        schedule_service: ScheduleService,
-        realtime_service: RealTimeService,
     ) -> Template:
         try:
             stop = await stop_repo.get_by_id_with_stop_feature(stop_id)
@@ -57,6 +59,36 @@ class RealtimeController(Controller):
             )
         routes = await route_repo.get_routes_by_stop_id(stop.id)
         routes.sort(key=lambda x: x.short_name)
+
+        current_time = datetime.now()
+        return Template(
+            template_name="realtime/stop.html",
+            context={
+                "stop": stop,
+                "routes": routes,
+                "day_string": DayOfWeek(current_time.weekday()).name.capitalize(),
+                "day_int": current_time.weekday(),
+            },
+        )
+
+    @get(
+        "/stop/{stop_id:str}/realtime-table",
+        cache=20,
+        cache_key_builder=key_builder_from_path(
+            CacheKeys.RealTime.REALTIME_STOP_TABLE_KEY_TEMPLATE, "stop_id"
+        ),
+    )
+    async def realtime_stop_table(
+        self,
+        stop_id: str,
+        stop_repo: StopRepository,
+        schedule_service: ScheduleService,
+        realtime_service: RealTimeService,
+    ) -> Template:
+        try:
+            await stop_repo.get_by_id_with_stop_feature(stop_id)
+        except NotFoundError:
+            return Template(template_name="realtime/stop_realtime_table_not_found_partial.html")
 
         current_time = datetime.now()
         start_time_difference = -10
@@ -78,13 +110,9 @@ class RealtimeController(Controller):
         realtime_schedules = await realtime_service.apply_custom_23_00_sorting(realtime_schedules)
 
         return Template(
-            template_name="realtime/stop.html",
+            template_name="realtime/stop_realtime_table_partial.html",
             context={
-                "stop": stop,
                 "current_time": current_time,
-                "routes": routes,
-                "day_string": DayOfWeek(current_time.weekday()).name.capitalize(),
-                "day_int": current_time.weekday(),
                 "realtime_schedules": realtime_schedules,
                 "start_time_difference": start_time_difference,
                 "end_time_difference": end_time_difference,

@@ -1,0 +1,62 @@
+<div class="flex-separate table-search-top-text-pad">
+    <span class="dense-text">Showing <span class="word-highlight">{{ start_time_difference }}</span> and <span class="word-highlight">+{{ end_time_difference }}</span> mins</span><span class="code-highlight">{{ current_time.strftime("%H:%M:%S") }}</span>
+</div>
+<div class="bottom-margin">
+    <input class="search-box" id="search-box-1" placeholder="Filter by route...">
+</div>
+<table class="table-search" id="table-1" aria-label="Realtime">
+    <thead>
+        <tr>
+            <th class="dense-text">Route</th>
+            <th class="dense-text">RealTime</th>
+            <th class="dense-text">ETA</th>
+            <th class="dense-text">Delay</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rt in realtime_schedules %}
+            <tr {% if rt.is_trip_removed or rt.on_time_status == "SKIPPED" %}class="realtime-row-removed"{% endif %}>
+                {% if rt.is_trip_removed %}
+                    {% set on_time_style = "color-late" %}
+                {% elif rt.on_time_status == "SKIPPED" %}
+                    {% set on_time_style = "color-late" %}
+                {% elif rt.on_time_status == "UNKNOWN" %}
+                    {% set on_time_style = "color-unknown" %}
+                {% elif rt.on_time_status == "EARLY" %}
+                    {% set on_time_style = "color-early" %}
+                {% elif rt.on_time_status == "LATE" %}
+                    {% set on_time_style = "color-late" %}
+                {% elif rt.on_time_status == "ON_TIME" %}
+                    {% set on_time_style = "color-on-time" %}
+                {% else %}
+                    {% set on_time_style = "color-unknown" %}
+                {% endif %}
+                <td class="dense-text no-pointer bold-highlight {{ on_time_style }}">
+                    <span class="code-highlight">{{ rt.static_schedule.route.short_name }}</span>
+                </td>
+                <td class="dense-text no-pointer">
+                    <a class="no-underline"
+                       href="/realtime/trip/{{ rt.static_schedule.trip.id }}">
+                        <img class="link-icon-table"
+                             src="/static/link.svg"
+                             alt="Link Icon"
+                             width="13"
+                             height="13">
+                    </a>{{ rt.real_arrival_time }}
+                </td>
+                <td class="dense-text no-pointer">{{ rt.real_eta_text }}</td>
+                <td class="dense-text no-pointer">{{ rt.delay }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="pagination-total" style="position: relative;">
+    <div class="pagination-pages">
+        <button class="pagination-button" onclick="copyTableToClipboard(true, 'table-1')">Copy Table</button>
+        <button class="pagination-button" onclick="copyTableToClipboard(false, 'table-1')">Copy Raw</button>
+    </div>
+    <span class="popuptext" id="copyPopup" onclick="hidePopup()">Table copied to clipboard ✅</span>
+    <div class="colors-legend dense-text">
+        <span class="color-early">&nbsp;Early</span><span class="color-on-time">&nbsp;On Time</span><span class="color-late">&nbsp;Late</span><span class="color-unknown">&nbsp;Unknown</span>
+    </div>
+</div>
