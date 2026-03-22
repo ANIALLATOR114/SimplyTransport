@@ -38,7 +38,7 @@ def test_all_trips_by_route_id(client: TestClient) -> None:
     response = client.get("api/v1/trip/route/3623_54684")
     assert response.status_code == 200
     response_json = response.json()
-    assert len(response_json) == 380
+    assert len(response_json) == 383
     assert response_json[0]["id"] == "3623_8603"
     assert response_json[0]["route_id"] == "3623_54684"
     assert response_json[0]["service_id"] == "290"
@@ -70,8 +70,8 @@ def test_all_trips_by_route_id_and_count(client: TestClient) -> None:
     response = client.get("api/v1/trip/route/count/3623_54684")
     assert response.status_code == 200
     response_json = response.json()
-    assert response_json["total"] == 380
-    assert len(response_json["trips"]) == 380
+    assert response_json["total"] == 383
+    assert len(response_json["trips"]) == 383
 
     response = client.get("api/v1/trip/route/count/3623_54691")
     assert response.status_code == 200

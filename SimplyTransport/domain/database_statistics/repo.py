@@ -8,6 +8,7 @@ from sqlalchemy.sql.expression import select
 from SimplyTransport.domain.agency.model import AgencyModel
 from SimplyTransport.domain.calendar.model import CalendarModel
 from SimplyTransport.domain.calendar_dates.model import CalendarDateModel
+from SimplyTransport.domain.database_statistics.model import DatabaseStatisticModel
 from SimplyTransport.domain.database_statistics.statistic_type import StatisticType
 from SimplyTransport.domain.route.model import RouteModel
 from SimplyTransport.domain.shape.model import ShapeModel
@@ -15,8 +16,6 @@ from SimplyTransport.domain.stop.model import StopModel
 from SimplyTransport.domain.stop_features.model import StopFeatureModel
 from SimplyTransport.domain.stop_times.model import StopTimeModel
 from SimplyTransport.domain.trip.model import TripModel
-
-from .model import DatabaseStatisticModel
 
 
 def max_created_subquery(statistic_type: StatisticType | None = None, date: date | None = None) -> Subquery:
@@ -198,7 +197,7 @@ class DatabaseStatisticRepository(SQLAlchemyAsyncRepository[DatabaseStatisticMod
             .all()
         )
 
-        return list(stats)
+        return list[DatabaseStatisticModel](stats)
 
     async def get_statistics_by_type_and_date(
         self, type: StatisticType, date: date
