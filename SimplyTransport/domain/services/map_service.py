@@ -7,6 +7,7 @@ from SimplyTransport.lib.cache import RedisService
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...lib.logging.logging import provide_logger
+from ...lib.tracing import CreateSpan
 from ..maps.circles import Circle
 from ..maps.clusters import Cluster
 from ..maps.colors import Colors
@@ -42,6 +43,7 @@ class MapService:
         self.trip_repository = trip_repository
         self.rt_vehicle_repository = rt_vehicle_repository
 
+    @CreateSpan()
     async def generate_stop_map(self, stop_id: str) -> Map | None:
         """
         Generates a map with markers and layers for a given stop ID.
@@ -115,6 +117,7 @@ class MapService:
         stop_map.add_layer_control()
         return stop_map
 
+    @CreateSpan()
     async def generate_stop_map_nearby(self, latitude: float, longitude: float) -> Map:
         """
         Generates a map with markers and layers for a given lat and long.
@@ -154,6 +157,7 @@ class MapService:
         stop_map.add_layer_control()
         return stop_map
 
+    @CreateSpan()
     async def generate_route_map(self, route_id: str, direction: int) -> Map:
         """
         Generates a route map for a given route ID and direction.
@@ -208,6 +212,7 @@ class MapService:
         route_map.add_layer_control()
         return route_map
 
+    @CreateSpan()
     async def generate_agency_route_map(self, agency_id: str | Literal["All"]) -> Map:
         """
         Generates a map showing the routes of a specific agency or all agencies.
@@ -261,6 +266,7 @@ class MapService:
         route_map.add_layer_control()
         return route_map
 
+    @CreateSpan()
     async def generate_static_stop_map(self, map_type: StaticStopMapTypes) -> Map:
         stop_map = Map(zoom=7, height=600)
         stop_map.setup_defaults()

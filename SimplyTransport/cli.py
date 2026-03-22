@@ -32,6 +32,7 @@ from .lib.gtfs_static_maps import build_route_map, build_stop_map
 from .lib.logging.logging import provide_logger
 from .lib.realtime_seed_time_shift import shift_db_stop_times_and_patch_payload_for_now
 from .lib.stop_features_importer import StopFeaturesImporter
+from .lib.tracing import cli_command_span, cli_span_name, get_app_tracer
 from .timescale.services.delays_service import provide_delays_service
 
 DEFAULT_GTFS_DIRECTORY = "./gtfs_data/TFI/"
@@ -67,9 +68,12 @@ def gtfs_dataset_label_from_import_dir(import_dir: str) -> str:
 def make_sync(func):
     """Decorator to run async functions in a sync context"""
 
+    tracer = get_app_tracer()
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        return asyncio.run(func(*args, **kwargs))
+        with tracer.start_as_current_span(cli_span_name(func)):
+            return asyncio.run(func(*args, **kwargs))
 
     return wrapper
 
@@ -80,53 +84,55 @@ class CLIPlugin(CLIPluginProtocol):
         def settings():
             """Prints the current settings of the app"""
 
-            from SimplyTransport.lib import settings
+            with cli_command_span("cli.settings"):
+                from SimplyTransport.lib import settings
 
-            console = Console()
+                console = Console()
 
-            table = Table()
-            table.add_column("Setting", style="cyan")
-            table.add_column("Value")
+                table = Table()
+                table.add_column("Setting", style="cyan")
+                table.add_column("Value")
 
-            table.add_row("LITESTAR_APP", settings.app.LITESTAR_APP)
-            if settings.app.DEBUG:
-                debug_style = "green"
-            else:
-                debug_style = "red"
+                table.add_row("LITESTAR_APP", settings.app.LITESTAR_APP)
+                if settings.app.DEBUG:
+                    debug_style = "green"
+                else:
+                    debug_style = "red"
 
-            table.add_row("Debug", str(settings.app.DEBUG), style=debug_style)
-            table.add_row("Environment", settings.app.ENVIRONMENT)
-            table.add_row("Database URL", settings.app.DB_URL)
-            table.add_row("Database SYNC URL", settings.app.DB_URL_SYNC)
-            table.add_row("Database Echo", str(settings.app.DB_ECHO))
-            table.add_row("Log Level", settings.app.LOG_LEVEL)
+                table.add_row("Debug", str(settings.app.DEBUG), style=debug_style)
+                table.add_row("Environment", settings.app.ENVIRONMENT)
+                table.add_row("Database URL", settings.app.DB_URL)
+                table.add_row("Database SYNC URL", settings.app.DB_URL_SYNC)
+                table.add_row("Database Echo", str(settings.app.DB_ECHO))
+                table.add_row("Log Level", settings.app.LOG_LEVEL)
 
-            console.print(table)
+                console.print(table)
 
         @cli.command(name="docs", help="Prints the documentation urls for the API")
         def docs(app: Litestar):
             """Prints the documentation urls for the API"""
 
-            console = Console()
-            base_url = "http://localhost:8000"  # TODO: Make this automatically get the base url
-            table = Table()
-            table.add_column("Doc Type", style="cyan")
-            table.add_column("URL")
+            with cli_command_span("cli.docs"):
+                console = Console()
+                base_url = "http://localhost:8000"  # TODO: Make this automatically get the base url
+                table = Table()
+                table.add_column("Doc Type", style="cyan")
+                table.add_column("URL")
 
-            if app.openapi_config is None:
-                console.print("[red]Error: OpenAPI controller not found.")
-                return
+                if app.openapi_config is None:
+                    console.print("[red]Error: OpenAPI controller not found.")
+                    return
 
-            docs_path = app.openapi_config.path
-            renderers = app.openapi_config.render_plugins
+                docs_path = app.openapi_config.path
+                renderers = app.openapi_config.render_plugins
 
-            table.add_row("Default", f"{base_url}{docs_path}")
-            for renderer in renderers:
-                renderer_name = renderer.__class__.__name__.replace("RenderPlugin", "")
-                renderer_path = renderer.paths[0]
-                table.add_row(renderer_name, f"{base_url}{docs_path}{renderer_path}")
+                table.add_row("Default", f"{base_url}{docs_path}")
+                for renderer in renderers:
+                    renderer_name = renderer.__class__.__name__.replace("RenderPlugin", "")
+                    renderer_path = renderer.paths[0]
+                    table.add_row(renderer_name, f"{base_url}{docs_path}{renderer_path}")
 
-            console.print(table)
+                console.print(table)
 
         @cli.command(name="importgtfs", help="Imports GTFS data into the database")
         @click.option("-dir", help="Override the directory containing the GTFS data to import")
