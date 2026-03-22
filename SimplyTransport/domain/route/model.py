@@ -37,7 +37,7 @@ class RouteModel(BigIntAuditBase):
     text_color: Mapped[str | None] = mapped_column(String(length=1000))
     trips: Mapped[list["TripModel"]] = relationship(back_populates="route")
     rt_trips: Mapped[list["RTTripModel"]] = relationship(back_populates="route")
-    dataset: Mapped[str] = mapped_column(String(length=80))
+    dataset: Mapped[str] = mapped_column(String(length=80), index=True)
 
 
 class Route(BaseModel):

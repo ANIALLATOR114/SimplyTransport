@@ -50,7 +50,7 @@ class TripModel(BigIntAuditBase):
     rt_trips: Mapped[list["RTTripModel"]] = relationship(back_populates="trip")
     rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="trip")
     rt_vehicles: Mapped[list["RTVehicleModel"]] = relationship(back_populates="trip")
-    dataset: Mapped[str] = mapped_column(String(length=80))
+    dataset: Mapped[str] = mapped_column(String(length=80), index=True)
 
 
 class Trip(BaseModel):

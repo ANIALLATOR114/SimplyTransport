@@ -9,6 +9,7 @@ from opentelemetry import metrics, trace
 from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
 from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.metrics import MeterProvider
@@ -42,6 +43,7 @@ if settings.app.ENVIRONMENT in ("DEV", "PROD"):
     trace_provider = TracerProvider(resource=resource)
     trace_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=f"{_base}/v1/traces")))
     trace.set_tracer_provider(trace_provider)
+    HTTPXClientInstrumentor().instrument()
 
     reader = PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=f"{_base}/v1/metrics"))
     meter_provider = MeterProvider(resource=resource, metric_readers=[reader])

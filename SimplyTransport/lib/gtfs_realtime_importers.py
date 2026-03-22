@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
 from json import JSONDecodeError
 from typing import Any
@@ -6,7 +7,7 @@ from typing import Any
 import httpx
 import rich.progress as rp
 from SimplyTransport.lib.tracing import CreateSpan
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +17,6 @@ from ..domain.realtime.trip.model import RTTripModel
 from ..domain.realtime.vehicle.model import RTVehicleModel
 from ..domain.route.model import RouteModel
 from ..domain.stop.model import StopModel
-from ..domain.stop_times.model import StopTimeModel
 from ..domain.trip.model import TripModel
 from . import time_date_conversions as tdc
 from .db.database import async_session_factory
@@ -37,6 +37,64 @@ progress_columns = (
 )
 
 RETENTION_PERIOD = datetime.now(UTC) - timedelta(minutes=30)
+
+_BATCH_SIZE = 3000
+
+
+def _bulk_upsert_statement(
+    model, objects_to_commit: list[dict], index_elements: list[str], update_dict: dict
+):
+    stmt = insert(model).values(objects_to_commit)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=index_elements,
+        set_={key: getattr(stmt.excluded, key) for key in update_dict},
+    )
+    return stmt
+
+
+async def bulk_upsert(
+    session: AsyncSession,
+    model,
+    objects_to_commit: list[dict],
+    index_elements: list[str],
+    update_dict: dict,
+    batch_size: int = _BATCH_SIZE,
+) -> None:
+    for i in range(0, len(objects_to_commit), batch_size):
+        batch = objects_to_commit[i : i + batch_size]
+        stmt = _bulk_upsert_statement(model, batch, index_elements, update_dict)
+        await session.execute(stmt)
+    await session.commit()
+
+
+async def bulk_insert(
+    session: AsyncSession,
+    model,
+    rows: list[dict],
+    batch_size: int = _BATCH_SIZE,
+) -> None:
+    for i in range(0, len(rows), batch_size):
+        batch = rows[i : i + batch_size]
+        await session.execute(insert(model).values(batch))
+    await session.commit()
+
+
+@dataclass(frozen=True)
+class RealtimeImportSharedContext:
+    """Trip ids present in static GTFS for a dataset; shared by parallel RT importers."""
+
+    trips_in_db: frozenset[str]
+
+
+async def _shared_context_from_session(session: AsyncSession, dataset: str) -> RealtimeImportSharedContext:
+    result = await session.execute(select(TripModel.id).where(TripModel.dataset == dataset))
+    return RealtimeImportSharedContext(frozenset[str](result.scalars()))
+
+
+async def load_realtime_import_shared_context(dataset: str) -> RealtimeImportSharedContext:
+    """Load static trip ids for ``dataset`` (opens one session)."""
+    async with async_session_factory() as session:
+        return await _shared_context_from_session(session, dataset)
 
 
 def _trip_descriptor_relationship(trip: dict[str, Any]) -> str:
@@ -59,9 +117,9 @@ def _skip_stop_time_import_for_trip_relationship(rel: str) -> bool:
     return rel in (ScheduleRealtionship.CANCELED.value, ScheduleRealtionship.DELETED.value)
 
 
-def _parse_rt_start_time(time_str: str | None, fallback: time) -> time:
+def _parse_rt_start_time(time_str: str | None) -> time:
     if not time_str:
-        return fallback
+        return time(0, 0, 0)
     return tdc.convert_29_hours_to_24_hours(time_str)
 
 
@@ -71,46 +129,11 @@ def _parse_rt_start_date(date_str: str | None, fallback: date) -> date:
     return tdc.convert_joined_date_to_date(date_str)
 
 
-async def _load_first_departure_by_trip(session: AsyncSession, dataset: str) -> dict[str, time]:
-    min_seq = (
-        select(StopTimeModel.trip_id, func.min(StopTimeModel.stop_sequence).label("min_sq"))
-        .where(StopTimeModel.dataset == dataset)
-        .group_by(StopTimeModel.trip_id)
-        .subquery()
-    )
-    stmt = select(StopTimeModel.trip_id, StopTimeModel.departure_time).join(
-        min_seq,
-        (StopTimeModel.trip_id == min_seq.c.trip_id)
-        & (StopTimeModel.stop_sequence == min_seq.c.min_sq)
-        & (StopTimeModel.dataset == dataset),
-    )
-    result = await session.execute(stmt)
-    return {row.trip_id: row.departure_time for row in result.all()}
-
-
 class RealTimeImporter:
     def __init__(self, url: str, api_key: str, dataset: str) -> None:
         self.url = url
         self.api_key = api_key
         self.dataset = dataset
-
-    def bulk_upsert_statement(self, model, objects_to_commit, index_elements: list[str], update_dict: dict):
-        stmt = insert(model).values(objects_to_commit)
-        stmt = stmt.on_conflict_do_update(
-            index_elements=index_elements,
-            set_={key: getattr(stmt.excluded, key) for key in update_dict},
-        )
-        return stmt
-
-    async def bulk_upsert(
-        self, model, objects_to_commit, index_elements: list[str], update_dict: dict, session: AsyncSession
-    ):
-        batch_size = 3000
-        for i in range(0, len(objects_to_commit), batch_size):
-            batch = objects_to_commit[i : i + batch_size]
-            stmt = self.bulk_upsert_statement(model, batch, index_elements, update_dict)
-            await session.execute(stmt)
-        await session.commit()
 
     async def get_data(self) -> dict | None:
         headers = {
@@ -156,7 +179,12 @@ class RealTimeImporter:
         return total_stop_times, total_trips
 
     @CreateSpan()
-    async def import_stop_times(self, data: dict, progress: rp.Progress) -> int:
+    async def import_stop_times(
+        self,
+        data: dict,
+        progress: rp.Progress,
+        shared: RealtimeImportSharedContext,
+    ) -> int:
         """Imports the stop times from the dataset into the database"""
 
         entities = data.get("entity", [])
@@ -172,15 +200,11 @@ class RealTimeImporter:
 
         async with async_session_factory() as session:
             objects_to_commit: list[dict] = []
-            result_trips = await session.execute(
-                select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
-            )
-            trips_in_db = set[str](result_trips.scalars())
 
             result_stops = await session.execute(
-                select(StopModel.id).filter(StopModel.dataset == self.dataset).distinct()
+                select(StopModel.id).where(StopModel.dataset == self.dataset)
             )
-            stops_in_db = set[str](result_stops.scalars())
+            stops_in_db = frozenset[str](result_stops.scalars())
 
             try:
                 for item in entities:
@@ -193,7 +217,7 @@ class RealTimeImporter:
                         continue
 
                     eff_trip_id = _effective_trip_id_for_trip_update(trip_update)
-                    if not eff_trip_id or eff_trip_id not in trips_in_db:
+                    if not eff_trip_id or eff_trip_id not in shared.trips_in_db:
                         continue
 
                     for stop_time in trip_update.get("stop_time_update", []):
@@ -231,7 +255,8 @@ class RealTimeImporter:
 
                 if objects_to_commit:
                     try:
-                        await self.bulk_upsert(
+                        await bulk_upsert(
+                            session,
                             RTStopTimeModel,
                             objects_to_commit,
                             ["stop_id", "trip_id", "stop_sequence", "dataset"],
@@ -242,7 +267,6 @@ class RealTimeImporter:
                                 "entity_id": "entity_id",
                                 "dataset": "dataset",
                             },
-                            session,
                         )
                     except Exception as e:
                         logger.error(f"RealTime: {self.url} failed to commit stop times: {e}")
@@ -253,7 +277,12 @@ class RealTimeImporter:
                 return 0
 
     @CreateSpan()
-    async def import_trips(self, data: dict, progress: rp.Progress) -> int:
+    async def import_trips(
+        self,
+        data: dict,
+        progress: rp.Progress,
+        shared: RealtimeImportSharedContext,
+    ) -> int:
         """Imports the trips from the dataset into the database"""
 
         entities = [e for e in data.get("entity", []) if e.get("trip_update")]
@@ -263,13 +292,9 @@ class RealTimeImporter:
         async with async_session_factory() as session:
             objects_to_commit: list[dict] = []
             result_routes = await session.execute(
-                select(RouteModel.id).filter(RouteModel.dataset == self.dataset).distinct()
+                select(RouteModel.id).where(RouteModel.dataset == self.dataset)
             )
-            routes_in_db = set[str](result_routes.scalars())
-            result_trips = await session.execute(
-                select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
-            )
-            trips_in_db = set[str](result_trips.scalars())
+            routes_in_db = frozenset[str](result_routes.scalars())
 
             trip_meta_rows = await session.execute(
                 select(TripModel.id, TripModel.route_id, TripModel.direction).where(
@@ -277,9 +302,7 @@ class RealTimeImporter:
                 )
             )
             trip_dir = {r.id: (r.route_id, r.direction) for r in trip_meta_rows.all()}
-            first_departure = await _load_first_departure_by_trip(session, self.dataset)
             today = date.today()
-            default_time = time(0, 0, 0)
 
             for item in entities:
                 trip_update = item.get("trip_update") or {}
@@ -287,7 +310,7 @@ class RealTimeImporter:
                 props = trip_update.get("trip_properties") or {}
                 rel = _trip_descriptor_relationship(trip)
                 eff_trip_id = _effective_trip_id_for_trip_update(trip_update)
-                if not eff_trip_id or eff_trip_id not in trips_in_db:
+                if not eff_trip_id or eff_trip_id not in shared.trips_in_db:
                     progress.update(task, advance=1)
                     continue
 
@@ -296,8 +319,7 @@ class RealTimeImporter:
                     progress.update(task, advance=1)
                     continue
 
-                fallback_t = first_departure.get(eff_trip_id, default_time)
-                start_time = _parse_rt_start_time(trip.get("start_time"), fallback_t)
+                start_time = _parse_rt_start_time(trip.get("start_time"))
                 start_date_src = trip.get("start_date") or props.get("start_date")
                 start_date = _parse_rt_start_date(start_date_src, today)
 
@@ -324,7 +346,8 @@ class RealTimeImporter:
 
             if objects_to_commit:
                 try:
-                    await self.bulk_upsert(
+                    await bulk_upsert(
+                        session,
                         RTTripModel,
                         objects_to_commit,
                         ["trip_id", "route_id", "dataset"],
@@ -336,7 +359,6 @@ class RealTimeImporter:
                             "entity_id": "entity_id",
                             "dataset": "dataset",
                         },
-                        session,
                     )
                 except Exception as e:
                     logger.error(f"RealTime: {self.url} failed to commit trips: {e}")
@@ -347,8 +369,10 @@ class RealTimeImporter:
 async def asyncio_gather_imports(
     importer: RealTimeImporter, data: dict, progress: rp.Progress
 ) -> tuple[int, int]:
+    shared = await load_realtime_import_shared_context(importer.dataset)
     total_stop_times, total_trips = await asyncio.gather(
-        importer.import_stop_times(data, progress), importer.import_trips(data, progress)
+        importer.import_stop_times(data, progress, shared),
+        importer.import_trips(data, progress, shared),
     )
     return total_stop_times, total_trips
 
@@ -388,27 +412,24 @@ class RealTimeVehiclesImporter:
             await session.execute(delete_vehicles)
             await session.commit()
 
+    @CreateSpan()
     async def import_vehicles(self, data: dict) -> int:
         """Imports the vehicles from the dataset into the database"""
 
         entities = data.get("entity", [])
-        vehicle_count = 0
+        objects_to_commit: list[dict] = []
         with rp.Progress(*progress_columns) as progress:
             task = progress.add_task("[green]Importing RT Vehicles...", total=max(len(entities), 1))
 
             async with async_session_factory() as session:
-                objects_to_commit: list[RTVehicleModel] = []
-                result_trips = await session.execute(
-                    select(TripModel.id).filter(TripModel.dataset == self.dataset).distinct()
-                )
-                trips_in_db = set[str](result_trips.scalars())
+                shared = await _shared_context_from_session(session, self.dataset)
 
                 try:
                     for item in entities:
                         vehicle_update = item.get("vehicle") or {}
                         trip = vehicle_update.get("trip") or {}
                         trip_id = trip.get("trip_id")
-                        if not trip_id or trip_id not in trips_in_db:
+                        if not trip_id or trip_id not in shared.trips_in_db:
                             progress.update(task, advance=1)
                             continue
 
@@ -425,27 +446,26 @@ class RealTimeVehiclesImporter:
                             progress.update(task, advance=1)
                             continue
 
-                        new_rt_vehicle = RTVehicleModel(
-                            vehicle_id=int(vid),
-                            trip_id=trip_id,
-                            time_of_update=datetime.fromtimestamp(int(ts)),
-                            lat=lat,
-                            lon=lon,
-                            dataset=self.dataset,
+                        objects_to_commit.append(
+                            {
+                                "vehicle_id": int(vid),
+                                "trip_id": trip_id,
+                                "time_of_update": datetime.fromtimestamp(int(ts)),
+                                "lat": lat,
+                                "lon": lon,
+                                "dataset": self.dataset,
+                            }
                         )
-
-                        objects_to_commit.append(new_rt_vehicle)
-                        vehicle_count += 1
                         progress.update(task, advance=1)
 
-                    try:
-                        session.add_all(objects_to_commit)
-                        await session.commit()
-                    except Exception as e:
-                        logger.error(f"RealTime: {self.url} failed to commit vehicles: {e}")
-                        return 0
+                    if objects_to_commit:
+                        try:
+                            await bulk_insert(session, RTVehicleModel, objects_to_commit)
+                        except Exception as e:
+                            logger.error(f"RealTime: {self.url} failed to commit vehicles: {e}")
+                            return 0
                 except Exception as e:
                     logger.warning(f"RealTime: {self.url} returned invalid JSON in entities: {e}")
                     return 0
 
-        return vehicle_count
+        return len(objects_to_commit)

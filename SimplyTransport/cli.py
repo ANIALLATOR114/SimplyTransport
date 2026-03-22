@@ -27,7 +27,12 @@ from .lib.cache_keys import CacheKeys
 from .lib.concurrency import concurrency, release_lock, skip_if_lock_held, try_acquire_lock
 from .lib.db.database import async_session_factory
 from .lib.db.timescale_database import async_timescale_session_factory
-from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter, progress_columns
+from .lib.gtfs_realtime_importers import (
+    RealTimeImporter,
+    RealTimeVehiclesImporter,
+    asyncio_gather_imports,
+    progress_columns,
+)
 from .lib.gtfs_static_maps import build_route_map, build_stop_map
 from .lib.logging.logging import provide_logger
 from .lib.realtime_seed_time_shift import shift_db_stop_times_and_patch_payload_for_now
@@ -323,9 +328,7 @@ class CLIPlugin(CLIPluginProtocol):
             await importer.clear_table_stop_trip()
 
             with rp.Progress(*progress_columns) as progress:
-                total_stop_times, total_trips = await asyncio.gather(
-                    importer.import_stop_times(data, progress), importer.import_trips(data, progress)
-                )
+                total_stop_times, total_trips = await asyncio_gather_imports(importer, data, progress)
 
             finish: float = time.perf_counter()
             attributes = {
