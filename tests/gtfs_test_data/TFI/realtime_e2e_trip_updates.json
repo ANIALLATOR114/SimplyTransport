@@ -1,0 +1,63 @@
+{
+  "header": {
+    "gtfs_realtime_version": "2.0",
+    "incrementality": "FULL_DATASET"
+  },
+  "entity": [
+    {
+      "id": "rt_e2e_sched",
+      "trip_update": {
+        "trip": {
+          "trip_id": "RT_E2E_SCHED",
+          "route_id": "3623_54684",
+          "direction_id": 0,
+          "schedule_relationship": "SCHEDULED",
+          "start_time": "12:00:00",
+          "start_date": "20250321"
+        },
+        "stop_time_update": [
+          {
+            "stop_sequence": 1,
+            "stop_id": "RT_E2E_S1",
+            "schedule_relationship": "SCHEDULED",
+            "arrival": { "delay": 360 },
+            "departure": { "delay": 360 }
+          }
+        ]
+      }
+    },
+    {
+      "id": "rt_e2e_cancel",
+      "trip_update": {
+        "trip": {
+          "trip_id": "RT_E2E_CANCEL",
+          "route_id": "3623_54684",
+          "direction_id": 0,
+          "schedule_relationship": "CANCELED"
+        }
+      }
+    },
+    {
+      "id": "rt_e2e_added",
+      "trip_update": {
+        "trip": {
+          "trip_id": "RT_E2E_ADDED",
+          "route_id": "3623_54684",
+          "direction_id": 0,
+          "schedule_relationship": "ADDED",
+          "start_time": "12:20:00",
+          "start_date": "20250321"
+        },
+        "stop_time_update": [
+          {
+            "stop_sequence": 1,
+            "stop_id": "RT_E2E_S1",
+            "schedule_relationship": "SCHEDULED",
+            "arrival": { "delay": 0 },
+            "departure": { "delay": 0 }
+          }
+        ]
+      }
+    }
+  ]
+}

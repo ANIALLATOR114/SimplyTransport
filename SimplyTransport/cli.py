@@ -3,6 +3,7 @@ import functools
 import json
 import os
 import time
+from pathlib import Path
 
 import click
 import geojson
@@ -20,6 +21,7 @@ from .domain.events.event_types import EventType
 from .domain.events.repo import create_event_with_session, provide_event_repo
 from .domain.maps.enums import StaticStopMapTypes
 from .domain.services.statistics_service import provide_statistics_service
+from .lib import settings as lib_settings
 from .lib.cache import provide_redis_service
 from .lib.cache_keys import CacheKeys
 from .lib.concurrency import concurrency
@@ -28,6 +30,7 @@ from .lib.db.timescale_database import async_timescale_session_factory
 from .lib.gtfs_realtime_importers import RealTimeImporter, RealTimeVehiclesImporter, progress_columns
 from .lib.gtfs_static_maps import build_route_map, build_stop_map
 from .lib.logging.logging import provide_logger
+from .lib.realtime_seed_time_shift import shift_db_stop_times_and_patch_payload_for_now
 from .lib.stop_features_importer import StopFeaturesImporter
 from .timescale.services.delays_service import provide_delays_service
 
@@ -48,6 +51,12 @@ def gtfs_directory_validator(directory: str | None, console: Console):
         console.print(f"No directory specified, using default of {directory}")
 
     return directory
+
+
+def gtfs_dataset_label_from_import_dir(import_dir: str) -> str:
+    """Dataset tag stored on GTFS rows: the folder name that holds the .txt files (e.g. .../TFI -> TFI)."""
+
+    return Path(import_dir).resolve().name
 
 
 # https://github.com/pallets/click/issues/2033
@@ -126,8 +135,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             dir = gtfs_directory_validator(dir, console)
 
-            dir_path = dir.split("/")
-            dataset = dir_path[-2]
+            dataset = gtfs_dataset_label_from_import_dir(dir)
             response = click.prompt(
                 f"\nYou are about to import this dataset and assign it to '{dataset}'. "
                 "Press 'y' to continue, anything else to abort: ",
@@ -304,6 +312,55 @@ class CLIPlugin(CLIPluginProtocol):
             console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
 
         @cli.command(
+            name="seedrealtimefromfile",
+            help="Loads GTFS-RT trip updates from a local JSON file into rt_trip / rt_stop_time",
+        )
+        @click.option(
+            "--file",
+            "json_path",
+            required=True,
+            type=click.Path(exists=True, dir_okay=False, readable=True, path_type=str),
+            help="Path to GTFS-RT JSON (e.g. tests/gtfs_test_data/TFI/realtime_e2e_trip_updates.json)",
+        )
+        @click.option("-dataset", default="", help="Dataset label; default from app settings")
+        @click.option(
+            "--set-time-to-now",
+            is_flag=True,
+            help=(
+                "Before import: move static GTFS stop_times for trips in this JSON to a window around "
+                "the current clock (preserving spacing), repoint those trips to a calendar that runs on "
+                "today's weekday (so weekend local testing works with weekday-only fixture services), "
+                "and patch trip start_date/start_time in the payload. For local testing only; keep "
+                "CI/pipeline on the committed JSON without this flag."
+            ),
+        )
+        @make_sync
+        @concurrency(1)
+        async def seedrealtimefromfile(json_path: str, dataset: str, set_time_to_now: bool):
+            """Populate realtime trip/stop-time tables from a file (for tests and local dev)."""
+
+            console = Console()
+            realtime_dataset = dataset or lib_settings.app.GTFS_TFI_DATASET
+            payload = json.loads(Path(json_path).read_text(encoding="utf-8"))
+
+            if set_time_to_now:
+                async with async_session_factory() as session:
+                    svc = await shift_db_stop_times_and_patch_payload_for_now(
+                        session, realtime_dataset, payload
+                    )
+                msg = "[yellow]Adjusted static stop_times + JSON trip times to now (--set-time-to-now)."
+                if svc:
+                    msg += f" E2E trips use calendar service_id={svc} for today's weekday."
+                console.print(msg)
+
+            importer = RealTimeImporter(url="", api_key="", dataset=realtime_dataset)
+            total_stop_times, total_trips = await importer.import_from_payload(payload)
+            console.print(
+                f"[green]Seeded realtime for dataset {realtime_dataset}: "
+                f"{total_trips} rt_trip row(s) upserted, {total_stop_times} rt_stop_time row(s) upserted."
+            )
+
+        @cli.command(
             name="importrealtimevehicles", help="Imports GTFS realtime vehicle data into the database"
         )
         @click.option("-url", help="Override the default URL for the GTFS realtime vehicle data")
@@ -398,8 +455,7 @@ class CLIPlugin(CLIPluginProtocol):
 
             dir = gtfs_directory_validator(dir, console)
 
-            dir_path = dir.split("/")
-            dataset = dir_path[-2]
+            dataset = gtfs_dataset_label_from_import_dir(dir)
             response = click.prompt(
                 f"\nYou are about to import this dataset and assign it to '{dataset}'. "
                 "Press 'y' to continue, anything else to abort: ",

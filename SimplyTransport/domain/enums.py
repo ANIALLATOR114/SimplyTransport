@@ -1,12 +1,12 @@
-from enum import Enum
+from enum import IntEnum, StrEnum
 
 
-class ExceptionType(str, Enum):
+class ExceptionType(StrEnum):
     added = "added"
     removed = "removed"
 
 
-class RouteType(int, Enum):
+class RouteType(IntEnum):
     TRAM = 0
     SUBWAY = 1
     RAIL = 2
@@ -19,7 +19,7 @@ class RouteType(int, Enum):
     MONORAIL = 12
 
 
-class DayOfWeek(int, Enum):
+class DayOfWeek(IntEnum):
     MONDAY = 0
     TUESDAY = 1
     WEDNESDAY = 2
@@ -29,7 +29,7 @@ class DayOfWeek(int, Enum):
     SUNDAY = 6
 
 
-class LocationType(int, Enum):
+class LocationType(IntEnum):
     STOP = 0
     STATION = 1
     ENTRANCE_EXIT = 2
@@ -37,7 +37,7 @@ class LocationType(int, Enum):
     BOARDING_AREA = 4
 
 
-class PickupType(int, Enum):
+class PickupType(IntEnum):
     """Indicates pickup method"""
 
     REGULARLY_SCHEDULED = 0
@@ -46,7 +46,7 @@ class PickupType(int, Enum):
     MUST_COORDINATE_WITH_DRIVER = 3
 
 
-class DropoffType(int, Enum):
+class DropoffType(IntEnum):
     """Indicates dropoff method"""
 
     REGULARLY_SCHEDULED = 0
@@ -55,7 +55,7 @@ class DropoffType(int, Enum):
     MUST_COORDINATE_WITH_DRIVER = 3
 
 
-class Timepoint(int, Enum):
+class Timepoint(IntEnum):
     """Indicates if arrival and departure times for a stop are strictly adhered to by the vehicle
     or if they are instead approximate and/or interpolated times
     A null value here means EXACT
@@ -65,7 +65,7 @@ class Timepoint(int, Enum):
     EXACT = 1
 
 
-class StopType(str, Enum):
+class StopType(StrEnum):
     """Type marked (MKD) indicates the stops is marked with a physical
     transport infrastructure item (pole, shelter or real time unit). Customs
     and Practice (CUS) indicates there is no such infrastructure
@@ -76,7 +76,7 @@ class StopType(str, Enum):
     UNKNOWN = "Unknown"
 
 
-class Bearing(str, Enum):
+class Bearing(StrEnum):
     """Bearing indicates the direction that traffic travels"""
 
     NORTH = "N"

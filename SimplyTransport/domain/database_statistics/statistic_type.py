@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class StatisticType(str, Enum):
+class StatisticType(StrEnum):
     # Type of statistic, should be less than 255 chars long
 
     # GTFS

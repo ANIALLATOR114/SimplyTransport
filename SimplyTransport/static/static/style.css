@@ -257,6 +257,10 @@ h3 {
 	border-left: 3px solid rgb(100, 100, 100);
 }
 
+.realtime-row-removed td {
+	background-color: #e8848424;
+}
+
 .hover-cell {
 	transition: all 0.2s ease-in-out;
 	background-color: var(--bg-color-light);

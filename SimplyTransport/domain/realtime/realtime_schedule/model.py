@@ -3,7 +3,7 @@ from datetime import datetime, time, timedelta
 from pydantic import BaseModel as _BaseModel
 
 from ...schedule.model import StaticScheduleModel
-from ..enums import OnTimeStatus
+from ..enums import REMOVED_TRIP_RELATIONSHIPS, OnTimeStatus, ScheduleRealtionship
 from ..stop_time.model import RTStopTime, RTStopTimeModel
 from ..trip.model import RTTrip, RTTripModel
 
@@ -20,10 +20,12 @@ class RealTimeScheduleModel:
         static_schedule: StaticScheduleModel,
         rt_stop_time: RTStopTimeModel | None = None,
         rt_trip: RTTripModel | None = None,
+        rt_stop_overlay_exact: bool = False,
     ):
         self.static_schedule = static_schedule
         self.rt_stop_time = rt_stop_time
         self.rt_trip = rt_trip
+        self.rt_stop_overlay_exact = rt_stop_overlay_exact
 
         self.delay = None
         self.delay_in_seconds = 0
@@ -31,19 +33,45 @@ class RealTimeScheduleModel:
         self.real_eta_text = None
         self.is_due = False
         self.on_time_status = None
+        self.is_trip_removed = False
 
-        if rt_stop_time is None and rt_trip is None:
-            # No realtime data
+        trip_removed = rt_trip is not None and rt_trip.schedule_relationship in REMOVED_TRIP_RELATIONSHIPS
+
+        if trip_removed:
+            self.is_trip_removed = True
+            self.delay = "Cancelled"
+            self.delay_in_seconds = 0
+            self.real_arrival_time = static_schedule.stop_time.arrival_time
+            self.set_real_eta_text_and_due()
+            self.on_time_status = OnTimeStatus.UNKNOWN
+        elif rt_stop_time is None and rt_trip is None:
             self.delay = "-"
             self.delay_in_seconds = 0
             self.real_arrival_time = static_schedule.stop_time.arrival_time
             self.set_real_eta_text_and_due()
             self.on_time_status = OnTimeStatus.UNKNOWN
-        else:
+        elif (
+            rt_stop_time is not None
+            and rt_stop_overlay_exact
+            and rt_stop_time.schedule_relationship == ScheduleRealtionship.SKIPPED
+        ):
+            self.delay = "Skipped"
+            self.delay_in_seconds = 0
+            self.real_arrival_time = static_schedule.stop_time.arrival_time
+            self.set_real_eta_text_and_due()
+            self.on_time_status = OnTimeStatus.SKIPPED
+        elif rt_stop_time is not None:
             self.set_delay()
             self.set_real_arrival_time()
             self.set_real_eta_text_and_due()
             self.set_on_time_status()
+        else:
+            # Trip-level update only (no stop-time row for this stop)
+            self.delay = "-"
+            self.delay_in_seconds = 0
+            self.real_arrival_time = static_schedule.stop_time.arrival_time
+            self.set_real_eta_text_and_due()
+            self.on_time_status = OnTimeStatus.UNKNOWN
 
     def set_delay(self):
         delay = max(self.rt_stop_time.arrival_delay or 0, self.rt_stop_time.departure_delay or 0)  # type: ignore
@@ -110,3 +138,4 @@ class RealTimeSchedule(BaseModel):
     real_arrival_time: time
     real_eta_text: str
     on_time_status: OnTimeStatus
+    is_trip_removed: bool

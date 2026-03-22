@@ -2,12 +2,10 @@ from collections.abc import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..realtime.enums import OnTimeStatus
+from ..realtime.enums import REMOVED_TRIP_RELATIONSHIPS, OnTimeStatus
 from ..realtime.realtime_schedule.model import RealTimeScheduleModel
 from ..realtime.realtime_schedule.repo import RealtimeScheduleRepository
-from ..realtime.stop_time.model import RTStopTimeModel
 from ..realtime.stop_time.repo import RTStopTimeRepository
-from ..realtime.trip.model import RTTripModel
 from ..realtime.trip.repo import RTTripRepository
 from ..realtime.vehicle.repo import RTVehicleRepository
 from ..schedule.model import StaticScheduleModel
@@ -26,26 +24,6 @@ class RealTimeService:
         self.rt_vehicle_repository = rt_vehicle_repository
         self.realtime_schedule_repository = realtime_schedule_repository
 
-    def parse_most_recent_realtime_update(
-        self, realtime_updates: list[tuple[RTStopTimeModel, RTTripModel]]
-    ) -> list[tuple[RTStopTimeModel, RTTripModel]]:
-        """Returns a list of RealTimeSchedule objects that are the most recent update
-        for each trip according to the stop_sequence"""
-
-        if not realtime_updates:
-            return []
-
-        most_recent_realtime_updates: dict[str, tuple[RTStopTimeModel, RTTripModel]] = {}
-
-        for stop_time, trip in realtime_updates:
-            trip_id = trip.trip_id
-            most_recent_update = most_recent_realtime_updates.get(trip_id)
-
-            if most_recent_update is None or stop_time.stop_sequence > most_recent_update[0].stop_sequence:
-                most_recent_realtime_updates[trip_id] = (stop_time, trip)
-
-        return list(most_recent_realtime_updates.values())
-
     async def get_realtime_schedules_for_static_schedules(
         self, schedules: Sequence[StaticScheduleModel]
     ) -> list[RealTimeScheduleModel]:
@@ -54,27 +32,36 @@ class RealTimeService:
         if not schedules:
             return []
 
-        trip_ids = [schedule.trip.id for schedule in schedules]
-        realtime_schedules_from_db = await self.realtime_schedule_repository.get_realtime_schedules_for_trips(
-            trips=trip_ids
-        )
+        (
+            overlay_trips,
+            overlay_stop_times,
+        ) = await self.realtime_schedule_repository.load_recent_rt_overlay_for_schedules(schedules)
 
-        only_most_recent_realtime_schedules = self.parse_most_recent_realtime_update(
-            realtime_schedules_from_db
-        )
-
-        # Create a dictionary for quick lookup
-        most_recent_realtime_dict = {
-            trip.trip_id: (stop_time, trip) for stop_time, trip in only_most_recent_realtime_schedules
-        }
-
-        realtime_schedules = []
+        realtime_schedules: list[RealTimeScheduleModel] = []
         for static in schedules:
             trip_id = static.trip.id
-            if trip_id in most_recent_realtime_dict:
-                stop_time, trip = most_recent_realtime_dict[trip_id]
+            rt_trip = overlay_trips.get(trip_id)
+            key = (trip_id, static.stop.id, static.stop_time.stop_sequence)
+            stop_overlay = overlay_stop_times.get(key)
+            rt_stop_time = stop_overlay.row if stop_overlay is not None else None
+            overlay_exact = stop_overlay.exact_match if stop_overlay is not None else False
+
+            if rt_trip is not None and rt_trip.schedule_relationship in REMOVED_TRIP_RELATIONSHIPS:
                 realtime_schedules.append(
-                    RealTimeScheduleModel(static_schedule=static, rt_trip=trip, rt_stop_time=stop_time)
+                    RealTimeScheduleModel(static_schedule=static, rt_trip=rt_trip, rt_stop_time=None)
+                )
+            elif rt_stop_time is not None:
+                realtime_schedules.append(
+                    RealTimeScheduleModel(
+                        static_schedule=static,
+                        rt_stop_time=rt_stop_time,
+                        rt_trip=rt_trip,
+                        rt_stop_overlay_exact=overlay_exact,
+                    )
+                )
+            elif rt_trip is not None:
+                realtime_schedules.append(
+                    RealTimeScheduleModel(static_schedule=static, rt_trip=rt_trip, rt_stop_time=None)
                 )
             else:
                 realtime_schedules.append(RealTimeScheduleModel(static_schedule=static))
