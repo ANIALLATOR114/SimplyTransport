@@ -30,6 +30,8 @@ class CacheKeys:
         REALTIME_STOP_KEY_TEMPLATE = "realtime:stop:{stop_id}"
         REALTIME_STOP_DELETE_ALL_KEY_TEMPLATE = "*realtime:stop:*"
         REALTIME_STOP_DELETE_KEY_TEMPLATE = "*realtime:stop:{stop_id}"
+        REALTIME_STOP_TABLE_KEY_TEMPLATE = "realtime:stop:table:{stop_id}"
+        REALTIME_STOP_TABLE_DELETE_KEY_TEMPLATE = "*realtime:stop:table:{stop_id}"
         REALTIME_TRIP_KEY_TEMPLATE = "realtime:trip:{trip_id}"
         REALTIME_TRIP_DELETE_ALL_KEY_TEMPLATE = "*realtime:trip:*"
         REALTIME_TRIP_DELETE_KEY_TEMPLATE = "*realtime:trip:{trip_id}"

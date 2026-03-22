@@ -17,5 +17,10 @@ def test_realtime_stop_e2e_removed_trip_row_and_delays(client: TestClient) -> No
     html = response.text
     assert "Sorry this stop could not be found" not in html
     assert "Test 1" in html
-    assert "realtime-row-removed" in html
-    assert "color-late" in html
+    assert "/realtime/stop/RT_E2E_S1/realtime-table" in html
+
+    partial = client.get("/realtime/stop/RT_E2E_S1/realtime-table")
+    assert partial.status_code == 200
+    fragment = partial.text
+    assert "realtime-row-removed" in fragment
+    assert "color-late" in fragment

@@ -48,8 +48,14 @@
 }
 </style>
 <script>
-function copyTableToClipboard(copyAsCode = true) {
-    const table = document.querySelector('.table-search');
+function copyTableToClipboard(copyAsCode = true, tableId = null) {
+    const table = tableId
+        ? document.getElementById(tableId)
+        : document.querySelector('.table-search');
+    if (!table) {
+        console.error(tableId ? `Table with ID ${tableId} not found.` : 'No .table-search table found.');
+        return;
+    }
     const headerCells = table.querySelectorAll('thead th');
     const bodyRows = table.querySelectorAll('tbody tr');
 
