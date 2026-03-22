@@ -5,6 +5,7 @@ from typing import Any
 
 import httpx
 import rich.progress as rp
+from SimplyTransport.lib.tracing import CreateSpan
 from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -154,6 +155,7 @@ class RealTimeImporter:
             total_stop_times, total_trips = await asyncio_gather_imports(self, data, progress)
         return total_stop_times, total_trips
 
+    @CreateSpan()
     async def import_stop_times(self, data: dict, progress: rp.Progress) -> int:
         """Imports the stop times from the dataset into the database"""
 
@@ -250,6 +252,7 @@ class RealTimeImporter:
                 logger.warning(f"RealTime: {self.url} returned invalid JSON in entities: {e}")
                 return 0
 
+    @CreateSpan()
     async def import_trips(self, data: dict, progress: rp.Progress) -> int:
         """Imports the trips from the dataset into the database"""
 
