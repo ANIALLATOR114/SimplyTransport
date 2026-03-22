@@ -14,7 +14,6 @@ jobs:
 
     env:
       ENVIRONMENT: MAIN-TEST-CI
-      LOKI_URL: ${{ secrets.LOKI_URL }}
       GTFS_TFI_DATASET: TFI
 
     services:

@@ -22,7 +22,7 @@ services:
       - GTFS_TFI_API_KEY_1=${GTFS_TFI_API_KEY_1}
       - GTFS_TFI_API_KEY_2=${GTFS_TFI_API_KEY_2}
       - GTFS_TFI_DATASET=${GTFS_TFI_DATASET}
-      - LOKI_URL=${LOKI_URL}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://opentelemetry-collector:4318}
 
     volumes:
       - ../../static:/app/static
