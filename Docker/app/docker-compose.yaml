@@ -26,15 +26,6 @@ services:
 
     volumes:
       - ../../static:/app/static
-    depends_on:
-      redis:
-        condition: service_started
-      postgres:
-        condition: service_started
-      timescale:
-        condition: service_started
-      opentelemetry-collector:
-        condition: service_started
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthcheck"]

@@ -5,6 +5,15 @@ services:
     extends:
       file: Docker/app/docker-compose.yaml
       service: simplytransport
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_started
+      timescale:
+        condition: service_started
+      opentelemetry-collector:
+        condition: service_started
 
   postgres:
     extends:
