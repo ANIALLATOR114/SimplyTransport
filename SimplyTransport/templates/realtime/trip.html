@@ -81,8 +81,8 @@
                 </table>
                 <div class="pagination-total" style="position: relative;">
                     <div class="pagination-pages">
-                        <button class="pagination-button" onclick="copyTableToClipboard(true)">Copy Table</button>
-                        <button class="pagination-button" onclick="copyTableToClipboard(false)">Copy Raw</button>
+                        <button class="pagination-button" onclick="copyTableToClipboard(true, null, this)">Copy Table</button>
+                        <button class="pagination-button" onclick="copyTableToClipboard(false, null, this)">Copy Raw</button>
                     </div>
                     <span class="popuptext" id="copyPopup" onclick="hidePopup()">Table copied to clipboard ✅</span>
                     <div class="colors-legend dense-text">

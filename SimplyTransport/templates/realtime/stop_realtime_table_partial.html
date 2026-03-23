@@ -52,8 +52,13 @@
 </table>
 <div class="pagination-total" style="position: relative;">
     <div class="pagination-pages">
-        <button class="pagination-button" onclick="copyTableToClipboard(true, 'table-1')">Copy Table</button>
-        <button class="pagination-button" onclick="copyTableToClipboard(false, 'table-1')">Copy Raw</button>
+        <button hx-get="/realtime/stop/{{ stop_id }}/realtime-table"
+                hx-target="#realtime-stop-table-inner"
+                hx-swap="innerHTML"
+                hx-indicator="#realtime-stop-table-loader"
+                class="pagination-button">Refresh</button>
+        <button class="pagination-button" onclick="copyTableToClipboard(true, 'table-1', this)">Copy Table</button>
+        <button class="pagination-button" onclick="copyTableToClipboard(false, 'table-1', this)">Copy Raw</button>
     </div>
     <span class="popuptext" id="copyPopup" onclick="hidePopup()">Table copied to clipboard ✅</span>
     <div class="colors-legend dense-text">

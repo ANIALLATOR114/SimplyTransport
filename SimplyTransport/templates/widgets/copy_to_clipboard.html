@@ -1,15 +1,18 @@
 <style>
 .popuptext {
     visibility: hidden;
+    max-width: min(90vw, 22rem);
     background-color: #555;
     color: var(--font-color);
     text-align: center;
     border-radius: 6px;
     padding: 0.5rem;
-    position: absolute;
-    z-index: 1;
-    top: -30px;
-    transform: translateX(-25%);
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    box-sizing: border-box;
+    pointer-events: auto;
 }
 
 .popuptext::after {
@@ -21,6 +24,12 @@
     border-width: 5px;
     border-style: solid;
     border-color: #555 transparent transparent transparent;
+}
+
+.copy-popup-below::after {
+    top: auto;
+    bottom: 100%;
+    border-color: transparent transparent #555 transparent;
 }
 
 .show-popup {
@@ -48,7 +57,21 @@
 }
 </style>
 <script>
-function copyTableToClipboard(copyAsCode = true, tableId = null) {
+var copyPopupHideTimeout = null;
+
+function positionCopyPopup(popup, anchorEl) {
+    if (!anchorEl) {
+        return;
+    }
+    var rect = anchorEl.getBoundingClientRect();
+    var gap = 8;
+    popup.style.left = Math.round(rect.left + rect.width / 2) + "px";
+    popup.style.top = Math.round(rect.top - gap) + "px";
+    popup.style.transform = "translate(-50%, -100%)";
+    popup.classList.remove("copy-popup-below");
+}
+
+function copyTableToClipboard(copyAsCode = true, tableId = null, anchorEl = null) {
     const table = tableId
         ? document.getElementById(tableId)
         : document.querySelector('.table-search');
@@ -99,16 +122,49 @@ function copyTableToClipboard(copyAsCode = true, tableId = null) {
     document.execCommand('copy');
     document.body.removeChild(tempContainer);
 
-    // Show popup
     var popup = document.getElementById("copyPopup");
-    popup.classList.toggle("show-popup");
+    if (copyPopupHideTimeout) {
+        clearTimeout(copyPopupHideTimeout);
+        copyPopupHideTimeout = null;
+    }
+    positionCopyPopup(popup, anchorEl);
+    popup.classList.add("show-popup");
+    if (anchorEl) {
+        requestAnimationFrame(function () {
+            var pr = popup.getBoundingClientRect();
+            if (pr.top < 4) {
+                var r = anchorEl.getBoundingClientRect();
+                var g = 8;
+                popup.style.top = Math.round(r.bottom + g) + "px";
+                popup.style.transform = "translate(-50%, 0)";
+                popup.classList.add("copy-popup-below");
+                pr = popup.getBoundingClientRect();
+            }
+            var ar = anchorEl.getBoundingClientRect();
+            var cx = ar.left + ar.width / 2;
+            var halfW = pr.width / 2;
+            var minX = 8 + halfW;
+            var maxX = window.innerWidth - 8 - halfW;
+            if (minX <= maxX) {
+                var left = Math.min(maxX, Math.max(minX, cx));
+                popup.style.left = Math.round(left) + "px";
+            }
+        });
+    }
 
-    // Hide popup after a delay
-    setTimeout(hidePopup, 5000);
+    copyPopupHideTimeout = setTimeout(hidePopup, 5000);
 }
 
 function hidePopup() {
     var popup = document.getElementById("copyPopup");
-    popup.classList.toggle("show-popup");
+    if (copyPopupHideTimeout) {
+        clearTimeout(copyPopupHideTimeout);
+        copyPopupHideTimeout = null;
+    }
+    popup.classList.remove("show-popup");
+    popup.classList.remove("copy-popup-below");
+    popup.style.left = "";
+    popup.style.top = "";
+    popup.style.transform = "";
 }
 </script>

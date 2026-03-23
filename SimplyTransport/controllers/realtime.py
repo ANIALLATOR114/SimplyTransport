@@ -112,6 +112,7 @@ class RealtimeController(Controller):
         return Template(
             template_name="realtime/stop_realtime_table_partial.html",
             context={
+                "stop_id": stop_id,
                 "current_time": current_time,
                 "realtime_schedules": realtime_schedules,
                 "start_time_difference": start_time_difference,
