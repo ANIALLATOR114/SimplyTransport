@@ -29,14 +29,13 @@
                  hx-target="#realtime-stop-table-inner"
                  hx-swap="innerHTML"
                  hx-indicator="#realtime-stop-table-loader">
-                <div id="realtime-stop-table-inner">
-                    <img class="map-loader"
-                         id="realtime-stop-table-loader"
-                         src="/static/loader.svg"
-                         width="100%"
-                         height="80px"
-                         alt="Loading spinner">
-                </div>
+                <img class="map-loader"
+                     id="realtime-stop-table-loader"
+                     src="/static/loader.svg"
+                     width="100%"
+                     height="80px"
+                     alt="Loading spinner">
+                <div id="realtime-stop-table-inner"></div>
             </div>
         </div>
         <div class="inner-container inner-container-expand">{% include "/maps/realtime/stop.html" %}</div>
@@ -58,7 +57,7 @@
                             hx-target="#schedule-table"
                             hx-swap="transition:true"
                             hx-include="[name='day']"
-                            class="pagination-button">Reload</button>
+                            class="pagination-button">Refresh</button>
                     <select class="dropdown" name="day">
                         <option value=0 {% if day_int == 0 %}selected{% endif %}>Monday</option>
                         <option value=1 {% if day_int == 1 %}selected{% endif %}>Tuesday</option>
