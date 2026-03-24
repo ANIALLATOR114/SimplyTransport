@@ -8,13 +8,13 @@
     <div class="narrow-container">
         <h1>Trip: {{ prime_schedule.trip.short_name }}</h1>
         <div class="flex-gap">
-            <a style="text-decoration: none"
+            <a class="no-underline"
                href="/realtime/route/{{ prime_schedule.route.id }}/{{ prime_schedule.trip.direction }}">
-                <button class="no-line-break link-button dense-text">Route: {{ prime_schedule.route.short_name }}</button>
+                <button class="no-line-break route-link-button dense-text">Route: {{ prime_schedule.route.short_name }}</button>
             </a>
-            <a style="text-decoration: none"
+            <a class="no-underline"
                href="/realtime/route/{{ prime_schedule.route.id }}/{{ prime_schedule.trip.direction }}">
-                <button class="no-line-break link-button dense-text">Direction: {{ direction_string }}</button>
+                <button class="no-line-break route-link-button dense-text">Direction: {{ direction_string }}</button>
             </a>
         </div>
         <div class="inner-container">
