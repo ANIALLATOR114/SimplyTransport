@@ -74,59 +74,5 @@
                 </div>
             </div>
         </div>
-        <div class="inner-container">
-            <h3 class="no-top-margin">Visualation of static schedule dataset over time</h3>
-            <img src="/static/graphs/gtfs_static.png"
-                 alt="GTFS Static Graph"
-                 width="100%"
-                 height="auto"
-                 loading="lazy">
-            <h3>Averages of Trips / StopTimes over 7 days</h3>
-            <img src="/static/graphs/rt_7_days.png"
-                 alt="Realtime Graph"
-                 width="100%"
-                 height="auto"
-                 loading="lazy">
-        </div>
     </div>
-    <div>
-        <img src="/static/bus-sideways.svg"
-             height="50"
-             width="50"
-             class="bus-animation"
-             alt="bus sideways svg">
-    </div>
-    <style>
-        .bus-animation {
-            width: 50px; /* Set the width of the bus */
-            position: fixed; /* Make the bus fixed at the bottom of the screen */
-            bottom: 0; /* Position it at the bottom of the screen */
-            -moz-animation: driveBus 22s linear infinite, rumble 1.5s linear infinite;
-            -webkit-animation: driveBus 22s linear infinite, rumble 1.5s linear infinite;
-            overflow-x: hidden;
-            z-index: 1000;
-        }
-
-        @-moz-keyframes driveBus {
-            0% { left: -50%; }
-            100% { left: 110%; }
-        }
-
-        @-webkit-keyframes driveBus {
-            0% { left: -50%; }
-            100% { left: 110%; }
-        }
-
-        @keyframes rumble {
-            0%, 100% {
-                transform: translateX(0);
-            }
-            10%, 30%, 50%, 70%, 90% {
-                transform: translateY(-1px);
-            }
-            20%, 40%, 60%, 80% {
-                transform: translateY(1px);
-            }
-        }
-    </style>
 {% endblock content %}
