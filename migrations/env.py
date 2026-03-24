@@ -1,5 +1,6 @@
 import asyncio
 from logging.config import fileConfig
+from typing import Any
 
 from alembic import context
 from litestar.contrib.sqlalchemy.base import UUIDBase
@@ -57,6 +58,22 @@ def get_database_url() -> str:
         raise ValueError(f"Unknown database name: {db_name}")
 
 
+# Timescale-only table(s) that may exist on the same Postgres host as `main`; metadata for `db=main`
+# does not include them, so autogenerate would otherwise emit spurious DROPs.
+_MAIN_DB_EXCLUDED_FROM_COMPARE = frozenset[str]({"ts_stop_times"})
+
+
+def include_object(object, name, type_, reflected, compare_to):
+    """Keep Timescale tables/indexes out of main-database autogenerate diffs."""
+    if db_name != "main":
+        return True
+    if type_ == "table" and name in _MAIN_DB_EXCLUDED_FROM_COMPARE:
+        return False
+    if type_ == "index" and name is not None and name.startswith("ix_ts_stop_times"):
+        return False
+    return True
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -75,6 +92,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -82,7 +100,11 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        include_object=include_object,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -95,7 +117,7 @@ async def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    configuration = config.get_section(config.config_ini_section)
+    configuration: dict[str, Any] = dict(config.get_section(config.config_ini_section) or {})
     configuration["sqlalchemy.url"] = get_database_url()
     connectable = async_engine_from_config(
         configuration,
