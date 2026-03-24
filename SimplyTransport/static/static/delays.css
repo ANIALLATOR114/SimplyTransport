@@ -1,19 +1,21 @@
 .delays-specific-toggle-button {
-	border-radius: 0.3rem;
+	border-radius: var(--radius-md);
 	font-size: 0.9rem;
 	padding-top: 0.2rem;
 	padding-right: 0.8rem;
 	padding-bottom: 0.1rem;
 	padding-left: 0.8rem;
-	border: none;
+	border: 1px solid var(--border-soft);
 	background-color: var(--bg-color-highlight);
 	color: var(--font-color);
-	transition: all 0.2s ease-in-out;
+	transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
 	cursor: pointer;
+	box-shadow: var(--shadow-sm);
 }
 
 .delays-specific-toggle-button:hover {
 	background-color: var(--bg-color-light);
+	box-shadow: var(--shadow-md);
 }
 
 .delays-specific-stats-row {

@@ -2,6 +2,9 @@ from pathlib import Path
 
 import folium as fl
 import folium.plugins as flp
+from branca.element import CssLink
+
+from ...lib.settings import app as app_settings
 
 ATTRIBUTION = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a>'
 
@@ -39,6 +42,7 @@ class Map:
             )
 
         self.max_zoom = max_zoom
+        self._embed_app_stylesheet_registered = False
 
     def add_fullscreen(self) -> None:
         """
@@ -123,7 +127,21 @@ class Map:
         Returns:
             str: The HTML representation of the map.
         """
+        self._ensure_embed_app_stylesheet()
         return self.map_base._repr_html_()  # type: ignore[no-any-return]
+
+    def _ensure_embed_app_stylesheet(self) -> None:
+        """
+        Folium renders the map inside an iframe (srcdoc). Stylesheets from the parent
+        page do not apply inside that document, so Leaflet defaults win unless we load
+        ``style.css`` here too (after Leaflet/plugin CSS is registered).
+        """
+        if self._embed_app_stylesheet_registered:
+            return
+        self.map_base.get_root().header.add_child(  # type: ignore[union-attr]
+            CssLink(f"/static/style.css?{app_settings.VERSION}")
+        )
+        self._embed_app_stylesheet_registered = True
 
     def save(self, path: str, filename: str) -> None:
         """
@@ -139,6 +157,7 @@ class Map:
         check_if_file_exists = Path(path + filename + ".html")
         check_if_file_exists.touch(exist_ok=True)
 
+        self._ensure_embed_app_stylesheet()
         self.map_base.save(path + filename + ".html")
 
     def add_toggle_all_layers_control(self) -> None:
@@ -152,15 +171,17 @@ class Map:
             top: 10px;
             left: 50px;
             z-index: 1000;
-            background: white;
+            background: var(--bg-color-bump, rgb(21, 30, 49));
+            color: var(--font-color, rgb(230, 230, 230));
             padding: 5px 10px;
-            border: 2px solid rgba(0,0,0,0.3);
-            border-radius: 4px;
+            border: 2px solid var(--bg-color-bump-border, rgb(49, 59, 70));
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 700;
+            font-family: Roboto, sans-serif;
         }
         .toggle-all-layers:hover {
-            background: #f4f4f4;
+            background: var(--bg-color-highlight, rgb(35, 49, 80));
         }
 
         </style>

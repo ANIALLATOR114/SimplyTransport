@@ -81,8 +81,8 @@
                                 </div>
                             </div>
                             
-                            <div id="${graphContainerId}" 
-                                 style="height: 300px; margin-top: 15px; background-color: #1e1e1e; border: 1px solid #555555;"
+                            <div id="${graphContainerId}"
+                                 class="delays-chart-container"
                                  data-stop-id="${stopId}"
                                  data-route-code="${routeCode}" 
                                  data-scheduled-time="${scheduledTime}">
@@ -198,22 +198,26 @@
                 autoSize: true,
                 grid: {
                     vertLines: {
-                        visible: false
+                        visible: true,
+                        color: 'rgba(143, 91, 185, 0.15)',
                     },
-                    horzLines: { visible: false }
+                    horzLines: {
+                        visible: true,
+                        color: 'rgba(143, 91, 185, 0.15)',
+                    },
                 },
                 layout: {
-                    textColor: '#e6e6e6',
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
+                    textColor: 'rgb(230, 230, 230)',
+                    fontSize: 14,
+                    fontFamily: 'Roboto, sans-serif',
                     attributionLogo: false,
-                    background: { type: 'solid', color: 'black' }
-                }
+                    background: { type: 'solid', color: 'rgb(21, 30, 49)' },
+                },
             };
             const chart = LightweightCharts.createChart(document.getElementById(containerId), chartOptions);
 
-            const lineSeries = chart.addSeries(LightweightCharts.LineSeries, { 
-                color: '#2962FF', 
+            const lineSeries = chart.addSeries(LightweightCharts.LineSeries, {
+                color: 'rgb(143, 91, 185)',
                 pointMarkersVisible: true,
                 priceLineVisible: false,
                 lastValueVisible: false,

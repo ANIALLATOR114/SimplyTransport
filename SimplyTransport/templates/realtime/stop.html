@@ -11,15 +11,17 @@
             <h2>No number available</h2>
         {% endif %}
         <div class="flex-gap">
-            <a style="text-decoration: none"
+            <a class="no-underline"
                href="https://www.google.com/maps?layer=c&amp;cbll={{ stop.lat }},{{ stop.lon }}&amp;cbp=0,0,,,"
-               target="_blank">
-                <button class="no-line-break link-button dense-text">Street View</button>
+               target="_blank"
+               rel="noopener noreferrer">
+                <button class="no-line-break route-link-button dense-text">Street View</button>
             </a>
-            <a style="text-decoration: none"
+            <a class="no-underline"
                href="https://www.google.com/maps/dir/?api=1&destination={{ stop.lat }},{{ stop.lon }}"
-               target="_blank">
-                <button class="no-line-break link-button dense-text">Google Maps Directions</button>
+               target="_blank"
+               rel="noopener noreferrer">
+                <button class="no-line-break route-link-button dense-text">Google Maps Directions</button>
             </a>
         </div>
         <div class="inner-container">
@@ -52,13 +54,13 @@
             </h3>
             <div class="collapsible" style="max-height:0;">
                 <div class="load-with-dropdown">
-                    <button hx-get="/realtime/stop/{{ stop.id }}/schedule"
-                            hx-trigger="click"
+                    <select class="dropdown"
+                            name="day"
+                            hx-get="/realtime/stop/{{ stop.id }}/schedule"
+                            hx-trigger="change"
                             hx-target="#schedule-table"
                             hx-swap="transition:true"
-                            hx-include="[name='day']"
-                            class="pagination-button">Refresh</button>
-                    <select class="dropdown" name="day">
+                            hx-include="[name='day']">
                         <option value=0 {% if day_int == 0 %}selected{% endif %}>Monday</option>
                         <option value=1 {% if day_int == 1 %}selected{% endif %}>Tuesday</option>
                         <option value=2 {% if day_int == 2 %}selected{% endif %}>Wednesday</option>
