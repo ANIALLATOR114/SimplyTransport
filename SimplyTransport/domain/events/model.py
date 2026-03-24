@@ -4,7 +4,7 @@ from typing import Any
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
-from sqlalchemy import DateTime, Index, String
+from sqlalchemy import DateTime, Index, String, desc
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -20,9 +20,12 @@ class BaseModel(_BaseModel):
 
 class EventModel(BigIntAuditBase):
     __tablename__: str = "event"  # type: ignore[assignment]
-    __table_args__ = (Index("ix_event_created_at", "created_at"),)
+    __table_args__ = (
+        Index("ix_event_created_at", "created_at"),
+        Index("ix_event_event_type_created_at", "event_type", desc("created_at")),
+    )
 
-    event_type: Mapped[EventType] = mapped_column(String(length=255), index=True)
+    event_type: Mapped[EventType] = mapped_column(String(length=255))
     description: Mapped[str] = mapped_column(String(length=1000))
     expiry_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     attributes: Mapped[dict] = mapped_column(JSONB)
