@@ -676,55 +676,6 @@
 		color: var(--font-color);
 	}
 
-	/* === maps: Leaflet (folium / OSM tiles) — no alternate tile URLs === */
-	.leaflet-container {
-		filter: brightness(0.88) saturate(0.95);
-		border-radius: var(--radius-md);
-	}
-
-	.leaflet-bar a {
-		background-color: var(--bg-color-bump) !important;
-		color: var(--font-color) !important;
-		border-color: var(--bg-color-bump-border) !important;
-	}
-
-	.leaflet-bar a:hover {
-		background-color: var(--bg-color-highlight) !important;
-	}
-
-	.leaflet-control-zoom a {
-		width: 30px !important;
-		line-height: 28px !important;
-	}
-
-	.leaflet-control-layers {
-		background-color: var(--bg-color-bump) !important;
-		color: var(--font-color) !important;
-		border: 1px solid var(--bg-color-bump-border) !important;
-		border-radius: var(--radius-sm) !important;
-		font-family: "Roboto", sans-serif !important;
-	}
-
-	.leaflet-control-layers-list {
-		color: var(--font-color) !important;
-	}
-
-	.leaflet-control-layers-selector {
-		color: var(--font-color) !important;
-	}
-
-	.leaflet-control-attribution {
-		background: var(--bg-color-bump) !important;
-		color: var(--font-color-secondary) !important;
-		border: 1px solid var(--bg-color-bump-border) !important;
-		border-radius: var(--radius-sm) !important;
-		font-size: 0.7rem !important;
-	}
-
-	.leaflet-popup-content-wrapper {
-		border-radius: var(--radius-sm);
-	}
-
 	@keyframes loader {
 		0% {
 			transform: rotate(0deg);
@@ -926,4 +877,177 @@
 		}
 	}
 
+}
+
+/*
+ * Leaflet / Folium — unlayered overrides (must sit outside @layer).
+ * Folium injects the Leaflet CDN stylesheet after this file; unlayered rules beat layered
+ * ones, so themed controls were losing to default white Leaflet UI while inside @layer.
+ * Tile dimming targets .leaflet-tile-pane only so vector routes/markers stay unfiltered.
+ */
+#map .leaflet-container,
+#map-element .leaflet-container,
+.map-container .leaflet-container,
+.folium-map.leaflet-container {
+	border-radius: var(--radius-md);
+}
+
+#map .leaflet-tile-pane,
+#map-element .leaflet-tile-pane,
+.map-container .leaflet-tile-pane,
+.folium-map .leaflet-tile-pane {
+	filter: brightness(0.82) saturate(0.92) contrast(1.02);
+}
+
+#map .leaflet-bar a,
+#map-element .leaflet-bar a,
+.map-container .leaflet-bar a,
+.folium-map .leaflet-bar a {
+	background-color: var(--bg-color-bump) !important;
+	color: var(--font-color) !important;
+	border-color: var(--bg-color-bump-border) !important;
+}
+
+#map .leaflet-bar a:hover,
+#map-element .leaflet-bar a:hover,
+.map-container .leaflet-bar a:hover,
+.folium-map .leaflet-bar a:hover {
+	background-color: var(--bg-color-highlight) !important;
+}
+
+#map .leaflet-control-zoom a,
+#map-element .leaflet-control-zoom a,
+.map-container .leaflet-control-zoom a,
+.folium-map .leaflet-control-zoom a {
+	width: 30px !important;
+	line-height: 28px !important;
+}
+
+#map .leaflet-control-layers,
+#map-element .leaflet-control-layers,
+.map-container .leaflet-control-layers,
+.folium-map .leaflet-control-layers {
+	background-color: var(--bg-color-bump) !important;
+	color: var(--font-color) !important;
+	border: 1px solid var(--bg-color-bump-border) !important;
+	border-radius: var(--radius-sm) !important;
+	font-family: "Roboto", sans-serif !important;
+}
+
+#map .leaflet-control-layers-expanded,
+#map-element .leaflet-control-layers-expanded,
+.map-container .leaflet-control-layers-expanded,
+.folium-map .leaflet-control-layers-expanded {
+	background-color: var(--bg-color-bump) !important;
+	color: var(--font-color) !important;
+}
+
+#map .leaflet-control-layers-list,
+#map-element .leaflet-control-layers-list,
+.map-container .leaflet-control-layers-list,
+.folium-map .leaflet-control-layers-list {
+	color: var(--font-color) !important;
+}
+
+#map .leaflet-control-layers-selector,
+#map-element .leaflet-control-layers-selector,
+.map-container .leaflet-control-layers-selector,
+.folium-map .leaflet-control-layers-selector {
+	color: var(--font-color) !important;
+}
+
+#map .leaflet-control-layers label,
+#map-element .leaflet-control-layers label,
+.map-container .leaflet-control-layers label,
+.folium-map .leaflet-control-layers label {
+	color: var(--font-color) !important;
+}
+
+#map .leaflet-control-attribution,
+#map-element .leaflet-control-attribution,
+.map-container .leaflet-control-attribution,
+.folium-map .leaflet-control-attribution {
+	background: var(--bg-color-bump) !important;
+	color: var(--font-color-secondary) !important;
+	border: 1px solid var(--bg-color-bump-border) !important;
+	border-radius: var(--radius-sm) !important;
+	font-size: 0.7rem !important;
+	max-width: 100% !important;
+	white-space: nowrap !important;
+	overflow-x: auto !important;
+	overflow-y: hidden !important;
+	line-height: 1.2 !important;
+}
+
+#map .leaflet-popup-content-wrapper,
+#map-element .leaflet-popup-content-wrapper,
+.map-container .leaflet-popup-content-wrapper,
+.folium-map .leaflet-popup-content-wrapper {
+	background: var(--bg-color-bump) !important;
+	color: var(--font-color) !important;
+	border: 1px solid var(--bg-color-bump-border) !important;
+	border-radius: var(--radius-sm);
+}
+
+#map .leaflet-popup-tip,
+#map-element .leaflet-popup-tip,
+.map-container .leaflet-popup-tip,
+.folium-map .leaflet-popup-tip {
+	background: var(--bg-color-bump) !important;
+	border: 1px solid var(--bg-color-bump-border) !important;
+}
+
+#map a.leaflet-control-fullscreen-button,
+#map-element a.leaflet-control-fullscreen-button,
+.map-container a.leaflet-control-fullscreen-button,
+.folium-map a.leaflet-control-fullscreen-button {
+	background-color: var(--bg-color-bump) !important;
+	border-color: var(--bg-color-bump-border) !important;
+	color: var(--font-color) !important;
+}
+
+/*
+ * Fullscreen plugin: default sprite uses currentColor (black). Override with a
+ * light-fill copy so the glyph matches zoom controls on dark buttons.
+ */
+#map .fullscreen-icon,
+#map-element .fullscreen-icon,
+.map-container .fullscreen-icon,
+.folium-map .fullscreen-icon {
+	filter: none !important;
+	background-image: url("/static/leaflet-fullscreen-icon.svg") !important;
+	background-size: 26px 52px !important;
+	background-repeat: no-repeat !important;
+	background-position: 0 0 !important;
+}
+
+#map .fullscreen-icon.leaflet-fullscreen-on,
+#map-element .fullscreen-icon.leaflet-fullscreen-on,
+.map-container .fullscreen-icon.leaflet-fullscreen-on,
+.folium-map .fullscreen-icon.leaflet-fullscreen-on {
+	background-position: 0 -26px !important;
+}
+
+#map.leaflet-touch .fullscreen-icon,
+#map-element.leaflet-touch .fullscreen-icon,
+.map-container.leaflet-touch .fullscreen-icon,
+.folium-map.leaflet-touch .fullscreen-icon {
+	background-position: 2px 2px !important;
+}
+
+#map.leaflet-touch .fullscreen-icon.leaflet-fullscreen-on,
+#map-element.leaflet-touch .fullscreen-icon.leaflet-fullscreen-on,
+.map-container.leaflet-touch .fullscreen-icon.leaflet-fullscreen-on,
+.folium-map.leaflet-touch .fullscreen-icon.leaflet-fullscreen-on {
+	background-position: 2px -24px !important;
+}
+
+#map .leaflet-control-mouseposition,
+#map-element .leaflet-control-mouseposition,
+.map-container .leaflet-control-mouseposition,
+.folium-map .leaflet-control-mouseposition {
+	background: var(--bg-color-bump) !important;
+	color: var(--font-color-secondary) !important;
+	border: 1px solid var(--bg-color-bump-border) !important;
+	border-radius: var(--radius-sm) !important;
 }

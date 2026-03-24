@@ -1,5 +1,6 @@
 import folium as fl
 from SimplyTransport.domain.maps.maps import Map
+from SimplyTransport.lib.settings import app as app_settings
 
 
 def test_map_init():
@@ -56,3 +57,9 @@ def test_add_layer_control():
 
     html = map_obj.render()
     assert "layer_control" in html
+
+
+def test_render_includes_app_stylesheet_in_iframe_document():
+    map_obj = Map()
+    html = map_obj.render()
+    assert f"/static/style.css?{app_settings.VERSION}" in html
