@@ -52,13 +52,13 @@
             </h3>
             <div class="collapsible" style="max-height:0;">
                 <div class="load-with-dropdown">
-                    <button hx-get="/realtime/stop/{{ stop.id }}/schedule"
-                            hx-trigger="click"
+                    <select class="dropdown"
+                            name="day"
+                            hx-get="/realtime/stop/{{ stop.id }}/schedule"
+                            hx-trigger="change"
                             hx-target="#schedule-table"
                             hx-swap="transition:true"
-                            hx-include="[name='day']"
-                            class="pagination-button">Refresh</button>
-                    <select class="dropdown" name="day">
+                            hx-include="[name='day']">
                         <option value=0 {% if day_int == 0 %}selected{% endif %}>Monday</option>
                         <option value=1 {% if day_int == 1 %}selected{% endif %}>Tuesday</option>
                         <option value=2 {% if day_int == 2 %}selected{% endif %}>Wednesday</option>
