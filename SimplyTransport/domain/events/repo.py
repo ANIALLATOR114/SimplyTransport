@@ -4,11 +4,12 @@ from typing import Literal
 from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import LimitOffset, OrderBy
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
-from sqlalchemy import select
+from sqlalchemy import select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from SimplyTransport.domain.events.event_types import EventType
+
 from ...lib.db.database import async_session_factory
-from .event_types import EventType
 from .model import EventModel
 
 
@@ -65,14 +66,25 @@ class EventRepository(SQLAlchemyAsyncRepository[EventModel]):  # type: ignore
     async def get_multiple_pretty_events_by_types(
         self, event_types: list[EventType]
     ) -> dict[EventType, EventModel]:
-        """Get the most recent event for each of the specified event types."""
-        stmt = (
-            select(EventModel)
-            .where(EventModel.event_type.in_(event_types))
-            .order_by(EventModel.event_type, EventModel.created_at.desc())
-            .distinct(EventModel.event_type)
-        )
+        """Get the most recent event for each of the specified event types.
 
+        Uses UNION ALL of per-type ``LIMIT 1`` subqueries so the planner can use
+        ``(event_type, created_at DESC)`` with a short index scan per type, instead of
+        ``DISTINCT ON`` over all rows matching ``IN (...)``.
+        """
+        if not event_types:
+            return {}
+        # One round-trip: ids via UNION ALL … LIMIT 1 in a subquery, then full rows by PK.
+        # Avoid union of select(EventModel): scalars() would return event_type strings, not entities.
+        id_selects = [
+            select(EventModel.id)
+            .where(EventModel.event_type == et)
+            .order_by(EventModel.created_at.desc())
+            .limit(1)
+            for et in event_types
+        ]
+        ids_subq = union_all(*id_selects).subquery()
+        stmt = select(EventModel).where(EventModel.id.in_(select(ids_subq.c.id)))
         result = await self.session.execute(stmt)
         events = result.scalars().all()
 
