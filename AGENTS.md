@@ -51,6 +51,14 @@ See `README.md` for full details. Quick reference:
 - `ruff format --check .` — format check
 - `pyright` — type check (pre-existing errors in test mocks; not enforced in CI)
 
+**After finishing code changes** (including for automated agents): run the same hooks CI uses locally:
+
+```bash
+pre-commit run --all-files
+```
+
+Fix any reported issues before considering the task done. If `pre-commit` is not installed, use the individual commands above from an activated venv.
+
 ### Testing
 
 ```bash
