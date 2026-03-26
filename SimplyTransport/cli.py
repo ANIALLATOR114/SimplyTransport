@@ -16,10 +16,8 @@ from rich.table import Table
 import SimplyTransport.lib.gtfs_importers as imp
 from SimplyTransport.lib.db import services as db_services
 
-from .domain.agency.repo import provide_agency_repo
 from .domain.events.event_types import EventType
 from .domain.events.repo import create_event_with_session, provide_event_repo
-from .domain.maps.enums import StaticStopMapTypes
 from .domain.services.statistics_service import provide_statistics_service
 from .lib import settings as lib_settings
 from .lib.cache import provide_redis_service
@@ -33,7 +31,6 @@ from .lib.gtfs_realtime_importers import (
     asyncio_gather_imports,
     progress_columns,
 )
-from .lib.gtfs_static_maps import build_route_map, build_stop_map
 from .lib.logging.logging import provide_logger
 from .lib.realtime_seed_time_shift import shift_db_stop_times_and_patch_payload_for_now
 from .lib.stop_features_importer import StopFeaturesImporter
@@ -264,9 +261,6 @@ class CLIPlugin(CLIPluginProtocol):
                 )
                 await redis_service.delete_keys_by_pattern(
                     CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
-                )
-                await redis_service.delete_keys_by_pattern(
-                    CacheKeys.Routes.ROUTES_BY_STOP_ID_DELETE_ALL_KEY_TEMPLATE
                 )
 
                 finish = time.perf_counter()
@@ -654,47 +648,31 @@ class CLIPlugin(CLIPluginProtocol):
             await redis_service.delete_all_keys()
             console.print("\n[blue]Finished flushing the Redis cache")
 
-        @cli.command(name="generatemaps", help="Generates the static maps for gtfs data")
+        @cli.command(
+            name="generatemaps",
+            help="Clears Redis cache keys for maps",
+        )
         @make_sync
         async def generatemaps():
-            """Generates static maps for each agency in the database as well as stop maps."""
+            """Pre-generated Folium HTML is removed; this invalidates cached map responses.
+            generatemaps name kept for backwards compatibility"""
 
             redis_service = await provide_redis_service()
 
             console = Console()
-            console.print("Generating static maps...")
+            console.print("Invalidating static map cache keys...")
             start = time.perf_counter()
 
-            console.print("Generating agency route maps")
-            async with async_session_factory() as session:
-                agency_repo = await provide_agency_repo(db_session=session)
-                agencies = await agency_repo.list()
-
-            agency_ids = [agency.id for agency in agencies]
-            agency_ids.append("All")
-
-            tasks = [build_route_map(agency, redis_service) for agency in agency_ids]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            for result in results:
-                if isinstance(result, Exception):
-                    logger.error(f"Error generating route map: {result}")
             await redis_service.delete_keys_by_pattern(
                 CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
             )
-
-            console.print("Generating stop maps")
-            tasks = [build_stop_map(map_type, redis_service) for map_type in StaticStopMapTypes]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            for result in results:
-                if isinstance(result, Exception):
-                    logger.error(f"Error generating stop map: {result}")
             await redis_service.delete_keys_by_pattern(
                 CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
             )
 
             finish = time.perf_counter()
-            logger.info(f"Finished generating static maps in {round(finish - start, 2)} second(s)")
-            console.print(f"\n[blue]Finished generating static maps in {round(finish - start, 2)} second(s)")
+            logger.info(f"Finished map cache invalidation in {round(finish - start, 2)} second(s)")
+            console.print(f"\n[blue]Finished map cache invalidation in {round(finish - start, 2)} second(s)")
 
         @cli.command(name="generatestatistics", help="Generates the statistics for the database")
         @make_sync

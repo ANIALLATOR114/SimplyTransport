@@ -6,8 +6,8 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
 
+from SimplyTransport.api_contract.events import Event, EventsWithTotal
 from SimplyTransport.domain.events.event_types import EventType
-from SimplyTransport.domain.events.model import Event, EventsWithTotal
 
 from ...domain.events.repo import EventRepository, provide_event_repo
 

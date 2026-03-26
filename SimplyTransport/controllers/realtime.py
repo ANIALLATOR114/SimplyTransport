@@ -11,7 +11,7 @@ from SimplyTransport.lib.cache_keys import (
     key_builder_from_path_and_query,
 )
 
-from ..domain.enums import DayOfWeek
+from ..domain.enums import DayOfWeek, Direction
 from ..domain.route.repo import RouteRepository, provide_route_repo
 from ..domain.services.realtime_service import (
     RealTimeService,
@@ -22,7 +22,6 @@ from ..domain.services.schedule_service import (
     provide_schedule_service,
 )
 from ..domain.stop.repo import StopRepository, provide_stop_repo
-from ..domain.trip.model import Direction
 
 __all__ = [
     "RealtimeController",

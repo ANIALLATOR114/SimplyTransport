@@ -3,7 +3,8 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 
-from ...domain.agency.model import Agency, AgencyWithTotal
+from SimplyTransport.api_contract.agency import Agency, AgencyWithTotal
+
 from ...domain.agency.repo import AgencyRepository, provide_agency_repo
 
 __all__ = ["AgencyController"]

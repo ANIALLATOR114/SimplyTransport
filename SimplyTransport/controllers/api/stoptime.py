@@ -2,7 +2,8 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 
-from ...domain.stop_times.model import StopTime
+from SimplyTransport.api_contract.stop_time import StopTime
+
 from ...domain.stop_times.repo import StopTimeRepository, provide_stop_time_repo
 
 __all__ = ["StopTimeController"]

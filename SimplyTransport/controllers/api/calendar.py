@@ -6,7 +6,8 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 
-from ...domain.calendar.model import Calendar, CalendarWithTotal
+from SimplyTransport.api_contract.calendar import Calendar, CalendarWithTotal
+
 from ...domain.calendar.repo import CalendarRepository, provide_calendar_repo
 
 __all__ = ["CalendarController"]

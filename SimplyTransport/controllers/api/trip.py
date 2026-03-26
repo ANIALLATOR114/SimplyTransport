@@ -3,7 +3,8 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 
-from ...domain.trip.model import Trip, TripsWithTotal
+from SimplyTransport.api_contract.trip import Trip, TripsWithTotal
+
 from ...domain.trip.repo import TripRepository, provide_trip_repo
 
 __all__ = ["TripController"]

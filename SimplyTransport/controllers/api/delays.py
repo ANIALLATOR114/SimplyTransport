@@ -5,9 +5,14 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException, ValidationException
 from litestar.params import Parameter
 
+from SimplyTransport.api_contract.delays import (
+    TS_StopTime,
+    TS_StopTimeDelayAggregated,
+    TS_StopTimeForGraph,
+)
+
 from ...lib.cache_keys import CacheKeys, key_builder_from_path
 from ...lib.time_date_conversions import validate_time_range
-from ...timescale.ts_stop_times.model import TS_StopTime, TS_StopTimeDelayAggregated, TS_StopTimeForGraph
 from ...timescale.ts_stop_times.repo import (
     MAXIMUM_LIMIT,
     MAXIMUM_TIMESTAMP,

@@ -11,14 +11,18 @@ class Colors(Enum):
     CADETBLUE = "cadetblue"
     LIGHTBLUE = "lightblue"
 
-    def to_html_square(self) -> str:
-        """
-        Converts the color value to an HTML span element with the corresponding background color.
+    def to_hex(self) -> str:
+        """CSS hex of the color."""
+        return COLORS_HEX[self]
 
-        Returns:
-            str: HTML span element with the background color.
-        """
-        return (
-            '<span style="display: inline-block; width: 10px; height: 10px; '
-            f'background-color: {self.value};"></span>'
-        )
+
+COLORS_HEX: dict[Colors, str] = {
+    Colors.RED: "#ff0000",
+    Colors.GREEN: "#008000",
+    Colors.ORANGE: "#ffa500",
+    Colors.BLUE: "#3388ff",
+    Colors.PINK: "#ffc0cb",
+    Colors.PURPLE: "#800080",
+    Colors.CADETBLUE: "#5f9ea0",
+    Colors.LIGHTBLUE: "#add8e6",
+}

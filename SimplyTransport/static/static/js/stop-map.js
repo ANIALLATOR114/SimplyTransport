@@ -1,0 +1,387 @@
+/**
+ * MapLibre stop map: loads /api/v1/map/stop/{id} and renders routes, vehicles, stops.
+ * Depends on global maplibregl (loaded from CDN before this script).
+ */
+(function () {
+    "use strict";
+
+    function escapeHtml(s) {
+        if (s === null || s === undefined) {
+            return "";
+        }
+        return String(s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
+    function buildStopPopupHtml(stop, direction) {
+        const code = stop.code || "";
+        const title = `${code} - ${stop.name}`.trim();
+        const routes = stop.routes || [];
+        const routesHtml = routes
+            .map(
+                (r) =>
+                    `<a href="/realtime/route/${escapeHtml(r.route_id)}/${direction}">${escapeHtml(r.short_name)}</a> — ${escapeHtml(r.long_name)}`,
+            )
+            .join("<br>");
+
+        let featuresHtml = "";
+        if (stop.stop_features) {
+            const sf = stop.stop_features;
+            featuresHtml = `<p class="map-popup-block map-popup-muted">Wheelchair accessible: ${escapeHtml(sf.wheelchair_accessible)}<br>
+Bus Shelter: ${escapeHtml(sf.shelter_active)}<br>
+Realtime display: ${escapeHtml(sf.rtpi_active)}</p>`;
+        }
+
+        return (
+            `<div class="map-popup-inner">` +
+            `<h4 class="map-popup-title"><a href="/realtime/stop/${escapeHtml(stop.stop_id)}">${escapeHtml(title)}</a></h4>` +
+            `<p class="map-popup-block">` +
+            `<a class="map-popup-link" href="${escapeHtml(stop.street_view_url)}" target="_blank" rel="noopener noreferrer">Street view</a><br>` +
+            `<span class="map-popup-muted">Lat: ${escapeHtml(stop.lat)}<br>Lon: ${escapeHtml(stop.lon)}</span></p>` +
+            featuresHtml +
+            `<p class="map-popup-block map-popup-routes-head"><strong>${routes.length} Routes</strong></p>` +
+            `<p class="map-popup-routes">${routesHtml}</p>` +
+            `</div>`
+        );
+    }
+
+    function buildStopTooltipHtml(stop) {
+        const code = stop.code || "";
+        const title = `${code} - ${stop.name}`.trim();
+        return `<div class="map-stop-tooltip-inner">${escapeHtml(title)}</div>`;
+    }
+
+    /** OpenStreetMap raster tiles (same idea as classic OSM web maps). */
+    const OSM_RASTER_STYLE = {
+        version: 8,
+        sources: {
+            osm: {
+                type: "raster",
+                tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                tileSize: 256,
+                attribution:
+                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            },
+        },
+        layers: [
+            {
+                id: "osm",
+                type: "raster",
+                source: "osm",
+                minzoom: 0,
+                maxzoom: 19,
+            },
+        ],
+    };
+
+    function initStopMap(stopId, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container || !window.maplibregl) {
+            return;
+        }
+
+        const loader = container.parentElement
+            ? container.parentElement.querySelector(".map-loader")
+            : null;
+
+        fetch(`/api/v1/map/stop/${encodeURIComponent(stopId)}`)
+            .then((r) => {
+                if (!r.ok) {
+                    throw new Error("Map data not available");
+                }
+                return r.json();
+            })
+            .then((payload) => {
+                if (loader) {
+                    loader.style.display = "none";
+                }
+
+                const map = new maplibregl.Map({
+                    container: containerId,
+                    style: OSM_RASTER_STYLE,
+                    center: payload.center,
+                    zoom: payload.zoom,
+                });
+
+                map.addControl(new maplibregl.NavigationControl(), "top-left");
+                map.addControl(new maplibregl.FullscreenControl(), "top-left");
+
+                const stopsGeojson = {
+                    type: "FeatureCollection",
+                    features: payload.stops.map((s) => ({
+                        type: "Feature",
+                        geometry: {
+                            type: "Point",
+                            coordinates: [s.lon, s.lat],
+                        },
+                        properties: {
+                            stop_id: s.stop_id,
+                            is_focus: s.is_focus,
+                        },
+                    })),
+                };
+
+                const vehiclesGeojson =
+                    payload.vehicles.length === 0
+                        ? null
+                        : {
+                              type: "FeatureCollection",
+                              features: payload.vehicles.map((v) => ({
+                                  type: "Feature",
+                                  geometry: {
+                                      type: "Point",
+                                      coordinates: [v.lon, v.lat],
+                                  },
+                                  properties: {
+                                      route_id: v.route_id,
+                                      color: v.color,
+                                      vehicle_id: v.vehicle_id,
+                                  },
+                              })),
+                          };
+
+                const layerState = {
+                    routes: {},
+                    stops: true,
+                };
+
+                const panel = document.createElement("div");
+                panel.className = "maplibre-layer-panel";
+
+                map.on("load", () => {
+                    map.addSource("stops-src", {
+                        type: "geojson",
+                        data: stopsGeojson,
+                    });
+
+                    // Line + vehicle layers first; stop circles added last so they paint on top.
+                    payload.routes.forEach((route) => {
+                        const lid = `route-line-${route.route_id}`;
+                        const srcId = `route-src-${route.route_id}`;
+                        map.addSource(srcId, {
+                            type: "geojson",
+                            data: {
+                                type: "Feature",
+                                properties: {},
+                                geometry: route.line,
+                            },
+                        });
+                        map.addLayer({
+                            id: lid,
+                            type: "line",
+                            source: srcId,
+                            layout: {
+                                visibility: "visible",
+                                "line-join": "round",
+                                "line-cap": "round",
+                            },
+                            paint: {
+                                "line-color": route.color,
+                                "line-width": 6,
+                                "line-opacity": 0.95,
+                            },
+                        });
+                        layerState.routes[route.route_id] = {
+                            line: lid,
+                            vehicle: vehiclesGeojson ? `vehicle-${route.route_id}` : null,
+                        };
+                    });
+
+                    if (vehiclesGeojson) {
+                        map.addSource("vehicles-src", {
+                            type: "geojson",
+                            data: vehiclesGeojson,
+                        });
+                        payload.routes.forEach((route) => {
+                            map.addLayer({
+                                id: `vehicle-${route.route_id}`,
+                                type: "circle",
+                                source: "vehicles-src",
+                                filter: ["==", ["get", "route_id"], route.route_id],
+                                paint: {
+                                    "circle-radius": 8,
+                                    "circle-color": ["get", "color"],
+                                    "circle-stroke-width": 2,
+                                    "circle-stroke-color": "#111827",
+                                },
+                            });
+                        });
+                    }
+
+                    map.addLayer({
+                        id: "stops-other",
+                        type: "circle",
+                        source: "stops-src",
+                        filter: ["==", ["get", "is_focus"], false],
+                        paint: {
+                            "circle-radius": 5,
+                            "circle-color": "#ffffff",
+                            "circle-stroke-width": 2,
+                            "circle-stroke-color": "#333333",
+                        },
+                    });
+
+                    map.addLayer({
+                        id: "stops-focus",
+                        type: "circle",
+                        source: "stops-src",
+                        filter: ["==", ["get", "is_focus"], true],
+                        paint: {
+                            "circle-radius": 10,
+                            "circle-color": "#2563eb",
+                            "circle-stroke-width": 2,
+                            "circle-stroke-color": "#ffffff",
+                        },
+                    });
+
+                    buildLayerPanel(panel, payload, layerState, map);
+                    const panelHost = container.parentElement;
+                    if (panelHost) {
+                        panelHost.appendChild(panel);
+                    }
+
+                    const popup = new maplibregl.Popup({
+                        closeButton: true,
+                        closeOnClick: true,
+                        className: "maplibre-stop-popup",
+                        maxWidth: "min(360px, 92vw)",
+                    });
+
+                    const tooltip = new maplibregl.Popup({
+                        closeButton: false,
+                        closeOnClick: false,
+                        className: "maplibre-stop-tooltip",
+                        anchor: "bottom",
+                        offset: [0, -12],
+                        maxWidth: "none",
+                    });
+
+                    function openPopupForStopId(sid) {
+                        tooltip.remove();
+                        const stop = payload.stops.find((s) => s.stop_id === sid);
+                        if (!stop) {
+                            return;
+                        }
+                        popup
+                            .setLngLat([stop.lon, stop.lat])
+                            .setHTML(buildStopPopupHtml(stop, payload.direction))
+                            .addTo(map);
+                    }
+
+                    ["stops-focus", "stops-other"].forEach((layerId) => {
+                        map.on("click", layerId, (e) => {
+                            const sid = e.features[0].properties.stop_id;
+                            openPopupForStopId(sid);
+                        });
+                        map.on("mouseenter", layerId, (e) => {
+                            map.getCanvas().style.cursor = "pointer";
+                            const sid = e.features[0].properties.stop_id;
+                            const stop = payload.stops.find((s) => s.stop_id === sid);
+                            if (!stop) {
+                                return;
+                            }
+                            tooltip
+                                .setLngLat([stop.lon, stop.lat])
+                                .setHTML(buildStopTooltipHtml(stop))
+                                .addTo(map);
+                        });
+                        map.on("mouseleave", layerId, () => {
+                            map.getCanvas().style.cursor = "";
+                            tooltip.remove();
+                        });
+                    });
+                });
+            })
+            .catch(() => {
+                if (loader) {
+                    loader.style.display = "none";
+                }
+                container.innerHTML =
+                    '<p class="map-error">Map could not be loaded. Try again later.</p>';
+            });
+    }
+
+    function setLayerVisibility(map, id, visible) {
+        if (!map.getLayer(id)) {
+            return;
+        }
+        map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
+    }
+
+    function buildLayerPanel(panel, payload, layerState, map) {
+        const routes = payload.routes;
+
+        routes.forEach((route) => {
+            const row = document.createElement("label");
+            row.className = "maplibre-layer-row";
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.checked = true;
+            cb.dataset.routeId = route.route_id;
+            const swatch = document.createElement("span");
+            swatch.className = "maplibre-color-swatch";
+            swatch.style.backgroundColor = route.color;
+            swatch.setAttribute("aria-hidden", "true");
+            row.appendChild(cb);
+            row.appendChild(swatch);
+            row.appendChild(
+                document.createTextNode(` ${route.short_name}`),
+            );
+            cb.addEventListener("change", () => {
+                const vis = cb.checked;
+                const st = layerState.routes[route.route_id];
+                if (st) {
+                    setLayerVisibility(map, st.line, vis);
+                    if (st.vehicle) {
+                        setLayerVisibility(map, st.vehicle, vis);
+                    }
+                }
+            });
+            panel.appendChild(row);
+        });
+
+        const stopsRow = document.createElement("label");
+        stopsRow.className = "maplibre-layer-row";
+        const stopsCb = document.createElement("input");
+        stopsCb.type = "checkbox";
+        stopsCb.checked = true;
+        stopsCb.id = "toggle-stops-layer";
+        stopsRow.appendChild(stopsCb);
+        stopsRow.appendChild(document.createTextNode(" Stops"));
+        stopsCb.addEventListener("change", () => {
+            const vis = stopsCb.checked;
+            layerState.stops = vis;
+            setLayerVisibility(map, "stops-other", vis);
+        });
+        panel.appendChild(stopsRow);
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "maplibre-toggle-all";
+        btn.textContent = "Toggle all off";
+        let allOn = true;
+        btn.addEventListener("click", () => {
+            allOn = !allOn;
+            btn.textContent = allOn ? "Toggle all off" : "Toggle all on";
+            routes.forEach((route) => {
+                const st = layerState.routes[route.route_id];
+                if (st) {
+                    setLayerVisibility(map, st.line, allOn);
+                    if (st.vehicle) {
+                        setLayerVisibility(map, st.vehicle, allOn);
+                    }
+                }
+            });
+            setLayerVisibility(map, "stops-other", allOn);
+            panel.querySelectorAll('input[type="checkbox"]').forEach((el) => {
+                el.checked = allOn;
+            });
+        });
+        panel.appendChild(btn);
+    }
+
+    window.initStopMap = initStopMap;
+})();

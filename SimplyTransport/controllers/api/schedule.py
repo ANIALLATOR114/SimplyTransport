@@ -5,8 +5,9 @@ from litestar.di import Provide
 from litestar.exceptions import ValidationException
 from litestar.params import Parameter
 
+from SimplyTransport.api_contract.schedule import StaticSchedule
+
 from ...domain.enums import DayOfWeek
-from ...domain.schedule.model import StaticSchedule
 from ...domain.services.schedule_service import (
     ScheduleService,
     provide_schedule_service,

@@ -1,8 +1,6 @@
 from typing import TYPE_CHECKING
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from pydantic import BaseModel as _BaseModel
-from pydantic import Field
 from sqlalchemy import Float, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -13,11 +11,7 @@ if TYPE_CHECKING:
     from ..stop_features.model import StopFeatureModel
     from ..stop_times.model import StopTimeModel
 
-
-class BaseModel(_BaseModel):
-    """Extend Pydantic's BaseModel to enable ORM mode"""
-
-    model_config = {"from_attributes": True}
+__all__ = ["StopModel"]
 
 
 class StopModel(BigIntAuditBase):
@@ -42,19 +36,3 @@ class StopModel(BigIntAuditBase):
     rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="stop")
     stop_feature: Mapped["StopFeatureModel"] = relationship(back_populates="stop")
     dataset: Mapped[str] = mapped_column(String(length=80), index=True)
-
-
-class Stop(BaseModel):
-    id: str
-    code: str | None
-    name: str
-    description: str | None
-    lat: float | None
-    lon: float | None
-    zone_id: str | None
-    url: str | None
-    location_type: LocationType | None = Field(
-        description="Indicates the type of the location",
-    )
-    parent_station: str | None
-    dataset: str

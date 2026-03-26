@@ -4,9 +4,9 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 
+from SimplyTransport.api_contract.statistics import DatabaseStatistic
 from SimplyTransport.domain.database_statistics.statistic_type import StatisticType
 
-from ...domain.database_statistics.model import DatabaseStatistic
 from ...domain.database_statistics.repo import DatabaseStatisticRepository, provide_database_statistic_repo
 
 __all__ = ["StatisticsController"]

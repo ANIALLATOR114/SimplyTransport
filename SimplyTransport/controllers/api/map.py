@@ -1,11 +1,18 @@
 from advanced_alchemy.exceptions import NotFoundError
-from litestar import Controller, MediaType, Response, get
+from litestar import Controller, MediaType, get
 from litestar.di import Provide
-from litestar.exceptions import NotFoundException
-from litestar.response import Template
+from litestar.exceptions import NotFoundException, ValidationException
+from litestar.params import Parameter
 
+from SimplyTransport.api_contract.map_payloads import (
+    AgencyRoutesMapPayload,
+    NearbyMapPayload,
+    RouteMapPayload,
+    StaticStopsMapPayload,
+    StopMapPayload,
+)
+from SimplyTransport.domain.maps.enums import StaticStopMapTypes
 from SimplyTransport.domain.services.map_service import MapService, provide_map_service
-from SimplyTransport.lib.cache_keys import CacheKeys, key_builder_from_path
 
 __all__ = ["MapController"]
 
@@ -16,42 +23,86 @@ class MapController(Controller):
     }
 
     @get(
+        "/stop/nearby",
+        media_type=MediaType.JSON,
+        summary="Get map data for stops near a point",
+        description=(
+            "Returns nearby stops within a radius of a latitude/longitude. "
+            "Optional radius_meters defaults to 1200 and must be between 1 and 1500."
+        ),
+    )
+    async def nearby_map_data(
+        self,
+        map_service: MapService,
+        latitude: float = Parameter(query="latitude", required=True, description="Latitude"),
+        longitude: float = Parameter(query="longitude", required=True, description="Longitude"),
+        radius_meters: int = Parameter(
+            query="radius_meters",
+            default=1200,
+            ge=1,
+            le=1500,
+            description="Search radius in meters (1–1500). Defaults to 1200.",
+        ),
+    ) -> NearbyMapPayload:
+        return await map_service.build_nearby_map_payload(latitude, longitude, radius_meters)
+
+    @get(
+        "/stop/aggregated/{map_type:str}",
+        media_type=MediaType.JSON,
+        summary="Get map data for a static stop map type",
+        description="Static stop map category (see enum).",
+        raises=[ValidationException],
+    )
+    async def static_stops_map_data(
+        self, map_type: StaticStopMapTypes, map_service: MapService
+    ) -> StaticStopsMapPayload:
+        return await map_service.build_static_stop_map_payload(map_type)
+
+    @get(
         "/stop/{stop_id:str}",
-        cache=86400,
-        cache_key_builder=key_builder_from_path(CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE, "stop_id"),
-        summary="Get a map for a stop",
-        description="Will return an iframe with a map centered on the stop",
+        media_type=MediaType.JSON,
+        summary="Get map data for a stop",
+        description=("Returns GeoJSON-friendly route lines, stops, and vehicle positions for the stop map."),
         raises=[NotFoundException],
     )
-    async def map_for_stop(self, stop_id: str, map_service: MapService) -> Response | Template:
+    async def stop_map_data(self, stop_id: str, map_service: MapService) -> StopMapPayload:
         try:
-            stop_map = await map_service.generate_stop_map(stop_id)
+            payload = await map_service.build_stop_map_payload(stop_id)
         except NotFoundError as e:
             raise NotFoundException(detail=f"Stop not found with id {stop_id}") from e
 
-        if stop_map is None:
+        if payload is None:
             raise NotFoundException(detail=f"Stop not found with id {stop_id}")
 
-        return Template(template_str=stop_map.render(), media_type=MediaType.HTML)
+        return payload
 
     @get(
         "/route/{route_id:str}/{direction:int}",
-        cache=86400,
-        cache_key_builder=key_builder_from_path(
-            CacheKeys.RouteMaps.ROUTE_MAP_KEY_TEMPLATE, "route_id", "direction"
-        ),
-        summary="Get a map for a route",
-        description="Will return an iframe with a map centered on the first stop on the route",
+        media_type=MediaType.JSON,
+        summary="Get map data for a route",
+        description="Returns GeoJSON-friendly route line, stops, and vehicle positions for the route map.",
         raises=[NotFoundException],
     )
-    async def map_for_route(
-        self, route_id: str, direction: int, map_service: MapService
-    ) -> Response | Template:
+    async def route_map_data(self, route_id: str, direction: int, map_service: MapService) -> RouteMapPayload:
         try:
-            route_map = await map_service.generate_route_map(route_id, direction)
+            return await map_service.build_route_map_payload(route_id, direction)
         except NotFoundError as e:
             raise NotFoundException(
-                detail=f"Route not found with id {route_id} and direction {direction}"
+                detail=f"Route map not found for route {route_id} and direction {direction}"
             ) from e
 
-        return Template(template_str=route_map.render(), media_type=MediaType.HTML)
+    @get(
+        "/route/{agency_id:str}",
+        media_type=MediaType.JSON,
+        summary="Get map data for all routes of an agency",
+        description=(
+            'Use agency_id "All" for every agency. Single-segment path; '
+            "distinct from /route/{route_id}/{direction}."
+        ),
+        raises=[NotFoundException],
+    )
+    async def agency_routes_map_data(self, agency_id: str, map_service: MapService) -> AgencyRoutesMapPayload:
+        try:
+            return await map_service.build_agency_routes_map_payload(agency_id)
+        except ValueError as e:
+            raise NotFoundException(detail=str(e)) from e

@@ -117,7 +117,6 @@ def create_api_router() -> Router:
         tags=[tags.STOP_TIME.name],
         route_handlers=[stoptime.StopTimeController],
     )
-
     realtime_route_handler = Router(
         path="/realtime",
         tags=[tags.REALTIME.name],

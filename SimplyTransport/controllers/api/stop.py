@@ -6,7 +6,8 @@ from litestar.exceptions import NotFoundException
 from litestar.pagination import OffsetPagination  # type: ignore
 from litestar.params import Parameter
 
-from ...domain.stop.model import Stop
+from SimplyTransport.api_contract.stop import Stop
+
 from ...domain.stop.repo import StopRepository, provide_stop_repo
 
 __all__ = ["StopController"]

@@ -1,15 +1,9 @@
-<div class="map-container"
-     hx-get="/maps/realtime/stop/{{ stop.id }}"
-     hx-trigger="load"
-     hx-target="#map-element"
-     hx-indicator="#map-loader"
-     hx-swap="transition:true">
+<div class="map-container map-container--maplibre"
+     data-stop-id="{{ stop.id }}">
     <div id="map-element"></div>
-    <button hx-get="/maps/realtime/stop/{{ stop.id }}"
-            hx-trigger="click"
-            hx-target="#map-element"
-            hx-swap="transition:true"
-            class="pagination-button">Refresh</button>
+    <button type="button"
+            class="pagination-button"
+            id="stop-map-refresh">Refresh</button>
     <img class="map-loader"
          id="map-loader"
          src="/static/loader.svg"
@@ -17,3 +11,18 @@
          height="80px"
          alt="Loading spinner">
 </div>
+<script src="/static/js/stop-map.js?{{ request.app.openapi_config.version }}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const wrap = document.querySelector(".map-container--maplibre[data-stop-id]");
+        if (wrap && window.initStopMap) {
+            initStopMap(wrap.dataset.stopId, "map-element");
+        }
+        const refBtn = document.getElementById("stop-map-refresh");
+        if (refBtn) {
+            refBtn.addEventListener("click", function () {
+                window.location.reload();
+            });
+        }
+    });
+</script>

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from ...route.model import RouteModel
     from ...trip.model import TripModel
 
-from ...trip.model import Direction
+from ...enums import Direction
 from ..enums import ScheduleRealtionship
 
 

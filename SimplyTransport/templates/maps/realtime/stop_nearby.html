@@ -1,9 +1,6 @@
-<div class="map-container"
-     hx-get="/maps/realtime/stop/nearby?latitude={{ latitude }}&longitude={{ longitude }}"
-     hx-trigger="load"
-     hx-target="#map-element"
-     hx-indicator="#map-loader"
-     hx-swap="transition:true">
+<div class="map-container map-container--maplibre"
+     data-latitude="{{ latitude }}"
+     data-longitude="{{ longitude }}">
     <div id="map-element"></div>
     <img class="map-loader"
          id="map-loader"
@@ -12,3 +9,16 @@
          height="80px"
          alt="Loading spinner">
 </div>
+<script src="/static/js/nearby-map.js?{{ request.app.openapi_config.version }}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const wrap = document.querySelector(".map-container--maplibre[data-latitude]");
+        if (wrap && window.initNearbyMap) {
+            const lat = Number.parseFloat(wrap.dataset.latitude);
+            const lon = Number.parseFloat(wrap.dataset.longitude);
+            if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+                initNearbyMap(lat, lon, "map-element");
+            }
+        }
+    });
+</script>

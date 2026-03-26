@@ -17,6 +17,10 @@
         <link rel="manifest" href="/site.webmanifest">
         <link rel="stylesheet"
               href="/static/style.css?{{ request.app.openapi_config.version }}" />
+        <link rel="stylesheet"
+              href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+        <script defer
+                src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         {% include "fonts.html" %}
         <script defer src="/static/htmx.2.0.4.js"></script>

@@ -5,17 +5,12 @@ if TYPE_CHECKING:
     from ..trip.model import TripModel
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from pydantic import BaseModel as _BaseModel
 from sqlalchemy import Date, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..calendar_dates.model import CalendarDateModel
 
-
-class BaseModel(_BaseModel):
-    """Extend Pydantic's BaseModel to enable ORM mode"""
-
-    model_config = {"from_attributes": True}
+__all__ = ["CalendarModel"]
 
 
 class CalendarModel(BigIntAuditBase):
@@ -49,22 +44,3 @@ class CalendarModel(BigIntAuditBase):
             if exception.service_id == self.id:
                 return True
         return False
-
-
-class Calendar(BaseModel):
-    id: str
-    monday: int
-    tuesday: int
-    wednesday: int
-    thursday: int
-    friday: int
-    saturday: int
-    sunday: int
-    start_date: date
-    end_date: date
-    dataset: str
-
-
-class CalendarWithTotal(BaseModel):
-    total: int
-    calendars: list[Calendar]

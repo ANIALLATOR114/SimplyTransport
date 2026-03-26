@@ -1,17 +1,11 @@
 from datetime import datetime, time, timedelta
 
-from pydantic import BaseModel as _BaseModel
-
 from ...schedule.model import StaticScheduleModel
 from ..enums import REMOVED_TRIP_RELATIONSHIPS, OnTimeStatus, ScheduleRealtionship
-from ..stop_time.model import RTStopTime, RTStopTimeModel
-from ..trip.model import RTTrip, RTTripModel
+from ..stop_time.model import RTStopTimeModel
+from ..trip.model import RTTripModel
 
-
-class BaseModel(_BaseModel):
-    """Extend Pydantic's BaseModel to enable ORM mode"""
-
-    model_config = {"from_attributes": True}
+__all__ = ["RealTimeScheduleModel"]
 
 
 class RealTimeScheduleModel:
@@ -128,14 +122,3 @@ class RealTimeScheduleModel:
             self.on_time_status = OnTimeStatus.LATE
         else:
             self.on_time_status = OnTimeStatus.ON_TIME
-
-
-class RealTimeSchedule(BaseModel):
-    rt_stop_time: RTStopTime | None
-    rt_trip: RTTrip | None
-    delay: str
-    delay_in_seconds: int
-    real_arrival_time: time
-    real_eta_text: str
-    on_time_status: OnTimeStatus
-    is_trip_removed: bool
