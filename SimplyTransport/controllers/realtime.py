@@ -38,7 +38,7 @@ class RealtimeController(Controller):
 
     @get(
         "/stop/{stop_id:str}",
-        cache=20,
+        cache=120,
         cache_key_builder=key_builder_from_path_and_query(
             CacheKeys.RealTime.REALTIME_STOP_KEY_TEMPLATE, ["stop_id"]
         ),

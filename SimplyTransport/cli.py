@@ -648,32 +648,6 @@ class CLIPlugin(CLIPluginProtocol):
             await redis_service.delete_all_keys()
             console.print("\n[blue]Finished flushing the Redis cache")
 
-        @cli.command(
-            name="generatemaps",
-            help="Clears Redis cache keys for maps",
-        )
-        @make_sync
-        async def generatemaps():
-            """Pre-generated Folium HTML is removed; this invalidates cached map responses.
-            generatemaps name kept for backwards compatibility"""
-
-            redis_service = await provide_redis_service()
-
-            console = Console()
-            console.print("Invalidating static map cache keys...")
-            start = time.perf_counter()
-
-            await redis_service.delete_keys_by_pattern(
-                CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_DELETE_ALL_KEY_TEMPLATE
-            )
-            await redis_service.delete_keys_by_pattern(
-                CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
-            )
-
-            finish = time.perf_counter()
-            logger.info(f"Finished map cache invalidation in {round(finish - start, 2)} second(s)")
-            console.print(f"\n[blue]Finished map cache invalidation in {round(finish - start, 2)} second(s)")
-
         @cli.command(name="generatestatistics", help="Generates the statistics for the database")
         @make_sync
         async def generatestatistics():

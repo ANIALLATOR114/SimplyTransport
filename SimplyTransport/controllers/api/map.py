@@ -1,5 +1,5 @@
 from advanced_alchemy.exceptions import NotFoundError
-from litestar import Controller, MediaType, get
+from litestar import Controller, MediaType, Request, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException, ValidationException
 from litestar.params import Parameter
@@ -13,8 +13,24 @@ from SimplyTransport.api_contract.map_payloads import (
 )
 from SimplyTransport.domain.maps.enums import StaticStopMapTypes
 from SimplyTransport.domain.services.map_service import MapService, provide_map_service
+from SimplyTransport.lib.cache_keys import CacheKeys, key_builder_from_path
 
 __all__ = ["MapController"]
+
+_MAP_JSON_STATIC_TTL_S = 86400
+_MAP_JSON_VEHICLE_TTL_S = 120
+
+
+def _nearby_map_cache_key_builder(request: Request) -> str:
+    """Match Parameter default for radius_meters when the query omits it."""
+    radius = request.query_params.get("radius_meters")
+    if radius is None:
+        radius = "1200"
+    return CacheKeys.StopMaps.STOP_MAP_NEARBY_KEY_TEMPLATE.value.format(
+        latitude=request.query_params.get("latitude"),
+        longitude=request.query_params.get("longitude"),
+        radius_meters=radius,
+    )
 
 
 class MapController(Controller):
@@ -30,6 +46,8 @@ class MapController(Controller):
             "Returns nearby stops within a radius of a latitude/longitude. "
             "Optional radius_meters defaults to 1200 and must be between 1 and 1500."
         ),
+        cache=_MAP_JSON_STATIC_TTL_S,
+        cache_key_builder=_nearby_map_cache_key_builder,
     )
     async def nearby_map_data(
         self,
@@ -52,6 +70,10 @@ class MapController(Controller):
         summary="Get map data for a static stop map type",
         description="Static stop map category (see enum).",
         raises=[ValidationException],
+        cache=_MAP_JSON_STATIC_TTL_S,
+        cache_key_builder=key_builder_from_path(
+            CacheKeys.StaticMaps.STATIC_MAP_STOP_KEY_TEMPLATE, "map_type"
+        ),
     )
     async def static_stops_map_data(
         self, map_type: StaticStopMapTypes, map_service: MapService
@@ -64,6 +86,8 @@ class MapController(Controller):
         summary="Get map data for a stop",
         description=("Returns GeoJSON-friendly route lines, stops, and vehicle positions for the stop map."),
         raises=[NotFoundException],
+        cache=_MAP_JSON_VEHICLE_TTL_S,
+        cache_key_builder=key_builder_from_path(CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE, "stop_id"),
     )
     async def stop_map_data(self, stop_id: str, map_service: MapService) -> StopMapPayload:
         try:
@@ -82,6 +106,10 @@ class MapController(Controller):
         summary="Get map data for a route",
         description="Returns GeoJSON-friendly route line, stops, and vehicle positions for the route map.",
         raises=[NotFoundException],
+        cache=_MAP_JSON_VEHICLE_TTL_S,
+        cache_key_builder=key_builder_from_path(
+            CacheKeys.RouteMaps.ROUTE_MAP_KEY_TEMPLATE, "route_id", "direction"
+        ),
     )
     async def route_map_data(self, route_id: str, direction: int, map_service: MapService) -> RouteMapPayload:
         try:
@@ -100,6 +128,10 @@ class MapController(Controller):
             "distinct from /route/{route_id}/{direction}."
         ),
         raises=[NotFoundException],
+        cache=_MAP_JSON_STATIC_TTL_S,
+        cache_key_builder=key_builder_from_path(
+            CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE, "agency_id"
+        ),
     )
     async def agency_routes_map_data(self, agency_id: str, map_service: MapService) -> AgencyRoutesMapPayload:
         try:

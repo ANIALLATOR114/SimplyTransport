@@ -139,7 +139,6 @@ This extends the standard litestar cli. You can view all the commands by just ru
 - [x] Recreate all database indexes `recreate_indexes`
 - [x] Cleanup expired events from the database `cleanupevents`
 - [x] Flush the redis cache `flushcache`
-- [x] Invalidate static map cache keys `generatemaps`
 
 # Installation
 
@@ -317,7 +316,6 @@ litestar importgtfs
 litestar importrealtime
 litestar importstopfeatures
 litestar seedrealtimefromfile
-litestar generatemaps
 litestar generatestatistics
 litestar recorddelays
 ```
