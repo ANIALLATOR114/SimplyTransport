@@ -18,7 +18,6 @@ from SimplyTransport.api_contract.map_payloads import (
 )
 from SimplyTransport.domain.maps.colors import Colors
 from SimplyTransport.domain.realtime.vehicle.model import RTVehicleModel
-from SimplyTransport.domain.route.model import RouteModel
 from SimplyTransport.domain.shape.model import ShapeModel
 from SimplyTransport.lib.cache import RedisService
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -122,9 +121,8 @@ class MapService:
         other_stops_on_routes = await self.stop_repository.get_stops_by_route_ids(route_ids, direction)
 
         unique_stop_ids = {stop.id}
-        for s in other_stops_on_routes:
-            unique_stop_ids.add(s.id)
-        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids(list(unique_stop_ids))
+        unique_stop_ids.update(s.id for s in other_stops_on_routes)
+        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids(unique_stop_ids)
 
         stop_features: StopFeatureSummary | None = None
         if stop.stop_feature is not None:
@@ -171,10 +169,7 @@ class MapService:
                     lon=s.lon,
                     is_focus=False,
                     street_view_url=(f"https://www.google.com/maps?layer=c&cbll={s.lat},{s.lon}&cbp=0,0,,,"),
-                    routes=[
-                        RouteSummary(route_id=r.id, short_name=r.short_name, long_name=r.long_name)
-                        for r in at_routes
-                    ],
+                    routes=at_routes,
                     stop_features=None,
                 )
             )
@@ -227,7 +222,7 @@ class MapService:
         ]
 
         route_stops = await self.stop_repository.get_stops_by_route_id(route_id, direction)
-        stop_ids = [s.id for s in route_stops]
+        stop_ids = {s.id for s in route_stops}
         routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids(stop_ids) if stop_ids else {}
 
         stops_out: list[StopMapStop] = []
@@ -244,10 +239,7 @@ class MapService:
                     lon=s.lon,
                     is_focus=False,
                     street_view_url=(f"https://www.google.com/maps?layer=c&cbll={s.lat},{s.lon}&cbp=0,0,,,"),
-                    routes=[
-                        RouteSummary(route_id=r.id, short_name=r.short_name, long_name=r.long_name)
-                        for r in at_routes
-                    ],
+                    routes=at_routes,
                     stop_features=None,
                 )
             )
@@ -291,7 +283,7 @@ class MapService:
     def _stop_to_map_stop(
         self,
         stop: StopModel,
-        routes: list[RouteModel],
+        routes: list[RouteSummary],
         *,
         is_focus: bool,
     ) -> StopMapStop | None:
@@ -313,9 +305,7 @@ class MapService:
             lon=float(stop.lon),
             is_focus=is_focus,
             street_view_url=(f"https://www.google.com/maps?layer=c&cbll={stop.lat},{stop.lon}&cbp=0,0,,,"),
-            routes=[
-                RouteSummary(route_id=r.id, short_name=r.short_name, long_name=r.long_name) for r in routes
-            ],
+            routes=routes,
             stop_features=stop_features,
         )
 
@@ -328,7 +318,7 @@ class MapService:
         """
         rm = float(radius_meters)
         stops = await self.stop_repository.get_stops_near_location(latitude, longitude, int(radius_meters))
-        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids([s.id for s in stops])
+        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids({s.id for s in stops})
 
         stops_out: list[StopMapStop] = []
         for stop in stops:
@@ -417,7 +407,7 @@ class MapService:
     @CreateSpan()
     async def build_static_stop_map_payload(self, map_type: StaticStopMapTypes) -> StaticStopsMapPayload:
         stops = await self._get_stops_for_static_map_type(map_type)
-        stop_ids = [s.id for s in stops]
+        stop_ids = {s.id for s in stops}
         routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids(stop_ids) if stop_ids else {}
 
         stops_out: list[StopMapStop] = []

@@ -1,5 +1,3 @@
-import asyncio
-
 from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import LimitOffset, OrderBy
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
@@ -7,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from SimplyTransport.api_contract.map_payloads import RouteSummary
 from SimplyTransport.domain.route.model import RouteModel
 from SimplyTransport.lib.cache import RedisService
 
@@ -47,12 +46,34 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):  # type: ignore
             RouteModel.trips.any(TripModel.stop_times.any(StopTimeModel.stop_id == stop_id))
         )
 
-    async def get_routes_by_stop_ids(self, stop_ids: list[str]) -> dict[str, list[RouteModel]]:
-        """Get routes by stop_ids"""
+    async def get_routes_by_stop_ids(self, stop_ids: set[str]) -> dict[str, list[RouteSummary]]:
+        """Routes per stop; ``stop_ids`` must be deduplicated (use a set at call sites)."""
 
-        tasks = [self.get_routes_by_stop_id(stop_id) for stop_id in stop_ids]
-        routes = await asyncio.gather(*tasks)
-        return dict(zip(stop_ids, routes, strict=True))
+        if not stop_ids:
+            return {}
+
+        stmt = (
+            select(
+                StopTimeModel.stop_id,
+                RouteModel.id,
+                RouteModel.short_name,
+                RouteModel.long_name,
+            )
+            .select_from(StopTimeModel)
+            .join(TripModel, StopTimeModel.trip_id == TripModel.id)
+            .join(RouteModel, TripModel.route_id == RouteModel.id)
+            .where(StopTimeModel.stop_id.in_(stop_ids))
+            .distinct()
+        )
+        result = await self.session.execute(stmt)
+        rows = result.all()
+
+        by_stop: dict[str, dict[str, RouteSummary]] = {sid: {} for sid in stop_ids}
+        for stop_id, route_id, short_name, long_name in rows:
+            summary = RouteSummary(route_id=route_id, short_name=short_name, long_name=long_name)
+            by_stop[stop_id].setdefault(route_id, summary)
+
+        return {sid: list(by_stop[sid].values()) for sid in stop_ids}
 
     async def get_routes_by_stop_id_with_agency(self, stop_id: str) -> list[RouteModel]:
         """Get routes by stop_id with agency."""
