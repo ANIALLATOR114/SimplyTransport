@@ -93,13 +93,14 @@ def test_nearby_map_rejects_radius_meters_out_of_range(client: TestClient) -> No
 
 
 def test_agency_map_returns_json(client: TestClient) -> None:
-    response = client.get("/api/v1/map/route/All")
+    agency_id = "7778019"
+    response = client.get(f"/api/v1/map/route/{agency_id}")
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("application/json")
     data = response.json()
     assert "center" in data
     assert len(data["center"]) == 2
-    assert data.get("agency_id") == "All"
+    assert data.get("agency_id") == agency_id
     assert "routes" in data
     assert isinstance(data["routes"], list)
 
