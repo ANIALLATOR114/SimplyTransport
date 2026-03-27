@@ -36,6 +36,31 @@
     function buildLayerPanel(panel, payload, layerState, map) {
         const routes = payload.routes;
 
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "maplibre-toggle-all maplibre-toggle-all--panel-top";
+        btn.textContent = "Toggle all off";
+        let allOn = true;
+        btn.addEventListener("click", () => {
+            allOn = !allOn;
+            btn.textContent = allOn ? "Toggle all off" : "Toggle all on";
+            routes.forEach((route) => {
+                const st = layerState.routes[route.route_id];
+                if (st) {
+                    setLayerVisibility(map, st.line, allOn);
+                }
+            });
+            panel.querySelectorAll('input[type="checkbox"]').forEach((el) => {
+                el.checked = allOn;
+            });
+        });
+        panel.appendChild(btn);
+
+        const scroll = document.createElement("div");
+        scroll.className = "maplibre-layer-panel-scroll";
+        scroll.setAttribute("role", "group");
+        scroll.setAttribute("aria-label", "Route layers");
+
         routes.forEach((route) => {
             const row = document.createElement("label");
             row.className = "maplibre-layer-row";
@@ -57,28 +82,9 @@
                     setLayerVisibility(map, st.line, vis);
                 }
             });
-            panel.appendChild(row);
+            scroll.appendChild(row);
         });
-
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "maplibre-toggle-all";
-        btn.textContent = "Toggle all off";
-        let allOn = true;
-        btn.addEventListener("click", () => {
-            allOn = !allOn;
-            btn.textContent = allOn ? "Toggle all off" : "Toggle all on";
-            routes.forEach((route) => {
-                const st = layerState.routes[route.route_id];
-                if (st) {
-                    setLayerVisibility(map, st.line, allOn);
-                }
-            });
-            panel.querySelectorAll('input[type="checkbox"]').forEach((el) => {
-                el.checked = allOn;
-            });
-        });
-        panel.appendChild(btn);
+        panel.appendChild(scroll);
     }
 
     function initAgencyMap(agencyId, containerId) {
@@ -120,7 +126,8 @@
                 };
 
                 const panel = document.createElement("div");
-                panel.className = "maplibre-layer-panel";
+                panel.className =
+                    "maplibre-layer-panel maplibre-layer-panel--routes-scroll";
 
                 map.on("load", () => {
                     payload.routes.forEach((route) => {

@@ -150,7 +150,8 @@
                           };
 
                 const panel = document.createElement("div");
-                panel.className = "maplibre-layer-panel";
+                panel.className =
+                    "maplibre-layer-panel maplibre-layer-panel--routes-scroll";
 
                 map.on("load", () => {
                     map.addSource("route-src-main", {
@@ -380,6 +381,12 @@
     }
 
     function buildRouteLayerPanel(panel, map, route, hasVehicles) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "maplibre-toggle-all maplibre-toggle-all--panel-top";
+        btn.textContent = "Toggle all off";
+        let allOn = true;
+
         const lineRow = document.createElement("label");
         lineRow.className = "maplibre-layer-row";
         const lineCb = document.createElement("input");
@@ -395,12 +402,13 @@
         lineCb.addEventListener("change", () => {
             setLayerVisibility(map, LINE_ID, lineCb.checked);
         });
-        panel.appendChild(lineRow);
 
+        let vehCb = null;
+        let vehRow = null;
         if (hasVehicles) {
-            const vehRow = document.createElement("label");
+            vehRow = document.createElement("label");
             vehRow.className = "maplibre-layer-row";
-            const vehCb = document.createElement("input");
+            vehCb = document.createElement("input");
             vehCb.type = "checkbox";
             vehCb.checked = true;
             vehCb.id = "toggle-vehicles-layer";
@@ -412,7 +420,6 @@
                 setLayerVisibility(map, VEHICLE_ID, vis);
                 setLayerVisibility(map, VEHICLE_LABELS_ID, vis);
             });
-            panel.appendChild(vehRow);
         }
 
         const stopsRow = document.createElement("label");
@@ -428,13 +435,7 @@
             setLayerVisibility(map, STOPS_ID, vis);
             setLayerVisibility(map, STOPS_LABELS_ID, vis);
         });
-        panel.appendChild(stopsRow);
 
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "maplibre-toggle-all";
-        btn.textContent = "Toggle all off";
-        let allOn = true;
         btn.addEventListener("click", () => {
             allOn = !allOn;
             btn.textContent = allOn ? "Toggle all off" : "Toggle all on";
@@ -447,15 +448,23 @@
             setLayerVisibility(map, STOPS_ID, allOn);
             setLayerVisibility(map, STOPS_LABELS_ID, allOn);
             lineCb.checked = allOn;
-            if (hasVehicles) {
-                const v = panel.querySelector("#toggle-vehicles-layer");
-                if (v) {
-                    v.checked = allOn;
-                }
+            if (hasVehicles && vehCb) {
+                vehCb.checked = allOn;
             }
             stopsCb.checked = allOn;
         });
         panel.appendChild(btn);
+
+        const scroll = document.createElement("div");
+        scroll.className = "maplibre-layer-panel-scroll";
+        scroll.setAttribute("role", "group");
+        scroll.setAttribute("aria-label", "Map layers");
+        scroll.appendChild(lineRow);
+        if (hasVehicles && vehRow) {
+            scroll.appendChild(vehRow);
+        }
+        scroll.appendChild(stopsRow);
+        panel.appendChild(scroll);
     }
 
     window.initRouteMap = initRouteMap;

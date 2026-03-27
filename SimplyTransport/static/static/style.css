@@ -1010,6 +1010,24 @@
 	max-width: min(280px, 90vw);
 }
 
+/* All-agencies / long route lists: fixed panel height, scroll inside list only */
+.maplibre-layer-panel.maplibre-layer-panel--routes-scroll {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: min(70vh, 480px);
+	overflow: hidden;
+}
+
+/* Explicit max-height (not flex:1): flex-basis 0 collapses to 0px when the panel is shorter than max-height */
+.maplibre-layer-panel-scroll {
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding-right: 4px;
+	max-height: min(calc(70vh - 72px), 400px);
+}
+
 .maplibre-layer-row {
 	display: flex;
 	align-items: center;
@@ -1038,6 +1056,11 @@
 	color: var(--font-color, rgb(230, 230, 230));
 	font-weight: 700;
 	font-family: "Roboto", sans-serif;
+	flex-shrink: 0;
+}
+
+.maplibre-toggle-all--panel-top {
+	margin-top: 0;
 }
 
 .maplibre-toggle-all:hover {
