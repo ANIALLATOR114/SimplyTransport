@@ -16,12 +16,4 @@
         </div>
     </div>
     <script src="/static/js/agency-map.js?{{ request.app.openapi_config.version }}"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const wrap = document.querySelector(".map-container--maplibre[data-agency-id]");
-            if (wrap && window.initAgencyMap) {
-                initAgencyMap(wrap.dataset.agencyId, "map-element");
-            }
-        });
-    </script>
 {% endblock content %}

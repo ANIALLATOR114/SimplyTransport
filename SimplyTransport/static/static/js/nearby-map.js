@@ -264,4 +264,67 @@
     }
 
     window.initNearbyMap = initNearbyMap;
+
+    function bindNearbyMapEmbed() {
+        const wrap = document.querySelector(
+            ".map-container--maplibre[data-latitude][data-longitude]",
+        );
+        if (!wrap || wrap.dataset.nearbymapEmbedInit === "1") {
+            return;
+        }
+        if (!window.initNearbyMap) {
+            return;
+        }
+        if (!document.getElementById("map-element")) {
+            return;
+        }
+        const lat = Number.parseFloat(wrap.dataset.latitude);
+        const lon = Number.parseFloat(wrap.dataset.longitude);
+        if (Number.isNaN(lat) || Number.isNaN(lon)) {
+            return;
+        }
+        function doInit() {
+            if (wrap.dataset.nearbymapEmbedInit === "1") {
+                return;
+            }
+            if (!window.initNearbyMap || !window.maplibregl || !window.StopMapPopup) {
+                return;
+            }
+            wrap.dataset.nearbymapEmbedInit = "1";
+            initNearbyMap(lat, lon, "map-element");
+        }
+        if (window.whenMapWithPopupReady) {
+            window.whenMapWithPopupReady(doInit);
+        } else {
+            function fallback() {
+                if (wrap.dataset.nearbymapEmbedInit === "1") {
+                    return;
+                }
+                if (!window.maplibregl || !window.StopMapPopup) {
+                    const n = Number(wrap.dataset.embedWaitDeps || 0) + 1;
+                    if (n > 120) {
+                        return;
+                    }
+                    wrap.dataset.embedWaitDeps = String(n);
+                    requestAnimationFrame(fallback);
+                    return;
+                }
+                delete wrap.dataset.embedWaitDeps;
+                doInit();
+            }
+            fallback();
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindNearbyMapEmbed);
+    } else {
+        bindNearbyMapEmbed();
+    }
+    window.addEventListener("load", bindNearbyMapEmbed);
+    if (!window.__nearbyMapEmbedHtmxBound) {
+        window.__nearbyMapEmbedHtmxBound = true;
+        document.body.addEventListener("htmx:afterSwap", bindNearbyMapEmbed);
+        document.body.addEventListener("htmx:afterSettle", bindNearbyMapEmbed);
+    }
 })();

@@ -177,4 +177,62 @@
     }
 
     window.initStaticStopMap = initStaticStopMap;
+
+    function bindStaticStopMapEmbed() {
+        const wrap = document.querySelector(
+            ".map-container--maplibre[data-map-type]",
+        );
+        if (!wrap || wrap.dataset.staticstopmapEmbedInit === "1") {
+            return;
+        }
+        if (!window.initStaticStopMap) {
+            return;
+        }
+        if (!wrap.dataset.mapType || !document.getElementById("map-element")) {
+            return;
+        }
+        function doInit() {
+            if (wrap.dataset.staticstopmapEmbedInit === "1") {
+                return;
+            }
+            if (!window.initStaticStopMap || !window.maplibregl || !window.StopMapPopup) {
+                return;
+            }
+            wrap.dataset.staticstopmapEmbedInit = "1";
+            initStaticStopMap(wrap.dataset.mapType, "map-element");
+        }
+        if (window.whenMapWithPopupReady) {
+            window.whenMapWithPopupReady(doInit);
+        } else {
+            function fallback() {
+                if (wrap.dataset.staticstopmapEmbedInit === "1") {
+                    return;
+                }
+                if (!window.maplibregl || !window.StopMapPopup) {
+                    const n = Number(wrap.dataset.embedWaitDeps || 0) + 1;
+                    if (n > 120) {
+                        return;
+                    }
+                    wrap.dataset.embedWaitDeps = String(n);
+                    requestAnimationFrame(fallback);
+                    return;
+                }
+                delete wrap.dataset.embedWaitDeps;
+                doInit();
+            }
+            fallback();
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindStaticStopMapEmbed);
+    } else {
+        bindStaticStopMapEmbed();
+    }
+    window.addEventListener("load", bindStaticStopMapEmbed);
+    if (!window.__staticStopMapEmbedHtmxBound) {
+        window.__staticStopMapEmbedHtmxBound = true;
+        document.body.addEventListener("htmx:afterSwap", bindStaticStopMapEmbed);
+        document.body.addEventListener("htmx:afterSettle", bindStaticStopMapEmbed);
+    }
 })();

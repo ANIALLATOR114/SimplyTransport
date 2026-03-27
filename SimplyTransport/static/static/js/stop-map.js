@@ -522,4 +522,74 @@
 	}
 
 	window.initStopMap = initStopMap;
+
+	/**
+	 * Realtime stop page map: bootstrap lives here (not in the template).
+	 * HTMX body swaps do not re-fire DOMContentLoaded; map init is deferred via
+	 * whenMapWithPopupReady (see /static/js/maplibre-ready.js in base.html).
+	 */
+	function bindStopMapRealtimeEmbed() {
+		const wrap = document.querySelector(
+			".map-container--maplibre[data-stop-id]",
+		);
+		if (!wrap || wrap.dataset.stopmapEmbedInit === "1") {
+			return;
+		}
+		if (!window.initStopMap) {
+			return;
+		}
+		const stopId = wrap.dataset.stopId;
+		if (!stopId || !document.getElementById("map-element")) {
+			return;
+		}
+		function doInit() {
+			if (wrap.dataset.stopmapEmbedInit === "1") {
+				return;
+			}
+			if (!window.initStopMap || !window.maplibregl || !window.StopMapPopup) {
+				return;
+			}
+			wrap.dataset.stopmapEmbedInit = "1";
+			initStopMap(stopId, "map-element");
+			const refBtn = document.getElementById("stop-map-refresh");
+			if (refBtn) {
+				refBtn.onclick = function () {
+					window.location.reload();
+				};
+			}
+		}
+		if (window.whenMapWithPopupReady) {
+			window.whenMapWithPopupReady(doInit);
+		} else {
+			function fallback() {
+				if (wrap.dataset.stopmapEmbedInit === "1") {
+					return;
+				}
+				if (!window.maplibregl || !window.StopMapPopup) {
+					const n = Number(wrap.dataset.embedWaitDeps || 0) + 1;
+					if (n > 120) {
+						return;
+					}
+					wrap.dataset.embedWaitDeps = String(n);
+					requestAnimationFrame(fallback);
+					return;
+				}
+				delete wrap.dataset.embedWaitDeps;
+				doInit();
+			}
+			fallback();
+		}
+	}
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", bindStopMapRealtimeEmbed);
+	} else {
+		bindStopMapRealtimeEmbed();
+	}
+	window.addEventListener("load", bindStopMapRealtimeEmbed);
+	if (!window.__stopMapEmbedHtmxBound) {
+		window.__stopMapEmbedHtmxBound = true;
+		document.body.addEventListener("htmx:afterSwap", bindStopMapRealtimeEmbed);
+		document.body.addEventListener("htmx:afterSettle", bindStopMapRealtimeEmbed);
+	}
 })();

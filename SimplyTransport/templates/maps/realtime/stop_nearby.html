@@ -11,15 +11,3 @@
 </div>
 <script src="/static/js/stop-detail-popup.js?{{ request.app.openapi_config.version }}"></script>
 <script src="/static/js/nearby-map.js?{{ request.app.openapi_config.version }}"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const wrap = document.querySelector(".map-container--maplibre[data-latitude]");
-        if (wrap && window.initNearbyMap) {
-            const lat = Number.parseFloat(wrap.dataset.latitude);
-            const lon = Number.parseFloat(wrap.dataset.longitude);
-            if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
-                initNearbyMap(lat, lon, "map-element");
-            }
-        }
-    });
-</script>

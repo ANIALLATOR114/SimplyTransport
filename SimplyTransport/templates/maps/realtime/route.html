@@ -14,17 +14,3 @@
 </div>
 <script src="/static/js/stop-detail-popup.js?{{ request.app.openapi_config.version }}"></script>
 <script src="/static/js/route-map.js?{{ request.app.openapi_config.version }}"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const wrap = document.querySelector(".map-container--maplibre[data-route-id][data-direction]");
-        if (wrap && window.initRouteMap) {
-            initRouteMap(wrap.dataset.routeId, wrap.dataset.direction, "map-element");
-        }
-        const refBtn = document.getElementById("route-map-refresh");
-        if (refBtn) {
-            refBtn.addEventListener("click", function () {
-                window.location.reload();
-            });
-        }
-    });
-</script>

@@ -468,4 +468,68 @@
     }
 
     window.initRouteMap = initRouteMap;
+
+    function bindRouteMapEmbed() {
+        const wrap = document.querySelector(
+            ".map-container--maplibre[data-route-id][data-direction]",
+        );
+        if (!wrap || wrap.dataset.routemapEmbedInit === "1") {
+            return;
+        }
+        if (!window.initRouteMap) {
+            return;
+        }
+        if (!wrap.dataset.routeId || !document.getElementById("map-element")) {
+            return;
+        }
+        function doInit() {
+            if (wrap.dataset.routemapEmbedInit === "1") {
+                return;
+            }
+            if (!window.initRouteMap || !window.maplibregl || !window.StopMapPopup) {
+                return;
+            }
+            wrap.dataset.routemapEmbedInit = "1";
+            initRouteMap(wrap.dataset.routeId, wrap.dataset.direction, "map-element");
+            const refBtn = document.getElementById("route-map-refresh");
+            if (refBtn) {
+                refBtn.onclick = function () {
+                    window.location.reload();
+                };
+            }
+        }
+        if (window.whenMapWithPopupReady) {
+            window.whenMapWithPopupReady(doInit);
+        } else {
+            function fallback() {
+                if (wrap.dataset.routemapEmbedInit === "1") {
+                    return;
+                }
+                if (!window.maplibregl || !window.StopMapPopup) {
+                    const n = Number(wrap.dataset.embedWaitDeps || 0) + 1;
+                    if (n > 120) {
+                        return;
+                    }
+                    wrap.dataset.embedWaitDeps = String(n);
+                    requestAnimationFrame(fallback);
+                    return;
+                }
+                delete wrap.dataset.embedWaitDeps;
+                doInit();
+            }
+            fallback();
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindRouteMapEmbed);
+    } else {
+        bindRouteMapEmbed();
+    }
+    window.addEventListener("load", bindRouteMapEmbed);
+    if (!window.__routeMapEmbedHtmxBound) {
+        window.__routeMapEmbedHtmxBound = true;
+        document.body.addEventListener("htmx:afterSwap", bindRouteMapEmbed);
+        document.body.addEventListener("htmx:afterSettle", bindRouteMapEmbed);
+    }
 })();

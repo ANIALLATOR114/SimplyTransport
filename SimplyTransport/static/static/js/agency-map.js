@@ -176,4 +176,62 @@
     }
 
     window.initAgencyMap = initAgencyMap;
+
+    function bindAgencyMapEmbed() {
+        const wrap = document.querySelector(
+            ".map-container--maplibre[data-agency-id]",
+        );
+        if (!wrap || wrap.dataset.agencymapEmbedInit === "1") {
+            return;
+        }
+        if (!window.initAgencyMap) {
+            return;
+        }
+        if (!wrap.dataset.agencyId || !document.getElementById("map-element")) {
+            return;
+        }
+        function doInit() {
+            if (wrap.dataset.agencymapEmbedInit === "1") {
+                return;
+            }
+            if (!window.initAgencyMap || !window.maplibregl) {
+                return;
+            }
+            wrap.dataset.agencymapEmbedInit = "1";
+            initAgencyMap(wrap.dataset.agencyId, "map-element");
+        }
+        if (window.whenMapLibreReady) {
+            window.whenMapLibreReady(doInit);
+        } else {
+            function fallback() {
+                if (wrap.dataset.agencymapEmbedInit === "1") {
+                    return;
+                }
+                if (!window.maplibregl) {
+                    const n = Number(wrap.dataset.embedWaitDeps || 0) + 1;
+                    if (n > 120) {
+                        return;
+                    }
+                    wrap.dataset.embedWaitDeps = String(n);
+                    requestAnimationFrame(fallback);
+                    return;
+                }
+                delete wrap.dataset.embedWaitDeps;
+                doInit();
+            }
+            fallback();
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindAgencyMapEmbed);
+    } else {
+        bindAgencyMapEmbed();
+    }
+    window.addEventListener("load", bindAgencyMapEmbed);
+    if (!window.__agencyMapEmbedHtmxBound) {
+        window.__agencyMapEmbedHtmxBound = true;
+        document.body.addEventListener("htmx:afterSwap", bindAgencyMapEmbed);
+        document.body.addEventListener("htmx:afterSettle", bindAgencyMapEmbed);
+    }
 })();

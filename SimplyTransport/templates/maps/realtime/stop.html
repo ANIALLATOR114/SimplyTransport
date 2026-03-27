@@ -13,17 +13,3 @@
 </div>
 <script src="/static/js/stop-detail-popup.js?{{ request.app.openapi_config.version }}"></script>
 <script src="/static/js/stop-map.js?{{ request.app.openapi_config.version }}"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const wrap = document.querySelector(".map-container--maplibre[data-stop-id]");
-        if (wrap && window.initStopMap) {
-            initStopMap(wrap.dataset.stopId, "map-element");
-        }
-        const refBtn = document.getElementById("stop-map-refresh");
-        if (refBtn) {
-            refBtn.addEventListener("click", function () {
-                window.location.reload();
-            });
-        }
-    });
-</script>
