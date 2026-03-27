@@ -165,14 +165,6 @@ Realtime display: ${escapeHtml(sf.rtpi_active)}</p>`;
 		);
 	}
 
-	/** @param {object} props - GeoJSON feature properties (route_short_name, route_id, agency_name) */
-	function buildVehicleTooltipHtml(props) {
-		const routePart = props.route_short_name || props.route_id || "Vehicle";
-		const agency = props.agency_name || "";
-		const label = [routePart, agency].filter(Boolean).join(" - ");
-		return `<div class="map-stop-tooltip-inner">${escapeHtml(label)}</div>`;
-	}
-
 	global.StopMapPopup = {
 		fetchStopDetailed,
 		buildPopupHtmlFromDetailed,
@@ -180,7 +172,6 @@ Realtime display: ${escapeHtml(sf.rtpi_active)}</p>`;
 		buildErrorPopupHtml,
 		buildStopTooltipHtml,
 		buildVehiclePopupHtml,
-		buildVehicleTooltipHtml,
 		formatRelativeFromIso,
 	};
 })(window);

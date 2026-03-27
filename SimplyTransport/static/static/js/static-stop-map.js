@@ -4,8 +4,19 @@
 (function () {
     "use strict";
 
+    const STOP_LABEL_MIN_ZOOM = 15;
+    const LABEL_FONT = ["Open Sans Semibold"];
+    const MAP_LABEL_BADGE_PAINT = {
+        "text-color": "#ffffff",
+        "text-halo-color": "#313b46",
+        "text-halo-width": 3.5,
+        "text-halo-blur": 0.9,
+    };
+    const STOP_LABEL_TEXT_OFFSET = [0, 1.65];
+
     const OSM_RASTER_STYLE = {
         version: 8,
+        glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
         sources: {
             osm: {
                 type: "raster",
@@ -70,6 +81,8 @@
                         },
                         properties: {
                             stop_id: s.stop_id,
+                            stop_code:
+                                s.code != null && s.code !== "" ? s.code : s.stop_id,
                         },
                     })),
                 };
@@ -79,15 +92,6 @@
                     closeOnClick: true,
                     className: "maplibre-stop-popup",
                     maxWidth: "min(360px, 92vw)",
-                });
-
-                const tooltip = new maplibregl.Popup({
-                    closeButton: false,
-                    closeOnClick: false,
-                    className: "maplibre-stop-tooltip",
-                    anchor: "bottom",
-                    offset: [0, -12],
-                    maxWidth: "none",
                 });
 
                 map.on("load", () => {
@@ -106,10 +110,24 @@
                             "circle-stroke-color": "#ffffff",
                         },
                     });
+                    map.addLayer({
+                        id: "stops-labels-static",
+                        type: "symbol",
+                        source: "stops-src",
+                        minzoom: STOP_LABEL_MIN_ZOOM,
+                        layout: {
+                            "text-field": ["to-string", ["get", "stop_code"]],
+                            "text-size": 11,
+                            "text-offset": STOP_LABEL_TEXT_OFFSET,
+                            "text-anchor": "top",
+                            "text-allow-overlap": true,
+                            "text-font": LABEL_FONT,
+                        },
+                        paint: MAP_LABEL_BADGE_PAINT,
+                    });
 
-                    map.on("click", "stops-static", (e) => {
-                        tooltip.remove();
-                        const sid = e.features[0].properties.stop_id;
+                    function openStopPopupFromFeature(f) {
+                        const sid = f.properties.stop_id;
                         const stop = payload.stops.find((s) => s.stop_id === sid);
                         if (!stop) {
                             return;
@@ -127,22 +145,25 @@
                             .catch(() => {
                                 popup.setHTML(P.buildErrorPopupHtml(stop));
                             });
+                    }
+
+                    map.on("click", "stops-static", (e) => {
+                        openStopPopupFromFeature(e.features[0]);
                     });
-                    map.on("mouseenter", "stops-static", (e) => {
+                    map.on("click", "stops-labels-static", (e) => {
+                        openStopPopupFromFeature(e.features[0]);
+                    });
+                    map.on("mouseenter", "stops-static", () => {
                         map.getCanvas().style.cursor = "pointer";
-                        const sid = e.features[0].properties.stop_id;
-                        const stop = payload.stops.find((s) => s.stop_id === sid);
-                        if (!stop) {
-                            return;
-                        }
-                        tooltip
-                            .setLngLat([stop.lon, stop.lat])
-                            .setHTML(window.StopMapPopup.buildStopTooltipHtml(stop))
-                            .addTo(map);
+                    });
+                    map.on("mouseenter", "stops-labels-static", () => {
+                        map.getCanvas().style.cursor = "pointer";
                     });
                     map.on("mouseleave", "stops-static", () => {
                         map.getCanvas().style.cursor = "";
-                        tooltip.remove();
+                    });
+                    map.on("mouseleave", "stops-labels-static", () => {
+                        map.getCanvas().style.cursor = "";
                     });
                 });
             })

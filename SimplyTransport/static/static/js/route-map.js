@@ -5,8 +5,47 @@
 (function () {
     "use strict";
 
+    /** demotiles.maplibre.org fonts (same as MapLibre demo style; Bold is not available). */
+    const VEHICLE_LABEL_MIN_ZOOM = 14;
+    const STOP_LABEL_MIN_ZOOM = 15;
+    const LABEL_FONT = ["Open Sans Semibold"];
+    /** Matches --bg-color-bump-border; halo + white text ≈ dark rounded badge (no native text-background in MapLibre). */
+    const MAP_LABEL_BADGE_PAINT = {
+        "text-color": "#ffffff",
+        "text-halo-color": "#313b46",
+        "text-halo-width": 3.5,
+        "text-halo-blur": 0.9,
+    };
+    const VEHICLE_LABEL_TEXT_OFFSET = [0, 1.95];
+    const STOP_LABEL_TEXT_OFFSET = [0, 1.65];
+
+    /**
+     * @param {object} map - maplibregl Map
+     * @param {() => string[]} getPulseLayerIds
+     */
+    function startVehiclePulseAnimation(map, getPulseLayerIds) {
+        let raf = 0;
+        function tick() {
+            const wave = Math.sin((Date.now() / 2000) * Math.PI * 2) * 0.5 + 0.5;
+            const opacity = 0.12 + wave * 0.28;
+            const radius = 12 + wave * 10;
+            for (const lid of getPulseLayerIds()) {
+                if (map.getLayer(lid)) {
+                    map.setPaintProperty(lid, "circle-opacity", opacity);
+                    map.setPaintProperty(lid, "circle-radius", radius);
+                }
+            }
+            raf = requestAnimationFrame(tick);
+        }
+        raf = requestAnimationFrame(tick);
+        map.once("remove", () => {
+            cancelAnimationFrame(raf);
+        });
+    }
+
     const OSM_RASTER_STYLE = {
         version: 8,
+        glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
         sources: {
             osm: {
                 type: "raster",
@@ -28,8 +67,11 @@
     };
 
     const LINE_ID = "route-line-main";
+    const VEHICLE_PULSE_ID = "vehicle-pulse-main";
     const VEHICLE_ID = "vehicle-main";
+    const VEHICLE_LABELS_ID = "vehicle-labels-main";
     const STOPS_ID = "stops-all";
+    const STOPS_LABELS_ID = "stops-labels-main";
 
     function initRouteMap(routeId, direction, containerId) {
         const container = document.getElementById(containerId);
@@ -77,6 +119,8 @@
                         },
                         properties: {
                             stop_id: s.stop_id,
+                            stop_code:
+                                s.code != null && s.code !== "" ? s.code : s.stop_id,
                         },
                     })),
                 };
@@ -155,6 +199,18 @@
                             data: vehiclesGeojson,
                         });
                         map.addLayer({
+                            id: VEHICLE_PULSE_ID,
+                            type: "circle",
+                            source: "vehicles-src",
+                            filter: ["==", ["get", "route_id"], r.route_id],
+                            paint: {
+                                "circle-radius": 12,
+                                "circle-color": ["get", "color"],
+                                "circle-opacity": 0.2,
+                                "circle-blur": 0.35,
+                            },
+                        });
+                        map.addLayer({
                             id: VEHICLE_ID,
                             type: "circle",
                             source: "vehicles-src",
@@ -166,7 +222,50 @@
                                 "circle-stroke-color": "#111827",
                             },
                         });
+                        map.addLayer({
+                            id: VEHICLE_LABELS_ID,
+                            type: "symbol",
+                            source: "vehicles-src",
+                            minzoom: VEHICLE_LABEL_MIN_ZOOM,
+                            filter: ["==", ["get", "route_id"], r.route_id],
+                            layout: {
+                                "text-field": [
+                                    "to-string",
+                                    [
+                                        "coalesce",
+                                        ["get", "route_short_name"],
+                                        ["get", "route_id"],
+                                        "",
+                                    ],
+                                ],
+                                "text-size": 12,
+                                "text-offset": VEHICLE_LABEL_TEXT_OFFSET,
+                                "text-anchor": "top",
+                                "text-allow-overlap": true,
+                                "text-font": LABEL_FONT,
+                            },
+                            paint: MAP_LABEL_BADGE_PAINT,
+                        });
+                        startVehiclePulseAnimation(map, () =>
+                            map.getLayer(VEHICLE_PULSE_ID) ? [VEHICLE_PULSE_ID] : [],
+                        );
                     }
+
+                    map.addLayer({
+                        id: STOPS_LABELS_ID,
+                        type: "symbol",
+                        source: "stops-src",
+                        minzoom: STOP_LABEL_MIN_ZOOM,
+                        layout: {
+                            "text-field": ["to-string", ["get", "stop_code"]],
+                            "text-size": 11,
+                            "text-offset": STOP_LABEL_TEXT_OFFSET,
+                            "text-anchor": "top",
+                            "text-allow-overlap": true,
+                            "text-font": LABEL_FONT,
+                        },
+                        paint: MAP_LABEL_BADGE_PAINT,
+                    });
 
                     buildRouteLayerPanel(panel, map, r, !!vehiclesGeojson);
 
@@ -189,18 +288,8 @@
                         maxWidth: "min(360px, 92vw)",
                     });
 
-                    const tooltip = new maplibregl.Popup({
-                        closeButton: false,
-                        closeOnClick: false,
-                        className: "maplibre-stop-tooltip",
-                        anchor: "bottom",
-                        offset: [0, -12],
-                        maxWidth: "none",
-                    });
-
                     function openPopupForStopId(sid) {
                         vehiclePopup.remove();
-                        tooltip.remove();
                         const stop = payload.stops.find((s) => s.stop_id === sid);
                         if (!stop) {
                             return;
@@ -219,51 +308,58 @@
                             });
                     }
 
+                    function openVehiclePopupFromFeature(f) {
+                        popup.remove();
+                        vehiclePopup
+                            .setLngLat(f.geometry.coordinates)
+                            .setHTML(window.StopMapPopup.buildVehiclePopupHtml(f.properties))
+                            .addTo(map);
+                    }
+
                     if (vehiclesGeojson && map.getLayer(VEHICLE_ID)) {
                         map.on("click", VEHICLE_ID, (e) => {
-                            popup.remove();
-                            tooltip.remove();
-                            const f = e.features[0];
-                            vehiclePopup
-                                .setLngLat(f.geometry.coordinates)
-                                .setHTML(window.StopMapPopup.buildVehiclePopupHtml(f.properties))
-                                .addTo(map);
+                            openVehiclePopupFromFeature(e.features[0]);
                         });
-                        map.on("mouseenter", VEHICLE_ID, (e) => {
+                        map.on("click", VEHICLE_LABELS_ID, (e) => {
+                            openVehiclePopupFromFeature(e.features[0]);
+                        });
+                        map.on("mouseenter", VEHICLE_ID, () => {
                             map.getCanvas().style.cursor = "pointer";
-                            const f = e.features[0];
-                            const p = f.properties;
-                            tooltip
-                                .setLngLat(f.geometry.coordinates)
-                                .setHTML(window.StopMapPopup.buildVehicleTooltipHtml(p))
-                                .addTo(map);
+                        });
+                        map.on("mouseenter", VEHICLE_LABELS_ID, () => {
+                            map.getCanvas().style.cursor = "pointer";
                         });
                         map.on("mouseleave", VEHICLE_ID, () => {
                             map.getCanvas().style.cursor = "";
-                            tooltip.remove();
+                        });
+                        map.on("mouseleave", VEHICLE_LABELS_ID, () => {
+                            map.getCanvas().style.cursor = "";
                         });
                     }
 
-                    map.on("click", STOPS_ID, (e) => {
+                    function openStopPopupFromFeature(f) {
                         vehiclePopup.remove();
-                        const sid = e.features[0].properties.stop_id;
+                        const sid = f.properties.stop_id;
                         openPopupForStopId(sid);
+                    }
+
+                    map.on("click", STOPS_ID, (e) => {
+                        openStopPopupFromFeature(e.features[0]);
                     });
-                    map.on("mouseenter", STOPS_ID, (e) => {
+                    map.on("click", STOPS_LABELS_ID, (e) => {
+                        openStopPopupFromFeature(e.features[0]);
+                    });
+                    map.on("mouseenter", STOPS_ID, () => {
                         map.getCanvas().style.cursor = "pointer";
-                        const sid = e.features[0].properties.stop_id;
-                        const stop = payload.stops.find((s) => s.stop_id === sid);
-                        if (!stop) {
-                            return;
-                        }
-                        tooltip
-                            .setLngLat([stop.lon, stop.lat])
-                            .setHTML(window.StopMapPopup.buildStopTooltipHtml(stop))
-                            .addTo(map);
+                    });
+                    map.on("mouseenter", STOPS_LABELS_ID, () => {
+                        map.getCanvas().style.cursor = "pointer";
                     });
                     map.on("mouseleave", STOPS_ID, () => {
                         map.getCanvas().style.cursor = "";
-                        tooltip.remove();
+                    });
+                    map.on("mouseleave", STOPS_LABELS_ID, () => {
+                        map.getCanvas().style.cursor = "";
                     });
                 });
             })
@@ -311,7 +407,10 @@
             vehRow.appendChild(vehCb);
             vehRow.appendChild(document.createTextNode(" Vehicles"));
             vehCb.addEventListener("change", () => {
-                setLayerVisibility(map, VEHICLE_ID, vehCb.checked);
+                const vis = vehCb.checked;
+                setLayerVisibility(map, VEHICLE_PULSE_ID, vis);
+                setLayerVisibility(map, VEHICLE_ID, vis);
+                setLayerVisibility(map, VEHICLE_LABELS_ID, vis);
             });
             panel.appendChild(vehRow);
         }
@@ -325,7 +424,9 @@
         stopsRow.appendChild(stopsCb);
         stopsRow.appendChild(document.createTextNode(" Stops"));
         stopsCb.addEventListener("change", () => {
-            setLayerVisibility(map, STOPS_ID, stopsCb.checked);
+            const vis = stopsCb.checked;
+            setLayerVisibility(map, STOPS_ID, vis);
+            setLayerVisibility(map, STOPS_LABELS_ID, vis);
         });
         panel.appendChild(stopsRow);
 
@@ -339,9 +440,12 @@
             btn.textContent = allOn ? "Toggle all off" : "Toggle all on";
             setLayerVisibility(map, LINE_ID, allOn);
             if (hasVehicles) {
+                setLayerVisibility(map, VEHICLE_PULSE_ID, allOn);
                 setLayerVisibility(map, VEHICLE_ID, allOn);
+                setLayerVisibility(map, VEHICLE_LABELS_ID, allOn);
             }
             setLayerVisibility(map, STOPS_ID, allOn);
+            setLayerVisibility(map, STOPS_LABELS_ID, allOn);
             lineCb.checked = allOn;
             if (hasVehicles) {
                 const v = panel.querySelector("#toggle-vehicles-layer");
