@@ -6,15 +6,39 @@ from litestar.exceptions import NotFoundException
 from litestar.pagination import OffsetPagination  # type: ignore
 from litestar.params import Parameter
 
-from SimplyTransport.api_contract.stop import Stop
+from SimplyTransport.api_contract.stop import Stop, StopDetailed
+from SimplyTransport.lib.cache_keys import CacheKeys, key_builder_from_path
 
+from ...domain.route.repo import RouteRepository, provide_route_repo
+from ...domain.services.stop_detail_service import assemble_stop_detailed
 from ...domain.stop.repo import StopRepository, provide_stop_repo
 
 __all__ = ["StopController"]
 
+_STOP_DETAILED_CACHE_TTL_S = 86400
+
 
 class StopController(Controller):
-    dependencies = {"repo": Provide(provide_stop_repo)}
+    dependencies = {
+        "repo": Provide(provide_stop_repo),
+        "route_repo": Provide(provide_route_repo),
+    }
+
+    @get(
+        "/{id:str}/detailed",
+        summary="Stop with routes and features",
+        description="A stop with routes and features included.",
+        raises=[NotFoundException],
+        cache=_STOP_DETAILED_CACHE_TTL_S,
+        cache_key_builder=key_builder_from_path(CacheKeys.StopApi.DETAILED_KEY_TEMPLATE, "id"),
+    )
+    async def get_stop_detailed_by_id(
+        self, repo: StopRepository, route_repo: RouteRepository, id: str
+    ) -> StopDetailed:
+        try:
+            return await assemble_stop_detailed(repo, route_repo, id)
+        except NotFoundError as e:
+            raise NotFoundException(detail=f"Stop not found with id {id}") from e
 
     @get("/{id:str}", summary="Stop by ID", raises=[NotFoundException])
     async def get_stop_by_id(self, repo: StopRepository, id: str) -> Stop:

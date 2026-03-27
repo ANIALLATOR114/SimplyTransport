@@ -8,6 +8,10 @@ class CacheKeys:
     class Meta(StrEnum):
         ALL_KEYS = "*"
 
+    class StopApi(StrEnum):
+        DETAILED_KEY_TEMPLATE = "stop_detailed:{id}"
+        DETAILED_DELETE_ALL_KEY_TEMPLATE = "*stop_detailed:*"
+
     class StopMaps(StrEnum):
         STOP_MAP_KEY_TEMPLATE = "stop_map:{stop_id}"
         STOP_MAP_DELETE_ALL_KEY_TEMPLATE = "*stop_map:*"

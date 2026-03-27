@@ -262,6 +262,7 @@ class CLIPlugin(CLIPluginProtocol):
                 await redis_service.delete_keys_by_pattern(
                     CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
                 )
+                await redis_service.delete_keys_by_pattern(CacheKeys.StopApi.DETAILED_DELETE_ALL_KEY_TEMPLATE)
 
                 finish = time.perf_counter()
                 console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")

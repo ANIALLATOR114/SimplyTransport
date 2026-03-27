@@ -5,55 +5,6 @@
 (function () {
     "use strict";
 
-    function escapeHtml(s) {
-        if (s === null || s === undefined) {
-            return "";
-        }
-        return String(s)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-    }
-
-    function buildStopPopupHtml(stop, direction) {
-        const code = stop.code || "";
-        const title = `${code} - ${stop.name}`.trim();
-        const routes = stop.routes || [];
-        const routesHtml = routes
-            .map(
-                (r) =>
-                    `<a href="/realtime/route/${escapeHtml(r.route_id)}/${direction}">${escapeHtml(r.short_name)}</a> — ${escapeHtml(r.long_name)}`,
-            )
-            .join("<br>");
-
-        let featuresHtml = "";
-        if (stop.stop_features) {
-            const sf = stop.stop_features;
-            featuresHtml = `<p class="map-popup-block map-popup-muted">Wheelchair accessible: ${escapeHtml(sf.wheelchair_accessible)}<br>
-Bus Shelter: ${escapeHtml(sf.shelter_active)}<br>
-Realtime display: ${escapeHtml(sf.rtpi_active)}</p>`;
-        }
-
-        return (
-            `<div class="map-popup-inner">` +
-            `<h4 class="map-popup-title"><a href="/realtime/stop/${escapeHtml(stop.stop_id)}">${escapeHtml(title)}</a></h4>` +
-            `<p class="map-popup-block">` +
-            `<a class="map-popup-link" href="${escapeHtml(stop.street_view_url)}" target="_blank" rel="noopener noreferrer">Street view</a><br>` +
-            `<span class="map-popup-muted">Lat: ${escapeHtml(stop.lat)}<br>Lon: ${escapeHtml(stop.lon)}</span></p>` +
-            featuresHtml +
-            `<p class="map-popup-block map-popup-routes-head"><strong>${routes.length} Routes</strong></p>` +
-            `<p class="map-popup-routes">${routesHtml}</p>` +
-            `</div>`
-        );
-    }
-
-    function buildStopTooltipHtml(stop) {
-        const code = stop.code || "";
-        const title = `${code} - ${stop.name}`.trim();
-        return `<div class="map-stop-tooltip-inner">${escapeHtml(title)}</div>`;
-    }
-
     /** OpenStreetMap raster tiles (same idea as classic OSM web maps). */
     const OSM_RASTER_STYLE = {
         version: 8,
@@ -79,7 +30,7 @@ Realtime display: ${escapeHtml(sf.rtpi_active)}</p>`;
 
     function initStopMap(stopId, containerId) {
         const container = document.getElementById(containerId);
-        if (!container || !window.maplibregl) {
+        if (!container || !window.maplibregl || !window.StopMapPopup) {
             return;
         }
 
@@ -265,10 +216,18 @@ Realtime display: ${escapeHtml(sf.rtpi_active)}</p>`;
                         if (!stop) {
                             return;
                         }
+                        const P = window.StopMapPopup;
                         popup
                             .setLngLat([stop.lon, stop.lat])
-                            .setHTML(buildStopPopupHtml(stop, payload.direction))
+                            .setHTML(P.buildLoadingPopupHtml(stop))
                             .addTo(map);
+                        P.fetchStopDetailed(sid)
+                            .then((detail) => {
+                                popup.setHTML(P.buildPopupHtmlFromDetailed(detail, payload.direction));
+                            })
+                            .catch(() => {
+                                popup.setHTML(P.buildErrorPopupHtml(stop));
+                            });
                     }
 
                     ["stops-focus", "stops-other"].forEach((layerId) => {
@@ -285,7 +244,7 @@ Realtime display: ${escapeHtml(sf.rtpi_active)}</p>`;
                             }
                             tooltip
                                 .setLngLat([stop.lon, stop.lat])
-                                .setHTML(buildStopTooltipHtml(stop))
+                                .setHTML(window.StopMapPopup.buildStopTooltipHtml(stop))
                                 .addTo(map);
                         });
                         map.on("mouseleave", layerId, () => {

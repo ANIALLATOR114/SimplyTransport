@@ -19,6 +19,15 @@ def test_key_builder_from_path():
     assert key_builder(request) == "stop_map:123"
 
 
+def test_key_builder_stop_detailed():
+    template = CacheKeys.StopApi.DETAILED_KEY_TEMPLATE
+    key_builder = key_builder_from_path(template, "id")
+    request = AsyncMock(spec=Request)
+    type(request).path_params = PropertyMock(return_value={"id": "8240DB000324"})
+
+    assert key_builder(request) == "stop_detailed:8240DB000324"
+
+
 def test_key_builder_from_path_with_multiple_args():
     template = CacheKeys.Schedules.SCHEDULE_KEY_TEMPLATE
     key_builder = key_builder_from_path(template, "stop_id", "day")

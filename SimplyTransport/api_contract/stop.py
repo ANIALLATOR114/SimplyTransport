@@ -1,6 +1,7 @@
 from pydantic import Field
 
 from SimplyTransport.api_contract.base import ApiBaseModel
+from SimplyTransport.api_contract.map_payloads import RouteSummary, StopFeatureSummary
 from SimplyTransport.domain.enums import LocationType
 
 
@@ -18,3 +19,13 @@ class Stop(ApiBaseModel):
     )
     parent_station: str | None
     dataset: str
+
+
+class StopDetailed(ApiBaseModel):
+    stop: Stop
+    routes: list[RouteSummary]
+    stop_features: StopFeatureSummary | None = None
+    street_view_url: str = Field(
+        default="",
+        description="Google Street View link when lat/lon are present; empty otherwise.",
+    )

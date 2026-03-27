@@ -51,9 +51,6 @@ class StopMapStop(ApiBaseModel):
     lat: float
     lon: float
     is_focus: bool
-    street_view_url: str
-    routes: list[RouteSummary]
-    stop_features: StopFeatureSummary | None = None
 
 
 class StopMapPayload(ApiBaseModel):

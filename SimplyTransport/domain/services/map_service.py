@@ -9,9 +9,7 @@ from SimplyTransport.api_contract.map_payloads import (
     NearbyMapPayload,
     RouteLayer,
     RouteMapPayload,
-    RouteSummary,
     StaticStopsMapPayload,
-    StopFeatureSummary,
     StopMapPayload,
     StopMapStop,
     VehiclePoint,
@@ -53,7 +51,7 @@ class MapService:
     @CreateSpan()
     async def build_stop_map_payload(self, stop_id: str) -> StopMapPayload | None:
         """Build JSON for the realtime stop map (MapLibre client)."""
-        stop = await self.stop_repository.get_by_id_with_stop_feature(stop_id)
+        stop = await self.stop_repository.get(stop_id)
         direction = await self.stop_repository.get_direction_of_stop(stop_id)
         routes = await self.route_repository.get_routes_by_stop_id_with_agency(stop_id)
 
@@ -120,35 +118,14 @@ class MapService:
 
         other_stops_on_routes = await self.stop_repository.get_stops_by_route_ids(route_ids, direction)
 
-        unique_stop_ids = {stop.id}
-        unique_stop_ids.update(s.id for s in other_stops_on_routes)
-        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids(unique_stop_ids)
-
-        stop_features: StopFeatureSummary | None = None
-        if stop.stop_feature is not None:
-            sf = stop.stop_feature
-            stop_features = StopFeatureSummary(
-                wheelchair_accessible=sf.wheelchair_accessability,
-                shelter_active=sf.shelter_active,
-                rtpi_active=sf.rtpi_active,
-            )
-
         stops_out: list[StopMapStop] = [
             StopMapStop(
                 stop_id=stop.id,
                 code=stop.code,
                 name=stop.name,
-                lat=stop.lat,
-                lon=stop.lon,
+                lat=float(stop.lat),
+                lon=float(stop.lon),
                 is_focus=True,
-                street_view_url=(
-                    f"https://www.google.com/maps?layer=c&cbll={stop.lat},{stop.lon}&cbp=0,0,,,"
-                ),
-                routes=[
-                    RouteSummary(route_id=r.id, short_name=r.short_name, long_name=r.long_name)
-                    for r in routes
-                ],
-                stop_features=stop_features,
             )
         ]
 
@@ -159,18 +136,14 @@ class MapService:
             seen.add(s.id)
             if s.lat is None or s.lon is None:
                 continue
-            at_routes = routes_by_stop_id.get(s.id, [])
             stops_out.append(
                 StopMapStop(
                     stop_id=s.id,
                     code=s.code,
                     name=s.name,
-                    lat=s.lat,
-                    lon=s.lon,
+                    lat=float(s.lat),
+                    lon=float(s.lon),
                     is_focus=False,
-                    street_view_url=(f"https://www.google.com/maps?layer=c&cbll={s.lat},{s.lon}&cbp=0,0,,,"),
-                    routes=at_routes,
-                    stop_features=None,
                 )
             )
 
@@ -222,25 +195,19 @@ class MapService:
         ]
 
         route_stops = await self.stop_repository.get_stops_by_route_id(route_id, direction)
-        stop_ids = {s.id for s in route_stops}
-        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids(stop_ids) if stop_ids else {}
 
         stops_out: list[StopMapStop] = []
         for s in route_stops:
             if s.lat is None or s.lon is None:
                 continue
-            at_routes = routes_by_stop_id.get(s.id, [])
             stops_out.append(
                 StopMapStop(
                     stop_id=s.id,
                     code=s.code,
                     name=s.name,
-                    lat=s.lat,
-                    lon=s.lon,
+                    lat=float(s.lat),
+                    lon=float(s.lon),
                     is_focus=False,
-                    street_view_url=(f"https://www.google.com/maps?layer=c&cbll={s.lat},{s.lon}&cbp=0,0,,,"),
-                    routes=at_routes,
-                    stop_features=None,
                 )
             )
 
@@ -280,23 +247,9 @@ class MapService:
                 return (mid[0], mid[1])
         return cls._default_map_center()
 
-    def _stop_to_map_stop(
-        self,
-        stop: StopModel,
-        routes: list[RouteSummary],
-        *,
-        is_focus: bool,
-    ) -> StopMapStop | None:
+    def _stop_to_map_stop(self, stop: StopModel, *, is_focus: bool) -> StopMapStop | None:
         if stop.lat is None or stop.lon is None:
             return None
-        stop_features: StopFeatureSummary | None = None
-        if stop.stop_feature is not None:
-            sf = stop.stop_feature
-            stop_features = StopFeatureSummary(
-                wheelchair_accessible=sf.wheelchair_accessability,
-                shelter_active=sf.shelter_active,
-                rtpi_active=sf.rtpi_active,
-            )
         return StopMapStop(
             stop_id=stop.id,
             code=stop.code,
@@ -304,9 +257,6 @@ class MapService:
             lat=float(stop.lat),
             lon=float(stop.lon),
             is_focus=is_focus,
-            street_view_url=(f"https://www.google.com/maps?layer=c&cbll={stop.lat},{stop.lon}&cbp=0,0,,,"),
-            routes=routes,
-            stop_features=stop_features,
         )
 
     @CreateSpan()
@@ -318,11 +268,10 @@ class MapService:
         """
         rm = float(radius_meters)
         stops = await self.stop_repository.get_stops_near_location(latitude, longitude, int(radius_meters))
-        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids({s.id for s in stops})
 
         stops_out: list[StopMapStop] = []
         for stop in stops:
-            s = self._stop_to_map_stop(stop, routes_by_stop_id.get(stop.id, []), is_focus=False)
+            s = self._stop_to_map_stop(stop, is_focus=False)
             if s is not None:
                 stops_out.append(s)
 
@@ -407,12 +356,10 @@ class MapService:
     @CreateSpan()
     async def build_static_stop_map_payload(self, map_type: StaticStopMapTypes) -> StaticStopsMapPayload:
         stops = await self._get_stops_for_static_map_type(map_type)
-        stop_ids = {s.id for s in stops}
-        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids(stop_ids) if stop_ids else {}
 
         stops_out: list[StopMapStop] = []
         for stop in stops:
-            s = self._stop_to_map_stop(stop, routes_by_stop_id.get(stop.id, []), is_focus=False)
+            s = self._stop_to_map_stop(stop, is_focus=False)
             if s is not None:
                 stops_out.append(s)
 

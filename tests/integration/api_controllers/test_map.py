@@ -18,6 +18,12 @@ def test_stop_map_returns_json(client: TestClient) -> None:
     assert "stops" in data
     assert isinstance(data["routes"], list)
     assert isinstance(data["stops"], list)
+    if data["stops"]:
+        s0 = data["stops"][0]
+        assert "stop_id" in s0
+        assert "routes" not in s0
+        assert "stop_features" not in s0
+        assert "street_view_url" not in s0
 
 
 def test_stop_map_returns_404_if_stop_not_found(client: TestClient) -> None:
