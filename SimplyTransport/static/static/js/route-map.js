@@ -1,6 +1,6 @@
 /**
  * MapLibre route map: loads /api/v1/map/route/{id}/{direction}.
- * Depends on global maplibregl (loaded from CDN before this script).
+ * Depends on global maplibregl (loaded from /static in base.html before this script).
  */
 (function () {
     "use strict";

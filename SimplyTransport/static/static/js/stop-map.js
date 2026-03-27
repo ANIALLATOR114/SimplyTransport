@@ -1,6 +1,6 @@
 /**
  * MapLibre stop map: loads /api/v1/map/stop/{id} and renders routes, vehicles, stops.
- * Depends on global maplibregl (loaded from CDN before this script).
+ * Depends on global maplibregl (loaded from /static in base.html before this script).
  */
 (function () {
 	"use strict";
