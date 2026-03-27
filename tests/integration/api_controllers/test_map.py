@@ -94,7 +94,7 @@ def test_nearby_map_rejects_radius_meters_out_of_range(client: TestClient) -> No
 
 def test_agency_map_returns_json(client: TestClient) -> None:
     agency_id = "7778019"
-    response = client.get(f"/api/v1/map/route/{agency_id}")
+    response = client.get(f"/api/v1/map/route/agency/{agency_id}")
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("application/json")
     data = response.json()
@@ -106,7 +106,7 @@ def test_agency_map_returns_json(client: TestClient) -> None:
 
 
 def test_agency_map_returns_404_for_unknown_agency(client: TestClient) -> None:
-    response = client.get("/api/v1/map/route/__no_such_agency__")
+    response = client.get("/api/v1/map/route/agency/__no_such_agency__")
     assert response.status_code == 404
     assert "No routes found" in response.json().get("detail", "")
 

@@ -1,5 +1,5 @@
 /**
- * MapLibre agency routes: GET /api/v1/map/route/{agency_id}
+ * MapLibre agency routes: GET /api/v1/map/route/agency/{agency_id}
  */
 (function () {
     "use strict";
@@ -97,7 +97,7 @@
             ? container.parentElement.querySelector(".map-loader")
             : null;
 
-        const url = `/api/v1/map/route/${encodeURIComponent(agencyId)}`;
+        const url = `/api/v1/map/route/agency/${encodeURIComponent(agencyId)}`;
 
         fetch(url)
             .then((r) => {

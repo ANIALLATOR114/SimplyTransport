@@ -120,13 +120,10 @@ class MapController(Controller):
             ) from e
 
     @get(
-        "/route/{agency_id:str}",
+        "/route/agency/{agency_id:str}",
         media_type=MediaType.JSON,
         summary="Get map data for all routes of an agency",
-        description=(
-            'Use agency_id "All" for every agency. Single-segment path; '
-            "distinct from /route/{route_id}/{direction}."
-        ),
+        description=('Use agency_id "All" for every agency.'),
         raises=[NotFoundException],
         cache=_MAP_JSON_STATIC_TTL_S,
         cache_key_builder=key_builder_from_path(
