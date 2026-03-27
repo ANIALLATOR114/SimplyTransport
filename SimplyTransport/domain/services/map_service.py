@@ -33,6 +33,26 @@ from ..trip.repo import TripRepository
 logger = provide_logger(__name__)
 
 
+def _vehicle_point_from_rt(
+    v: RTVehicleModel,
+    route_id: str,
+    color_hex: str,
+) -> VehiclePoint:
+    route = v.trip.route
+    agency = route.agency
+    return VehiclePoint(
+        route_id=route_id,
+        lat=v.lat,
+        lon=v.lon,
+        vehicle_id=v.vehicle_id,
+        trip_id=v.trip_id,
+        color=color_hex,
+        route_short_name=route.short_name or "",
+        agency_name=agency.name if agency is not None else "",
+        time_of_update=v.time_of_update,
+    )
+
+
 class MapService:
     def __init__(
         self,
@@ -105,16 +125,7 @@ class MapService:
         for route_id, vehs in vehicles_dict.items():
             v_color = route_color_by_id.get(route_id, "#888888")
             for v in vehs:
-                vehicles_payload.append(
-                    VehiclePoint(
-                        route_id=route_id,
-                        lat=v.lat,
-                        lon=v.lon,
-                        vehicle_id=v.vehicle_id,
-                        trip_id=v.trip_id,
-                        color=v_color,
-                    )
-                )
+                vehicles_payload.append(_vehicle_point_from_rt(v, route_id, v_color))
 
         other_stops_on_routes = await self.stop_repository.get_stops_by_route_ids(route_ids, direction)
 
@@ -183,15 +194,7 @@ class MapService:
 
         vehicles_on_route = await self.rt_vehicle_repository.get_vehicles_on_routes([route_id], direction)
         vehicles_payload: list[VehiclePoint] = [
-            VehiclePoint(
-                route_id=route_id,
-                lat=v.lat,
-                lon=v.lon,
-                vehicle_id=v.vehicle_id,
-                trip_id=v.trip_id,
-                color=color_hex,
-            )
-            for v in vehicles_on_route
+            _vehicle_point_from_rt(v, route_id, color_hex) for v in vehicles_on_route
         ]
 
         route_stops = await self.stop_repository.get_stops_by_route_id(route_id, direction)

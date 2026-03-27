@@ -1,5 +1,6 @@
 """Pydantic models for JSON map payloads (MapLibre / API)."""
 
+from datetime import datetime
 from typing import Literal
 
 from pydantic import Field
@@ -36,6 +37,9 @@ class VehiclePoint(ApiBaseModel):
     vehicle_id: int
     trip_id: str
     color: str
+    route_short_name: str
+    agency_name: str
+    time_of_update: datetime
 
 
 class StopFeatureSummary(ApiBaseModel):

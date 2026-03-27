@@ -1126,6 +1126,13 @@
 	font-weight: 700;
 }
 
+.map-popup-inner .map-popup-vehicle-head {
+	margin: 0 0 0.5rem;
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--font-color-highlight-light);
+}
+
 .map-popup-inner .map-popup-title a {
 	color: var(--font-color-highlight-light);
 	text-decoration: none;
