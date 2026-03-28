@@ -83,6 +83,16 @@
             ? container.parentElement.querySelector(".map-loader")
             : null;
 
+        const wrap = container.closest(
+            ".map-container--maplibre[data-route-id][data-direction]",
+        );
+        if (wrap && typeof wrap.__routeMapCleanup === "function") {
+            wrap.__routeMapCleanup();
+        }
+        if (loader) {
+            loader.style.removeProperty("display");
+        }
+
         const dir = Number.parseInt(String(direction), 10);
         const url = `/api/v1/map/route/${encodeURIComponent(routeId)}/${Number.isNaN(dir) ? direction : dir}`;
 
@@ -362,11 +372,36 @@
                     map.on("mouseleave", STOPS_LABELS_ID, () => {
                         map.getCanvas().style.cursor = "";
                     });
+
+                    if (wrap) {
+                        wrap.__routeMapCleanup = function () {
+                            map.remove();
+                            if (panel.parentNode) {
+                                panel.remove();
+                            }
+                            delete wrap.__routeMapCleanup;
+                        };
+                    }
+                    const refBtn = document.getElementById("route-map-refresh");
+                    if (refBtn) {
+                        refBtn.disabled = false;
+                        refBtn.onclick = function () {
+                            if (refBtn.disabled) {
+                                return;
+                            }
+                            refBtn.disabled = true;
+                            initRouteMap(routeId, direction, containerId);
+                        };
+                    }
                 });
             })
             .catch(() => {
                 if (loader) {
                     loader.style.display = "none";
+                }
+                const refBtn = document.getElementById("route-map-refresh");
+                if (refBtn) {
+                    refBtn.disabled = false;
                 }
                 container.innerHTML =
                     '<p class="map-error">Map could not be loaded. Try again later.</p>';
@@ -491,12 +526,6 @@
             }
             wrap.dataset.routemapEmbedInit = "1";
             initRouteMap(wrap.dataset.routeId, wrap.dataset.direction, "map-element");
-            const refBtn = document.getElementById("route-map-refresh");
-            if (refBtn) {
-                refBtn.onclick = function () {
-                    window.location.reload();
-                };
-            }
         }
         if (window.whenMapWithPopupReady) {
             window.whenMapWithPopupReady(doInit);

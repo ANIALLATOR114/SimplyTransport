@@ -80,6 +80,16 @@
 			? container.parentElement.querySelector(".map-loader")
 			: null;
 
+		const wrap = container.closest(
+			".map-container--maplibre[data-stop-id]",
+		);
+		if (wrap && typeof wrap.__stopMapCleanup === "function") {
+			wrap.__stopMapCleanup();
+		}
+		if (loader) {
+			loader.style.removeProperty("display");
+		}
+
 		fetch(`/api/v1/map/stop/${encodeURIComponent(stopId)}`)
 			.then((r) => {
 				if (!r.ok) {
@@ -413,11 +423,36 @@
 							map.getCanvas().style.cursor = "";
 						});
 					});
+
+					if (wrap) {
+						wrap.__stopMapCleanup = function () {
+							map.remove();
+							if (panel.parentNode) {
+								panel.remove();
+							}
+							delete wrap.__stopMapCleanup;
+						};
+					}
+					const refBtn = document.getElementById("stop-map-refresh");
+					if (refBtn) {
+						refBtn.disabled = false;
+						refBtn.onclick = function () {
+							if (refBtn.disabled) {
+								return;
+							}
+							refBtn.disabled = true;
+							initStopMap(stopId, containerId);
+						};
+					}
 				});
 			})
 			.catch(() => {
 				if (loader) {
 					loader.style.display = "none";
+				}
+				const refBtn = document.getElementById("stop-map-refresh");
+				if (refBtn) {
+					refBtn.disabled = false;
 				}
 				container.innerHTML =
 					'<p class="map-error">Map could not be loaded. Try again later.</p>';
@@ -551,12 +586,6 @@
 			}
 			wrap.dataset.stopmapEmbedInit = "1";
 			initStopMap(stopId, "map-element");
-			const refBtn = document.getElementById("stop-map-refresh");
-			if (refBtn) {
-				refBtn.onclick = function () {
-					window.location.reload();
-				};
-			}
 		}
 		if (window.whenMapWithPopupReady) {
 			window.whenMapWithPopupReady(doInit);
