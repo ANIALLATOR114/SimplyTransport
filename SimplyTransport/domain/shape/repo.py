@@ -10,15 +10,26 @@ from .model import ShapeGeometryRow, ShapeModel
 class ShapeRepository(SQLAlchemyAsyncRepository[ShapeModel]):  # type: ignore[type-var]
     """Stop repository."""
 
-    async def get_shapes_by_shape_id(self, shape_id: str) -> list[ShapeModel]:
-        """Get shapes by shape_id."""
+    async def get_sequence_sorted_shapes_by_shape_id(self, shape_id: str) -> list[ShapeGeometryRow]:
+        """Return shape points for one id, ordered by ``sequence`` (GTFS order)."""
 
-        return await self.list(ShapeModel.shape_id == shape_id)
+        if not shape_id:
+            return []
+
+        result = await self.session.execute(
+            select(ShapeGeometryRow)
+            .filter(ShapeGeometryRow.shape_id == shape_id)
+            .order_by(ShapeGeometryRow.sequence)
+        )
+        return list(result.scalars().all())
 
     async def get_sequence_sorted_shapes_by_shape_ids(
         self, shape_ids: list[str]
     ) -> Sequence[ShapeGeometryRow]:
         """Return shape points for the given ids, ordered by ``shape_id`` then ``sequence`` (GTFS order)."""
+
+        if not shape_ids:
+            return []
 
         result = await self.session.execute(
             select(ShapeGeometryRow)

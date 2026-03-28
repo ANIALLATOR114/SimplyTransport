@@ -1,6 +1,6 @@
 from advanced_alchemy.base import DefaultBase
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from sqlalchemy import Float, Integer, String
+from sqlalchemy import Float, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 __all__ = ["ShapeGeometryRow", "ShapeModel"]
@@ -8,7 +8,8 @@ __all__ = ["ShapeGeometryRow", "ShapeModel"]
 
 class ShapeModel(BigIntAuditBase):
     __tablename__ = "shape"  # type: ignore
-    shape_id: Mapped[str] = mapped_column(String(length=1000), index=True)
+    __table_args__ = (Index("ix_shape_shape_id_sequence", "shape_id", "sequence"),)
+    shape_id: Mapped[str] = mapped_column(String(length=1000))
     lat: Mapped[float] = mapped_column(Float)
     lon: Mapped[float] = mapped_column(Float)
     sequence: Mapped[int] = mapped_column(Integer)

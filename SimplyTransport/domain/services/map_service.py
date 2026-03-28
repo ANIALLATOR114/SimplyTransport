@@ -87,7 +87,7 @@ class MapService:
         for vehicle in vehicles_on_routes:
             vehicles_dict[vehicle.trip.route_id].append(vehicle)
 
-        shape_ids = [trip.shape_id for trip in trips]
+        shape_ids = list(dict.fromkeys(trip.shape_id for trip in trips))
         shapes = await self.shape_repository.get_sequence_sorted_shapes_by_shape_ids(shape_ids)
         shapes_dict: dict[str, list[ShapeGeometryRow]] = defaultdict(list)
         for shape in shapes:
@@ -175,15 +175,14 @@ class MapService:
         trip = await self.trip_repository.get_first_trip_by_route_id(route_id, direction)
         if trip is None:
             raise NotFoundError(f"No trip found for route {route_id} and direction {direction}")
-        shapes = await self.shape_repository.get_shapes_by_shape_id(trip.shape_id)
+        shapes = await self.shape_repository.get_sequence_sorted_shapes_by_shape_id(trip.shape_id)
         if len(shapes) == 0:
             raise NotFoundError(f"No shapes found for route {route_id} and direction {direction}")
 
-        sorted_shapes = sorted(shapes, key=lambda x: x.sequence)
-        first = sorted_shapes[0]
+        first = shapes[0]
         color_hex = Colors.BLUE.to_hex()
 
-        coordinates = [[s.lon, s.lat] for s in sorted_shapes]
+        coordinates = [[s.lon, s.lat] for s in shapes]
         route_layer = RouteLayer(
             route_id=route.id,
             short_name=route.short_name,
@@ -302,7 +301,7 @@ class MapService:
         trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids)
         trip_by_route_id = {t.route_id: t for t in trips}
 
-        shape_ids = [trip.shape_id for trip in trips]
+        shape_ids = list(dict.fromkeys(trip.shape_id for trip in trips))
         shapes = await self.shape_repository.get_sequence_sorted_shapes_by_shape_ids(shape_ids)
         shapes_dict: dict[str, list[ShapeGeometryRow]] = defaultdict(list)
         for shape in shapes:
