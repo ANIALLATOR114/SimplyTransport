@@ -4,34 +4,13 @@
 (function () {
     "use strict";
 
-    const OSM_RASTER_STYLE = {
-        version: 8,
-        sources: {
-            osm: {
-                type: "raster",
-                tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                tileSize: 256,
-                attribution:
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            },
-        },
-        layers: [
-            {
-                id: "osm",
-                type: "raster",
-                source: "osm",
-                minzoom: 0,
-                maxzoom: 19,
-            },
-        ],
-    };
+    const {
+        createOsmRasterStyle,
+        addDefaultMapControls,
+        setLayerVisibility,
+    } = window.MapLibreMapShared;
 
-    function setLayerVisibility(map, id, visible) {
-        if (!map.getLayer(id)) {
-            return;
-        }
-        map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
-    }
+    const OSM_RASTER_STYLE = createOsmRasterStyle({ includeGlyphs: false });
 
     function buildLayerPanel(panel, payload, layerState, map) {
         const routes = payload.routes;
@@ -118,8 +97,7 @@
                     zoom: payload.zoom,
                 });
 
-                map.addControl(new maplibregl.NavigationControl(), "top-left");
-                map.addControl(new maplibregl.FullscreenControl(), "top-left");
+                addDefaultMapControls(map);
 
                 const layerState = {
                     routes: {},

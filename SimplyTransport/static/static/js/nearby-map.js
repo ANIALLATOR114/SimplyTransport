@@ -24,38 +24,16 @@
         };
     }
 
-    const STOP_LABEL_MIN_ZOOM = 15;
-    const LABEL_FONT = ["Open Sans Semibold"];
-    const MAP_LABEL_BADGE_PAINT = {
-        "text-color": "#ffffff",
-        "text-halo-color": "#313b46",
-        "text-halo-width": 3.5,
-        "text-halo-blur": 0.9,
-    };
-    const STOP_LABEL_TEXT_OFFSET = [0, 1.65];
+    const {
+        createOsmRasterStyle,
+        LABEL_FONT,
+        MAP_LABEL_BADGE_PAINT,
+        STOP_LABEL_MIN_ZOOM,
+        STOP_LABEL_TEXT_OFFSET,
+        addDefaultMapControls,
+    } = window.MapLibreMapShared;
 
-    const OSM_RASTER_STYLE = {
-        version: 8,
-        glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-        sources: {
-            osm: {
-                type: "raster",
-                tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                tileSize: 256,
-                attribution:
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            },
-        },
-        layers: [
-            {
-                id: "osm",
-                type: "raster",
-                source: "osm",
-                minzoom: 0,
-                maxzoom: 19,
-            },
-        ],
-    };
+    const OSM_RASTER_STYLE = createOsmRasterStyle();
 
     function initNearbyMap(latitude, longitude, containerId) {
         const container = document.getElementById(containerId);
@@ -91,8 +69,7 @@
                     zoom: payload.zoom,
                 });
 
-                map.addControl(new maplibregl.NavigationControl(), "top-left");
-                map.addControl(new maplibregl.FullscreenControl(), "top-left");
+                addDefaultMapControls(map);
 
                 const stopsGeojson = {
                     type: "FeatureCollection",
