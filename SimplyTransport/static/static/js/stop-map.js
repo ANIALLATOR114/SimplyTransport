@@ -5,70 +5,20 @@
 (function () {
 	"use strict";
 
-	/** Vehicle route labels appear first; stop codes require zooming in one step further. */
-	/** Match fonts bundled at demotiles.maplibre.org (see MapLibre demo style). */
-	const VEHICLE_LABEL_MIN_ZOOM = 14;
-	const STOP_LABEL_MIN_ZOOM = 15;
-	const LABEL_FONT = ["Open Sans Semibold"];
-	/** Matches --bg-color-bump-border in style.css. MapLibre has no text-background; thick blurred halo ≈ rounded pill. */
-	const MAP_LABEL_BADGE_PAINT = {
-		"text-color": "#ffffff",
-		"text-halo-color": "#313b46",
-		"text-halo-width": 3.5,
-		"text-halo-blur": 0.9,
-	};
-	/** Ems below anchor (larger Y = label further from the point). */
-	const VEHICLE_LABEL_TEXT_OFFSET = [0, 1.95];
-	const STOP_LABEL_TEXT_OFFSET = [0, 1.65];
+	const {
+		createOsmRasterStyle,
+		LABEL_FONT,
+		MAP_LABEL_BADGE_PAINT,
+		VEHICLE_LABEL_MIN_ZOOM,
+		STOP_LABEL_MIN_ZOOM,
+		VEHICLE_LABEL_TEXT_OFFSET,
+		STOP_LABEL_TEXT_OFFSET,
+		addDefaultMapControls,
+		setLayerVisibility,
+		startVehiclePulseAnimation,
+	} = window.MapLibreMapShared;
 
-	/**
-	 * Animate halo circles under vehicle markers (realtime “live” cue).
-	 * @param {object} map - maplibregl Map
-	 * @param {() => string[]} getPulseLayerIds
-	 */
-	function startVehiclePulseAnimation(map, getPulseLayerIds) {
-		let raf = 0;
-		function tick() {
-			const wave = Math.sin((Date.now() / 2000) * Math.PI * 2) * 0.5 + 0.5;
-			const opacity = 0.12 + wave * 0.28;
-			const radius = 12 + wave * 10;
-			for (const lid of getPulseLayerIds()) {
-				if (map.getLayer(lid)) {
-					map.setPaintProperty(lid, "circle-opacity", opacity);
-					map.setPaintProperty(lid, "circle-radius", radius);
-				}
-			}
-			raf = requestAnimationFrame(tick);
-		}
-		raf = requestAnimationFrame(tick);
-		map.once("remove", () => {
-			cancelAnimationFrame(raf);
-		});
-	}
-
-	/** OpenStreetMap raster tiles (same idea as classic OSM web maps). */
-	const OSM_RASTER_STYLE = {
-		version: 8,
-		glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-		sources: {
-			osm: {
-				type: "raster",
-				tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-				tileSize: 256,
-				attribution:
-					'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-			},
-		},
-		layers: [
-			{
-				id: "osm",
-				type: "raster",
-				source: "osm",
-				minzoom: 0,
-				maxzoom: 19,
-			},
-		],
-	};
+	const OSM_RASTER_STYLE = createOsmRasterStyle();
 
 	function initStopMap(stopId, containerId) {
 		const container = document.getElementById(containerId);
@@ -109,8 +59,7 @@
 					zoom: payload.zoom,
 				});
 
-				map.addControl(new maplibregl.NavigationControl(), "top-left");
-				map.addControl(new maplibregl.FullscreenControl(), "top-left");
+				addDefaultMapControls(map);
 
 				const stopsGeojson = {
 					type: "FeatureCollection",
@@ -457,13 +406,6 @@
 				container.innerHTML =
 					'<p class="map-error">Map could not be loaded. Try again later.</p>';
 			});
-	}
-
-	function setLayerVisibility(map, id, visible) {
-		if (!map.getLayer(id)) {
-			return;
-		}
-		map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
 	}
 
 	function buildLayerPanel(panel, payload, layerState, map) {

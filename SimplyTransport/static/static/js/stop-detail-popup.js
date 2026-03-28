@@ -16,6 +16,17 @@
 			.replace(/"/g, "&quot;");
 	}
 
+	/** @param {boolean | null | undefined} value */
+	function featureBoolToEmoji(value) {
+		if (value === true) {
+			return "✅";
+		}
+		if (value === false) {
+			return "❌";
+		}
+		return "—";
+	}
+
 	function fetchStopDetailed(stopId) {
 		return fetch(`/api/v1/stop/${encodeURIComponent(stopId)}/detailed`).then(
 			(r) => {
@@ -49,25 +60,23 @@
 		let featuresHtml = "";
 		if (detail.stop_features) {
 			const sf = detail.stop_features;
-			featuresHtml = `<p class="map-popup-block map-popup-muted">Wheelchair accessible: ${escapeHtml(sf.wheelchair_accessible)}<br>
-Bus Shelter: ${escapeHtml(sf.shelter_active)}<br>
-Realtime display: ${escapeHtml(sf.rtpi_active)}</p>`;
+			featuresHtml =
+				`<p class="map-popup-block map-popup-muted">Wheelchair accessible: ${featureBoolToEmoji(sf.wheelchair_accessible)}<br>` +
+				`Bus shelter: ${featureBoolToEmoji(sf.shelter_active)}<br>` +
+				`Realtime display: ${featureBoolToEmoji(sf.rtpi_active)}</p>`;
 		}
 
-		const lat = stop.lat != null ? stop.lat : "";
-		const lon = stop.lon != null ? stop.lon : "";
 		let streetBlock = "";
 		const streetUrl = detail.street_view_url || "";
 		if (streetUrl) {
-			streetBlock = `<a class="map-popup-link" href="${escapeHtml(streetUrl)}" target="_blank" rel="noopener noreferrer">Street view</a><br>`;
+			streetBlock =
+				`<p class="map-popup-block"><a class="map-popup-link" href="${escapeHtml(streetUrl)}" target="_blank" rel="noopener noreferrer">Street view</a></p>`;
 		}
 
 		return (
 			`<div class="map-popup-inner">` +
 			`<h4 class="map-popup-title"><a href="/realtime/stop/${escapeHtml(stop.id)}">${escapeHtml(title)}</a></h4>` +
-			`<p class="map-popup-block">` +
 			streetBlock +
-			`<span class="map-popup-muted">Lat: ${escapeHtml(lat)}<br>Lon: ${escapeHtml(lon)}</span></p>` +
 			featuresHtml +
 			`<p class="map-popup-block map-popup-routes-head"><strong>${routes.length} Routes</strong></p>` +
 			`<p class="map-popup-routes">${routesHtml}</p>` +

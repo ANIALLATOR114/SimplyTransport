@@ -1077,8 +1077,11 @@
 	box-shadow: var(--shadow-md);
 	padding: 0;
 	font-family: "Roboto", sans-serif;
-	font-size: 0.875rem;
+	font-size: 0.8125rem;
 	line-height: 1.45;
+	/* Crisper text when MapLibre positions the popup with fractional-pixel transforms */
+	transform: translateZ(0);
+	backface-visibility: hidden;
 }
 
 .map-container--maplibre .maplibre-stop-popup .maplibregl-popup-content {
@@ -1145,7 +1148,7 @@
 
 .map-popup-inner .map-popup-title {
 	margin: 0 0 0.5rem;
-	font-size: 1rem;
+	font-size: 0.9375rem;
 	font-weight: 700;
 }
 
