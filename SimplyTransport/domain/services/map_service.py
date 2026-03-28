@@ -16,7 +16,7 @@ from SimplyTransport.api_contract.map_payloads import (
 )
 from SimplyTransport.domain.maps.colors import Colors
 from SimplyTransport.domain.realtime.vehicle.model import RTVehicleModel
-from SimplyTransport.domain.shape.model import ShapeModel
+from SimplyTransport.domain.shape.model import ShapeGeometryRow
 from SimplyTransport.lib.cache import RedisService
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -80,6 +80,7 @@ class MapService:
 
         route_ids = [route.id for route in routes]
         trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids, direction)
+        trip_by_route_id = {t.route_id: t for t in trips}
 
         vehicles_on_routes = await self.rt_vehicle_repository.get_vehicles_on_routes(route_ids, direction)
         vehicles_dict: dict[str, list[RTVehicleModel]] = defaultdict(list)
@@ -87,8 +88,8 @@ class MapService:
             vehicles_dict[vehicle.trip.route_id].append(vehicle)
 
         shape_ids = [trip.shape_id for trip in trips]
-        shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
-        shapes_dict: dict[str, list[ShapeModel]] = defaultdict(list)
+        shapes = await self.shape_repository.get_sequence_sorted_shapes_by_shape_ids(shape_ids)
+        shapes_dict: dict[str, list[ShapeGeometryRow]] = defaultdict(list)
         for shape in shapes:
             shapes_dict[shape.shape_id].append(shape)
 
@@ -97,13 +98,12 @@ class MapService:
         route_color_by_id: dict[str, str] = {}
 
         for route in routes:
-            trip = next((t for t in trips if t.route_id == route.id), None)
+            trip = trip_by_route_id.get(route.id)
             if trip is None:
                 continue
             trip_shapes = shapes_dict.get(trip.shape_id, [])
             if not trip_shapes:
                 continue
-            trip_shapes = sorted(trip_shapes, key=lambda x: x.sequence)
             locations = [(s.lat, s.lon) for s in trip_shapes]
             if not locations:
                 continue
@@ -300,10 +300,11 @@ class MapService:
         route_ids = [route.id for route in routes]
 
         trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids)
+        trip_by_route_id = {t.route_id: t for t in trips}
 
         shape_ids = [trip.shape_id for trip in trips]
-        shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
-        shapes_dict: dict[str, list[ShapeModel]] = defaultdict(list)
+        shapes = await self.shape_repository.get_sequence_sorted_shapes_by_shape_ids(shape_ids)
+        shapes_dict: dict[str, list[ShapeGeometryRow]] = defaultdict(list)
         for shape in shapes:
             shapes_dict[shape.shape_id].append(shape)
 
@@ -311,13 +312,12 @@ class MapService:
         route_layers: list[RouteLayer] = []
 
         for route in routes:
-            trip = next((t for t in trips if t.route_id == route.id), None)
+            trip = trip_by_route_id.get(route.id)
             if trip is None:
                 continue
             trip_shapes = shapes_dict.get(trip.shape_id, [])
             if not trip_shapes:
                 continue
-            trip_shapes = sorted(trip_shapes, key=lambda x: x.sequence)
             color_enum = next(route_colors)
             color_hex = color_enum.to_hex()
             coordinates = [[s.lon, s.lat] for s in trip_shapes]

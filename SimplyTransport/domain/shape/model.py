@@ -1,8 +1,9 @@
+from advanced_alchemy.base import DefaultBase
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
 from sqlalchemy import Float, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-__all__ = ["ShapeModel"]
+__all__ = ["ShapeGeometryRow", "ShapeModel"]
 
 
 class ShapeModel(BigIntAuditBase):
@@ -13,3 +14,24 @@ class ShapeModel(BigIntAuditBase):
     sequence: Mapped[int] = mapped_column(Integer)
     distance: Mapped[float | None] = mapped_column(Float)
     dataset: Mapped[str] = mapped_column(String(length=80))
+
+
+class ShapeGeometryRow(DefaultBase):
+    """Polyline geometry read model: ``shape`` table without distance, dataset, or audit columns."""
+
+    __allow_unmapped__ = True
+    __table__ = ShapeModel.__table__
+    __mapper_args__ = {
+        "include_properties": [
+            ShapeModel.__table__.c.id,
+            ShapeModel.__table__.c.shape_id,
+            ShapeModel.__table__.c.lat,
+            ShapeModel.__table__.c.lon,
+            ShapeModel.__table__.c.sequence,
+        ],
+    }
+    id: Mapped[int]
+    shape_id: Mapped[str]
+    lat: Mapped[float]
+    lon: Mapped[float]
+    sequence: Mapped[int]

@@ -1,3 +1,3 @@
-from .model import ShapeModel
+from .model import ShapeGeometryRow, ShapeModel
 
-__all__ = ["ShapeModel"]
+__all__ = ["ShapeGeometryRow", "ShapeModel"]

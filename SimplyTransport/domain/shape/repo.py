@@ -4,7 +4,7 @@ from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .model import ShapeModel
+from .model import ShapeGeometryRow, ShapeModel
 
 
 class ShapeRepository(SQLAlchemyAsyncRepository[ShapeModel]):  # type: ignore[type-var]
@@ -15,10 +15,16 @@ class ShapeRepository(SQLAlchemyAsyncRepository[ShapeModel]):  # type: ignore[ty
 
         return await self.list(ShapeModel.shape_id == shape_id)
 
-    async def get_shapes_by_shape_ids(self, shape_ids: list[str]) -> Sequence[ShapeModel]:
-        """Get shapes by shape_ids."""
+    async def get_sequence_sorted_shapes_by_shape_ids(
+        self, shape_ids: list[str]
+    ) -> Sequence[ShapeGeometryRow]:
+        """Return shape points for the given ids, ordered by ``shape_id`` then ``sequence`` (GTFS order)."""
 
-        result = await self.session.execute(select(ShapeModel).filter(ShapeModel.shape_id.in_(shape_ids)))
+        result = await self.session.execute(
+            select(ShapeGeometryRow)
+            .filter(ShapeGeometryRow.shape_id.in_(shape_ids))
+            .order_by(ShapeGeometryRow.shape_id, ShapeGeometryRow.sequence)
+        )
         return result.scalars().all()
 
     model_type = ShapeModel
