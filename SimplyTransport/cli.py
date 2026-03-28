@@ -263,6 +263,9 @@ class CLIPlugin(CLIPluginProtocol):
                     CacheKeys.StaticMaps.STATIC_MAP_STOP_DELETE_ALL_KEY_TEMPLATE
                 )
                 await redis_service.delete_keys_by_pattern(CacheKeys.StopApi.DETAILED_DELETE_ALL_KEY_TEMPLATE)
+                await redis_service.delete_keys_by_pattern(
+                    CacheKeys.RealTime.REALTIME_ROUTE_DELETE_ALL_KEY_TEMPLATE
+                )
 
                 finish = time.perf_counter()
                 console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
@@ -338,6 +341,17 @@ class CLIPlugin(CLIPluginProtocol):
                 attributes,
             )
 
+            redis_service = await provide_redis_service()
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.RealTime.REALTIME_STOP_DELETE_ALL_KEY_TEMPLATE
+            )
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.RealTime.REALTIME_STOP_TABLE_DELETE_ALL_KEY_TEMPLATE
+            )
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.RealTime.REALTIME_TRIP_DELETE_ALL_KEY_TEMPLATE
+            )
+
             console.print(f"\n[blue]Finished import in {round(finish - start, 2)} second(s)")
 
         @cli.command(
@@ -387,6 +401,17 @@ class CLIPlugin(CLIPluginProtocol):
             console.print(
                 f"[green]Seeded realtime for dataset {realtime_dataset}: "
                 f"{total_trips} rt_trip row(s) upserted, {total_stop_times} rt_stop_time row(s) upserted."
+            )
+
+            redis_service = await provide_redis_service()
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.RealTime.REALTIME_STOP_DELETE_ALL_KEY_TEMPLATE
+            )
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.RealTime.REALTIME_STOP_TABLE_DELETE_ALL_KEY_TEMPLATE
+            )
+            await redis_service.delete_keys_by_pattern(
+                CacheKeys.RealTime.REALTIME_TRIP_DELETE_ALL_KEY_TEMPLATE
             )
 
         @cli.command(

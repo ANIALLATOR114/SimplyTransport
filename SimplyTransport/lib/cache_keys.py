@@ -40,6 +40,9 @@ class CacheKeys:
         REALTIME_TRIP_KEY_TEMPLATE = "realtime:trip:{trip_id}"
         REALTIME_TRIP_DELETE_ALL_KEY_TEMPLATE = "*realtime:trip:*"
         REALTIME_TRIP_DELETE_KEY_TEMPLATE = "*realtime:trip:{trip_id}"
+        REALTIME_ROUTE_KEY_TEMPLATE = "realtime:route:{route_id}:{direction}"
+        REALTIME_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*realtime:route:*"
+        REALTIME_ROUTE_DELETE_KEY_TEMPLATE = "*realtime:route:{route_id}:*"
 
     class StaticMaps(StrEnum):
         STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE = "static_map:agency:route:{agency_id}"
