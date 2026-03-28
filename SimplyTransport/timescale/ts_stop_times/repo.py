@@ -7,9 +7,13 @@ from sqlalchemy import delete, func, select, text
 from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from SimplyTransport.api_contract.delays import (
+    TS_StopTimeDelayAggregated,
+    TS_StopTimeForGraph,
+)
 from SimplyTransport.lib.sqlalchemy_bulk import bulk_insert
 
-from .model import TS_StopTimeDelayAggregated, TS_StopTimeForGraph, TS_StopTimeModel
+from .model import TS_StopTimeModel
 
 MAXIMUM_LIMIT = 180
 MAXIMUM_TIMESTAMP = datetime.now() - timedelta(days=MAXIMUM_LIMIT)

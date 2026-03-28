@@ -3,7 +3,8 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 
-from ...domain.shape.model import Shape
+from SimplyTransport.api_contract.shape import Shape
+
 from ...domain.shape.repo import ShapeRepository, provide_shape_repo
 from ...lib.parameters.orderby_shapes import provide_order_by_shapes
 

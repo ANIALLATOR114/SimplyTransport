@@ -1,6 +1,13 @@
 from enum import IntEnum, StrEnum
 
 
+class Direction(IntEnum):
+    """Direction of travel."""
+
+    OUTBOUND = 0
+    INBOUND = 1
+
+
 class ExceptionType(StrEnum):
     added = "added"
     removed = "removed"

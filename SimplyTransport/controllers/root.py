@@ -132,6 +132,14 @@ class RootController(Controller):
             filename="robots.txt",
         )
 
+    @get(
+        "/.well-known/appspecific/com.chrome.devtools.json",
+        include_in_schema=False,
+    )
+    async def chrome_devtools_well_known(self) -> dict[str, str]:
+        """Chrome DevTools probes this URL; empty JSON avoids spurious 404/tracebacks in logs."""
+        return {}
+
     @get("/favicon-16x16.png")
     async def favicon_16(self) -> File:
         return File(

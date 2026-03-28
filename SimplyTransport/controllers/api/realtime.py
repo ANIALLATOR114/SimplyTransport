@@ -5,8 +5,9 @@ from litestar.di import Provide
 from litestar.exceptions import ValidationException
 from litestar.params import Parameter
 
+from SimplyTransport.api_contract.realtime_schedule import RealTimeSchedule
+
 from ...domain.enums import DayOfWeek
-from ...domain.realtime.realtime_schedule.model import RealTimeSchedule
 from ...domain.services.realtime_service import (
     RealTimeService,
     provide_realtime_service,

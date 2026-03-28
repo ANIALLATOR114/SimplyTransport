@@ -1,19 +1,13 @@
 from datetime import date, time
 
-from pydantic import BaseModel as _BaseModel
-
 from ..calendar.model import CalendarModel
 from ..calendar_dates.model import CalendarDateModel
-from ..route.model import Route, RouteModel
+from ..route.model import RouteModel
 from ..stop.model import StopModel
-from ..stop_times.model import StopTime, StopTimeModel
-from ..trip.model import Trip, TripModel
+from ..stop_times.model import StopTimeModel
+from ..trip.model import TripModel
 
-
-class BaseModel(_BaseModel):
-    """Extend Pydantic's BaseModel to enable ORM mode"""
-
-    model_config = {"from_attributes": True}
+__all__ = ["StaticScheduleModel"]
 
 
 class StaticScheduleModel:
@@ -45,9 +39,3 @@ class StaticScheduleModel:
         """This assumes that the exceptions passed are active on the given date"""
 
         return self.calendar.in_exceptions(list_of_exceptions)
-
-
-class StaticSchedule(BaseModel):
-    route: Route
-    stop_time: StopTime
-    trip: Trip

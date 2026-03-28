@@ -1,8 +1,6 @@
 from typing import TYPE_CHECKING
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from pydantic import BaseModel as _BaseModel
-from pydantic import Field
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -13,11 +11,7 @@ if TYPE_CHECKING:
     from SimplyTransport.domain.realtime.trip.model import RTTripModel
     from SimplyTransport.domain.trip.model import TripModel
 
-
-class BaseModel(_BaseModel):
-    """Extend Pydantic's BaseModel to enable ORM mode"""
-
-    model_config = {"from_attributes": True}
+__all__ = ["RouteModel"]
 
 
 class RouteModel(BigIntAuditBase):
@@ -38,23 +32,3 @@ class RouteModel(BigIntAuditBase):
     trips: Mapped[list["TripModel"]] = relationship(back_populates="route")
     rt_trips: Mapped[list["RTTripModel"]] = relationship(back_populates="route")
     dataset: Mapped[str] = mapped_column(String(length=80), index=True)
-
-
-class Route(BaseModel):
-    id: str
-    agency_id: str
-    short_name: str
-    long_name: str
-    description: str | None
-    route_type: RouteType = Field(
-        description="Indicates the type of transportation used on a route",
-    )
-    url: str | None
-    color: str | None
-    text_color: str | None
-    dataset: str
-
-
-class RouteWithTotal(BaseModel):
-    total: int
-    routes: list[Route]

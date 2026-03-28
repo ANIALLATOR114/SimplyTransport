@@ -1,5 +1,5 @@
 from litestar.testing import TestClient
-from SimplyTransport.domain.calendar_dates.model import CalendarDate
+from SimplyTransport.api_contract.calendar_date import CalendarDate
 
 
 def test_calendar_date_all(client: TestClient) -> None:

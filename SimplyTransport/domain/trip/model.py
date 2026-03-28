@@ -1,11 +1,10 @@
-from enum import Enum
 from typing import TYPE_CHECKING
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from pydantic import BaseModel as _BaseModel
-from pydantic import Field
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from ..enums import Direction
 
 if TYPE_CHECKING:
     from SimplyTransport.domain.calendar.model import CalendarModel
@@ -15,18 +14,7 @@ if TYPE_CHECKING:
     from SimplyTransport.domain.route.model import RouteModel
     from SimplyTransport.domain.stop_times.model import StopTimeModel
 
-
-class BaseModel(_BaseModel):
-    """Extend Pydantic's BaseModel to enable ORM mode"""
-
-    model_config = {"from_attributes": True}
-
-
-class Direction(int, Enum):
-    """Direction of travel"""
-
-    OUTBOUND = 0
-    INBOUND = 1
+__all__ = ["Direction", "TripModel"]
 
 
 class TripModel(BigIntAuditBase):
@@ -51,20 +39,3 @@ class TripModel(BigIntAuditBase):
     rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="trip")
     rt_vehicles: Mapped[list["RTVehicleModel"]] = relationship(back_populates="trip")
     dataset: Mapped[str] = mapped_column(String(length=80), index=True)
-
-
-class Trip(BaseModel):
-    id: str
-    route_id: str
-    service_id: str
-    shape_id: str
-    headsign: str | None
-    short_name: str | None
-    direction: Direction = Field(description="Direction of travel. Mapping between agencies could differ.")
-    block_id: str | None
-    dataset: str
-
-
-class TripsWithTotal(BaseModel):
-    total: int
-    trips: list[Trip]

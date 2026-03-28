@@ -3,29 +3,54 @@ from itertools import cycle
 from typing import Literal
 
 from advanced_alchemy.exceptions import NotFoundError
+from SimplyTransport.api_contract.map_payloads import (
+    AgencyRoutesMapPayload,
+    GeoJSONLineString,
+    NearbyMapPayload,
+    RouteLayer,
+    RouteMapPayload,
+    StaticStopsMapPayload,
+    StopMapPayload,
+    StopMapStop,
+    VehiclePoint,
+)
+from SimplyTransport.domain.maps.colors import Colors
+from SimplyTransport.domain.realtime.vehicle.model import RTVehicleModel
+from SimplyTransport.domain.shape.model import ShapeGeometryRow
 from SimplyTransport.lib.cache import RedisService
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...lib.logging.logging import provide_logger
 from ...lib.tracing import CreateSpan
-from ..maps.circles import Circle
-from ..maps.clusters import Cluster
-from ..maps.colors import Colors
 from ..maps.enums import StaticStopMapTypes
-from ..maps.layers import Layer
-from ..maps.maps import Map
-from ..maps.markers import BusMarker, StopMarker, YourLocationMarker
-from ..maps.polylines import RoutePolyLine
-from ..realtime.vehicle.model import RTVehicleModel
 from ..realtime.vehicle.repo import RTVehicleRepository
 from ..route.repo import RouteRepository
-from ..shape.model import ShapeModel
 from ..shape.repo import ShapeRepository
 from ..stop.model import StopModel
 from ..stop.repo import StopRepository
 from ..trip.repo import TripRepository
 
 logger = provide_logger(__name__)
+
+
+def _vehicle_point_from_rt(
+    v: RTVehicleModel,
+    route_id: str,
+    color_hex: str,
+) -> VehiclePoint:
+    route = v.trip.route
+    agency = route.agency
+    return VehiclePoint(
+        route_id=route_id,
+        lat=v.lat,
+        lon=v.lon,
+        vehicle_id=v.vehicle_id,
+        trip_id=v.trip_id,
+        color=color_hex,
+        route_short_name=route.short_name or "",
+        agency_name=agency.name if agency is not None else "",
+        time_of_update=v.time_of_update,
+    )
 
 
 class MapService:
@@ -44,190 +69,227 @@ class MapService:
         self.rt_vehicle_repository = rt_vehicle_repository
 
     @CreateSpan()
-    async def generate_stop_map(self, stop_id: str) -> Map | None:
-        """
-        Generates a map with markers and layers for a given stop ID.
-
-        Args:
-            stop_id (str): The ID of the stop.
-
-        Returns:
-            Map: The generated map object.
-        """
-
-        stop = await self.stop_repository.get_by_id_with_stop_feature(stop_id)
+    async def build_stop_map_payload(self, stop_id: str) -> StopMapPayload | None:
+        """Build JSON for the realtime stop map (MapLibre client)."""
+        stop = await self.stop_repository.get(stop_id)
         direction = await self.stop_repository.get_direction_of_stop(stop_id)
         routes = await self.route_repository.get_routes_by_stop_id_with_agency(stop_id)
 
         if stop.lat is None or stop.lon is None:
             return None
 
-        stop_map = Map(lat=stop.lat, lon=stop.lon, zoom=14, height=500)
-        stop_map.setup_defaults()
-        stop_map.add_toggle_all_layers_control()
-
         route_ids = [route.id for route in routes]
         trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids, direction)
+        trip_by_route_id = {t.route_id: t for t in trips}
 
         vehicles_on_routes = await self.rt_vehicle_repository.get_vehicles_on_routes(route_ids, direction)
         vehicles_dict: dict[str, list[RTVehicleModel]] = defaultdict(list)
         for vehicle in vehicles_on_routes:
             vehicles_dict[vehicle.trip.route_id].append(vehicle)
 
-        shape_ids = [trip.shape_id for trip in trips]
-        shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
-        shapes_dict: dict[str, list[ShapeModel]] = defaultdict(list)
+        shape_ids = list(dict.fromkeys(trip.shape_id for trip in trips))
+        shapes = await self.shape_repository.get_sequence_sorted_shapes_by_shape_ids(shape_ids)
+        shapes_dict: dict[str, list[ShapeGeometryRow]] = defaultdict(list)
         for shape in shapes:
             shapes_dict[shape.shape_id].append(shape)
 
-        stop_marker = StopMarker(stop=stop, create_link=False, routes=routes)
-        stop_marker.add_to(stop_map.map_base)
-
         route_colors = cycle(list(Colors))
+        route_layers: list[RouteLayer] = []
+        route_color_by_id: dict[str, str] = {}
 
         for route in routes:
-            trip = next((trip for trip in trips if trip.route_id == route.id), None)
+            trip = trip_by_route_id.get(route.id)
             if trip is None:
                 continue
             trip_shapes = shapes_dict.get(trip.shape_id, [])
-            locations = [(shape.lat, shape.lon) for shape in trip_shapes]
+            if not trip_shapes:
+                continue
+            locations = [(s.lat, s.lon) for s in trip_shapes]
             if not locations:
                 continue
-            route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
-            route_layer = Layer(f"{route_poly.route_color.to_html_square()} {route.short_name}")
-            route_layer.add_child(route_poly.polyline)
+            color_enum = next(route_colors)
+            color_hex = color_enum.to_hex()
+            route_color_by_id[route.id] = color_hex
+            coordinates = [[s.lon, s.lat] for s in trip_shapes]
+            route_layers.append(
+                RouteLayer(
+                    route_id=route.id,
+                    short_name=route.short_name,
+                    long_name=route.long_name,
+                    color=color_hex,
+                    line=GeoJSONLineString(coordinates=coordinates),
+                )
+            )
 
-            vehicles_on_route = vehicles_dict.get(route.id, [])
-            bus_markers = [
-                BusMarker(vehicle=vehicle, create_links=True, color=route_poly.route_color).create_marker()
-                for vehicle in vehicles_on_route
-            ]
-            for bus_marker in bus_markers:
-                route_layer.add_child(bus_marker)
-
-            route_layer.add_to(stop_map.map_base)
+        vehicles_payload: list[VehiclePoint] = []
+        for route_id, vehs in vehicles_dict.items():
+            v_color = route_color_by_id.get(route_id, "#888888")
+            for v in vehs:
+                vehicles_payload.append(_vehicle_point_from_rt(v, route_id, v_color))
 
         other_stops_on_routes = await self.stop_repository.get_stops_by_route_ids(route_ids, direction)
-        other_stops_layer = Layer("Stops")
-        for stop in other_stops_on_routes:
-            stop_marker = StopMarker(stop=stop)
-            other_stops_layer.add_child(stop_marker.create_marker(type_of_marker="circle"))
-        other_stops_layer.add_to(stop_map.map_base)
 
-        stop_map.add_layer_control()
-        return stop_map
+        stops_out: list[StopMapStop] = [
+            StopMapStop(
+                stop_id=stop.id,
+                code=stop.code,
+                name=stop.name,
+                lat=float(stop.lat),
+                lon=float(stop.lon),
+                is_focus=True,
+            )
+        ]
+
+        seen: set[str] = {stop.id}
+        for s in other_stops_on_routes:
+            if s.id in seen:
+                continue
+            seen.add(s.id)
+            if s.lat is None or s.lon is None:
+                continue
+            stops_out.append(
+                StopMapStop(
+                    stop_id=s.id,
+                    code=s.code,
+                    name=s.name,
+                    lat=float(s.lat),
+                    lon=float(s.lon),
+                    is_focus=False,
+                )
+            )
+
+        return StopMapPayload(
+            center=(stop.lon, stop.lat),
+            zoom=14,
+            focus_stop_id=stop.id,
+            direction=direction,
+            routes=route_layers,
+            vehicles=vehicles_payload,
+            stops=stops_out,
+        )
 
     @CreateSpan()
-    async def generate_stop_map_nearby(self, latitude: float, longitude: float) -> Map:
-        """
-        Generates a map with markers and layers for a given lat and long.
-
-        Args:
-            latitude (float): The latitude of the user.
-            longitude (float): The longitude of the user.
-
-        Returns:
-            Map: The generated map object.
-        """
-        maximum_distance_meters = 1200
-        stops = await self.stop_repository.get_stops_near_location(
-            latitude, longitude, maximum_distance_meters
-        )
-        routes_by_stop_id = await self.route_repository.get_routes_by_stop_ids([stop.id for stop in stops])
-
-        stop_map = Map(lat=latitude, lon=longitude, zoom=15, height=500)
-        stop_map.setup_defaults()
-
-        your_location_marker = YourLocationMarker(latitude, longitude)
-        stop_map.map_base.add_child(your_location_marker.create_marker())
-
-        circle_layer = Layer(f"{maximum_distance_meters / 1000} km")
-        circle = Circle(
-            location=(latitude, longitude), radius=maximum_distance_meters, fill=False, weight=4, opacity=0.3
-        )
-        circle_layer.add_child(circle.circle)
-        circle_layer.add_to(stop_map.map_base)
-
-        other_stops_layer = Layer("Stops")
-        for stop in stops:
-            stop_marker = StopMarker(stop=stop, routes=routes_by_stop_id.get(stop.id, []))
-            other_stops_layer.add_child(stop_marker.create_marker(type_of_marker="circle"))
-        other_stops_layer.add_to(stop_map.map_base)
-
-        stop_map.add_layer_control()
-        return stop_map
-
-    @CreateSpan()
-    async def generate_route_map(self, route_id: str, direction: int) -> Map:
-        """
-        Generates a route map for a given route ID and direction.
-
-        Args:
-            route_id (str): The ID of the route.
-            direction (int): The direction of the route.
-
-        Returns:
-            Map: The generated route map.
-
-        Raises:
-            NotFoundError: If no shapes are found for the given route ID and direction.
-        """
-
+    async def build_route_map_payload(self, route_id: str, direction: int) -> RouteMapPayload:
+        """Build JSON for the realtime single-route map (MapLibre client)."""
         route = await self.route_repository.get_by_id_with_agency(route_id)
         trip = await self.trip_repository.get_first_trip_by_route_id(route_id, direction)
         if trip is None:
             raise NotFoundError(f"No trip found for route {route_id} and direction {direction}")
-        shapes = await self.shape_repository.get_shapes_by_shape_id(trip.shape_id)
+        shapes = await self.shape_repository.get_sequence_sorted_shapes_by_shape_id(trip.shape_id)
         if len(shapes) == 0:
             raise NotFoundError(f"No shapes found for route {route_id} and direction {direction}")
 
+        first = shapes[0]
+        color_hex = Colors.BLUE.to_hex()
+
+        coordinates = [[s.lon, s.lat] for s in shapes]
+        route_layer = RouteLayer(
+            route_id=route.id,
+            short_name=route.short_name,
+            long_name=route.long_name,
+            color=color_hex,
+            line=GeoJSONLineString(coordinates=coordinates),
+        )
+
         vehicles_on_route = await self.rt_vehicle_repository.get_vehicles_on_routes([route_id], direction)
-
-        sorted_shapes = sorted(shapes, key=lambda x: x.sequence)
-
-        route_map = Map(lat=sorted_shapes[0].lat, lon=sorted_shapes[0].lon, zoom=12, height=500)
-        route_map.setup_defaults()
-
-        locations = [(shape.lat, shape.lon) for shape in sorted_shapes]
-        route_poly = RoutePolyLine(route=route, locations=locations)
-        route_layer = Layer(f"{route_poly.route_color.to_html_square()} {route.short_name}")
-        route_layer.add_child(route_poly.polyline)
-
-        bus_markers = [
-            BusMarker(vehicle=vehicle, create_links=True, color=route_poly.route_color).create_marker()
-            for vehicle in vehicles_on_route
+        vehicles_payload: list[VehiclePoint] = [
+            _vehicle_point_from_rt(v, route_id, color_hex) for v in vehicles_on_route
         ]
-        for bus_marker in bus_markers:
-            route_layer.add_child(bus_marker)
 
-        route_layer.add_to(route_map.map_base)
+        route_stops = await self.stop_repository.get_stops_by_route_id(route_id, direction)
 
-        other_stops_on_routes = await self.stop_repository.get_stops_by_route_id(route_id, direction)
-        other_stops_layer = Layer("Stops")
-        for stop in other_stops_on_routes:
-            stop_marker = StopMarker(stop=stop)
-            other_stops_layer.add_child(stop_marker.create_marker(type_of_marker="circle"))
-        other_stops_layer.add_to(route_map.map_base)
+        stops_out: list[StopMapStop] = []
+        for s in route_stops:
+            if s.lat is None or s.lon is None:
+                continue
+            stops_out.append(
+                StopMapStop(
+                    stop_id=s.id,
+                    code=s.code,
+                    name=s.name,
+                    lat=float(s.lat),
+                    lon=float(s.lon),
+                    is_focus=False,
+                )
+            )
 
-        route_map.add_layer_control()
-        return route_map
+        return RouteMapPayload(
+            center=(first.lon, first.lat),
+            zoom=12,
+            route_id=route.id,
+            direction=direction,
+            route=route_layer,
+            vehicles=vehicles_payload,
+            stops=stops_out,
+        )
+
+    @staticmethod
+    def _default_map_center() -> tuple[float, float]:
+        """Default Ireland-ish center as (longitude, latitude)."""
+        return (-7.514413484752406, 53.44928237017178)
+
+    @classmethod
+    def _center_from_stops(cls, stops: list[StopModel]) -> tuple[float, float]:
+        if not stops:
+            return cls._default_map_center()
+        lats = [float(s.lat) for s in stops if s.lat is not None]
+        lons = [float(s.lon) for s in stops if s.lon is not None]
+        if not lats:
+            return cls._default_map_center()
+        return (sum(lons) / len(lons), sum(lats) / len(lats))
+
+    @classmethod
+    def _center_from_route_layers(cls, layers: list[RouteLayer]) -> tuple[float, float]:
+        if not layers:
+            return cls._default_map_center()
+        for layer in layers:
+            coords = layer.line.coordinates
+            if coords:
+                mid = coords[len(coords) // 2]
+                return (mid[0], mid[1])
+        return cls._default_map_center()
+
+    def _stop_to_map_stop(self, stop: StopModel, *, is_focus: bool) -> StopMapStop | None:
+        if stop.lat is None or stop.lon is None:
+            return None
+        return StopMapStop(
+            stop_id=stop.id,
+            code=stop.code,
+            name=stop.name,
+            lat=float(stop.lat),
+            lon=float(stop.lon),
+            is_focus=is_focus,
+        )
 
     @CreateSpan()
-    async def generate_agency_route_map(self, agency_id: str | Literal["All"]) -> Map:
+    async def build_nearby_map_payload(
+        self, latitude: float, longitude: float, radius_meters: int = 1200
+    ) -> NearbyMapPayload:
         """
-        Generates a map showing the routes of a specific agency or all agencies.
-
-        Args:
-            agency_id (str | Literal["All"]): The ID of the agency to generate the map for.
-                Use "All" to generate the map for all agencies.
-
-        Returns:
-            Map: The generated map object.
-
-        Raises:
-            ValueError: If no routes are found for the specified agency.
+        Stops within ``radius_meters`` of the user point for MapLibre / JSON clients.
         """
+        rm = float(radius_meters)
+        stops = await self.stop_repository.get_stops_near_location(latitude, longitude, int(radius_meters))
 
+        stops_out: list[StopMapStop] = []
+        for stop in stops:
+            s = self._stop_to_map_stop(stop, is_focus=False)
+            if s is not None:
+                stops_out.append(s)
+
+        return NearbyMapPayload(
+            center=(longitude, latitude),
+            zoom=15,
+            user_lat=latitude,
+            user_lon=longitude,
+            radius_meters=rm,
+            stops=stops_out,
+        )
+
+    @CreateSpan()
+    async def build_agency_routes_map_payload(
+        self, agency_id: str | Literal["All"]
+    ) -> AgencyRoutesMapPayload:
         if agency_id == "All":
             routes = await self.route_repository.get_with_agencies()
         else:
@@ -237,52 +299,49 @@ class MapService:
         route_ids = [route.id for route in routes]
 
         trips = await self.trip_repository.get_first_trips_by_route_ids(route_ids)
+        trip_by_route_id = {t.route_id: t for t in trips}
 
-        shape_ids = [trip.shape_id for trip in trips]
-        shapes = await self.shape_repository.get_shapes_by_shape_ids(shape_ids)
-        shapes_dict: dict[str, list[ShapeModel]] = defaultdict(list)
+        shape_ids = list(dict.fromkeys(trip.shape_id for trip in trips))
+        shapes = await self.shape_repository.get_sequence_sorted_shapes_by_shape_ids(shape_ids)
+        shapes_dict: dict[str, list[ShapeGeometryRow]] = defaultdict(list)
         for shape in shapes:
             shapes_dict[shape.shape_id].append(shape)
 
-        route_map = Map(zoom=7, height=600)
-        route_map.setup_defaults()
-        route_map.add_toggle_all_layers_control()
-
         route_colors = cycle(list(Colors))
+        route_layers: list[RouteLayer] = []
 
         for route in routes:
-            trip = next((trip for trip in trips if trip.route_id == route.id), None)
+            trip = trip_by_route_id.get(route.id)
             if trip is None:
                 continue
             trip_shapes = shapes_dict.get(trip.shape_id, [])
-            locations = [(shape.lat, shape.lon) for shape in trip_shapes]
-            if not locations:
+            if not trip_shapes:
                 continue
-            route_poly = RoutePolyLine(route=route, locations=locations, route_color=next(route_colors))
-            route_layer = Layer(f"{route_poly.route_color.to_html_square()} {route.short_name}")
-            route_layer.add_child(route_poly.polyline)
-            route_layer.add_to(route_map.map_base)
+            color_enum = next(route_colors)
+            color_hex = color_enum.to_hex()
+            coordinates = [[s.lon, s.lat] for s in trip_shapes]
+            route_layers.append(
+                RouteLayer(
+                    route_id=route.id,
+                    short_name=route.short_name,
+                    long_name=route.long_name,
+                    color=color_hex,
+                    line=GeoJSONLineString(coordinates=coordinates),
+                )
+            )
 
-        route_map.add_layer_control()
-        return route_map
+        if not route_layers:
+            raise ValueError(f"No route geometry could be built for agency {agency_id}")
 
-    @CreateSpan()
-    async def generate_static_stop_map(self, map_type: StaticStopMapTypes) -> Map:
-        stop_map = Map(zoom=7, height=600)
-        stop_map.setup_defaults()
-        cluster = Cluster(name="Stops")
+        center = self._center_from_route_layers(route_layers)
+        return AgencyRoutesMapPayload(
+            center=center,
+            zoom=7,
+            agency_id=agency_id,
+            routes=route_layers,
+        )
 
-        stops = await self.get_stops_based_on_type(map_type)
-
-        for stop in stops:
-            stop_marker = StopMarker(stop=stop)
-            cluster.add_marker(stop_marker.create_marker())
-
-        cluster.add_to(stop_map.map_base)
-        stop_map.add_layer_control()
-        return stop_map
-
-    async def get_stops_based_on_type(self, map_type: StaticStopMapTypes) -> list[StopModel]:
+    async def _get_stops_for_static_map_type(self, map_type: StaticStopMapTypes) -> list[StopModel]:
         match map_type:
             case StaticStopMapTypes.ALL_STOPS:
                 return await self.stop_repository.get_all_with_stop_feature()
@@ -295,6 +354,24 @@ class MapService:
             case _:
                 logger.error(f"Invalid map type {map_type}")
                 return []
+
+    @CreateSpan()
+    async def build_static_stop_map_payload(self, map_type: StaticStopMapTypes) -> StaticStopsMapPayload:
+        stops = await self._get_stops_for_static_map_type(map_type)
+
+        stops_out: list[StopMapStop] = []
+        for stop in stops:
+            s = self._stop_to_map_stop(stop, is_focus=False)
+            if s is not None:
+                stops_out.append(s)
+
+        center = self._center_from_stops(stops)
+        return StaticStopsMapPayload(
+            center=center,
+            zoom=7,
+            map_type=str(map_type.value),
+            stops=stops_out,
+        )
 
 
 async def provide_map_service(db_session: AsyncSession, redis_service: RedisService) -> MapService:

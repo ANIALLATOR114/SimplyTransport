@@ -1,10 +1,10 @@
-<div class="map-container"
-     hx-get="/maps/realtime/route/{{ route.id }}/{{ direction.value }}"
-     hx-trigger="load"
-     hx-target="#map-element"
-     hx-indicator="#map-loader"
-     hx-swap="transition:true">
+<div class="map-container map-container--maplibre"
+     data-route-id="{{ route.id }}"
+     data-direction="{{ direction.value }}">
     <div id="map-element"></div>
+    <button type="button"
+            class="pagination-button"
+            id="route-map-refresh">Refresh</button>
     <img class="map-loader"
          id="map-loader"
          src="/static/loader.svg"
@@ -12,3 +12,5 @@
          height="80px"
          alt="Loading spinner">
 </div>
+<script src="/static/js/stop-detail-popup.js?{{ request.app.openapi_config.version }}"></script>
+<script src="/static/js/route-map.js?{{ request.app.openapi_config.version }}"></script>

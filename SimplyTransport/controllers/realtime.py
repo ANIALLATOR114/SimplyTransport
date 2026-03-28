@@ -11,7 +11,7 @@ from SimplyTransport.lib.cache_keys import (
     key_builder_from_path_and_query,
 )
 
-from ..domain.enums import DayOfWeek
+from ..domain.enums import DayOfWeek, Direction
 from ..domain.route.repo import RouteRepository, provide_route_repo
 from ..domain.services.realtime_service import (
     RealTimeService,
@@ -22,7 +22,6 @@ from ..domain.services.schedule_service import (
     provide_schedule_service,
 )
 from ..domain.stop.repo import StopRepository, provide_stop_repo
-from ..domain.trip.model import Direction
 
 __all__ = [
     "RealtimeController",
@@ -39,7 +38,7 @@ class RealtimeController(Controller):
 
     @get(
         "/stop/{stop_id:str}",
-        cache=20,
+        cache=120,
         cache_key_builder=key_builder_from_path_and_query(
             CacheKeys.RealTime.REALTIME_STOP_KEY_TEMPLATE, ["stop_id"]
         ),
@@ -73,7 +72,7 @@ class RealtimeController(Controller):
 
     @get(
         "/stop/{stop_id:str}/realtime-table",
-        cache=20,
+        cache=120,
         cache_key_builder=key_builder_from_path(
             CacheKeys.RealTime.REALTIME_STOP_TABLE_KEY_TEMPLATE, "stop_id"
         ),
@@ -147,7 +146,13 @@ class RealtimeController(Controller):
             },
         )
 
-    @get("/route/{route_id:str}/{direction:int}")
+    @get(
+        "/route/{route_id:str}/{direction:int}",
+        cache=86400,
+        cache_key_builder=key_builder_from_path(
+            CacheKeys.RealTime.REALTIME_ROUTE_KEY_TEMPLATE, "route_id", "direction"
+        ),
+    )
     async def realtime_route(
         self,
         route_id: str,

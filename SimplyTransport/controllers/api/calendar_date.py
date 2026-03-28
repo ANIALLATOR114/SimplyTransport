@@ -5,7 +5,8 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 
-from ...domain.calendar_dates.model import CalendarDate, CalendarDateWithTotal
+from SimplyTransport.api_contract.calendar_date import CalendarDate, CalendarDateWithTotal
+
 from ...domain.calendar_dates.repo import (
     CalendarDateRepository,
     provide_calendar_date_repo,

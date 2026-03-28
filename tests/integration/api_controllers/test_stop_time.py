@@ -1,5 +1,5 @@
 from litestar.testing import TestClient
-from SimplyTransport.domain.stop_times.model import StopTime
+from SimplyTransport.api_contract.stop_time import StopTime
 
 
 def test_get_stop_times_by_stop_id(client: TestClient) -> None:

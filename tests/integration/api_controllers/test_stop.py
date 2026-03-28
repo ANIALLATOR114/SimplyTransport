@@ -44,6 +44,29 @@ def test_get_stop_by_id_not_found(client: TestClient) -> None:
     assert response_json["detail"] == "Stop not found with id 8240DB0003241"
 
 
+def test_get_stop_detailed(client: TestClient) -> None:
+    response = client.get("/api/v1/stop/8240DB000324/detailed")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["stop"]["id"] == "8240DB000324"
+    assert data["stop"]["code"] == "324"
+    assert data["stop"]["name"]
+    assert isinstance(data["routes"], list)
+    assert len(data["routes"]) >= 1
+    assert "route_id" in data["routes"][0]
+    assert "short_name" in data["routes"][0]
+    assert "long_name" in data["routes"][0]
+    assert "stop_features" in data
+    assert "street_view_url" in data
+    assert isinstance(data["street_view_url"], str)
+
+
+def test_get_stop_detailed_not_found(client: TestClient) -> None:
+    response = client.get("/api/v1/stop/__no_such_stop__/detailed")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Stop not found with id __no_such_stop__"
+
+
 def test_get_stop_by_code(client: TestClient) -> None:
     response = client.get("/api/v1/stop/code/324")
     assert response.status_code == 200

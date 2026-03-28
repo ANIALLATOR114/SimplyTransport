@@ -1,5 +1,3 @@
-import asyncio
-
 from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import LimitOffset, OrderBy
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
@@ -7,12 +5,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from SimplyTransport.api_contract.map_payloads import RouteSummary
+from SimplyTransport.domain.route.model import RouteModel
 from SimplyTransport.lib.cache import RedisService
-from SimplyTransport.lib.cache_keys import CacheKeys
 
 from ..stop_times.model import StopTimeModel
 from ..trip.model import TripModel
-from .model import RouteModel
 
 
 class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):  # type: ignore
@@ -48,28 +46,34 @@ class RouteRepository(SQLAlchemyAsyncRepository[RouteModel]):  # type: ignore
             RouteModel.trips.any(TripModel.stop_times.any(StopTimeModel.stop_id == stop_id))
         )
 
-    async def get_routes_by_stop_id_through_cache(self, stop_id: str) -> list[RouteModel]:
-        """Through cache for get_routes_by_stop_id."""
+    async def get_routes_by_stop_ids(self, stop_ids: set[str]) -> dict[str, list[RouteSummary]]:
+        """Routes per stop; ``stop_ids`` must be deduplicated (use a set at call sites)."""
 
-        cache_key = CacheKeys.Routes.ROUTES_BY_STOP_ID_KEY_TEMPLATE.format(stop_id=stop_id)
-        cached_routes = await self.cache.get(cache_key)
-        if cached_routes:
-            route_dicts = self.cache.deserialize(cached_routes)
-            return [RouteModel(**route_dict) for route_dict in route_dicts]
+        if not stop_ids:
+            return {}
 
-        routes = await self.get_routes_by_stop_id(stop_id)
-        routes_json = self.cache.serialize(
-            [{k: v for k, v in route.__dict__.items() if not k.startswith("_")} for route in routes]
+        stmt = (
+            select(
+                StopTimeModel.stop_id,
+                RouteModel.id,
+                RouteModel.short_name,
+                RouteModel.long_name,
+            )
+            .select_from(StopTimeModel)
+            .join(TripModel, StopTimeModel.trip_id == TripModel.id)
+            .join(RouteModel, TripModel.route_id == RouteModel.id)
+            .where(StopTimeModel.stop_id.in_(stop_ids))
+            .distinct()
         )
-        await self.cache.set(cache_key, routes_json, expiration=86400)
-        return routes
+        result = await self.session.execute(stmt)
+        rows = result.all()
 
-    async def get_routes_by_stop_ids(self, stop_ids: list[str]) -> dict[str, list[RouteModel]]:
-        """Get routes by stop_ids."""
+        by_stop: dict[str, dict[str, RouteSummary]] = {sid: {} for sid in stop_ids}
+        for stop_id, route_id, short_name, long_name in rows:
+            summary = RouteSummary(route_id=route_id, short_name=short_name, long_name=long_name)
+            by_stop[stop_id].setdefault(route_id, summary)
 
-        tasks = [self.get_routes_by_stop_id_through_cache(stop_id) for stop_id in stop_ids]
-        routes = await asyncio.gather(*tasks)
-        return dict(zip(stop_ids, routes, strict=False))
+        return {sid: list(by_stop[sid].values()) for sid in stop_ids}
 
     async def get_routes_by_stop_id_with_agency(self, stop_id: str) -> list[RouteModel]:
         """Get routes by stop_id with agency."""

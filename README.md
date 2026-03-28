@@ -116,8 +116,7 @@ Realtime data is updated every minute.
 
 ### Maps
 
-Map are implemented using Folium and rendered on the server side. The maps are then served to the client as part of the web page.
-The primary map is on the page for a stop, it shows the location of the stop and other stops on the same routes, as well as lines for all the routes that serve the stop.
+Maps use **MapLibre GL JS** in the browser. The server exposes JSON under `/api/v1/map/...` (route polylines, stops, vehicles, etc.); the client fetches that data and draws layers on an OpenStreetMap raster basemap.
 
 - [x] Maps on route pages
 - [x] Maps on stop pages
@@ -140,7 +139,6 @@ This extends the standard litestar cli. You can view all the commands by just ru
 - [x] Recreate all database indexes `recreate_indexes`
 - [x] Cleanup expired events from the database `cleanupevents`
 - [x] Flush the redis cache `flushcache`
-- [x] Generate static maps `generatemaps`
 
 # Installation
 
@@ -318,7 +316,6 @@ litestar importgtfs
 litestar importrealtime
 litestar importstopfeatures
 litestar seedrealtimefromfile
-litestar generatemaps
 litestar generatestatistics
 litestar recorddelays
 ```

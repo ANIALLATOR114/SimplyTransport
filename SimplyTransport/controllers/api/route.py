@@ -4,7 +4,8 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
 
-from ...domain.route.model import Route, RouteWithTotal
+from SimplyTransport.api_contract.route import Route, RouteWithTotal
+
 from ...domain.route.repo import RouteRepository, provide_route_repo
 
 __all__ = ["RouteController"]

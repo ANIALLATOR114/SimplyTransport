@@ -8,13 +8,17 @@ class CacheKeys:
     class Meta(StrEnum):
         ALL_KEYS = "*"
 
+    class StopApi(StrEnum):
+        DETAILED_KEY_TEMPLATE = "stop_detailed:{id}"
+        DETAILED_DELETE_ALL_KEY_TEMPLATE = "*stop_detailed:*"
+
     class StopMaps(StrEnum):
         STOP_MAP_KEY_TEMPLATE = "stop_map:{stop_id}"
         STOP_MAP_DELETE_ALL_KEY_TEMPLATE = "*stop_map:*"
         STOP_MAP_DELETE_KEY_TEMPLATE = "*stop_map:{stop_id}"
-        STOP_MAP_NEARBY_KEY_TEMPLATE = "stop_map_nearby:{latitude}:{longitude}"
+        STOP_MAP_NEARBY_KEY_TEMPLATE = "stop_map_nearby:{latitude}:{longitude}:{radius_meters}"
         STOP_MAP_NEARBY_DELETE_ALL_KEY_TEMPLATE = "*stop_map_nearby:*"
-        STOP_MAP_NEARBY_DELETE_KEY_TEMPLATE = "*stop_map_nearby:{latitude}:{longitude}"
+        STOP_MAP_NEARBY_DELETE_KEY_TEMPLATE = "*stop_map_nearby:{latitude}:{longitude}:{radius_meters}"
 
     class RouteMaps(StrEnum):
         ROUTE_MAP_KEY_TEMPLATE = "route_map:{route_id}:{direction}"
@@ -31,10 +35,14 @@ class CacheKeys:
         REALTIME_STOP_DELETE_ALL_KEY_TEMPLATE = "*realtime:stop:*"
         REALTIME_STOP_DELETE_KEY_TEMPLATE = "*realtime:stop:{stop_id}"
         REALTIME_STOP_TABLE_KEY_TEMPLATE = "realtime:stop:table:{stop_id}"
+        REALTIME_STOP_TABLE_DELETE_ALL_KEY_TEMPLATE = "*realtime:stop:table:*"
         REALTIME_STOP_TABLE_DELETE_KEY_TEMPLATE = "*realtime:stop:table:{stop_id}"
         REALTIME_TRIP_KEY_TEMPLATE = "realtime:trip:{trip_id}"
         REALTIME_TRIP_DELETE_ALL_KEY_TEMPLATE = "*realtime:trip:*"
         REALTIME_TRIP_DELETE_KEY_TEMPLATE = "*realtime:trip:{trip_id}"
+        REALTIME_ROUTE_KEY_TEMPLATE = "realtime:route:{route_id}:{direction}"
+        REALTIME_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*realtime:route:*"
+        REALTIME_ROUTE_DELETE_KEY_TEMPLATE = "*realtime:route:{route_id}:*"
 
     class StaticMaps(StrEnum):
         STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE = "static_map:agency:route:{agency_id}"
@@ -65,11 +73,6 @@ class CacheKeys:
         DELAYS_HTML_ROUTE_DELETE_ALL_KEY_TEMPLATE = "*delays_html_route:*"
         DELAYS_HTML_ROUTE_DELETE_KEY_TEMPLATE = "*delays_html_route:{route_code}"
         DELAYS_RECORDING_KEY_TEMPLATE = "delays_recording:{route_code}:{stop_id}:{scheduled_time}"
-
-    class Routes(StrEnum):
-        ROUTES_BY_STOP_ID_KEY_TEMPLATE = "routes_by_stop_id:{stop_id}"
-        ROUTES_BY_STOP_ID_DELETE_ALL_KEY_TEMPLATE = "*routes_by_stop_id:*"
-        ROUTES_BY_STOP_ID_DELETE_KEY_TEMPLATE = "*routes_by_stop_id:{stop_id}"
 
     class Statistics(StrEnum):
         STATIC_STATS_KEY_TEMPLATE = "stats:static:most_recent"

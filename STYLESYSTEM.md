@@ -49,14 +49,11 @@ After `:root`, `style.css` declares `@layer base, components, utilities` and gro
 
 **Unlayered** rules (only `:root` here) win over layered rules at equal specificity. Within layers, **later** layers override earlier ones when specificity ties. Prefer that ordering over `!important` on design tokens.
 
-**Leaflet UI** (zoom, layer switcher, attribution, plugins) is styled by the **unlayered** block at the **end** of `style.css`, not inside `@layer`, so it can override Leaflet’s own unlayered CDN rules. App rules that still live **inside** `@layer` would lose to those CDN rules if Leaflet loaded later—hence the dedicated unlayered section.
-
 If styles ever look “missing” after a CSS change, hard-refresh the browser—**stale cache** can show an old bundle; cascade layers themselves are [widely supported](https://caniuse.com/css-cascade-layers) in current browsers.
 
-## Maps (Leaflet / Folium)
+## Maps (MapLibre)
 
-- **Unlayered** Leaflet overrides at the **end** of `style.css` so they win over Folium’s Leaflet CDN rules in the **same document**; rules in `@layer` alone can lose to later unlayered CDN CSS. **This is independent of the iframe fix:** `@layer` ordering still matters for anything inside `style.css`; loading `style.css` in the iframe only makes those rules (layers + unlayered) apply **at all** inside the map document.
-- **Iframe (`srcdoc`)**: Folium embeds the map in an iframe. The parent page’s `style.css` does **not** apply inside that iframe, so `[SimplyTransport/domain/maps/maps.py](SimplyTransport/domain/maps/maps.py)` registers a `branca` `CssLink` to `/static/style.css?{VERSION}` on first `render()` / `save()`, after all plugin CSS, so tokens, `@layer` blocks, and the unlayered Leaflet section all run in the iframe. The **Leaflet layer control** (base/overlays UI) is themed by the same unlayered rules (e.g. `.leaflet-control-layers`). The “Toggle all” control looked correct before iframe linking because it used inline `<style>` inside the iframe.
+Interactive maps use **MapLibre GL JS** in the main page (no iframe). Shared styling lives under `.map-container--maplibre`, `#map-element`, and `.maplibre-*` popup/tooltip classes in `style.css`. Basemap tiles are OpenStreetMap raster sources.
 
 ## Charts (Lightweight Charts)
 

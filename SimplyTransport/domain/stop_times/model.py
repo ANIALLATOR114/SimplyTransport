@@ -6,17 +6,12 @@ if TYPE_CHECKING:
     from ..trip.model import TripModel
 
 from litestar.contrib.sqlalchemy.base import BigIntAuditBase
-from pydantic import BaseModel as _BaseModel
 from sqlalchemy import ForeignKey, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..enums import DropoffType, PickupType, Timepoint
 
-
-class BaseModel(_BaseModel):
-    """Extend Pydantic's BaseModel to enable ORM mode"""
-
-    model_config = {"from_attributes": True}
+__all__ = ["StopTimeModel"]
 
 
 class StopTimeModel(BigIntAuditBase):
@@ -40,17 +35,4 @@ class StopTimeModel(BigIntAuditBase):
         """Returns True if the stop time arrival_time is active between the two times"""
         if start_time <= self.arrival_time <= end_time:
             return True
-
-
-class StopTime(BaseModel):
-    id: int
-    trip_id: str
-    arrival_time: time
-    departure_time: time
-    stop_id: str
-    stop_sequence: int
-    stop_headsign: str | None
-    pickup_type: PickupType | None
-    dropoff_type: DropoffType | None
-    timepoint: Timepoint | None
-    dataset: str
+        return False
