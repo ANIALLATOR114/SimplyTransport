@@ -18,7 +18,7 @@ class AgencyModel(BigIntAuditBase):
     url: Mapped[str] = mapped_column(String(length=1000))
     timezone: Mapped[str] = mapped_column(String(length=1000))
     dataset: Mapped[str] = mapped_column(String(length=80))
-    routes: Mapped[list["RouteModel"]] = relationship(back_populates="agency", cascade="all, delete")
+    routes: Mapped[list[RouteModel]] = relationship(back_populates="agency", cascade="all, delete")
 
     def short_name(self):
         delimiter_list = [" – ", " / ", " - "]

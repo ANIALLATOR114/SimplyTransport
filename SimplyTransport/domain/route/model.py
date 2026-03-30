@@ -21,7 +21,7 @@ class RouteModel(BigIntAuditBase):
     agency_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("agency.id", ondelete="CASCADE"), index=True
     )
-    agency: Mapped["AgencyModel"] = relationship(back_populates="routes")
+    agency: Mapped[AgencyModel] = relationship(back_populates="routes")
     short_name: Mapped[str] = mapped_column(String(length=1000), index=True)
     long_name: Mapped[str] = mapped_column(String(length=1000), index=True)
     description: Mapped[str | None] = mapped_column(String(length=1000))
@@ -29,6 +29,6 @@ class RouteModel(BigIntAuditBase):
     url: Mapped[str | None] = mapped_column(String(length=1000))
     color: Mapped[str | None] = mapped_column(String(length=1000))
     text_color: Mapped[str | None] = mapped_column(String(length=1000))
-    trips: Mapped[list["TripModel"]] = relationship(back_populates="route")
-    rt_trips: Mapped[list["RTTripModel"]] = relationship(back_populates="route")
+    trips: Mapped[list[TripModel]] = relationship(back_populates="route")
+    rt_trips: Mapped[list[RTTripModel]] = relationship(back_populates="route")
     dataset: Mapped[str] = mapped_column(String(length=80), index=True)

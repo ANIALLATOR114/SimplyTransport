@@ -21,7 +21,7 @@ class RTVehicleModel(BigIntAuditBase):
     __table_args__ = (Index("ix_rt_vehicle_dataset_created_at", "dataset", "created_at"),)
 
     vehicle_id: Mapped[int] = mapped_column(Integer)
-    trip: Mapped["TripModel"] = relationship(back_populates="rt_vehicles")
+    trip: Mapped[TripModel] = relationship(back_populates="rt_vehicles")
     trip_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True
     )

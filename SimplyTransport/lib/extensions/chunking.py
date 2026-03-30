@@ -1,10 +1,7 @@
 from collections.abc import Iterator, Sequence
-from typing import TypeVar
-
-T = TypeVar("T")
 
 
-def chunk_list(lst: Sequence[T], chunk_size: int) -> Iterator[Sequence[T]]:
+def chunk_list[T](lst: Sequence[T], chunk_size: int) -> Iterator[Sequence[T]]:
     """Split a sequence into chunks of specified size.
 
 

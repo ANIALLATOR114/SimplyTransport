@@ -27,11 +27,11 @@ class RTStopTimeModel(BigIntAuditBase):
         ),  # Only store the most recent update per stop_sequence for each trip
     )
 
-    stop: Mapped["StopModel"] = relationship(back_populates="rt_stop_times")
+    stop: Mapped[StopModel] = relationship(back_populates="rt_stop_times")
     stop_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("stop.id", ondelete="CASCADE"), index=True
     )
-    trip: Mapped["TripModel"] = relationship(back_populates="rt_stop_times")
+    trip: Mapped[TripModel] = relationship(back_populates="rt_stop_times")
     trip_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True
     )

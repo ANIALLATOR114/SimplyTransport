@@ -4,7 +4,7 @@
 
 ### Overview
 
-SimplyTransport is a Litestar (Python 3.11) ASGI web app for Irish public transport data (GTFS & GTFS-R). It uses PostgreSQL, TimescaleDB, and Redis as backing services.
+SimplyTransport is a Litestar (Python 3.14.3) ASGI web app for Irish public transport data (GTFS & GTFS-R). It uses PostgreSQL, TimescaleDB, and Redis as backing services.
 
 ### Required services (Docker)
 
@@ -19,7 +19,7 @@ The optional OTel collector and Aspire dashboard are not needed for dev/test.
 
 ### Python virtual environment
 
-The project requires Python 3.11. A venv lives at `/workspace/.venv`:
+The project requires **Python 3.14.3**. Do not use pre-release CPython builds for local dev: native extensions (e.g. in the Litestar stack) can **segfault** on Windows with alphas/betas. Install with `uv python install 3.14.3` and recreate `.venv`. A venv lives at `/workspace/.venv`:
 
 ```bash
 source /workspace/.venv/bin/activate
@@ -71,6 +71,5 @@ python -m pytest
 
 - `litestar importgtfs` prompts interactively for confirmation — pipe `echo "y"` to automate.
 - The `ENVIRONMENT=DEV` setting causes OTel export attempts to `localhost:4318`. Harmless "connection refused" warnings appear in logs/test output if the collector is not running. Set `ENVIRONMENT=PR-TEST-CI` to suppress.
-- `psycopg2` requires `libpq-dev` system package to build from source.
 - The `.env` file must exist — settings are loaded from it via `pydantic-settings`. Copy from `.env.example` if missing.
 - Database tables are created via `litestar create_tables`, not Alembic migrations (Alembic is for incremental schema changes after initial setup).
