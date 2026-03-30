@@ -27,10 +27,10 @@ class CalendarModel(BigIntAuditBase):
     start_date: Mapped[date] = mapped_column(Date)
     end_date: Mapped[date] = mapped_column(Date)
     dataset: Mapped[str] = mapped_column(String(length=80))
-    calendar_dates: Mapped[list["CalendarDateModel"]] = relationship(
+    calendar_dates: Mapped[list[CalendarDateModel]] = relationship(
         back_populates="service", cascade="all, delete"
     )
-    trips: Mapped[list["TripModel"]] = relationship(back_populates="service")
+    trips: Mapped[list[TripModel]] = relationship(back_populates="service")
 
     def true_if_active(self, date: date):
         """Returns True if the calendar is active on the given date"""

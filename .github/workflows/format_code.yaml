@@ -19,11 +19,11 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: 3.14.3
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install ruff==0.9.2
+        run: pip install ruff==0.15.8
 
       - name: Verify pyproject.toml
         run: |

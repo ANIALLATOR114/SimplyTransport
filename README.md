@@ -143,7 +143,8 @@ This extends the standard litestar cli. You can view all the commands by just ru
 # Installation
 
 > [!NOTE]
-> This project was created using Python 3.11 and the following commands are for a linux cmd
+> Requires **Python 3.14.3** (not a pre-release alpha/beta). [uv](https://github.com/astral-sh/uv) is used in CI and is recommended locally: `uv python install 3.14.3` then `uv venv --python 3.14.3` (or `uv venv`—see [`.python-version`](.python-version)).
+> On **Ubuntu/Linux** servers, install **`libpq-dev`** before `pip`/`uv pip install` if PostgreSQL-related wheels are missing and builds fail—see [deployment_linux/README.md](deployment_linux/README.md) (PostgreSQL client section).
 
 First clone down the project in your desired directory
 
@@ -151,21 +152,35 @@ First clone down the project in your desired directory
 git clone https://github.com/ANIALLATOR114/SimplyTransport.git
 ```
 
-Create a virtual environment inside the root directory of the project
+Create a virtual environment in the project root and install dependencies (example with uv):
 
 ```
-python3 -m venv venv
+uv python install 3.14.3
+uv venv --python 3.14.3
 ```
 
-Activate the virtual environment
+Activate the virtual environment (paths differ by OS):
 
 ```
-source venv/scripts/activate
+# Linux / macOS
+source .venv/bin/activate
+
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+
+# Windows (Git Bash)
+source .venv/Scripts/activate
 ```
 
-Install the dependencies in your virtual environment
+```
+uv pip install -r requirements-top-level.txt
+uv pip install -r requirements-dev.txt
+```
+
+Alternatively, using the standard library only (the `python` you use must satisfy **3.14.3** or newer in the 3.14 line per `pyproject.toml`; check with `python --version`):
 
 ```
+python3.14 -m venv .venv
 pip install -r requirements-top-level.txt
 pip install -r requirements-dev.txt
 ```

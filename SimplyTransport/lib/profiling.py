@@ -48,7 +48,7 @@ class Profiler:
     def __init__(self) -> None:
         self.pr = cProfile.Profile()
 
-    def __enter__(self) -> "Profiler":
+    def __enter__(self) -> Profiler:
         self.pr.enable()
         return self
 

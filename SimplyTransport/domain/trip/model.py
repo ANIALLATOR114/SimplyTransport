@@ -21,21 +21,21 @@ class TripModel(BigIntAuditBase):
     __tablename__ = "trip"  # type: ignore
 
     id: Mapped[str] = mapped_column(String(length=1000), primary_key=True)
-    route: Mapped["RouteModel"] = relationship(back_populates="trips")
+    route: Mapped[RouteModel] = relationship(back_populates="trips")
     route_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("route.id", ondelete="CASCADE"), index=True
     )
     service_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("calendar.id", ondelete="CASCADE"), index=True
     )
-    service: Mapped["CalendarModel"] = relationship(back_populates="trips")
-    stop_times: Mapped[list["StopTimeModel"]] = relationship(back_populates="trip")
+    service: Mapped[CalendarModel] = relationship(back_populates="trips")
+    stop_times: Mapped[list[StopTimeModel]] = relationship(back_populates="trip")
     headsign: Mapped[str | None] = mapped_column(String(length=1000))
     short_name: Mapped[str | None] = mapped_column(String(length=1000))
     direction: Mapped[Direction] = mapped_column(Integer)
     block_id: Mapped[str | None] = mapped_column(String(length=1000))
     shape_id: Mapped[str] = mapped_column(String(length=1000), index=True)
-    rt_trips: Mapped[list["RTTripModel"]] = relationship(back_populates="trip")
-    rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="trip")
-    rt_vehicles: Mapped[list["RTVehicleModel"]] = relationship(back_populates="trip")
+    rt_trips: Mapped[list[RTTripModel]] = relationship(back_populates="trip")
+    rt_stop_times: Mapped[list[RTStopTimeModel]] = relationship(back_populates="trip")
+    rt_vehicles: Mapped[list[RTVehicleModel]] = relationship(back_populates="trip")
     dataset: Mapped[str] = mapped_column(String(length=80), index=True)

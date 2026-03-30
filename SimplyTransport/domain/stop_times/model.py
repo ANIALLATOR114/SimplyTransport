@@ -19,11 +19,11 @@ class StopTimeModel(BigIntAuditBase):
     trip_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("trip.id", ondelete="CASCADE"), index=True
     )
-    trip: Mapped["TripModel"] = relationship(back_populates="stop_times")
+    trip: Mapped[TripModel] = relationship(back_populates="stop_times")
     arrival_time: Mapped[time] = mapped_column(Time)
     departure_time: Mapped[time] = mapped_column(Time)
     stop_id: Mapped[str] = mapped_column(ForeignKey("stop.id"), index=True)
-    stop: Mapped["StopModel"] = relationship(back_populates="stop_times")
+    stop: Mapped[StopModel] = relationship(back_populates="stop_times")
     stop_sequence: Mapped[int] = mapped_column(Integer)
     stop_headsign: Mapped[str | None] = mapped_column(String(length=1000))
     pickup_type: Mapped[PickupType | None] = mapped_column(Integer)

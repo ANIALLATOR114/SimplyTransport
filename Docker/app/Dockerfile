@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM python:3.11-slim as builder
+FROM python:3.14.3-slim as builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -17,7 +17,7 @@ COPY requirements-top-level.txt .
 RUN pip install --no-cache-dir -r requirements-top-level.txt
 
 # Stage 2: Runtime stage
-FROM python:3.11-slim
+FROM python:3.14.3-slim
 
 # Create non-root user early
 RUN useradd -m appuser
@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed packages from builder
-COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=builder /usr/local/lib/python3.14/site-packages/ /usr/local/lib/python3.14/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 # Create and set ownership of necessary directories

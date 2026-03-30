@@ -4,7 +4,6 @@ from enum import StrEnum
 from unittest.mock import AsyncMock, Mock, call
 
 import pytest
-from redis.asyncio import Redis
 from SimplyTransport.lib.cache import (
     CacheKeys,
     RedisService,
@@ -36,7 +35,7 @@ def redis_service(mock_redis: AsyncMock) -> RedisService:
     ],
 )
 async def test_delete_keys_by_pattern(
-    keys: list, pattern: StrEnum, expected_calls: int, redis_service: RedisService, mock_redis: Redis
+    keys: list, pattern: StrEnum, expected_calls: int, redis_service: RedisService, mock_redis: AsyncMock
 ):
     # Arrange
     mock_redis.keys.return_value = keys
@@ -50,7 +49,7 @@ async def test_delete_keys_by_pattern(
 
 
 @pytest.mark.asyncio
-async def test_delete_keys_list(redis_service: RedisService, mock_redis: Redis):
+async def test_delete_keys_list(redis_service: RedisService, mock_redis: AsyncMock):
     # Arrange
     keys = ["key1", "key2"]
 
@@ -62,7 +61,7 @@ async def test_delete_keys_list(redis_service: RedisService, mock_redis: Redis):
 
 
 @pytest.mark.asyncio
-async def test_delete_keys_set(redis_service: RedisService, mock_redis: Redis):
+async def test_delete_keys_set(redis_service: RedisService, mock_redis: AsyncMock):
     # Arrange
     keys = {"key1", "key2"}
 
@@ -75,41 +74,41 @@ async def test_delete_keys_set(redis_service: RedisService, mock_redis: Redis):
 
 
 @pytest.mark.asyncio
-async def test_delete_key(redis_service: RedisService, mock_redis: Redis):
+async def test_delete_key(redis_service: RedisService, mock_redis: AsyncMock):
     key = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id")
     await redis_service.delete_key(key)
     mock_redis.delete.assert_called_once_with(key)
 
 
 @pytest.mark.asyncio
-async def test_delete_all_keys(redis_service: RedisService, mock_redis: Redis):
+async def test_delete_all_keys(redis_service: RedisService, mock_redis: AsyncMock):
     mock_redis.keys.return_value = ["key1", "key2", "key3"]
     await redis_service.delete_all_keys()
     mock_redis.delete.assert_called_once_with("key1", "key2", "key3")
 
 
 @pytest.mark.asyncio
-async def test_delete_all_no_keys_present(redis_service: RedisService, mock_redis: Redis):
+async def test_delete_all_no_keys_present(redis_service: RedisService, mock_redis: AsyncMock):
     await redis_service.delete_all_keys()
     mock_redis.delete.assert_called_once_with()
 
 
 @pytest.mark.asyncio
-async def test_count_all_keys(redis_service: RedisService, mock_redis: Redis):
+async def test_count_all_keys(redis_service: RedisService, mock_redis: AsyncMock):
     mock_redis.dbsize.return_value = 3
     count = await redis_service.count_all_keys()
     assert count == 3
 
 
 @pytest.mark.asyncio
-async def test_set(redis_service: RedisService, mock_redis: Redis):
+async def test_set(redis_service: RedisService, mock_redis: AsyncMock):
     key = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id")
     await redis_service.set(key, "value")
     mock_redis.set.assert_called_once_with(key, "value", ex=60)
 
 
 @pytest.mark.asyncio
-async def test_get(redis_service: RedisService, mock_redis: Redis):
+async def test_get(redis_service: RedisService, mock_redis: AsyncMock):
     mock_redis.get.return_value = "value"
     key = CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE.value.format(stop_id="stop_id")
     value = await redis_service.get(key)
@@ -135,7 +134,7 @@ def test_redis_store_factory():
 
 
 @pytest.mark.asyncio
-async def test_check_keys_exist(redis_service: RedisService, mock_redis: Redis):
+async def test_check_keys_exist(redis_service: RedisService, mock_redis: AsyncMock):
     # Arrange
     keys = ["key1", "key2", "key3"]
     pipeline_mock = Mock()
@@ -152,7 +151,7 @@ async def test_check_keys_exist(redis_service: RedisService, mock_redis: Redis):
 
 
 @pytest.mark.asyncio
-async def test_set_many_empty_keys_with_expiry(redis_service: RedisService, mock_redis: Redis):
+async def test_set_many_empty_keys_with_expiry(redis_service: RedisService, mock_redis: AsyncMock):
     # Arrange
     keys = ["key1", "key2", "key3"]
     pipeline_mock = Mock()

@@ -23,7 +23,7 @@ jobs:
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.11
+          python-version: 3.14.3
 
       - name: Install dependencies
         run: |
@@ -31,7 +31,7 @@ jobs:
           uv pip install -r requirements-dev.txt
 
       - name: Install pyright
-        run: uv pip install pyright==1.1.398
+        run: uv pip install pyright==1.1.408
 
       - name: Create pyright CI config
         run: |
@@ -39,7 +39,7 @@ jobs:
             "include": ["SimplyTransport", "tests"],
             "exclude": ["**/node_modules", "**/__pycache__"],
             "typeCheckingMode": "basic",
-            "pythonVersion": "3.11"
+            "pythonVersion": "3.14.3"
           }' > pyrightconfig.json
 
       - name: Run Pyright type checking

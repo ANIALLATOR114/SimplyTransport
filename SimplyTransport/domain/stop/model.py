@@ -28,11 +28,11 @@ class StopModel(BigIntAuditBase):
     url: Mapped[str | None] = mapped_column(String(length=1000))
     location_type: Mapped[LocationType | None] = mapped_column(Integer)
     parent_station: Mapped[str | None] = mapped_column(String(length=1000), ForeignKey("stop.id"))
-    stop_times: Mapped[list["StopTimeModel"]] = relationship(
+    stop_times: Mapped[list[StopTimeModel]] = relationship(
         back_populates="stop",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    rt_stop_times: Mapped[list["RTStopTimeModel"]] = relationship(back_populates="stop")
-    stop_feature: Mapped["StopFeatureModel"] = relationship(back_populates="stop")
+    rt_stop_times: Mapped[list[RTStopTimeModel]] = relationship(back_populates="stop")
+    stop_feature: Mapped[StopFeatureModel] = relationship(back_populates="stop")
     dataset: Mapped[str] = mapped_column(String(length=80), index=True)

@@ -19,7 +19,7 @@ class CalendarDateModel(BigIntAuditBase):
     service_id: Mapped[str] = mapped_column(
         String(length=1000), ForeignKey("calendar.id", ondelete="CASCADE"), index=True
     )
-    service: Mapped["CalendarModel"] = relationship(back_populates="calendar_dates")
+    service: Mapped[CalendarModel] = relationship(back_populates="calendar_dates")
     date: Mapped[datetype] = mapped_column(Date)
     exception_type: Mapped[ExceptionType] = mapped_column("exception_type", String(length=20))
     dataset: Mapped[str] = mapped_column(String(length=80))

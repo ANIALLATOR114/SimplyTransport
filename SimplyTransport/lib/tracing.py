@@ -25,7 +25,7 @@ def cli_span_name(func: Callable[..., object]) -> str:
 
 
 @contextmanager
-def cli_command_span(name: str) -> Generator[None, None, None]:
+def cli_command_span(name: str) -> Generator[None]:
     with get_app_tracer().start_as_current_span(name):
         yield
 

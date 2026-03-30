@@ -190,7 +190,7 @@ class RealTimeImporter:
                             continue
                         try:
                             stop_seq = int(raw_seq)
-                        except (TypeError, ValueError):
+                        except TypeError, ValueError:
                             continue
 
                         st_rel = stop_time.get("schedule_relationship") or (
