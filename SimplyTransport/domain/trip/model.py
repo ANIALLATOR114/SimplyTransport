@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from advanced_alchemy.base import BigIntAuditBase
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

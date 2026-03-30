@@ -1,6 +1,6 @@
 from datetime import date
 
-from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
+from advanced_alchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import Subquery, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import select

@@ -1,6 +1,6 @@
 from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import LimitOffset, OrderBy
-from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
+from advanced_alchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload

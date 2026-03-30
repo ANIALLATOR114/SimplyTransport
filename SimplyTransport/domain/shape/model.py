@@ -1,5 +1,4 @@
-from advanced_alchemy.base import DefaultBase
-from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from advanced_alchemy.base import BigIntAuditBase, DefaultBase
 from sqlalchemy import Float, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 

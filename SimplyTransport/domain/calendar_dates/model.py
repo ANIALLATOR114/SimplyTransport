@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..calendar.model import CalendarModel
 
-from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from advanced_alchemy.base import BigIntAuditBase
 from sqlalchemy import Date, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

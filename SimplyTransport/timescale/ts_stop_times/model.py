@@ -1,6 +1,6 @@
 from datetime import datetime, time
 
-from litestar.contrib.sqlalchemy.base import BigIntBase
+from advanced_alchemy.base import BigIntBase
 from sqlalchemy import DateTime, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column
 
