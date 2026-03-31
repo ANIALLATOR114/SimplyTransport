@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from datetime import datetime, time, timedelta
 from typing import Any, cast
 
-from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
+from advanced_alchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy import delete, func, select, text
 from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -2,8 +2,8 @@ import asyncio
 from logging.config import fileConfig
 from typing import Any
 
+from advanced_alchemy.base import UUIDBase
 from alembic import context
-from litestar.contrib.sqlalchemy.base import UUIDBase
 from SimplyTransport.lib import settings
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection

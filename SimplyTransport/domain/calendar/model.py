@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..trip.model import TripModel
 
-from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from advanced_alchemy.base import BigIntAuditBase
 from sqlalchemy import Date, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

@@ -4,7 +4,7 @@ from litestar.testing import TestClient
 
 
 def test_get_shape_by_shape_id_asc(client: TestClient) -> None:
-    response = client.get("/api/v1/shape/3623_278?orderBy=sequence&sortOrder=asc'")
+    response = client.get("/api/v1/shape/3623_278?orderBy=sequence&sortOrder=asc")
     assert response.status_code == 200
     response_json = response.json()
     assert len(response_json) == 1027
@@ -40,7 +40,7 @@ def test_get_shape_by_shape_id_desc(client: TestClient) -> None:
 
 
 def test_get_shape_by_shape_id_not_found(client: TestClient) -> None:
-    response = client.get("/api/v1/shape/3623323_279?orderBy=sequence&sortOrder=asc'")
+    response = client.get("/api/v1/shape/3623323_279?orderBy=sequence&sortOrder=asc")
     assert response.status_code == 404
     response_json = response.json()
     assert response_json["detail"] == "Shapes not found with id 3623323_279"

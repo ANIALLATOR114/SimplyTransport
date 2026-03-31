@@ -48,7 +48,7 @@ def handle_404(_: Request, exc: HTTPException) -> Response | Template:
         )
 
 
-def exception_handler(request: Request, exc: HTTPException) -> Response | Template:
+def exception_handler(request: Request, exc: Exception) -> Response | Template:
     """
     Handle exceptions raised during request processing.
 
@@ -62,6 +62,7 @@ def exception_handler(request: Request, exc: HTTPException) -> Response | Templa
 
     """
     status_code = getattr(exc, "status_code", 500)
+    detail = getattr(exc, "detail", str(exc))
 
     if check_if_website(request):
         logger.bind(path=request.url.path, code=status_code).exception("Website Exception", exc_info=exc)
@@ -76,7 +77,7 @@ def exception_handler(request: Request, exc: HTTPException) -> Response | Templa
             status_code=status_code,
             content={
                 "path": request.url.path,
-                "detail": exc.detail,
-                "status_code": exc.status_code,
+                "detail": detail,
+                "status_code": status_code,
             },
         )

@@ -1,7 +1,7 @@
 from datetime import date, time
 from typing import TYPE_CHECKING
 
-from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from advanced_alchemy.base import BigIntAuditBase
 from pydantic import BaseModel as _BaseModel
 from pydantic import Field
 from sqlalchemy import Date, ForeignKey, Index, Integer, String, Time, UniqueConstraint

@@ -7,8 +7,8 @@ from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 # attach EngineTracer (no query spans — only the global Engine.connect wrap shows "connect").
 SQLAlchemyInstrumentor().instrument(enable_commenter=True)
 
-from litestar.contrib.sqlalchemy.plugins import (  # noqa: E402
-    AsyncSessionConfig,
+from advanced_alchemy.config import AsyncSessionConfig  # noqa: E402
+from advanced_alchemy.extensions.litestar.plugins import (  # noqa: E402
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
 )

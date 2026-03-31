@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ..stop.model import StopModel
     from ..trip.model import TripModel
 
-from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from advanced_alchemy.base import BigIntAuditBase
 from sqlalchemy import ForeignKey, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

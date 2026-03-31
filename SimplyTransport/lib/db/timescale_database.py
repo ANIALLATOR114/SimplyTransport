@@ -1,6 +1,6 @@
 import SimplyTransport.lib.settings as settings
-from litestar.contrib.sqlalchemy.plugins import (
-    AsyncSessionConfig,
+from advanced_alchemy.config import AsyncSessionConfig
+from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
 )

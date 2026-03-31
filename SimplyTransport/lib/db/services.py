@@ -1,7 +1,7 @@
 import asyncio
 from collections.abc import AsyncGenerator
 
-from litestar.contrib.sqlalchemy.base import UUIDBase
+from advanced_alchemy.base import UUIDBase
 from sqlalchemy import MetaData, text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 

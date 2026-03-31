@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Any
 
-from litestar.contrib.sqlalchemy.base import BigIntAuditBase
+from advanced_alchemy.base import BigIntAuditBase
 from sqlalchemy import DateTime, Index, String, desc
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column

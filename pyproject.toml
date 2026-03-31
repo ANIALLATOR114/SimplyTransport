@@ -53,3 +53,7 @@ venvPath = "."
 pythonpath = [
   "."
 ]
+# pytest-asyncio 1.x: explicit scopes match strict mode + @pytest.mark.asyncio on async tests
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
+asyncio_default_test_loop_scope = "function"
