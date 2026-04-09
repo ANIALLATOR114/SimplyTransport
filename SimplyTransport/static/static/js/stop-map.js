@@ -9,13 +9,17 @@
 		createOsmRasterStyle,
 		LABEL_FONT,
 		MAP_LABEL_BADGE_PAINT,
-		VEHICLE_LABEL_MIN_ZOOM,
 		STOP_LABEL_MIN_ZOOM,
-		VEHICLE_LABEL_TEXT_OFFSET,
+		VEHICLE_INLINE_LABEL_OFFSET,
+		VEHICLE_INLINE_LABEL_PAINT,
 		STOP_LABEL_TEXT_OFFSET,
+		VEHICLE_MAIN_ICON_SIZE,
 		addDefaultMapControls,
 		setLayerVisibility,
+		registerVehicleIconForRoute,
 		startVehiclePulseAnimation,
+		vehicleIconRotateDegreesFromLineString,
+		vehiclePulseIsActive,
 	} = window.MapLibreMapShared;
 
 	const OSM_RASTER_STYLE = createOsmRasterStyle();
@@ -61,6 +65,13 @@
 
 				addDefaultMapControls(map);
 
+				const routeCoordinatesById = {};
+				for (const route of payload.routes) {
+					if (route.line && Array.isArray(route.line.coordinates)) {
+						routeCoordinatesById[route.route_id] = route.line.coordinates;
+					}
+				}
+
 				const stopsGeojson = {
 					type: "FeatureCollection",
 					features: payload.stops.map((s) => ({
@@ -96,7 +107,17 @@
 										route_short_name: v.route_short_name,
 										agency_name: v.agency_name,
 										time_of_update: v.time_of_update,
+										pulse_active: vehiclePulseIsActive(
+											v.time_of_update,
+										),
 										map_direction: payload.direction,
+										heading_deg:
+											vehicleIconRotateDegreesFromLineString(
+												routeCoordinatesById[v.route_id] ||
+													[],
+												v.lon,
+												v.lat,
+											),
 									},
 								})),
 							};
@@ -187,38 +208,52 @@
 							data: vehiclesGeojson,
 						});
 						payload.routes.forEach((route) => {
+							const iconId = registerVehicleIconForRoute(
+								map,
+								route.route_id,
+								route.color,
+							);
 							const pid = `vehicle-pulse-${route.route_id}`;
 							map.addLayer({
 								id: pid,
 								type: "circle",
 								source: "vehicles-src",
-								filter: ["==", ["get", "route_id"], route.route_id],
+								filter: [
+									"all",
+									["==", ["get", "route_id"], route.route_id],
+									["==", ["get", "pulse_active"], true],
+								],
 								paint: {
-									"circle-radius": 12,
+									"circle-radius": 11,
 									"circle-color": ["get", "color"],
-									"circle-opacity": 0.2,
-									"circle-blur": 0.35,
+									"circle-opacity": 0.28,
+									"circle-blur": 0.42,
 								},
 							});
 							map.addLayer({
 								id: `vehicle-${route.route_id}`,
-								type: "circle",
+								type: "symbol",
 								source: "vehicles-src",
 								filter: ["==", ["get", "route_id"], route.route_id],
+								layout: {
+									"icon-image": iconId,
+									"icon-size": VEHICLE_MAIN_ICON_SIZE,
+									"icon-allow-overlap": true,
+									"icon-ignore-placement": true,
+									"icon-rotation-alignment": "map",
+									"icon-rotate": ["get", "heading_deg"],
+								},
 								paint: {
-									"circle-radius": 8,
-									"circle-color": ["get", "color"],
-									"circle-stroke-width": 2,
-									"circle-stroke-color": "#111827",
+									"icon-opacity": 1,
 								},
 							});
 							map.addLayer({
 								id: `vehicle-label-${route.route_id}`,
 								type: "symbol",
 								source: "vehicles-src",
-								minzoom: VEHICLE_LABEL_MIN_ZOOM,
 								filter: ["==", ["get", "route_id"], route.route_id],
 								layout: {
+									"text-rotation-alignment": "viewport",
 									"text-field": [
 										"to-string",
 										[
@@ -228,20 +263,27 @@
 											"",
 										],
 									],
-									"text-size": 12,
-									"text-offset": VEHICLE_LABEL_TEXT_OFFSET,
-									"text-anchor": "top",
+									"text-size": 11,
+									"text-offset": VEHICLE_INLINE_LABEL_OFFSET,
+									"text-anchor": "center",
 									"text-allow-overlap": true,
+									"text-ignore-placement": true,
 									"text-font": LABEL_FONT,
 								},
-								paint: MAP_LABEL_BADGE_PAINT,
+								paint: VEHICLE_INLINE_LABEL_PAINT,
 							});
 						});
-						startVehiclePulseAnimation(map, () =>
-							payload.routes
-								.map((r) => `vehicle-pulse-${r.route_id}`)
-								.filter((id) => map.getLayer(id)),
-						);
+						if (
+							vehiclesGeojson.features.some(
+								(f) => f.properties.pulse_active === true,
+							)
+						) {
+							startVehiclePulseAnimation(map, () =>
+								payload.routes
+									.map((r) => `vehicle-pulse-${r.route_id}`)
+									.filter((id) => map.getLayer(id)),
+							);
+						}
 					}
 
 					map.addLayer({

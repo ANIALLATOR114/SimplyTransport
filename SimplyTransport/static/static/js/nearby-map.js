@@ -30,7 +30,9 @@
         MAP_LABEL_BADGE_PAINT,
         STOP_LABEL_MIN_ZOOM,
         STOP_LABEL_TEXT_OFFSET,
+        MONO_MARKER_IMAGE_ID,
         addDefaultMapControls,
+        loadMonoMarkerImage,
     } = window.MapLibreMapShared;
 
     const OSM_RASTER_STYLE = createOsmRasterStyle();
@@ -116,6 +118,7 @@
                 });
 
                 map.on("load", () => {
+                    loadMonoMarkerImage(map, (monoOk) => {
                     map.addSource("radius-src", {
                         type: "geojson",
                         data: circleFeat,
@@ -144,17 +147,31 @@
                         type: "geojson",
                         data: userPoint,
                     });
-                    map.addLayer({
-                        id: "user-loc",
-                        type: "circle",
-                        source: "user-src",
-                        paint: {
-                            "circle-radius": 9,
-                            "circle-color": "#dc2626",
-                            "circle-stroke-width": 2,
-                            "circle-stroke-color": "#ffffff",
-                        },
-                    });
+                    if (monoOk && map.hasImage(MONO_MARKER_IMAGE_ID)) {
+                        map.addLayer({
+                            id: "user-loc",
+                            type: "symbol",
+                            source: "user-src",
+                            layout: {
+                                "icon-image": MONO_MARKER_IMAGE_ID,
+                                "icon-size": 0.48,
+                                "icon-anchor": "bottom",
+                                "icon-allow-overlap": true,
+                            },
+                        });
+                    } else {
+                        map.addLayer({
+                            id: "user-loc",
+                            type: "circle",
+                            source: "user-src",
+                            paint: {
+                                "circle-radius": 9,
+                                "circle-color": "#dc2626",
+                                "circle-stroke-width": 2,
+                                "circle-stroke-color": "#ffffff",
+                            },
+                        });
+                    }
 
                     map.addSource("stops-src", {
                         type: "geojson",
@@ -229,6 +246,7 @@
                     map.on("mouseleave", "stops-labels-nearby", () => {
                         map.getCanvas().style.cursor = "";
                     });
+                });
                 });
             })
             .catch(() => {
