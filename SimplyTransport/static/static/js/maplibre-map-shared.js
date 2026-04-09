@@ -197,6 +197,113 @@
 	}
 
 	/**
+	 * Initial bearing from (lon1,lat1) to (lon2,lat2), degrees clockwise from true north [0, 360).
+	 * @param {number} lon1
+	 * @param {number} lat1
+	 * @param {number} lon2
+	 * @param {number} lat2
+	 * @returns {number}
+	 */
+	function bearingDegreesClockwiseFromNorth(lon1, lat1, lon2, lat2) {
+		const φ1 = (lat1 * Math.PI) / 180;
+		const φ2 = (lat2 * Math.PI) / 180;
+		const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+		const y = Math.sin(Δλ) * Math.cos(φ2);
+		const x =
+			Math.cos(φ1) * Math.sin(φ2) -
+			Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+		const θ = Math.atan2(y, x);
+		const deg = (θ * 180) / Math.PI;
+		return ((deg % 360) + 360) % 360;
+	}
+
+	/**
+	 * Squared distance from planar point P to segment AB (same units; used for nearest-segment only).
+	 */
+	function distanceSqPointToSegmentPlanar(px, py, ax, ay, bx, by) {
+		const abx = bx - ax;
+		const aby = by - ay;
+		const apx = px - ax;
+		const apy = py - ay;
+		const abLenSq = abx * abx + aby * aby;
+		if (abLenSq < 1e-22) {
+			const dx = px - ax;
+			const dy = py - ay;
+			return dx * dx + dy * dy;
+		}
+		let t = (apx * abx + apy * aby) / abLenSq;
+		t = Math.max(0, Math.min(1, t));
+		const cx = ax + t * abx;
+		const cy = ay + t * aby;
+		const dx = px - cx;
+		const dy = py - cy;
+		return dx * dx + dy * dy;
+	}
+
+	/**
+	 * Bearing along polyline starting near segIndex; skips degenerate segments.
+	 * @param {number[][]} coords — [lon, lat] pairs
+	 * @param {number} segIndex
+	 * @returns {number | null}
+	 */
+	function bearingAlongLineAtSegmentIndex(coords, segIndex) {
+		const n = coords.length;
+		if (segIndex < 0 || segIndex >= n - 1) {
+			return null;
+		}
+		for (let i = segIndex; i < n - 1; i++) {
+			const a = coords[i];
+			const b = coords[i + 1];
+			const dl = a[0] - b[0];
+			const dφ = a[1] - b[1];
+			if (dl * dl + dφ * dφ > 1e-20) {
+				return bearingDegreesClockwiseFromNorth(a[0], a[1], b[0], b[1]);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * MapLibre `icon-rotate` (degrees clockwise from north) for the vehicle chevron, which is drawn
+	 * pointing east at 0° rotation. Uses nearest segment on the route LineString to the vehicle point.
+	 *
+	 * @param {number[][] | null | undefined} coordinates — GeoJSON LineString [lon, lat] positions
+	 * @param {number} lon
+	 * @param {number} lat
+	 * @returns {number}
+	 */
+	function vehicleIconRotateDegreesFromLineString(coordinates, lon, lat) {
+		if (!coordinates || coordinates.length < 2) {
+			return 0;
+		}
+		const refLat = lat;
+		const k = Math.cos((refLat * Math.PI) / 180);
+		const px = lon * k;
+		const py = lat;
+		let bestI = 0;
+		let bestD = Infinity;
+		for (let i = 0; i < coordinates.length - 1; i++) {
+			const a = coordinates[i];
+			const b = coordinates[i + 1];
+			const ax = a[0] * k;
+			const ay = a[1];
+			const bx = b[0] * k;
+			const by = b[1];
+			const dsq = distanceSqPointToSegmentPlanar(px, py, ax, ay, bx, by);
+			if (dsq < bestD) {
+				bestD = dsq;
+				bestI = i;
+			}
+		}
+		const bearingNorth = bearingAlongLineAtSegmentIndex(coordinates, bestI);
+		if (bearingNorth == null) {
+			return 0;
+		}
+		/* Chevron asset points east (90° from north); MapLibre rotates CW from north. */
+		return ((bearingNorth - 90) % 360 + 360) % 360;
+	}
+
+	/**
 	 * Draw a route-colored chevron (rounded body + triangle) pointing east; returns ImageData for MapLibre.
 	 * @param {string} fillColor — hex or css color
 	 * @returns {ImageData}
@@ -318,5 +425,6 @@
 		sanitizeRouteIdForImageKey,
 		registerVehicleIconForRoute,
 		startVehiclePulseAnimation,
+		vehicleIconRotateDegreesFromLineString,
 	};
 })(window);

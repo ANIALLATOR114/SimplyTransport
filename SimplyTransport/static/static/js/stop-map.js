@@ -18,6 +18,7 @@
 		setLayerVisibility,
 		registerVehicleIconForRoute,
 		startVehiclePulseAnimation,
+		vehicleIconRotateDegreesFromLineString,
 		vehiclePulseIsActive,
 	} = window.MapLibreMapShared;
 
@@ -64,6 +65,13 @@
 
 				addDefaultMapControls(map);
 
+				const routeCoordinatesById = {};
+				for (const route of payload.routes) {
+					if (route.line && Array.isArray(route.line.coordinates)) {
+						routeCoordinatesById[route.route_id] = route.line.coordinates;
+					}
+				}
+
 				const stopsGeojson = {
 					type: "FeatureCollection",
 					features: payload.stops.map((s) => ({
@@ -103,6 +111,13 @@
 											v.time_of_update,
 										),
 										map_direction: payload.direction,
+										heading_deg:
+											vehicleIconRotateDegreesFromLineString(
+												routeCoordinatesById[v.route_id] ||
+													[],
+												v.lon,
+												v.lat,
+											),
 									},
 								})),
 							};
@@ -226,7 +241,7 @@
 									"icon-allow-overlap": true,
 									"icon-ignore-placement": true,
 									"icon-rotation-alignment": "map",
-									"icon-rotate": 0,
+									"icon-rotate": ["get", "heading_deg"],
 								},
 								paint: {
 									"icon-opacity": 1,
@@ -238,6 +253,7 @@
 								source: "vehicles-src",
 								filter: ["==", ["get", "route_id"], route.route_id],
 								layout: {
+									"text-rotation-alignment": "viewport",
 									"text-field": [
 										"to-string",
 										[

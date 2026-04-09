@@ -18,6 +18,7 @@
         setLayerVisibility,
         registerVehicleIconForRoute,
         startVehiclePulseAnimation,
+        vehicleIconRotateDegreesFromLineString,
         vehiclePulseIsActive,
     } = window.MapLibreMapShared;
 
@@ -75,6 +76,10 @@
                 addDefaultMapControls(map);
 
                 const r = payload.route;
+                const routeLineCoords =
+                    r.line && Array.isArray(r.line.coordinates)
+                        ? r.line.coordinates
+                        : [];
                 const stopsGeojson = {
                     type: "FeatureCollection",
                     features: payload.stops.map((s) => ({
@@ -114,6 +119,12 @@
                                           v.time_of_update,
                                       ),
                                       map_direction: payload.direction,
+                                      heading_deg:
+                                          vehicleIconRotateDegreesFromLineString(
+                                              routeLineCoords,
+                                              v.lon,
+                                              v.lat,
+                                          ),
                                   },
                               })),
                           };
@@ -200,7 +211,7 @@
                                 "icon-allow-overlap": true,
                                 "icon-ignore-placement": true,
                                 "icon-rotation-alignment": "map",
-                                "icon-rotate": 0,
+                                "icon-rotate": ["get", "heading_deg"],
                             },
                             paint: {
                                 "icon-opacity": 1,
@@ -212,6 +223,7 @@
                             source: "vehicles-src",
                             filter: ["==", ["get", "route_id"], r.route_id],
                             layout: {
+                                "text-rotation-alignment": "viewport",
                                 "text-field": [
                                     "to-string",
                                     [
