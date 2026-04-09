@@ -367,12 +367,22 @@
 	}
 
 	/**
+	 * @param {string} color — hex or css color (included in cache key so updates apply if color changes)
+	 * @returns {string} safe fragment for image id
+	 */
+	function sanitizeColorForImageKey(color) {
+		const s = color != null && color !== "" ? String(color) : "default";
+		return s.replace(/[^a-zA-Z0-9_-]/g, "_");
+	}
+
+	/**
 	 * Register a chevron bitmap for this route id + color (idempotent per map).
 	 * @returns {string} MapLibre image id
 	 */
 	function registerVehicleIconForRoute(map, routeId, color) {
-		const key = sanitizeRouteIdForImageKey(routeId);
-		const id = `vehicle-icon-${key}`;
+		const rid = sanitizeRouteIdForImageKey(routeId);
+		const cid = sanitizeColorForImageKey(color);
+		const id = `vehicle-icon-${rid}-${cid}`;
 		if (map.hasImage(id)) {
 			return id;
 		}
