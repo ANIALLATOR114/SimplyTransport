@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, cast
+from typing import Annotated, Literal
 
 from advanced_alchemy.filters import OrderBy
 from litestar.params import QueryParameter
@@ -15,7 +15,7 @@ async def provide_order_by_shapes(
         ),
     ] = "sequence",
     sort_order: Annotated[
-        str,
+        Literal["asc", "desc"],
         QueryParameter(
             name="sortOrder",
             examples=[examples.e_asc, examples.e_desc],
@@ -30,13 +30,8 @@ async def provide_order_by_shapes(
     ----------
     field_name : str
         Field to order on.
-    sort_order : str
+    sort_order : Literal["asc", "desc"]
         Direction to sort.
     """
 
-    if sort_order not in ["asc", "desc"]:
-        sort_order = "asc"
-
-    sort_order_literal = cast(Literal["asc", "desc"], sort_order)
-
-    return OrderBy(field_name, sort_order_literal)
+    return OrderBy(field_name, sort_order)
