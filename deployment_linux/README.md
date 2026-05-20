@@ -37,4 +37,4 @@ sudo apt install -y build-essential python3-dev
 
 Then install app dependencies from the project root as usual. With `libpq-dev` installed, a fallback source build of the client can succeed; with a matching **wheel** for your Python version, `psycopg2-binary` installs without compiling.
 
-`deploy.sh` only runs `git pull` and restarts Supervisor; it does not upgrade Python or reinstall dependencies—do that after pulling when you change the runtime version.
+`deploy.sh` runs `git pull`, `uv pip install -r requirements-top-level.txt` into `venv`, then restarts Supervisor. It does not upgrade the Python interpreter—recreate `venv` manually when you change the runtime version (see above).
