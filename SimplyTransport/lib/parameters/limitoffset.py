@@ -1,16 +1,12 @@
-from litestar.params import Parameter
-from litestar.repository.filters import LimitOffset
+from typing import Annotated
+
+from advanced_alchemy.filters import LimitOffset
+from litestar.params import QueryParameter
 
 
 async def provide_limit_offset_pagination(
-    current_page: int = Parameter(ge=1, query="currentPage", default=1, required=False),
-    page_size: int = Parameter(
-        query="pageSize",
-        ge=1,
-        le=100,
-        default=20,
-        required=False,
-    ),
+    current_page: Annotated[int, QueryParameter(name="currentPage", ge=1)] = 1,
+    page_size: Annotated[int, QueryParameter(name="pageSize", ge=1, le=100)] = 20,
 ) -> LimitOffset:
     """Add offset/limit pagination.
 

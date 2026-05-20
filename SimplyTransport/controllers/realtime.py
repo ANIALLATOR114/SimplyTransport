@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from advanced_alchemy.exceptions import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
+from litestar.params import FromPath, FromQuery
 from litestar.response import Template
 
 from SimplyTransport.lib.cache_keys import (
@@ -45,7 +46,7 @@ class RealtimeController(Controller):
     )
     async def realtime_stop(
         self,
-        stop_id: str,
+        stop_id: FromPath[str],
         stop_repo: StopRepository,
         route_repo: RouteRepository,
     ) -> Template:
@@ -79,7 +80,7 @@ class RealtimeController(Controller):
     )
     async def realtime_stop_table(
         self,
-        stop_id: str,
+        stop_id: FromPath[str],
         stop_repo: StopRepository,
         schedule_service: ScheduleService,
         realtime_service: RealTimeService,
@@ -128,9 +129,9 @@ class RealtimeController(Controller):
     )
     async def realtime_stop_schedule(
         self,
-        stop_id: str,
+        stop_id: FromPath[str],
         schedule_service: ScheduleService,
-        day: DayOfWeek | None = None,
+        day: FromQuery[DayOfWeek | None] = None,
     ) -> Template:
         if day is None:
             day = DayOfWeek(datetime.now().weekday())
@@ -155,8 +156,8 @@ class RealtimeController(Controller):
     )
     async def realtime_route(
         self,
-        route_id: str,
-        direction: Direction,
+        route_id: FromPath[str],
+        direction: FromPath[Direction],
         route_repo: RouteRepository,
         stop_repo: StopRepository,
     ) -> Template:
@@ -183,7 +184,7 @@ class RealtimeController(Controller):
     )
     async def realtime_trip(
         self,
-        trip_id: str,
+        trip_id: FromPath[str],
         schedule_service: ScheduleService,
         realtime_service: RealTimeService,
     ) -> Template:

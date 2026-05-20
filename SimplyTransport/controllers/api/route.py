@@ -1,8 +1,10 @@
+from typing import Annotated
+
 from advanced_alchemy.exceptions import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
-from litestar.params import Parameter
+from litestar.params import FromPath, QueryParameter
 
 from SimplyTransport.api_contract.route import Route, RouteWithTotal
 
@@ -25,9 +27,10 @@ class RouteController(Controller):
     async def get_all_routes(
         self,
         repo: RouteRepository,
-        agency_id: str | None = Parameter(
-            query="agencyId", required=False, description="Optional: Agency ID to filter by"
-        ),
+        agency_id: Annotated[
+            str | None,
+            QueryParameter(name="agencyId", description="Optional: Agency ID to filter by"),
+        ] = None,
     ) -> list[Route]:
         if agency_id:
             result = await repo.list(agency_id=agency_id)
@@ -46,9 +49,10 @@ class RouteController(Controller):
     async def get_all_routes_and_count(
         self,
         repo: RouteRepository,
-        agency_id: str | None = Parameter(
-            query="agencyId", required=False, description="Optional: Agency ID to filter by"
-        ),
+        agency_id: Annotated[
+            str | None,
+            QueryParameter(name="agencyId", description="Optional: Agency ID to filter by"),
+        ] = None,
     ) -> RouteWithTotal:
         if agency_id:
             result, total = await repo.list_and_count(agency_id=agency_id)
@@ -59,7 +63,7 @@ class RouteController(Controller):
         return RouteWithTotal(total=total, routes=[Route.model_validate(obj) for obj in result])
 
     @get("/{id:str}", summary="Route by ID", raises=[NotFoundException])
-    async def get_route_by_id(self, repo: RouteRepository, id: str) -> Route:
+    async def get_route_by_id(self, repo: RouteRepository, id: FromPath[str]) -> Route:
         try:
             result = await repo.get(id)
         except NotFoundError as e:

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from litestar.contrib.jinja import JinjaTemplateEngine
+from litestar.plugins.jinja import JinjaTemplateEngine
 from litestar.template.config import TemplateConfig
 
 from .constants import APP_DIR, TEMPLATE_DIR

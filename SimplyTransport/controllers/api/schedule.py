@@ -1,9 +1,9 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import ValidationException
-from litestar.params import Parameter
+from litestar.params import FromPath
 
 from SimplyTransport.api_contract.schedule import StaticSchedule
 
@@ -12,17 +12,10 @@ from ...domain.services.schedule_service import (
     ScheduleService,
     provide_schedule_service,
 )
+from ...lib.parameters.time_query import DayQuery, EndTimeQuery, StartTimeQuery
 from ...lib.time_date_conversions import return_time_difference
 
 __all__ = ["ScheduleController"]
-
-START_TIME_PARAM = Parameter(
-    required=False, description="Start time, defaults to 10 minutes ago\n\nExample: 10:00:00"
-)
-END_TIME_PARAM = Parameter(
-    required=False, description="End time, defaults to 60 minutes from now\n\nExample: 11:00:00"
-)
-DAY_PARAM = Parameter(required=False, description="Day of week, defaults to today")
 
 
 class ScheduleController(Controller):
@@ -34,10 +27,10 @@ class ScheduleController(Controller):
     async def get_schedule_by_stop_id(
         self,
         schedule_service: ScheduleService,
-        stop_id: str,
-        start_time: time | None = START_TIME_PARAM,
-        end_time: time | None = END_TIME_PARAM,
-        day: DayOfWeek | None = DAY_PARAM,
+        stop_id: FromPath[str],
+        start_time: StartTimeQuery = None,
+        end_time: EndTimeQuery = None,
+        day: DayQuery = None,
     ) -> list[StaticSchedule]:
         """Returns a list of schedules for the given stop_id"""
 

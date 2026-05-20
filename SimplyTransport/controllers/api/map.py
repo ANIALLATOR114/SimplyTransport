@@ -1,8 +1,10 @@
+from typing import Annotated
+
 from advanced_alchemy.exceptions import NotFoundError
 from litestar import Controller, MediaType, Request, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException, ValidationException
-from litestar.params import Parameter
+from litestar.params import FromPath, QueryParameter
 
 from SimplyTransport.api_contract.map_payloads import (
     AgencyRoutesMapPayload,
@@ -22,7 +24,7 @@ _MAP_JSON_VEHICLE_TTL_S = 120
 
 
 def _nearby_map_cache_key_builder(request: Request) -> str:
-    """Match Parameter default for radius_meters when the query omits it."""
+    """Match QueryParameter default for radius_meters when the query omits it."""
     radius = request.query_params.get("radius_meters")
     if radius is None:
         radius = "1200"
@@ -52,15 +54,17 @@ class MapController(Controller):
     async def nearby_map_data(
         self,
         map_service: MapService,
-        latitude: float = Parameter(query="latitude", required=True, description="Latitude"),
-        longitude: float = Parameter(query="longitude", required=True, description="Longitude"),
-        radius_meters: int = Parameter(
-            query="radius_meters",
-            default=1200,
-            ge=1,
-            le=1500,
-            description="Search radius in meters (1–1500). Defaults to 1200.",
-        ),
+        latitude: Annotated[float, QueryParameter(name="latitude", description="Latitude")],
+        longitude: Annotated[float, QueryParameter(name="longitude", description="Longitude")],
+        radius_meters: Annotated[
+            int,
+            QueryParameter(
+                name="radius_meters",
+                ge=1,
+                le=1500,
+                description="Search radius in meters (1–1500). Defaults to 1200.",
+            ),
+        ] = 1200,
     ) -> NearbyMapPayload:
         return await map_service.build_nearby_map_payload(latitude, longitude, radius_meters)
 
@@ -76,7 +80,7 @@ class MapController(Controller):
         ),
     )
     async def static_stops_map_data(
-        self, map_type: StaticStopMapTypes, map_service: MapService
+        self, map_type: FromPath[StaticStopMapTypes], map_service: MapService
     ) -> StaticStopsMapPayload:
         return await map_service.build_static_stop_map_payload(map_type)
 
@@ -89,7 +93,7 @@ class MapController(Controller):
         cache=_MAP_JSON_VEHICLE_TTL_S,
         cache_key_builder=key_builder_from_path(CacheKeys.StopMaps.STOP_MAP_KEY_TEMPLATE, "stop_id"),
     )
-    async def stop_map_data(self, stop_id: str, map_service: MapService) -> StopMapPayload:
+    async def stop_map_data(self, stop_id: FromPath[str], map_service: MapService) -> StopMapPayload:
         try:
             payload = await map_service.build_stop_map_payload(stop_id)
         except NotFoundError as e:
@@ -111,7 +115,9 @@ class MapController(Controller):
             CacheKeys.RouteMaps.ROUTE_MAP_KEY_TEMPLATE, "route_id", "direction"
         ),
     )
-    async def route_map_data(self, route_id: str, direction: int, map_service: MapService) -> RouteMapPayload:
+    async def route_map_data(
+        self, route_id: FromPath[str], direction: FromPath[int], map_service: MapService
+    ) -> RouteMapPayload:
         try:
             return await map_service.build_route_map_payload(route_id, direction)
         except NotFoundError as e:
@@ -130,7 +136,9 @@ class MapController(Controller):
             CacheKeys.StaticMaps.STATIC_MAP_AGENCY_ROUTE_KEY_TEMPLATE, "agency_id"
         ),
     )
-    async def agency_routes_map_data(self, agency_id: str, map_service: MapService) -> AgencyRoutesMapPayload:
+    async def agency_routes_map_data(
+        self, agency_id: FromPath[str], map_service: MapService
+    ) -> AgencyRoutesMapPayload:
         try:
             return await map_service.build_agency_routes_map_payload(agency_id)
         except ValueError as e:

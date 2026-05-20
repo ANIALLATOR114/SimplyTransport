@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from advanced_alchemy.exceptions import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
+from litestar.params import FromPath
 from litestar.response import Template
 
 from ..domain.agency.repo import AgencyRepository, provide_agency_repo
@@ -22,7 +23,7 @@ class MapsController(Controller):
     }
 
     @get("/agency/route/{agency_id:str}")
-    async def agency_maps(self, agency_repo: AgencyRepository, agency_id: str) -> Template:
+    async def agency_maps(self, agency_repo: AgencyRepository, agency_id: FromPath[str]) -> Template:
         if agency_id != "All":
             try:
                 agency = await agency_repo.get(agency_id)
@@ -40,11 +41,11 @@ class MapsController(Controller):
         return Template("maps/agency_route.html", context={"agency": agency})
 
     @get("/static/agency/route/{agency_id:str}")
-    async def static_agency_route_map(self, agency_id: str) -> Template:
+    async def static_agency_route_map(self, agency_id: FromPath[str]) -> Template:
         return Template("maps/static/embed_agency_route.html", context={"agency_id": agency_id})
 
     @get("/stop/{map_type:str}")
-    async def stop_maps(self, map_type: str) -> Template:
+    async def stop_maps(self, map_type: FromPath[str]) -> Template:
         try:
             StaticStopMapTypes(map_type)
         except ValueError:
@@ -57,5 +58,5 @@ class MapsController(Controller):
         return Template("maps/stop.html", context={"map_type": map_type})
 
     @get("/static/stop/{map_type:str}")
-    async def static_stop_map(self, map_type: str) -> Template:
+    async def static_stop_map(self, map_type: FromPath[str]) -> Template:
         return Template("maps/static/embed_stop_type.html", context={"map_type": map_type})

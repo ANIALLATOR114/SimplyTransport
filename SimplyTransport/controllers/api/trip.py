@@ -2,6 +2,7 @@ from advanced_alchemy.exceptions import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
+from litestar.params import FromPath
 
 from SimplyTransport.api_contract.trip import Trip, TripsWithTotal
 
@@ -14,7 +15,7 @@ class TripController(Controller):
     dependencies = {"repo": Provide(provide_trip_repo)}
 
     @get("/{id:str}", summary="Trip by ID", raises=[NotFoundException])
-    async def get_trip_by_id(self, repo: TripRepository, id: str) -> Trip:
+    async def get_trip_by_id(self, repo: TripRepository, id: FromPath[str]) -> Trip:
         try:
             result = await repo.get(id)
         except NotFoundError as e:
@@ -26,7 +27,7 @@ class TripController(Controller):
         summary="All trips by route id",
         raises=[NotFoundException],
     )
-    async def get_all_trips_by_route_id(self, repo: TripRepository, route_id: str) -> list[Trip]:
+    async def get_all_trips_by_route_id(self, repo: TripRepository, route_id: FromPath[str]) -> list[Trip]:
         try:
             result = await repo.list(route_id=route_id)
         except NotFoundError as e:
@@ -39,7 +40,7 @@ class TripController(Controller):
         raises=[NotFoundException],
     )
     async def get_all_trips_by_route_id_and_count(
-        self, repo: TripRepository, route_id: str
+        self, repo: TripRepository, route_id: FromPath[str]
     ) -> TripsWithTotal:
         try:
             result, total = await repo.list_and_count(route_id=route_id)

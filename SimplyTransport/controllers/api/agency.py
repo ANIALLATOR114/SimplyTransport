@@ -2,6 +2,7 @@ from advanced_alchemy.exceptions import NotFoundError
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
+from litestar.params import FromPath
 
 from SimplyTransport.api_contract.agency import Agency, AgencyWithTotal
 
@@ -24,7 +25,7 @@ class AgencyController(Controller):
         return AgencyWithTotal(total=total, agencies=[Agency.model_validate(obj) for obj in result])
 
     @get("/{id:str}", summary="Agency by ID", raises=[NotFoundException])
-    async def get_agency_by_id(self, repo: AgencyRepository, id: str) -> Agency:
+    async def get_agency_by_id(self, repo: AgencyRepository, id: FromPath[str]) -> Agency:
         try:
             result = await repo.get(id)
         except NotFoundError as e:
