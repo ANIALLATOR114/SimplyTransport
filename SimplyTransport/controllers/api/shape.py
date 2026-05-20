@@ -3,6 +3,7 @@ from typing import Any
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
+from litestar.params import FromPath
 
 from SimplyTransport.api_contract.shape import Shape
 
@@ -20,7 +21,7 @@ class ShapeController(Controller):
 
     @get("/{shape_id:str}", summary="List of Shapes by shape Id", raises=[NotFoundException])
     async def get_shape_by_shape_id(
-        self, repo: ShapeRepository, shape_id: str, order_by_shape: Any
+        self, repo: ShapeRepository, shape_id: FromPath[str], order_by_shape: Any
     ) -> list[Shape]:
         result = await repo.list(order_by_shape, shape_id=shape_id)
         if not result or len(result) == 0:

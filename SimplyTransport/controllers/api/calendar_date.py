@@ -4,6 +4,7 @@ from advanced_alchemy.filters import OnBeforeAfter
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
+from litestar.params import FromPath
 
 from SimplyTransport.api_contract.calendar_date import CalendarDate, CalendarDateWithTotal
 
@@ -32,7 +33,7 @@ class CalendarDateController(Controller):
 
     @get("/{service_id:str}", summary="CalendarDates by service ID", raises=[NotFoundException])
     async def get_calendar_dates_by_id(
-        self, repo: CalendarDateRepository, service_id: str
+        self, repo: CalendarDateRepository, service_id: FromPath[str]
     ) -> list[CalendarDate]:
         result = await repo.list(service_id=service_id)
         if result is None or len(result) == 0:
@@ -45,7 +46,7 @@ class CalendarDateController(Controller):
         description="Date format = YYYY-MM-DD",
     )
     async def get_active_calendar_dates_on_date(
-        self, repo: CalendarDateRepository, date: date
+        self, repo: CalendarDateRepository, date: FromPath[date]
     ) -> list[CalendarDate]:
         start_date = datetime.combine(date, time.min)
         end_date = datetime.combine(date, time.max)

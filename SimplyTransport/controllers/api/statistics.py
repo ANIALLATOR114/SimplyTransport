@@ -3,6 +3,7 @@ import datetime
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
+from litestar.params import FromPath
 
 from SimplyTransport.api_contract.statistics import DatabaseStatistic
 from SimplyTransport.domain.database_statistics.statistic_type import StatisticType
@@ -21,7 +22,7 @@ class StatisticsController(Controller):
         raises=[NotFoundException],
     )
     async def get_statistics_most_recent(
-        self, repo: DatabaseStatisticRepository, key: StatisticType
+        self, repo: DatabaseStatisticRepository, key: FromPath[StatisticType]
     ) -> list[DatabaseStatistic]:
         result = await repo.get_statistics_most_recent_by_type(key)
 
@@ -37,7 +38,7 @@ class StatisticsController(Controller):
         raises=[NotFoundException],
     )
     async def get_statistics_by_day(
-        self, repo: DatabaseStatisticRepository, key: StatisticType, date: datetime.date
+        self, repo: DatabaseStatisticRepository, key: FromPath[StatisticType], date: FromPath[datetime.date]
     ) -> list[DatabaseStatistic]:
         result = await repo.get_statistics_by_type_and_date(key, date)
 

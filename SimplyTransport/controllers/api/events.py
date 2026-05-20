@@ -1,10 +1,10 @@
-from typing import Literal
+from typing import Annotated, Literal
 
 from advanced_alchemy.filters import LimitOffset
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
-from litestar.params import Parameter
+from litestar.params import FromPath, QueryParameter
 
 from SimplyTransport.api_contract.events import Event, EventsWithTotal
 from SimplyTransport.domain.events.event_types import EventType
@@ -26,9 +26,10 @@ class EventsController(Controller):
         self,
         repo: EventRepository,
         limit_offset: LimitOffset,
-        order: Literal["desc", "asc"] = Parameter(
-            required=False, description="Order by descending or ascending", default="desc"
-        ),
+        order: Annotated[
+            Literal["desc", "asc"],
+            QueryParameter(description="Order by descending or ascending"),
+        ] = "desc",
     ) -> EventsWithTotal:
         result, total = await repo.get_paginated_events_with_total(limit_offset, order)
 
@@ -45,11 +46,12 @@ class EventsController(Controller):
     async def get_events_by_type(
         self,
         repo: EventRepository,
-        type: EventType,
+        type: FromPath[EventType],
         limit_offset: LimitOffset,
-        order: Literal["desc", "asc"] = Parameter(
-            required=False, description="Order by descending or ascending", default="desc"
-        ),
+        order: Annotated[
+            Literal["desc", "asc"],
+            QueryParameter(description="Order by descending or ascending"),
+        ] = "desc",
     ) -> EventsWithTotal:
         result, total = await repo.get_paginated_events_by_type_with_total(type, limit_offset, order)
 
@@ -66,7 +68,7 @@ class EventsController(Controller):
     async def get_most_recent_event_by_type(
         self,
         repo: EventRepository,
-        type: EventType,
+        type: FromPath[EventType],
     ) -> Event:
         result = await repo.get_most_recent_event_by_type(type)
 

@@ -1,10 +1,11 @@
 import math
+from typing import Annotated
 
 from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import LimitOffset
 from litestar import Controller, get
 from litestar.di import Provide
-from litestar.params import Parameter
+from litestar.params import QueryParameter
 from litestar.response import Template
 
 from ..domain.route.repo import RouteRepository, provide_route_repo
@@ -27,9 +28,10 @@ class SearchController(Controller):
         self,
         stop_repo: StopRepository,
         limit_offset: LimitOffset,
-        search: str = Parameter(
-            query="search", required=True, description="Search string to search by name or code"
-        ),
+        search: Annotated[
+            str,
+            QueryParameter(name="search", description="Search string to search by name or code"),
+        ],
     ) -> Template:
         try:
             stops, total = await stop_repo.list_by_name_or_code(search=search, limit_offset=limit_offset)
@@ -57,8 +59,8 @@ class SearchController(Controller):
     @get("/stops/nearby")
     async def stops_nearby(
         self,
-        latitude: float = Parameter(query="latitude", required=True, description="Latitude of the user"),
-        longitude: float = Parameter(query="longitude", required=True, description="Longitude of the user"),
+        latitude: Annotated[float, QueryParameter(name="latitude", description="Latitude of the user")],
+        longitude: Annotated[float, QueryParameter(name="longitude", description="Longitude of the user")],
     ) -> Template:
         return Template(
             "gtfs_search/stop_nearby.html",
@@ -73,9 +75,10 @@ class SearchController(Controller):
         self,
         route_repo: RouteRepository,
         limit_offset: LimitOffset,
-        search: str = Parameter(
-            query="search", required=True, description="Search string to search by name or code"
-        ),
+        search: Annotated[
+            str,
+            QueryParameter(name="search", description="Search string to search by name or code"),
+        ],
     ) -> Template:
         try:
             routes, total = await route_repo.list_by_short_name_or_long_name(

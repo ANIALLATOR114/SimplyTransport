@@ -5,6 +5,7 @@ from advanced_alchemy.filters import OnBeforeAfter
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
+from litestar.params import FromPath
 
 from SimplyTransport.api_contract.calendar import Calendar, CalendarWithTotal
 
@@ -27,7 +28,7 @@ class CalendarController(Controller):
         return CalendarWithTotal(total=total, calendars=[Calendar.model_validate(obj) for obj in result])
 
     @get("/{id:str}", summary="Calendar by service ID", raises=[NotFoundException])
-    async def get_calendar_by_id(self, repo: CalendarRepository, id: str) -> Calendar:
+    async def get_calendar_by_id(self, repo: CalendarRepository, id: FromPath[str]) -> Calendar:
         try:
             result = await repo.get(id)
         except NotFoundError as e:
@@ -39,7 +40,9 @@ class CalendarController(Controller):
         summary="All active calendars on a given date",
         description="Date format = YYYY-MM-DD",
     )
-    async def get_active_calendars_on_date(self, repo: CalendarRepository, date: date) -> list[Calendar]:
+    async def get_active_calendars_on_date(
+        self, repo: CalendarRepository, date: FromPath[date]
+    ) -> list[Calendar]:
         start_date = datetime.combine(date, time.min)
         end_date = datetime.combine(date, time.max)
 

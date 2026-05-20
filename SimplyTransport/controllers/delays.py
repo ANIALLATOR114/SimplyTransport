@@ -1,5 +1,6 @@
 from litestar import Controller, get
 from litestar.di import Provide
+from litestar.params import FromPath
 from litestar.response import Template
 
 from SimplyTransport.lib.cache_keys import CacheKeys, key_builder_from_path
@@ -22,7 +23,7 @@ class DelaysController(Controller):
     )
     async def delays_route(
         self,
-        route_code: str,
+        route_code: FromPath[str],
         repo: TSStopTimeRepository,
     ) -> Template:
         result = await repo.get_aggregated_delay_on_stop_on_route_on_time(route_code=route_code)

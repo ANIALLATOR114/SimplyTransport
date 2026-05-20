@@ -1,21 +1,26 @@
-from typing import Literal, cast
+from typing import Annotated, Literal, cast
 
-from litestar.params import Parameter
-from litestar.repository.filters import OrderBy
+from advanced_alchemy.filters import OrderBy
+from litestar.params import QueryParameter
 
 from . import examples
 
 
 async def provide_order_by_shapes(
-    field_name: str = Parameter(
-        query="orderBy",
-        default="sequence",
-        required=False,
-        examples=[examples.e_sequence, examples.e_distance],
-    ),
-    sort_order: str = Parameter(
-        query="sortOrder", default="asc", required=False, examples=[examples.e_asc, examples.e_desc]
-    ),
+    field_name: Annotated[
+        str,
+        QueryParameter(
+            name="orderBy",
+            examples=[examples.e_sequence, examples.e_distance],
+        ),
+    ] = "sequence",
+    sort_order: Annotated[
+        str,
+        QueryParameter(
+            name="sortOrder",
+            examples=[examples.e_asc, examples.e_desc],
+        ),
+    ] = "asc",
 ) -> OrderBy:
     """Add order by for shapes.
 

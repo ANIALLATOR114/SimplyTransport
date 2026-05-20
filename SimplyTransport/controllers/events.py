@@ -1,13 +1,13 @@
 import math
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Annotated, Literal
 
 from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import LimitOffset
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import ValidationException
-from litestar.params import Parameter
+from litestar.params import QueryParameter
 from litestar.response import Template
 
 from ..domain.events.event_types import EventType
@@ -38,15 +38,17 @@ class EventsController(Controller):
         self,
         event_repo: EventRepository,
         limit_offset: LimitOffset,
-        search_type: str | None = Parameter(
-            query="search_type", required=False, description="Search events by type"
-        ),
-        sort: Literal["asc", "desc"] = Parameter(
-            query="sort",
-            required=False,
-            description="Sort events ascending or descending by creation time",
-            default="desc",
-        ),
+        search_type: Annotated[
+            str | None,
+            QueryParameter(name="search_type", description="Search events by type"),
+        ] = None,
+        sort: Annotated[
+            Literal["asc", "desc"],
+            QueryParameter(
+                name="sort",
+                description="Sort events ascending or descending by creation time",
+            ),
+        ] = "desc",
     ) -> Template:
         if search_type is None or search_type == ALL_EVENTS:
             search_type = ALL_EVENTS
